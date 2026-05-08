@@ -7,15 +7,20 @@ let apiBase = import.meta.env.VITE_API_BASE_URL || '';
 if (!isNative) {
     apiBase = ''; // Force relative paths on Web to completely avoid CORS/SSL mismatch across different IPs
 } else if (isNative) {
-    // Prevent SSL errors in Capacitor WebView by routing directly to the Node.js backend over HTTP.
-    // This bypasses the Vite dev server proxy (which uses a self-signed basicSsl cert).
-    const platform = (window as any).Capacitor.getPlatform();
-    
-    // Default to the host PC's local IP where the Express backend (port 3001) is running.
-    // If the emulator cannot reach 192.168.x.x, 10.0.2.2 can be used instead.
-    let targetIp = '192.168.0.29'; 
-    
-    apiBase = `http://${targetIp}:3001`; 
+    // Extract the public IP or domain from VITE_API_BASE_URL
+    // Example: https://39.118.249.241.nip.io:3002 -> http://39.118.249.241.nip.io:3001
+    try {
+        if (apiBase) {
+            const url = new URL(apiBase);
+            // Remove .nip.io if it exists to avoid Cellular DNS rebinding blocks
+            let cleanHostname = url.hostname.replace('.nip.io', '');
+            apiBase = `http://${cleanHostname}:3001`;
+        } else {
+            apiBase = `http://192.168.0.29:3001`;
+        }
+    } catch (e) {
+        apiBase = `http://192.168.0.29:3001`;
+    }
 }
 export const API_BASE = apiBase;
 
