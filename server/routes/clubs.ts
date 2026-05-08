@@ -311,13 +311,17 @@ router.get('/:id', optionalAuthenticateToken, async (req: any, res) => {
     if (!club) return res.status(404).json({ error: 'Club not found' });
 
     // Check membership status
-    const membership = await prisma.clubMember.findUnique({
-      where: { clubId_userId: { clubId: id, userId } }
-    });
+    let membership = null;
+    let isBookmarked = null;
+    if (userId) {
+      membership = await prisma.clubMember.findUnique({
+        where: { clubId_userId: { clubId: id, userId } }
+      });
 
-    const isBookmarked = await prisma.clubBookmark.findUnique({
-      where: { clubId_userId: { clubId: id, userId } }
-    });
+      isBookmarked = await prisma.clubBookmark.findUnique({
+        where: { clubId_userId: { clubId: id, userId } }
+      });
+    }
 
     res.json({ ...club, myMembership: membership, isBookmarked: !!isBookmarked });
   } catch (error) {
