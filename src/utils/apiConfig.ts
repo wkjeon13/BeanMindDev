@@ -13,7 +13,7 @@ if (!isNative) {
     // Extract IP from the env var (could be localhost, 127.0.0.1, or 192.168.x.x, or nip.io)
     const ipMatch = apiBase.match(/(\d+\.\d+\.\d+\.\d+|localhost)/);
     
-    if (ipMatch) {
+    if (ipMatch && !apiBase.includes('nip.io') && !apiBase.includes('https://')) {
          let targetIp = ipMatch[1];
          // For Android Emulators, mapping localhost to 10.0.2.2 is necessary.
          // Real devices (physical phones) should use the 192.168.x.x IP explicitly bounded in the .env file.
