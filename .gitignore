@@ -27,6 +27,7 @@ temp_extract/
 !tsconfig.json
 !systemSettings.json
 !ads.json
+!src/locales/**/*.json
 
 # Scratch scripts
 *.py
