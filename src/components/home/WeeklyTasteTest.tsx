@@ -50,7 +50,7 @@ const WeeklyTasteTest = () => {
     const resultData = (WEEKLY_MBTI_DATA.results as any)[resultKey] || WEEKLY_MBTI_DATA.results['default'];
 
     return (
-        <section className="pt-2 pb-4 px-4 border-b border-espresso-800 bg-espresso-950">
+        <section className="px-4 py-2 bg-espresso-950">
             <AnimatePresence mode="wait">
                 {step === -1 && (
                     <motion.div 

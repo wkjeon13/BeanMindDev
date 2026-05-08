@@ -6,24 +6,16 @@ let apiBase = import.meta.env.VITE_API_BASE_URL || '';
 
 if (!isNative) {
     apiBase = ''; // Force relative paths on Web to completely avoid CORS/SSL mismatch across different IPs
-} else if (isNative && apiBase) {
-    // Prevent SSL errors in Capacitor: parse IP from nip.io urls
+} else if (isNative) {
+    // Prevent SSL errors in Capacitor WebView by routing directly to the Node.js backend over HTTP.
+    // This bypasses the Vite dev server proxy (which uses a self-signed basicSsl cert).
     const platform = (window as any).Capacitor.getPlatform();
     
-    // Extract IP from the env var (could be localhost, 127.0.0.1, or 192.168.x.x, or nip.io)
-    const ipMatch = apiBase.match(/(\d+\.\d+\.\d+\.\d+|localhost)/);
+    // Default to the host PC's local IP where the Express backend (port 3001) is running.
+    // If the emulator cannot reach 192.168.x.x, 10.0.2.2 can be used instead.
+    let targetIp = '192.168.0.29'; 
     
-    if (ipMatch && !apiBase.includes('nip.io') && !apiBase.includes('https://')) {
-         let targetIp = ipMatch[1];
-         // For Android Emulators, mapping localhost to 10.0.2.2 is necessary.
-         // Real devices (physical phones) should use the 192.168.x.x IP explicitly bounded in the .env file.
-         if (platform === 'android' && (targetIp === 'localhost' || targetIp === '127.0.0.1')) {
-             targetIp = '10.0.2.2';
-         } else if (targetIp === 'localhost') {
-             targetIp = '127.0.0.1';
-         }
-         apiBase = `http://${targetIp}:3001`; // route directly to node
-    }
+    apiBase = `http://${targetIp}:3001`; 
 }
 export const API_BASE = apiBase;
 

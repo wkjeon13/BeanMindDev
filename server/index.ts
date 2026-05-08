@@ -118,7 +118,6 @@ import clubsRoutes from './routes/clubs.js';
 import adsRoutes from './routes/ads.js';
 import homeRoutes from './routes/home.js';
 import retentionRoutes from './routes/retention.js';
-import retentionRoutes from './routes/retention.js';
 
 // Setup routing
 app.use('/api/auth', authRoutes);
@@ -133,7 +132,6 @@ app.use('/api/community', communityRoutes);
 app.use('/api/clubs', clubsRoutes);
 app.use('/api/ads', adsRoutes);
 app.use('/api/home', homeRoutes);
-app.use('/api/retention', retentionRoutes);
 app.use('/api/retention', retentionRoutes);
 
 // Global Error Handler for Express

@@ -78,7 +78,7 @@ const DailyRoulette = () => {
     if (!status || isHidden) return null;
 
     return (
-        <section className="pt-2 pb-6 px-4 bg-espresso-950">
+        <section className="px-4 py-2 bg-espresso-950">
             {/* 7-Day Streak Progress Bar */}
             <div className="mb-4 bg-espresso-900/60 rounded-2xl p-4 border border-espresso-800 shadow-md">
                 <div className="flex justify-between items-center mb-3">

@@ -52,7 +52,7 @@ const FlashDropBanner = () => {
     const isLive = new Date() >= new Date(activeDrop.startTime) && new Date() < new Date(activeDrop.endTime);
 
     return (
-        <div className="px-4 pb-4 pt-1 bg-espresso-950 border-b border-espresso-800">
+        <div className="px-4 py-2 bg-espresso-950">
             <div className={`relative rounded-2xl overflow-hidden shadow-lg border ${isLive ? 'border-amber-500/50' : 'border-espresso-700'}`}>
                 <img src={activeDrop.imageUrl} alt={activeDrop.title} className="w-full h-[120px] object-cover opacity-80" />
                 <div className="absolute inset-0 bg-gradient-to-r from-espresso-950/90 via-espresso-950/50 to-transparent p-4 flex flex-col justify-center">

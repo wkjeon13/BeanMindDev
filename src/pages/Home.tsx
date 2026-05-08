@@ -514,7 +514,7 @@ export default function HomeDashboard() {
       <PullToRefresh onRefresh={async () => { await fetchHomeData(false); }} className="flex-1 overflow-y-auto pb-24">
         {layoutConfigs.filter(l => l.isVisible).sort((a,b) => a.order - b.order).map(config => {
   if (config.id === 'hero') return (
-        <section key={config.id} className="px-4 pt-6 pb-4">
+        <section key={config.id} className="px-4 py-2">
           <motion.div 
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
@@ -579,7 +579,7 @@ export default function HomeDashboard() {
 
         {/* --- PERSONALIZED SECTIONS --- */}
                       if (config.id === 'following') return isLoggedIn && personalizedData && personalizedData.followingFeeds && personalizedData.followingFeeds.length > 0 && (
-              <section key={config.id} className="pt-4 pb-2">
+              <section key={config.id} className="py-2">
                  <div className="px-4 flex items-center justify-between mb-3">
                    <h3 className="text-[16px] font-bold flex items-center gap-1.5">
                      <Users className="text-blue-500 w-4 h-4" /> {t('home.title_following_news', '내 이웃 & 단골 소식')}
@@ -627,7 +627,7 @@ export default function HomeDashboard() {
       if (config.id === 'weekly_mbti') return <WeeklyTasteTest key={config.id} />;
 
       if (config.id === 'taste_match') return isLoggedIn && personalizedData && personalizedData.tasteMatchedFeeds && personalizedData.tasteMatchedFeeds.length > 0 && (
-              <section key={config.id} className="pt-2 pb-2">
+              <section key={config.id} className="py-2">
                  <div className="px-4 flex items-center justify-between mb-3">
                    <h3 className="text-[16px] font-bold flex items-center gap-1.5">
                      <Sparkles className="text-amber-500 w-4 h-4" /> {t('home.title_taste_match', '{{name}}님 취향 저격 피드', { name: greetingName })}
@@ -659,7 +659,7 @@ export default function HomeDashboard() {
             );
 
             if (config.id === 'my_clubs') return isLoggedIn && personalizedData && personalizedData.myClubFeeds && personalizedData.myClubFeeds.length > 0 && (
-              <section key={config.id} className="pt-2 pb-2">
+              <section key={config.id} className="py-2">
                  <div className="px-4 flex items-center justify-between mb-3">
                    <h3 className="text-[16px] font-bold flex items-center gap-1.5">
                      <Users className="text-emerald-500 w-4 h-4" /> 
@@ -695,7 +695,7 @@ export default function HomeDashboard() {
           // Remove fragments for mapping
 
           if (config.id === 'shorts') return (
-        <section key={config.id} className="pt-2 pb-4">
+        <section key={config.id} className="py-2">
           <div className="px-4 flex items-center justify-between mb-3">
             <h3 className="text-[16px] font-bold flex items-center gap-1.5">
               <Video className="text-amber-500 w-4 h-4" /> {t('home.title_shorts', '1분 커피 탐험')}
@@ -746,7 +746,7 @@ export default function HomeDashboard() {
   );
 
           if (config.id === 'trending') return (
-        <section key={config.id} className="pt-4 pb-2">
+        <section key={config.id} className="py-2">
           <div className="px-4 flex items-center justify-between mb-3">
             <h3 className="text-[16px] font-bold flex items-center gap-1.5">
               <MapPin className="text-amber-500 w-4 h-4" /> {t('home.title_trending_cafes', '요즘 뜨는 성지')}
@@ -795,7 +795,7 @@ export default function HomeDashboard() {
           if (config.id === 'coffee_pairing') return <CoffeePairingSection key={config.id} />;
 
           if (config.id === 'recommended_clubs') return (
-        <section key={config.id} className="pt-2 pb-8">
+        <section key={config.id} className="pt-2 pb-4">
           <div className="px-4 flex items-center justify-between mb-3">
             <h3 className="text-[16px] font-bold flex items-center gap-1.5">
               <Users className="text-amber-500 w-4 h-4" /> {t('home.title_recommended_clubs', '우리 동네 추천 크루')}

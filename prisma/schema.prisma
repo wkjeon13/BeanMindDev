@@ -573,7 +573,7 @@ model Advertiser {
 
 model Contract {
   id           String     @id @default(uuid())
-  name         String?    // Added to display a recognizable contract name in UI
+  name         String? // Added to display a recognizable contract name in UI
   advertiserId String
   advertiser   Advertiser @relation(fields: [advertiserId], references: [id])
 
@@ -938,15 +938,15 @@ model DailyCheckIn {
 }
 
 model FlashDrop {
-  id            String   @id @default(uuid())
-  title         String
-  description   String   @db.Text
-  imageUrl      String   @db.LongText
-  linkUrl       String?
-  startTime     DateTime
-  endTime       DateTime
-  maxQuantity   Int      @default(0)
-  claimedCount  Int      @default(0)
-  status        String   @default("ACTIVE")
-  createdAt     DateTime @default(now())
+  id           String   @id @default(uuid())
+  title        String
+  description  String   @db.Text
+  imageUrl     String   @db.LongText
+  linkUrl      String?
+  startTime    DateTime
+  endTime      DateTime
+  maxQuantity  Int      @default(0)
+  claimedCount Int      @default(0)
+  status       String   @default("ACTIVE")
+  createdAt    DateTime @default(now())
 }
