@@ -496,18 +496,19 @@ export default function HomeDashboard() {
         onSave={handleSaveLayout}
       />
 
-      <header className="shrink-0 z-50 bg-espresso-900/80 backdrop-blur-xl border-b border-espresso-700/80 pt-safe px-4 h-14 flex items-center justify-between">
-        <h1 className="text-[18px] font-extrabold tracking-tight text-espresso-50 flex items-center gap-2">
-          BeanMind
-        </h1>
-        
-        <div className="flex items-center gap-3">
-          <button onClick={() => setIsEditorOpen(true)} className="text-espresso-400 hover:text-amber-500 transition-colors p-1">
-            <Settings size={20} />
-          </button>
-          <Sparkles className="text-amber-500 w-5 h-5" />
+      <header className="shrink-0 z-50 bg-espresso-900/80 backdrop-blur-xl border-b border-espresso-700/80 pt-safe">
+        <div className="px-4 h-14 flex items-center justify-between">
+            <h1 className="text-[18px] font-extrabold tracking-tight text-espresso-50 flex items-center gap-2">
+              BeanMind
+            </h1>
+            
+            <div className="flex items-center gap-3">
+              <button onClick={() => setIsEditorOpen(true)} className="text-espresso-400 hover:text-amber-500 transition-colors p-1">
+                <Settings size={20} />
+              </button>
+              <Sparkles className="text-amber-500 w-5 h-5" />
+            </div>
         </div>
-
       </header>
 
       <PullToRefresh onRefresh={async () => { await fetchHomeData(false); }} className="flex-1 overflow-y-auto pb-24">
