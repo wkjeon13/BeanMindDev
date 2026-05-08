@@ -497,7 +497,7 @@ export default function HomeDashboard() {
       />
 
       <header className="shrink-0 z-50 bg-espresso-900/80 backdrop-blur-xl border-b border-espresso-700/80 pt-safe">
-        <div className="px-4 h-14 flex items-center justify-between">
+        <div className="px-4 py-2.5 flex items-center justify-between">
             <h1 className="text-[18px] font-extrabold tracking-tight text-espresso-50 flex items-center gap-2">
               BeanMind
             </h1>
