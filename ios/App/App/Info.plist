@@ -52,5 +52,9 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>주변 추천 크루와 커피맵 기능을 위해 사용자의 위치 정보가 필요합니다.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>주변 추천 크루와 커피맵 기능을 위해 사용자의 위치 정보가 필요합니다.</string>
 </dict>
 </plist>
