@@ -1993,11 +1993,11 @@ export default function Profile() {
                                         <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700/50/50">
                                             <div className="relative">
                                                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
-                                                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={t('profile.ph_email')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
+                                                <input type="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_email')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
                                             </div>
                                             <div className="relative">
                                                 <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
-                                                <input type="password" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleLogin()} placeholder={t('profile.ph_password')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
+                                                <input type="password" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleLogin()} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_password')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
                                             </div>
                                         </div>
 
@@ -2043,6 +2043,7 @@ export default function Profile() {
                                                     type="email"
                                                     value={email}
                                                     onChange={e => setEmail(e.target.value)}
+                                                    onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
                                                     placeholder={t('profile.ph_email')}
                                                     className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300"
                                                 />
@@ -2086,6 +2087,7 @@ export default function Profile() {
                                                 type="text"
                                                 value={verificationCode}
                                                 onChange={e => setVerificationCode(e.target.value)}
+                                                onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
                                                 placeholder={t('profile.ph_verify_code')}
                                                 className="w-full bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none font-bold"
                                                 maxLength={6}
@@ -2139,16 +2141,16 @@ export default function Profile() {
                                         <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700/50/50">
                                             <div className="relative">
                                                 <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
-                                                <input type="text" value={nickname} onChange={e => setNickname(e.target.value)} placeholder={t('profile.ph_nickname')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
+                                                <input type="text" value={nickname} onChange={e => setNickname(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_nickname')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
                                             </div>
                                             <div className="relative">
                                                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
-                                                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={t('profile.ph_email')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
+                                                <input type="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_email')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
                                             </div>
                                             <div>
                                                 <div className="relative">
                                                     <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
-                                                    <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={t('profile.ph_password')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
+                                                    <input type="password" value={password} onChange={e => setPassword(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_password')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
                                                 </div>
                                                 <p className="text-[11px] text-amber-500/90 pl-3 mt-1.5 mb-1 font-medium tracking-tight">
                                                     {t('profile.password_policy')}
@@ -2156,7 +2158,7 @@ export default function Profile() {
                                             </div>
                                             <div className="relative">
                                                 <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
-                                                <input type="password" value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)} placeholder={t('profile.ph_pw_confirm')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
+                                                <input type="password" value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_pw_confirm')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
                                             </div>
                                         </div>
 
@@ -2275,7 +2277,7 @@ export default function Profile() {
                                         <div className="bg-espresso-950 p-2 rounded-2xl border border-espresso-700/50/50">
                                             <div className="relative">
                                                 <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
-                                                <input type="text" value={nickname} onChange={e => setNickname(e.target.value)} placeholder={t('profile.ph_nickname')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
+                                                <input type="text" value={nickname} onChange={e => setNickname(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_nickname')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
                                             </div>
                                         </div>
 
@@ -2305,7 +2307,7 @@ export default function Profile() {
                                         <div className="bg-espresso-950 p-2 rounded-2xl border border-espresso-700/50/50">
                                             <div className="relative">
                                                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
-                                                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={t('profile.ph_email')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
+                                                <input type="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_email')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
                                             </div>
                                         </div>
 
@@ -2335,12 +2337,12 @@ export default function Profile() {
                                         <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700/50/50">
                                             <div className="relative">
                                                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
-                                                <input type="text" value={verificationCode} onChange={e => setVerificationCode(e.target.value)} placeholder={t('profile.ph_verify_code')} maxLength={6} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold tracking-[0.2em] placeholder:tracking-normal placeholder:font-normal placeholder:text-espresso-300" />
+                                                <input type="text" value={verificationCode} onChange={e => setVerificationCode(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_verify_code')} maxLength={6} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold tracking-[0.2em] placeholder:tracking-normal placeholder:font-normal placeholder:text-espresso-300" />
                                             </div>
                                             <div>
                                                 <div className="relative">
                                                     <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
-                                                    <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={t('profile.ph_new_pw')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
+                                                    <input type="password" value={password} onChange={e => setPassword(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_new_pw')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
                                                 </div>
                                                 <p className="text-[11px] text-amber-500/90 pl-3 mt-1.5 mb-1 font-medium tracking-tight">
                                                     {t('profile.password_policy')}
@@ -2348,7 +2350,7 @@ export default function Profile() {
                                             </div>
                                             <div className="relative">
                                                 <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
-                                                <input type="password" value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)} placeholder={t('profile.ph_new_pw_confirm')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
+                                                <input type="password" value={passwordConfirm} onChange={e => setPasswordConfirm(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_new_pw_confirm')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
                                             </div>
                                         </div>
 
