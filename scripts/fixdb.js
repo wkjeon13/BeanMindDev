@@ -1,0 +1,1 @@
+const sqlite3 = require('sqlite3').verbose(); const db = new sqlite3.Database('./prisma/dev.db'); db.run('UPDATE User SET role = \'HOST\', pointBalance = 1000 WHERE email = \'wkjeon@gmail.com\'', function(err) { if (err) { console.error(err.message); } else { console.log(\'Row(s) updated: \' + this.changes); } db.close(); });

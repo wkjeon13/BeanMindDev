@@ -1,0 +1,1 @@
+import { PrismaClient } from '@prisma/client'; const prisma = new PrismaClient(); async function main() { const c = await prisma.adCreative.findMany({include:{campaign:{include:{contract:true}}}}); console.log(JSON.stringify(c, null, 2)); } main();

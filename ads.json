@@ -1,0 +1,13 @@
+[
+  {
+    "id": "b4354da8-8224-4d91-b2c4-495c2be1c0ea",
+    "title": "콜롬비아 원두 50%",
+    "type": "IMAGE",
+    "size": "SMALL",
+    "content": "https://192.168.0.29.nip.io:3002/images/coffeeTalk_Ad-Global-001.png",
+    "linkUrl": "https://www.naver.com",
+    "placement": "FEED_PREMIUM",
+    "targetCountry": "GLOBAL",
+    "matchScore": 1
+  }
+]

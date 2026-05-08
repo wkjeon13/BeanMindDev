@@ -1,0 +1,6 @@
+{
+  "isHotspotFeatureEnabled": true,
+  "spamRateLimitCount": 4,
+  "spamRateLimitTimeMs": 60000,
+  "autoBlindReportCount": 5
+}

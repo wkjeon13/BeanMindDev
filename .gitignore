@@ -1,0 +1,39 @@
+node_modules/
+build/
+dist/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Prisma local database
+/prisma/*.db
+/prisma/*.db-journal
+/src/generated/prisma
+
+# Large media and uploads
+uploads/
+scratch/
+tmp/
+temp_extract/
+
+# Large archives and temporary dumps
+*.zip
+*.tar.gz
+*.txt
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!systemSettings.json
+!ads.json
+
+# Scratch scripts
+*.py
+*.cjs
+*.mjs
+!vite.config.ts
+!capacitor.config.ts
+
+# OS specific
+Thumbs.db

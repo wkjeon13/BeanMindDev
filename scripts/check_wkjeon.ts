@@ -1,0 +1,1 @@
+import { PrismaClient } from '@prisma/client'; const prisma = new PrismaClient(); async function main() { const user = await prisma.user.findUnique({ where: { email: 'wkjeon@gmail.com' }, select: { email: true, role: true, pointBalance: true, googleId: true } }); console.log(user); } main();

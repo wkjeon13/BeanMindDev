@@ -1,0 +1,1 @@
+import { PrismaClient } from '@prisma/client'; const prisma = new PrismaClient(); async function main() { await prisma.user.update({ where: { email: 'host1@example.com' }, data: { role: 'HOST' as any } }); console.log('Role updated'); } main();
