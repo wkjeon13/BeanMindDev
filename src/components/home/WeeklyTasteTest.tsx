@@ -58,7 +58,7 @@ const WeeklyTasteTest = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, x: -50 }}
-                        className="bg-gradient-to-r from-[#2c1d11] to-[#1a110a] rounded-2xl p-5 shadow-lg border border-espresso-800 cursor-pointer flex justify-between items-center group hover:border-amber-500/50 transition-all"
+                        className="bg-gradient-to-r from-[#3f2a1a] to-[#24170d] rounded-2xl p-5 shadow-lg border border-espresso-700 cursor-pointer flex justify-between items-center group hover:border-amber-500/50 transition-all"
                         onClick={handleStart}
                     >
                         <div>

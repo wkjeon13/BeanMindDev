@@ -292,10 +292,10 @@ export default function ClubList() {
             whileTap={{ scale: 0.98 }}
             key={club.id} 
             onClick={() => navigate(`/clubs/${club.id}`, { state: { club } })}
-            className={`flex items-center gap-4 p-4 rounded-2xl border cursor-pointer transition-colors relative overflow-hidden ${
+            className={`flex items-center gap-4 p-4 rounded-2xl border cursor-pointer transition-colors relative overflow-hidden shadow-sm ${
                 club.isDeleted 
                 ? 'bg-espresso-950 border-red-500/30 opacity-70 hover:opacity-90' 
-                : 'bg-espresso-900/50 border-espresso-700/50 hover:bg-espresso-800'
+                : 'bg-espresso-800/80 border-espresso-600 hover:bg-espresso-700 shadow-espresso-900/50'
             }`}
         >
             <div className={`w-16 h-16 rounded-xl flex items-center justify-center shrink-0 border overflow-hidden relative ${club.isDeleted ? 'bg-espresso-900 border-red-500/20 grayscale' : 'bg-espresso-800 border-espresso-700'}`}>

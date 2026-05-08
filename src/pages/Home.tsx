@@ -527,7 +527,7 @@ export default function HomeDashboard() {
               style={{ backgroundImage: 'url(/images/cinematic_coffee_bg.png)' }}
             />
             {/* Cinematic Overlay Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/50 to-[#0a0604]/90" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/20 to-[#0a0604]/70" />
             
             <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
               <motion.div
