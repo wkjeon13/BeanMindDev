@@ -16,6 +16,9 @@ const config: CapacitorConfig = {
   },
   appendUserAgent: " GoogleAuthApp",
   plugins: {
+    CapacitorHttp: {
+      enabled: true,
+    },
     Keyboard: {
       resize: 'body',
       resizeOnFullScreen: true,
