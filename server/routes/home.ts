@@ -120,7 +120,7 @@ router.get('/personalized', authenticateToken, async (req: any, res) => {
                 take: 30,
                 include: {
                     author: { select: { id: true, nickname: true, profileImageUrl: true } },
-                    club: { select: { id: true, name: true, coverImageUrl: true } },
+                    club: { select: { id: true, name: true, coverImageUrl: true, isRecruiting: true, locationName: true } },
                     _count: { select: { likes: true, comments: true } }
                 }
             });

@@ -696,9 +696,9 @@ export default function HomeDashboard() {
                            <span className="text-[13px] font-black text-emerald-400 tracking-wider drop-shadow-md mb-1">{post.club?.name}</span>
                            <p className="font-bold text-[15px] line-clamp-2 text-white leading-snug drop-shadow-md">{post.content}</p>
                            <div className="flex items-center gap-2 mt-3">
-                               {post.club?.location && (
+                               {post.club?.locationName && (
                                    <span className="text-[11px] text-espresso-200 font-medium flex items-center gap-1 bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm border border-white/10">
-                                       <MapPin size={10} className="text-emerald-500" /> {post.club.location}
+                                       <MapPin size={10} className="text-emerald-500" /> {post.club.locationName}
                                    </span>
                                )}
                                {post.club?.isRecruiting && (
