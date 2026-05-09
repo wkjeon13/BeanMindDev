@@ -54,7 +54,7 @@ const FlashDropBanner = () => {
     return (
         <div className="w-full px-4 py-3">
             <div className="relative w-full h-[110px] rounded-2xl overflow-hidden group cursor-pointer shadow-lg border border-espresso-800/60">
-                <img src={activeDrop.imageUrl} alt={activeDrop.title} className="w-full h-full object-cover transition-transform duration-[15s] group-hover:scale-110" />
+                <img src={'https://images.unsplash.com/photo-1587734195503-904fca47e0e9?auto=format&fit=crop&w=800&q=80'} alt={activeDrop.title} className="w-full h-full object-cover transition-transform duration-[15s] group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent" />
                 <div className="absolute inset-0 px-5 py-3 flex flex-col justify-center">
                     <div className="flex items-center gap-2 mb-1.5">
