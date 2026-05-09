@@ -521,7 +521,7 @@ export default function HomeDashboard() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
             onClick={() => navigate('/curator', { state: { startFresh: true } })}
-            className="relative w-full h-[150px] cursor-pointer group"
+            className="relative w-full min-h-[220px] cursor-pointer group"
           >
             {/* Full Edge-to-Edge Image */}
             <div 
@@ -531,40 +531,56 @@ export default function HomeDashboard() {
             {/* Dramatic Editorial Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-espresso-950 via-espresso-950/60 to-transparent" />
             
-            <div className="absolute inset-0 px-6 pb-4 flex flex-col justify-end z-10">
+            <div className="absolute inset-0 px-6 pb-6 flex flex-col justify-end z-10">
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
               >
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-4 h-[1px] bg-amber-500/80" />
-                  <span className="text-[8px] font-black tracking-[0.2em] text-amber-500/90 uppercase">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-[1px] bg-amber-500/80" />
+                  <span className="text-[9px] font-black tracking-[0.3em] text-amber-500/90 uppercase">
                     Curation
                   </span>
                 </div>
                 
-                <h2 className="text-white flex items-end gap-2">
+                <h2 className="text-white">
                   {personalizedData?.latestPrescription ? (
                       <>
-                          <span className="text-[18px] font-serif leading-tight tracking-tight text-white/95">
+                          <span className="block text-[12px] text-espresso-200 font-light mb-2 tracking-widest uppercase">
                             {t('home.hero_title_1', '{{name}}님,', { name: greetingName })}
                           </span>
-                          <span className="text-[18px] font-serif leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white truncate max-w-[50%]">
+                          <span className="block text-[22px] font-serif leading-[1.1] tracking-tight text-white/95">
+                            지난번 추천받으신
+                          </span>
+                          <span className="block text-[22px] font-serif leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white mt-1 truncate max-w-full">
                             {personalizedData.latestPrescription.beanName}
                           </span>
+                          <span className="block text-[11px] font-light text-espresso-200 mt-2 leading-relaxed max-w-[80%]">어떠셨나요? 당신을 위한 새로운 한 잔을 제안합니다.</span>
                       </>
                   ) : (
                       <>
-                          <span className="text-[18px] font-serif font-medium leading-tight tracking-tight text-white/95">
+                          <span className="block text-[12px] text-espresso-200 font-light mb-2 tracking-widest uppercase">
+                            {t('home.hero_title_1', '{{name}}님,', { name: greetingName })}
+                          </span>
+                          <span className="block text-[24px] font-serif font-medium leading-[1.1] tracking-tight text-white/95">
                             오늘의
                           </span>
-                          <span className="text-[18px] font-serif font-medium leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white">
+                          <span className="block text-[24px] font-serif font-medium leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white mt-1">
                             커피 취향
                           </span>
                       </>
                   )}
                 </h2>
+                
+                <div className="mt-4 flex items-center">
+                  <button className="text-white text-[10px] font-bold tracking-widest uppercase flex items-center gap-2 group-hover:text-amber-400 transition-colors">
+                    {t('home.btn_get_recommend', 'Discover More')} 
+                    <div className="w-6 h-6 rounded-full border border-white/30 flex items-center justify-center group-hover:border-amber-400 transition-colors">
+                        <ChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                  </button>
+                </div>
               </motion.div>
             </div>
           </motion.div>
