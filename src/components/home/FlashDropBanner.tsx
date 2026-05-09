@@ -52,31 +52,31 @@ const FlashDropBanner = () => {
     const isLive = new Date() >= new Date(activeDrop.startTime) && new Date() < new Date(activeDrop.endTime);
 
     return (
-        <div className="w-full py-8">
-            <div className="px-6 mb-6">
+        <div className="w-full py-4">
+            <div className="px-6 mb-4">
                 <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-[1px] bg-amber-500" />
-                    <span className="text-[10px] font-bold tracking-[0.3em] text-amber-500 uppercase">Flash Drop</span>
+                    <div className="w-6 h-[1px] bg-amber-500" />
+                    <span className="text-[9px] font-bold tracking-[0.3em] text-amber-500 uppercase">Flash Drop</span>
                 </div>
-                <h3 className="text-[24px] font-serif tracking-tight text-white">게릴라 특가</h3>
+                <h3 className="text-[20px] font-serif tracking-tight text-white">게릴라 특가</h3>
             </div>
             
-            <div className="relative w-full h-[320px] overflow-hidden group cursor-pointer">
+            <div className="relative w-full h-[220px] overflow-hidden group cursor-pointer">
                 <img src={activeDrop.imageUrl} alt={activeDrop.title} className="w-full h-full object-cover transition-transform duration-[15s] group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
-                <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                    <div className="flex items-center gap-3 mb-4">
-                        <span className={`flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase px-3 py-1 border border-white/20 backdrop-blur-md rounded-full ${isLive ? 'text-red-400 bg-red-500/10' : 'text-white bg-black/40'}`}>
-                            {isLive ? <Zap size={12} className="animate-pulse" /> : <Timer size={12} />}
+                <div className="absolute inset-0 p-5 flex flex-col justify-end">
+                    <div className="flex items-center gap-3 mb-3">
+                        <span className={`flex items-center gap-1.5 text-[10px] font-bold tracking-widest uppercase px-3 py-1 border border-white/20 backdrop-blur-md rounded-full ${isLive ? 'text-red-400 bg-red-500/10' : 'text-white bg-black/40'}`}>
+                            {isLive ? <Zap size={10} className="animate-pulse" /> : <Timer size={10} />}
                             {isLive ? 'Live Now' : 'Upcoming'}
                         </span>
-                        <span className="text-[14px] font-serif tracking-widest text-white">{timeLeft}</span>
+                        <span className="text-[12px] font-serif tracking-widest text-white">{timeLeft}</span>
                     </div>
-                    <h4 className="text-[28px] font-serif leading-[1.1] text-white mb-2">{activeDrop.title}</h4>
-                    <p className="text-[13px] text-white/70 font-light leading-relaxed max-w-[85%] mb-6 line-clamp-2">{activeDrop.description}</p>
+                    <h4 className="text-[22px] font-serif leading-[1.1] text-white mb-2">{activeDrop.title}</h4>
+                    <p className="text-[12px] text-white/70 font-light leading-relaxed max-w-[85%] mb-4 line-clamp-2">{activeDrop.description}</p>
                     
                     {isLive && (
-                        <button className="self-start text-[11px] font-bold tracking-[0.2em] uppercase text-black bg-white px-6 py-3 hover:bg-amber-400 transition-colors">
+                        <button className="self-start text-[10px] font-bold tracking-[0.2em] uppercase text-black bg-white px-5 py-2.5 hover:bg-amber-400 transition-colors">
                             Participate
                         </button>
                     )}

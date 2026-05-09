@@ -514,13 +514,13 @@ export default function HomeDashboard() {
       <PullToRefresh onRefresh={async () => { await fetchHomeData(false); }} className="flex-1 overflow-y-auto pb-24">
         {layoutConfigs.filter(l => l.isVisible).sort((a,b) => a.order - b.order).map(config => {
   if (config.id === 'hero') return (
-        <section key={config.id} className="pb-10 w-full">
+        <section key={config.id} className="pb-6 w-full">
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
             onClick={() => navigate('/curator', { state: { startFresh: true } })}
-            className="relative w-full min-h-[420px] cursor-pointer group"
+            className="relative w-full min-h-[300px] cursor-pointer group"
           >
             {/* Full Edge-to-Edge Image */}
             <div 
@@ -530,15 +530,15 @@ export default function HomeDashboard() {
             {/* Dramatic Editorial Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-espresso-950 via-espresso-950/60 to-transparent" />
             
-            <div className="absolute inset-0 px-6 pb-10 flex flex-col justify-end z-10">
+            <div className="absolute inset-0 px-6 pb-6 flex flex-col justify-end z-10">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
               >
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-8 h-[1px] bg-amber-500/80" />
-                  <span className="text-[10px] font-black tracking-[0.3em] text-amber-500/90 uppercase">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-6 h-[1px] bg-amber-500/80" />
+                  <span className="text-[9px] font-black tracking-[0.3em] text-amber-500/90 uppercase">
                     Curation
                   </span>
                 </div>
@@ -546,37 +546,37 @@ export default function HomeDashboard() {
                 <h2 className="text-white">
                   {personalizedData?.latestPrescription ? (
                       <>
-                          <span className="block text-[14px] text-espresso-200 font-light mb-3 tracking-widest uppercase">
+                          <span className="block text-[12px] text-espresso-200 font-light mb-2 tracking-widest uppercase">
                             {t('home.hero_title_1', '{{name}}님,', { name: greetingName })}
                           </span>
-                          <span className="block text-[32px] sm:text-[38px] font-serif leading-[1.1] tracking-tight text-white/95">
+                          <span className="block text-[26px] sm:text-[32px] font-serif leading-[1.1] tracking-tight text-white/95">
                             지난번 추천받으신
                           </span>
-                          <span className="block text-[32px] sm:text-[38px] font-serif leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white mt-1 truncate max-w-full">
+                          <span className="block text-[26px] sm:text-[32px] font-serif leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white mt-1 truncate max-w-full">
                             {personalizedData.latestPrescription.beanName}
                           </span>
-                          <span className="block text-[15px] font-light text-espresso-200 mt-4 leading-relaxed max-w-[80%]">어떠셨나요? 당신을 위한 새로운 한 잔을 제안합니다.</span>
+                          <span className="block text-[13px] font-light text-espresso-200 mt-3 leading-relaxed max-w-[80%]">어떠셨나요? 당신을 위한 새로운 한 잔을 제안합니다.</span>
                       </>
                   ) : (
                       <>
-                          <span className="block text-[14px] text-espresso-200 font-light mb-3 tracking-widest uppercase">
+                          <span className="block text-[12px] text-espresso-200 font-light mb-2 tracking-widest uppercase">
                             {t('home.hero_title_1', '{{name}}님,', { name: greetingName })}
                           </span>
-                          <span className="block text-[36px] sm:text-[42px] font-serif font-medium leading-[1.1] tracking-tight text-white/95">
+                          <span className="block text-[28px] sm:text-[34px] font-serif font-medium leading-[1.1] tracking-tight text-white/95">
                             오늘의
                           </span>
-                          <span className="block text-[36px] sm:text-[42px] font-serif font-medium leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white mt-1">
+                          <span className="block text-[28px] sm:text-[34px] font-serif font-medium leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white mt-1">
                             커피 취향
                           </span>
                       </>
                   )}
                 </h2>
                 
-                <div className="mt-8 flex items-center">
-                  <button className="text-white text-[12px] font-bold tracking-widest uppercase flex items-center gap-3 group-hover:text-amber-400 transition-colors">
+                <div className="mt-6 flex items-center">
+                  <button className="text-white text-[11px] font-bold tracking-widest uppercase flex items-center gap-3 group-hover:text-amber-400 transition-colors">
                     {t('home.btn_get_recommend', 'Discover More')} 
-                    <div className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center group-hover:border-amber-400 transition-colors">
-                        <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    <div className="w-7 h-7 rounded-full border border-white/30 flex items-center justify-center group-hover:border-amber-400 transition-colors">
+                        <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
                     </div>
                   </button>
                 </div>
