@@ -526,7 +526,7 @@ export default function HomeDashboard() {
             {/* Full Edge-to-Edge Image */}
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] ease-linear group-hover:scale-110"
-              style={{ backgroundImage: 'url(/images/cinematic_coffee_bg.png)' }}
+              style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=800&q=80)' }}
             />
             {/* Dramatic Editorial Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-espresso-950 via-espresso-950/60 to-transparent" />

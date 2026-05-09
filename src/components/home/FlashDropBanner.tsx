@@ -52,12 +52,12 @@ const FlashDropBanner = () => {
     const isLive = new Date() >= new Date(activeDrop.startTime) && new Date() < new Date(activeDrop.endTime);
 
     return (
-        <div className="w-full py-2">
-            <div className="relative w-full h-[110px] overflow-hidden group cursor-pointer">
+        <div className="w-full px-4 py-3 bg-espresso-950">
+            <div className="relative w-full h-[110px] rounded-2xl overflow-hidden group cursor-pointer shadow-lg border border-espresso-800/60">
                 <img src={activeDrop.imageUrl} alt={activeDrop.title} className="w-full h-full object-cover transition-transform duration-[15s] group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
-                <div className="absolute inset-0 px-6 py-3 flex flex-col justify-center">
-                    <div className="flex items-center gap-2 mb-1">
+                <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent" />
+                <div className="absolute inset-0 px-5 py-3 flex flex-col justify-center">
+                    <div className="flex items-center gap-2 mb-1.5">
                         <span className={`flex items-center gap-1 text-[8px] font-bold tracking-widest uppercase px-2 py-0.5 border border-white/20 backdrop-blur-md rounded-full ${isLive ? 'text-red-400 bg-red-500/10' : 'text-white bg-black/40'}`}>
                             {isLive ? <Zap size={8} className="animate-pulse" /> : <Timer size={8} />}
                             {isLive ? 'Live Now' : 'Upcoming'}
