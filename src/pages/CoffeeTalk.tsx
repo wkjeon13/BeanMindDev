@@ -120,6 +120,7 @@ export default function CoffeeTalk() {
   const location = useLocation();
   const initialFilter = location.state?.filter || 'all';
   const [activeFilter, setActiveFilter] = useState(initialFilter);
+  const [isDeepLinked, setIsDeepLinked] = useState(!!location.state?.activePost || !!window.location.hash);
   const currentFilterRef = useRef(activeFilter);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1340,6 +1341,7 @@ export default function CoffeeTalk() {
                       return;
                   }
                   setActiveFilter(filter);
+                  setIsDeepLinked(false);
               }}
               className={`relative px-4 py-1.5 rounded-full text-[13px] font-semibold whitespace-nowrap transition-all duration-300 ${
                 activeFilter === filter 
@@ -1382,12 +1384,12 @@ export default function CoffeeTalk() {
                    </>
                )}
             </div>
-          )}{!isLoading && premiumAd && activeFilter === 'all' && (
+          )}{!isLoading && premiumAd && activeFilter === 'all' && !isDeepLinked && (
              <div className="-mt-4 mb-3 sm:mb-4 mx-0">
                  <FeedAdCard adData={premiumAd.ad || premiumAd} />
              </div>
           )}
-          {!isLoading && neighborPremiumAd && activeFilter === 'near_live' && (
+          {!isLoading && neighborPremiumAd && activeFilter === 'near_live' && !isDeepLinked && (
              <div className="mb-3 sm:mb-4 mx-0">
                  <FeedAdCard adData={neighborPremiumAd.ad || neighborPremiumAd} />
              </div>
@@ -1396,20 +1398,20 @@ export default function CoffeeTalk() {
             <React.Fragment key={post.id}>
               
               {/* Standard Ad Injection: 1 ad every 5 posts */}
-              {idx > 0 && (idx + 1) % 5 === 0 && feedAd && ['all', 'taste_match', 'home_cafe', 'following_story', 'pilgrimage_talk'].includes(activeFilter) && (
+              {idx > 0 && (idx + 1) % 5 === 0 && feedAd && ['all', 'taste_match', 'home_cafe', 'following_story', 'pilgrimage_talk'].includes(activeFilter) && !isDeepLinked && (
                  <div className="mb-3 sm:mb-4 mx-0">
                      <FeedAdCard adData={feedAd.ads?.length > 0 ? feedAd.ads[Math.floor(idx / 5) % feedAd.ads.length] : (feedAd.ad || feedAd)} />
                  </div>
               )}
 
-              {idx > 0 && (idx + 1) % 5 === 0 && neighborAd && activeFilter === 'near_live' && (
+              {idx > 0 && (idx + 1) % 5 === 0 && neighborAd && activeFilter === 'near_live' && !isDeepLinked && (
                  <div className="mb-3 sm:mb-4 mx-0">
                      <FeedAdCard adData={neighborAd.ads?.length > 0 ? neighborAd.ads[Math.floor(idx / 5) % neighborAd.ads.length] : (neighborAd.ad || neighborAd)} />
                  </div>
               )}
 
               {/* Shorts Ad Injection: 1 ad every 3 shorts */}
-              {idx > 0 && (idx + 1) % 3 === 0 && shortsAd && activeFilter === 'shorts' && (
+              {idx > 0 && (idx + 1) % 3 === 0 && shortsAd && activeFilter === 'shorts' && !isDeepLinked && (
                  <div className="snap-start snap-always w-full h-full shrink-0 mx-0 mb-0 border-0 rounded-none overflow-hidden bg-black relative flex items-center justify-center">
                      <ShortsAdCard adData={shortsAd.ads?.length > 0 ? shortsAd.ads[Math.floor(idx / 3) % shortsAd.ads.length] : (shortsAd.ad || shortsAd)} isActive={true} />
                  </div>
