@@ -724,7 +724,7 @@ export default function HomeDashboard() {
               <div 
                 key={post.id}
                 className="relative aspect-[4/5] w-full rounded-2xl bg-espresso-800 overflow-hidden shrink-0 shadow-md cursor-pointer group"
-                onClick={() => navigate('/community', { state: { filter: 'all', activePost: post.id } })}
+                onClick={() => navigate('/community', { state: { filter: 'shorts', activePost: post.id } })}
               >
                 {post.image ? (
                    <div className="w-full h-full pointer-events-none transition-transform duration-700 group-hover:scale-105">
