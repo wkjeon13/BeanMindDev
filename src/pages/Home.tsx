@@ -714,16 +714,16 @@ export default function HomeDashboard() {
           <div className="grid grid-cols-2 gap-3 px-4 pb-4">
             {isLoading ? (
               [1, 2, 3, 4].map(i => (
-                <div key={i} className="aspect-[9/16] w-full bg-espresso-800 animate-pulse rounded-2xl shrink-0" />
+                <div key={i} className="aspect-[4/5] w-full bg-espresso-800 animate-pulse rounded-2xl shrink-0" />
               ))
             ) : shorts.length === 0 ? (
-              <div className="col-span-2 aspect-[9/16] w-full flex items-center justify-center text-espresso-400 text-[13px] font-medium bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
+              <div className="col-span-2 aspect-[4/5] w-full flex items-center justify-center text-espresso-400 text-[13px] font-medium bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
                   아직 인기있는 숏폼 피드가 없습니다.
               </div>
             ) : shorts.slice(0, 4).map((post) => (
               <div 
                 key={post.id}
-                className="relative aspect-[9/16] w-full rounded-2xl bg-espresso-800 overflow-hidden shrink-0 shadow-md cursor-pointer group"
+                className="relative aspect-[4/5] w-full rounded-2xl bg-espresso-800 overflow-hidden shrink-0 shadow-md cursor-pointer group"
                 onClick={() => navigate('/community', { state: { filter: 'all', activePost: post.id } })}
               >
                 {post.image ? (
