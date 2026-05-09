@@ -683,19 +683,28 @@ export default function HomeDashboard() {
                      <div 
                        key={post.id}
                        onClick={() => navigate(`/clubs/${post.club?.id}`)}
-                       className="w-[calc(100vw-48px)] max-w-[340px] shrink-0 snap-center cursor-pointer group bg-espresso-900/40 rounded-3xl p-4 border border-espresso-800 hover:border-emerald-500/50 transition-colors flex items-center gap-4 shadow-lg"
+                       className="w-[calc(100vw-48px)] max-w-[340px] h-[180px] shrink-0 snap-center cursor-pointer group rounded-3xl overflow-hidden relative shadow-lg border border-espresso-800 hover:border-emerald-500/50 transition-colors"
                      >
-                       <div className="w-20 h-20 rounded-[1.25rem] bg-espresso-800 overflow-hidden shrink-0 pointer-events-none shadow-md">
+                       <div className="absolute inset-0 pointer-events-none bg-espresso-800">
                            <MediaRenderer 
                              src={getFirstImage(post.image) || getFirstImage(post.club?.coverImageUrl) || 'https://images.unsplash.com/photo-1511920170033-f8396924c348'} 
-                             className="w-full h-full object-cover" 
+                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
                              hideControls={true} 
                            />
                        </div>
-                       <div className="flex-1 min-w-0 pr-2">
-                           <span className="text-[11px] font-black text-emerald-500 truncate block mb-1 tracking-wide">{post.club?.name}</span>
-                           <p className="font-medium text-[14px] line-clamp-2 text-espresso-50 leading-snug">{post.content}</p>
-                           <span className="text-[11px] text-espresso-400 mt-2 block">{post.author?.nickname}</span>
+                       <div className="absolute inset-0 bg-gradient-to-t from-[#120a05] via-[#120a05]/50 to-transparent flex flex-col justify-end p-5">
+                           <div className="bg-emerald-500/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/20 shadow-sm w-fit mb-2.5">
+                               <span className="text-[11px] font-black text-white tracking-wider">{post.club?.name}</span>
+                           </div>
+                           <p className="font-bold text-[15px] line-clamp-2 text-white leading-snug drop-shadow-md">{post.content}</p>
+                           <div className="flex items-center gap-2 mt-2">
+                               <img 
+                                 src={post.author?.profileImageUrl ? (post.author.profileImageUrl.startsWith('http') ? post.author.profileImageUrl : `${API_BASE}${post.author.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} 
+                                 className="w-5 h-5 rounded-full border border-white/50 object-cover" 
+                                 alt=""
+                               />
+                               <span className="text-[11px] text-espresso-200 font-medium truncate">{post.author?.nickname}</span>
+                           </div>
                        </div>
                      </div>
                    ))}
