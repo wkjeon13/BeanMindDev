@@ -610,7 +610,8 @@ export default function Profile() {
         
         // As per @capawesome/capacitor-google-sign-in docs, clientId MUST be the Web Client ID on ALL platforms.
         // The iOS URL scheme is automatically handled by the Info.plist configuration.
-        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+        // HARDCODED because .env is not synced via git to the Mac build machine!
+        const clientId = '930079967834-0ohcokilnrddppub69ku3meqp11dp8am.apps.googleusercontent.com';
 
         if (isNative) {
             try {
