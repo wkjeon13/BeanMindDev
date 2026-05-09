@@ -58,16 +58,16 @@ const WeeklyTasteTest = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, x: -50 }}
-                        className="bg-gradient-to-r from-[#4a321f] to-[#301f13] rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.5)] border-[1.5px] border-espresso-500/80 cursor-pointer flex justify-between items-center group hover:border-amber-500/80 transition-all"
+                        className="bg-gradient-to-r from-[#fdfbf7] to-[#f4e8db] rounded-2xl p-5 shadow-[0_8px_30px_rgba(0,0,0,0.2)] border-[2px] border-[#e6d5c3] cursor-pointer flex justify-between items-center group hover:border-amber-400 transition-all"
                         onClick={handleStart}
                     >
                         <div>
-                            <span className="text-amber-500 text-[10px] font-bold mb-1 block">주간 커피 취향 테스트</span>
-                            <h3 className="text-[16px] font-black text-espresso-50">{WEEKLY_MBTI_DATA.title}</h3>
-                            <p className="text-[12px] text-espresso-300 mt-1">간단한 테스트로 이번 주말 어울리는 커피를 찾아보세요!</p>
+                            <span className="text-amber-600 text-[10px] font-bold mb-1 block">주간 커피 취향 테스트</span>
+                            <h3 className="text-[16px] font-black text-espresso-950">{WEEKLY_MBTI_DATA.title}</h3>
+                            <p className="text-[12px] text-[#8b5a2b] font-medium mt-1">간단한 테스트로 이번 주말 어울리는 커피를 찾아보세요!</p>
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-500/20 transition-colors">
-                            <ArrowRight className="text-amber-500" size={20} />
+                        <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center group-hover:bg-amber-200 transition-colors shadow-sm">
+                            <ArrowRight className="text-amber-600" size={20} />
                         </div>
                     </motion.div>
                 )}

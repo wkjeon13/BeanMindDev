@@ -53,21 +53,21 @@ const FlashDropBanner = () => {
 
     return (
         <div className="px-4 py-2 bg-espresso-950">
-            <div className={`relative rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.5)] border-[1.5px] ${isLive ? 'border-amber-500/60' : 'border-espresso-600/80 bg-espresso-800'}`}>
-                <img src={activeDrop.imageUrl} alt={activeDrop.title} className="w-full h-[120px] object-cover opacity-50 mix-blend-overlay" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#3a2618]/90 via-[#2a1b10]/80 to-transparent p-4 flex flex-col justify-center">
+            <div className={`relative rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.5)] border-[2px] ${isLive ? 'border-amber-400' : 'border-[#e6d5c3] bg-[#fdfbf7]'}`}>
+                <img src={activeDrop.imageUrl} alt={activeDrop.title} className="w-full h-[120px] object-cover opacity-20 mix-blend-multiply" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#fdfbf7] via-[#fdfbf7]/90 to-transparent p-4 flex flex-col justify-center">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className={`flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-sm ${isLive ? 'bg-red-500 text-white animate-pulse' : 'bg-espresso-800 text-espresso-300'}`}>
+                        <span className={`flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-sm border ${isLive ? 'bg-red-500 text-white border-red-500 animate-pulse' : 'bg-[#f4e8db] text-[#8b5a2b] border-[#e6d5c3]'}`}>
                             {isLive ? <Zap size={10} /> : <Timer size={10} />}
                             {isLive ? 'LIVE' : 'UPCOMING'}
                         </span>
-                        <span className="text-[12px] font-bold text-amber-400 font-mono tracking-wider">{timeLeft}</span>
+                        <span className="text-[12px] font-bold text-red-600 font-mono tracking-wider">{timeLeft}</span>
                     </div>
-                    <h4 className="text-[15px] font-bold text-white mb-1 line-clamp-1">{activeDrop.title}</h4>
-                    <p className="text-[11px] text-espresso-300 line-clamp-1 max-w-[70%]">{activeDrop.description}</p>
+                    <h4 className="text-[15px] font-bold text-espresso-950 mb-1 line-clamp-1">{activeDrop.title}</h4>
+                    <p className="text-[11px] text-espresso-700 line-clamp-1 max-w-[70%] font-medium">{activeDrop.description}</p>
                     
                     {isLive && (
-                        <button className="absolute bottom-4 right-4 bg-amber-500 text-espresso-950 text-[11px] font-bold px-4 py-1.5 rounded-full hover:bg-amber-400 transition-colors shadow-[0_0_10px_rgba(245,158,11,0.5)]">
+                        <button className="absolute bottom-4 right-4 bg-amber-500 text-espresso-950 text-[11px] font-bold px-4 py-1.5 rounded-full hover:bg-amber-400 transition-colors shadow-[0_4px_10px_rgba(245,158,11,0.4)]">
                             선착순 참여
                         </button>
                     )}
