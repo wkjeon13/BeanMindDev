@@ -750,8 +750,8 @@ export default function HomeDashboard() {
                 ) : (
                    <div className="w-full h-full bg-espresso-900" />
                 )}
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                  <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="w-9 h-9 rounded-full bg-black/50 flex items-center justify-center shadow-md border border-white/20">
                     <Play className="w-4 h-4 text-white ml-0.5" fill="currentColor" />
                   </div>
                 </div>
