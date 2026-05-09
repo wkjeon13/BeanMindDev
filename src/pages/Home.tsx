@@ -521,15 +521,15 @@ export default function HomeDashboard() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
             onClick={() => navigate('/curator', { state: { startFresh: true } })}
-            className="relative w-full min-h-[220px] cursor-pointer group"
+            className="relative w-full min-h-[260px] cursor-pointer group rounded-b-[2.5rem] overflow-hidden shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] mb-3 border-b border-espresso-800/30"
           >
             {/* Full Edge-to-Edge Image */}
             <div 
               className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] ease-linear group-hover:scale-110"
-              style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=800&q=80)' }}
+              style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1559525839-b184a4d698c7?auto=format&fit=crop&w=800&q=80)' }}
             />
             {/* Dramatic Editorial Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-espresso-950 via-espresso-950/60 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
             
             <div className="absolute inset-0 px-6 pb-6 flex flex-col justify-end z-10">
               <motion.div
