@@ -62,6 +62,8 @@
 	<array>
 		<string>_http._tcp</string>
 	</array>
+	<key>GIDClientID</key>
+	<string>930079967834-ibcg0ai2amufd7ddv4danvi7bd4loq5m.apps.googleusercontent.com</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
