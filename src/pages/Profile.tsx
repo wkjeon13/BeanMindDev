@@ -605,8 +605,12 @@ export default function Profile() {
     };
 
     const handleGoogleLogin = async () => {
-        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-        const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+        const platform = typeof (window as any).Capacitor !== 'undefined' ? (window as any).Capacitor.getPlatform() : 'web';
+        const isNative = platform === 'ios' || platform === 'android';
+        
+        // Use iOS specific client ID if on iOS, otherwise fallback to Web/Android client ID
+        const iosClientId = '930079967834-ibcg0ai2amufd7ddv4danvi7bd4loq5m.apps.googleusercontent.com';
+        const clientId = platform === 'ios' ? iosClientId : import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
         if (isNative) {
             try {
