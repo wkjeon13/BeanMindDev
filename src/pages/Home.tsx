@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Sparkles, MapPin, Video, Flame, ChevronRight, Play, Users, MessageSquare, Settings, X, ArrowUp, ArrowDown, Coffee, Heart } from 'lucide-react';
+import { Sparkles, MapPin, Video, Flame, ChevronRight, Play, Users, MessageSquare, Settings, X, ArrowUp, ArrowDown, Coffee, Heart, Zap, Gift } from 'lucide-react';
 import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
 import { Geolocation } from '@capacitor/geolocation';
 import PullToRefresh from '../components/common/PullToRefresh';
@@ -67,18 +67,16 @@ interface HomeSectionConfig {
 }
 
 const DEFAULT_LAYOUT: HomeSectionConfig[] = [
-  { id: 'quick_actions', name: 'home.sections.quick_actions', isVisible: true, order: 1, isFixed: true },
-  { id: 'shorts', name: 'home.sections.shorts', isVisible: true, order: 2 },
-  { id: 'trending', name: 'home.sections.trending', isVisible: true, order: 3 },
-  { id: 'following', name: 'home.sections.following', isVisible: true, order: 4 },
-  { id: 'taste_match', name: 'home.sections.taste_match', isVisible: true, order: 5 },
-  { id: 'coffee_pairing', name: 'home.sections.coffee_pairing', isVisible: true, order: 6 },
-  { id: 'my_clubs', name: 'home.sections.my_clubs', isVisible: true, order: 7 },
-  { id: 'recommended_clubs', name: 'home.sections.recommended_clubs', isVisible: true, order: 8 },
-  { id: 'hero', name: 'home.sections.hero', isVisible: false, order: 99 },
-  { id: 'flash_drop', name: 'home.sections.flash_drop', isVisible: false, order: 99 },
-  { id: 'daily_roulette', name: 'home.sections.daily_roulette', isVisible: false, order: 99 },
-  { id: 'weekly_mbti', name: 'home.sections.weekly_mbti', isVisible: false, order: 99 }
+  { id: 'hero', name: 'home.sections.hero', isVisible: true, order: 1, isFixed: true },
+  { id: 'flash_drop', name: 'home.sections.flash_drop', isVisible: true, order: 2 },
+  { id: 'daily_roulette', name: 'home.sections.daily_roulette', isVisible: true, order: 3 },
+  { id: 'shorts', name: 'home.sections.shorts', isVisible: true, order: 4 },
+  { id: 'trending', name: 'home.sections.trending', isVisible: true, order: 5 },
+  { id: 'following', name: 'home.sections.following', isVisible: true, order: 6 },
+  { id: 'taste_match', name: 'home.sections.taste_match', isVisible: true, order: 7 },
+  { id: 'coffee_pairing', name: 'home.sections.coffee_pairing', isVisible: true, order: 8 },
+  { id: 'my_clubs', name: 'home.sections.my_clubs', isVisible: true, order: 9 },
+  { id: 'recommended_clubs', name: 'home.sections.recommended_clubs', isVisible: true, order: 10 }
 ];
 
 const CoffeePairingSection = () => {
@@ -514,45 +512,16 @@ export default function HomeDashboard() {
 
       <PullToRefresh onRefresh={async () => { await fetchHomeData(false); }} className="flex-1 overflow-y-auto pb-24">
         {layoutConfigs.filter(l => l.isVisible).sort((a,b) => a.order - b.order).map(config => {
-  if (config.id === 'quick_actions') return (
-      <section key={config.id} className="px-4 py-4 w-full">
-          <div className="grid grid-cols-4 gap-2">
-              <button onClick={() => navigate('/curator')} className="flex flex-col items-center justify-center p-3 bg-espresso-900 border border-espresso-800 rounded-2xl hover:border-amber-500/50 transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center mb-2">
-                      <Sparkles size={20} />
-                  </div>
-                  <span className="text-[10px] font-bold text-espresso-200">AI 추천</span>
-              </button>
-              <button onClick={() => {/* Trigger Flash Drop Modal */}} className="flex flex-col items-center justify-center p-3 bg-espresso-900 border border-espresso-800 rounded-2xl hover:border-red-500/50 transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center mb-2">
-                      <Zap size={20} />
-                  </div>
-                  <span className="text-[10px] font-bold text-espresso-200">특가</span>
-              </button>
-              <button onClick={() => {/* Trigger Roulette Modal */}} className="flex flex-col items-center justify-center p-3 bg-espresso-900 border border-espresso-800 rounded-2xl hover:border-amber-500/50 transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-2">
-                      <Gift size={20} />
-                  </div>
-                  <span className="text-[10px] font-bold text-espresso-200">출석/룰렛</span>
-              </button>
-              <button onClick={() => {/* Trigger MBTI Modal */}} className="flex flex-col items-center justify-center p-3 bg-espresso-900 border border-espresso-800 rounded-2xl hover:border-blue-500/50 transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center mb-2">
-                      <Coffee size={20} />
-                  </div>
-                  <span className="text-[10px] font-bold text-espresso-200">취향검사</span>
-              </button>
-          </div>
-      </section>
-  );
+
 
   if (config.id === 'hero') return (
-        <section key={config.id} className="pb-6 w-full">
+        <section key={config.id} className="w-full">
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
             onClick={() => navigate('/curator', { state: { startFresh: true } })}
-            className="relative w-full min-h-[300px] cursor-pointer group"
+            className="relative w-full h-[150px] cursor-pointer group"
           >
             {/* Full Edge-to-Edge Image */}
             <div 
@@ -562,56 +531,40 @@ export default function HomeDashboard() {
             {/* Dramatic Editorial Gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-espresso-950 via-espresso-950/60 to-transparent" />
             
-            <div className="absolute inset-0 px-6 pb-6 flex flex-col justify-end z-10">
+            <div className="absolute inset-0 px-6 pb-4 flex flex-col justify-end z-10">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
               >
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-6 h-[1px] bg-amber-500/80" />
-                  <span className="text-[9px] font-black tracking-[0.3em] text-amber-500/90 uppercase">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-4 h-[1px] bg-amber-500/80" />
+                  <span className="text-[8px] font-black tracking-[0.2em] text-amber-500/90 uppercase">
                     Curation
                   </span>
                 </div>
                 
-                <h2 className="text-white">
+                <h2 className="text-white flex items-end gap-2">
                   {personalizedData?.latestPrescription ? (
                       <>
-                          <span className="block text-[12px] text-espresso-200 font-light mb-2 tracking-widest uppercase">
+                          <span className="text-[18px] font-serif leading-tight tracking-tight text-white/95">
                             {t('home.hero_title_1', '{{name}}님,', { name: greetingName })}
                           </span>
-                          <span className="block text-[26px] sm:text-[32px] font-serif leading-[1.1] tracking-tight text-white/95">
-                            지난번 추천받으신
-                          </span>
-                          <span className="block text-[26px] sm:text-[32px] font-serif leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white mt-1 truncate max-w-full">
+                          <span className="text-[18px] font-serif leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white truncate max-w-[50%]">
                             {personalizedData.latestPrescription.beanName}
                           </span>
-                          <span className="block text-[13px] font-light text-espresso-200 mt-3 leading-relaxed max-w-[80%]">어떠셨나요? 당신을 위한 새로운 한 잔을 제안합니다.</span>
                       </>
                   ) : (
                       <>
-                          <span className="block text-[12px] text-espresso-200 font-light mb-2 tracking-widest uppercase">
-                            {t('home.hero_title_1', '{{name}}님,', { name: greetingName })}
-                          </span>
-                          <span className="block text-[28px] sm:text-[34px] font-serif font-medium leading-[1.1] tracking-tight text-white/95">
+                          <span className="text-[18px] font-serif font-medium leading-tight tracking-tight text-white/95">
                             오늘의
                           </span>
-                          <span className="block text-[28px] sm:text-[34px] font-serif font-medium leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white mt-1">
+                          <span className="text-[18px] font-serif font-medium leading-tight tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white">
                             커피 취향
                           </span>
                       </>
                   )}
                 </h2>
-                
-                <div className="mt-6 flex items-center">
-                  <button className="text-white text-[11px] font-bold tracking-widest uppercase flex items-center gap-3 group-hover:text-amber-400 transition-colors">
-                    {t('home.btn_get_recommend', 'Discover More')} 
-                    <div className="w-7 h-7 rounded-full border border-white/30 flex items-center justify-center group-hover:border-amber-400 transition-colors">
-                        <ChevronRight size={12} className="group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </button>
-                </div>
               </motion.div>
             </div>
           </motion.div>
