@@ -50,7 +50,7 @@ const WeeklyTasteTest = () => {
     const resultData = (WEEKLY_MBTI_DATA.results as any)[resultKey] || WEEKLY_MBTI_DATA.results['default'];
 
     return (
-        <section className="px-4 py-2 bg-espresso-950">
+        <section className="w-full">
             <AnimatePresence mode="wait">
                 {step === -1 && (
                     <motion.div 
@@ -58,16 +58,27 @@ const WeeklyTasteTest = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, x: -50 }}
-                        className="bg-gradient-to-br from-[#1f1610] to-[#18110c] border border-espresso-800/80 rounded-2xl p-5 shadow-lg hover:border-amber-500/30 cursor-pointer flex justify-between items-center group transition-all"
+                        className="relative w-full h-[340px] cursor-pointer flex flex-col justify-center px-8 group overflow-hidden"
                         onClick={handleStart}
                     >
-                        <div>
-                            <span className="text-amber-500 text-[10px] font-bold mb-1 block">주간 커피 취향 테스트</span>
-                            <h3 className="text-[16px] font-bold text-white mt-1">{WEEKLY_MBTI_DATA.title}</h3>
-                            <p className="text-[12px] text-espresso-300 mt-1">간단한 테스트로 이번 주말 어울리는 커피를 찾아보세요!</p>
-                        </div>
-                        <div className="w-10 h-10 rounded-full bg-espresso-800 flex items-center justify-center group-hover:bg-amber-500/10 transition-colors">
-                            <ArrowRight className="text-espresso-400 group-hover:text-amber-500" size={20} />
+                        <div className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] group-hover:scale-110" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&q=80)' }} />
+                        <div className="absolute inset-0 bg-black/70" />
+                        
+                        <div className="relative z-10">
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="w-8 h-[1px] bg-amber-500" />
+                                <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-amber-500 block">Weekly Taste Test</span>
+                            </div>
+                            <h3 className="text-[32px] font-serif leading-tight text-white mt-1">{WEEKLY_MBTI_DATA.title}</h3>
+                            <div className="w-12 h-[1px] bg-white/20 my-6" />
+                            <p className="text-[13px] text-white/60 font-light max-w-[80%] mb-8 leading-relaxed">간단한 3가지 질문으로 이번 주말 어울리는 스페셜티 커피를 찾아보세요.</p>
+                            
+                            <div className="flex items-center gap-4">
+                                <span className="text-white text-[11px] font-bold tracking-widest uppercase group-hover:text-amber-400 transition-colors">Start Test</span>
+                                <div className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center group-hover:border-amber-400 transition-colors">
+                                    <ArrowRight className="text-white group-hover:text-amber-400" size={14} />
+                                </div>
+                            </div>
                         </div>
                     </motion.div>
                 )}

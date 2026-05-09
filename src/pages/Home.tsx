@@ -514,61 +514,70 @@ export default function HomeDashboard() {
       <PullToRefresh onRefresh={async () => { await fetchHomeData(false); }} className="flex-1 overflow-y-auto pb-24">
         {layoutConfigs.filter(l => l.isVisible).sort((a,b) => a.order - b.order).map(config => {
   if (config.id === 'hero') return (
-        <section key={config.id} className="px-4 py-2">
+        <section key={config.id} className="pb-10 w-full">
           <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8 }}
             onClick={() => navigate('/curator', { state: { startFresh: true } })}
-            className="relative overflow-hidden rounded-[24px] min-h-[260px] cursor-pointer shadow-2xl active:scale-[0.98] transition-transform group"
+            className="relative w-full min-h-[420px] cursor-pointer group"
           >
-            {/* Background Image with Parallax-like scale effect on hover */}
+            {/* Full Edge-to-Edge Image */}
             <div 
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] ease-linear group-hover:scale-110"
               style={{ backgroundImage: 'url(/images/cinematic_coffee_bg.png)' }}
             />
-            {/* Cinematic Overlay Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/20 to-[#0a0604]/70" />
+            {/* Dramatic Editorial Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-espresso-950 via-espresso-950/60 to-transparent" />
             
-            <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
+            <div className="absolute inset-0 px-6 pb-10 flex flex-col justify-end z-10">
               <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
               >
-                <span className="text-[11px] font-bold tracking-widest text-amber-500/90 uppercase flex items-center gap-1.5 mb-3">
-                  <Sparkles size={12} className="animate-pulse" /> AI Curator
-                </span>
-                <h2 className="text-white drop-shadow-xl">
-                  <span className="block text-[14px] text-espresso-200 font-medium mb-1.5 tracking-wide">
-                    {t('home.hero_title_1', '{{name}}님,', { name: greetingName })}
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-8 h-[1px] bg-amber-500/80" />
+                  <span className="text-[10px] font-black tracking-[0.3em] text-amber-500/90 uppercase">
+                    Curation
                   </span>
+                </div>
+                
+                <h2 className="text-white">
                   {personalizedData?.latestPrescription ? (
                       <>
-                          <span className="block text-[22px] sm:text-[26px] font-black leading-[1.15] tracking-tight text-white/95">
+                          <span className="block text-[14px] text-espresso-200 font-light mb-3 tracking-widest uppercase">
+                            {t('home.hero_title_1', '{{name}}님,', { name: greetingName })}
+                          </span>
+                          <span className="block text-[32px] sm:text-[38px] font-serif leading-[1.1] tracking-tight text-white/95">
                             지난번 추천받으신
                           </span>
-                          <span className="block text-[22px] sm:text-[26px] font-black leading-[1.15] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-600 mt-0.5 truncate max-w-[280px]">
+                          <span className="block text-[32px] sm:text-[38px] font-serif leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white mt-1 truncate max-w-full">
                             {personalizedData.latestPrescription.beanName}
                           </span>
-                          <span className="block text-[15px] font-medium text-espresso-200 mt-1">어떠셨나요? 새로운 커피를 찾아드릴게요.</span>
+                          <span className="block text-[15px] font-light text-espresso-200 mt-4 leading-relaxed max-w-[80%]">어떠셨나요? 당신을 위한 새로운 한 잔을 제안합니다.</span>
                       </>
                   ) : (
                       <>
-                          <span className="block text-[24px] sm:text-[28px] font-black leading-[1.15] tracking-tight text-white/95">
-                            {t('home.hero_title_2', '오늘의 커피 취향을')}
+                          <span className="block text-[14px] text-espresso-200 font-light mb-3 tracking-widest uppercase">
+                            {t('home.hero_title_1', '{{name}}님,', { name: greetingName })}
                           </span>
-                          <span className="block text-[24px] sm:text-[28px] font-black leading-[1.15] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-600 mt-0.5">
-                            {t('home.hero_title_3', '알아볼까요?')}
+                          <span className="block text-[36px] sm:text-[42px] font-serif font-medium leading-[1.1] tracking-tight text-white/95">
+                            오늘의
+                          </span>
+                          <span className="block text-[36px] sm:text-[42px] font-serif font-medium leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white mt-1">
+                            커피 취향
                           </span>
                       </>
                   )}
                 </h2>
                 
-                <div className="mt-6 flex items-center">
-                  <button className="bg-white/10 backdrop-blur-md border border-white/20 text-white text-[13px] font-bold px-5 py-2.5 rounded-full flex items-center gap-2 group-hover:bg-amber-500 group-hover:border-amber-500 group-hover:text-espresso-950 transition-all duration-300 shadow-lg">
-                    {t('home.btn_get_recommend', '추천받기')} 
-                    <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                <div className="mt-8 flex items-center">
+                  <button className="text-white text-[12px] font-bold tracking-widest uppercase flex items-center gap-3 group-hover:text-amber-400 transition-colors">
+                    {t('home.btn_get_recommend', 'Discover More')} 
+                    <div className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center group-hover:border-amber-400 transition-colors">
+                        <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    </div>
                   </button>
                 </div>
               </motion.div>
@@ -579,13 +588,13 @@ export default function HomeDashboard() {
 
         {/* --- PERSONALIZED SECTIONS --- */}
                       if (config.id === 'following') return isLoggedIn && personalizedData && personalizedData.followingFeeds && personalizedData.followingFeeds.length > 0 && (
-              <section key={config.id} className="py-2">
-                 <div className="px-4 flex items-center justify-between mb-3">
-                   <h3 className="text-[16px] font-bold flex items-center gap-1.5">
+              <section key={config.id} className="py-8">
+                 <div className="px-6 flex items-center justify-between mb-6">
+                   <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
                      <Users className="text-blue-500 w-4 h-4" /> {t('home.title_following_news', '내 이웃 & 단골 소식')}
                    </h3>
                  </div>
-                 <div className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
+                 <div className="flex gap-4 overflow-x-auto px-6 pb-6 snap-x hide-scrollbar">
                     {personalizedData.followingFeeds.map((post: any) => (
                       <div 
                         key={post.id}
@@ -627,13 +636,13 @@ export default function HomeDashboard() {
       if (config.id === 'weekly_mbti') return <WeeklyTasteTest key={config.id} />;
 
       if (config.id === 'taste_match') return isLoggedIn && personalizedData && personalizedData.tasteMatchedFeeds && personalizedData.tasteMatchedFeeds.length > 0 && (
-              <section key={config.id} className="py-2">
-                 <div className="px-4 flex items-center justify-between mb-3">
-                   <h3 className="text-[16px] font-bold flex items-center gap-1.5">
+              <section key={config.id} className="py-8">
+                 <div className="px-6 flex items-center justify-between mb-6">
+                   <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
                      <Sparkles className="text-amber-500 w-4 h-4" /> {t('home.title_taste_match', '{{name}}님 취향 저격 피드', { name: greetingName })}
                    </h3>
                  </div>
-                 <div className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
+                 <div className="flex gap-4 overflow-x-auto px-6 pb-6 snap-x hide-scrollbar">
                     {personalizedData.tasteMatchedFeeds.map((post: any) => (
                       <div 
                         key={post.id}
@@ -659,16 +668,16 @@ export default function HomeDashboard() {
             );
 
             if (config.id === 'my_clubs') return isLoggedIn && personalizedData && personalizedData.myClubFeeds && personalizedData.myClubFeeds.length > 0 && (
-              <section key={config.id} className="py-2">
-                 <div className="px-4 flex items-center justify-between mb-3">
-                   <h3 className="text-[16px] font-bold flex items-center gap-1.5">
+              <section key={config.id} className="py-8">
+                 <div className="px-6 flex items-center justify-between mb-6">
+                   <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
                      <Users className="text-emerald-500 w-4 h-4" /> 
                      나의 크루 최신 소식
                    </h3>
                    <button onClick={() => navigate('/clubs')} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '더보기')}</button>
                  </div>
                  
-                 <div className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
+                 <div className="flex gap-4 overflow-x-auto px-6 pb-6 snap-x hide-scrollbar">
                    {personalizedData.myClubFeeds.map((post: any) => (
                      <div 
                        key={post.id}
@@ -695,9 +704,9 @@ export default function HomeDashboard() {
           // Remove fragments for mapping
 
           if (config.id === 'shorts') return (
-        <section key={config.id} className="py-2">
-          <div className="px-4 flex items-center justify-between mb-3">
-            <h3 className="text-[16px] font-bold flex items-center gap-1.5">
+        <section key={config.id} className="py-8">
+          <div className="px-6 flex items-center justify-between mb-6">
+            <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
               <Video className="text-amber-500 w-4 h-4" /> {t('home.title_shorts', '1분 커피 탐험')}
             </h3>
           </div>
@@ -746,9 +755,9 @@ export default function HomeDashboard() {
   );
 
           if (config.id === 'trending') return (
-        <section key={config.id} className="py-2">
-          <div className="px-4 flex items-center justify-between mb-3">
-            <h3 className="text-[16px] font-bold flex items-center gap-1.5">
+        <section key={config.id} className="py-8">
+          <div className="px-6 flex items-center justify-between mb-6">
+            <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
               <MapPin className="text-amber-500 w-4 h-4" /> {t('home.title_trending_cafes', '요즘 뜨는 성지')}
             </h3>
             <button onClick={() => navigate('/community', { state: { filter: 'pilgrimage_talk' } })} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '더보기')}</button>
