@@ -78,67 +78,71 @@ const DailyRoulette = () => {
     if (!status || isHidden) return null;
 
     return (
-        <section className="w-full py-2">
-            {/* 7-Day Streak Progress Bar */}
-            <div className="px-6 mb-4">
-                <div className="flex justify-between items-end mb-2">
-                    <div className="flex items-center gap-2">
-                        <div className="w-4 h-[1px] bg-amber-500" />
-                        <h3 className="text-[16px] font-serif tracking-tight text-white">7일 출석 챌린지</h3>
-                    </div>
-                    <span className="text-[10px] font-serif text-white/50">{status.streak} / 7 Days</span>
-                </div>
-                <div className="flex justify-between gap-1">
-                    {[1,2,3,4,5,6,7].map(day => (
-                        <div key={day} className="flex flex-col items-center gap-1 flex-1 relative group cursor-default">
-                            <div className={`w-full h-[2px] transition-all duration-700 ${day <= status.streak ? 'bg-amber-500' : 'bg-white/10'}`} />
-                            <span className={`text-[9px] font-serif ${day <= status.streak ? 'text-amber-500' : 'text-white/30'}`}>
-                                {day === 7 ? <Star size={8} className={`inline ${day <= status.streak ? 'fill-amber-500 text-amber-500' : 'fill-transparent text-white/30'}`} /> : day}
-                            </span>
-                            {day === 7 && (
-                                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-white text-black text-[8px] font-bold tracking-widest uppercase px-1.5 py-0.5 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                    500 Beans
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
+        <section className="w-full py-4 px-4">
+            <div className="bg-gradient-to-b from-espresso-900/40 to-[#120a05] border border-espresso-800/60 rounded-3xl p-5 shadow-lg relative overflow-hidden">
+                {/* Subtle background glow */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-1 bg-amber-500/20 blur-xl" />
 
-            {/* 3-Cup Game Area */}
-            <div className="px-6 text-center relative">
-                {!status.todayPlayed || (status.todayPlayed && selectedCup !== null && isShuffling) ? (
-                    <>
-                        <h4 className="text-[14px] font-serif text-white mb-4 tracking-wide font-light">
-                            행운의 커피 컵을 골라보세요.
-                        </h4>
-                        <div className="flex justify-center gap-4">
-                            {[0, 1, 2].map((i) => (
-                                <motion.div 
-                                    key={i}
-                                    whileHover={!isShuffling ? { y: -4 } : {}}
-                                    whileTap={!isShuffling ? { scale: 0.95 } : {}}
-                                    onClick={() => handlePick(i)}
-                                    animate={
-                                        isShuffling 
-                                        ? { 
-                                            y: selectedCup === i ? -10 : [0, -5, 0], 
-                                            transition: { repeat: selectedCup === i ? 0 : Infinity, duration: 0.4, delay: i * 0.1 } 
-                                          } 
-                                        : {}
-                                    }
-                                    className={`w-[50px] h-[70px] cursor-pointer relative flex flex-col items-center justify-end ${selectedCup === i ? 'scale-110 z-10' : 'opacity-80 hover:opacity-100 transition-opacity'}`}
-                                >
-                                    <div className={`w-full h-full border flex items-center justify-center relative transition-all duration-500 ${selectedCup === i ? 'bg-amber-500 border-amber-400' : 'bg-transparent border-white/20 hover:border-white/50 backdrop-blur-md'}`}>
-                                        <div className="absolute top-0 w-full h-1.5 border-b border-white/10" />
-                                        <Coffee className={`${selectedCup === i ? 'text-black' : 'text-white/60'} z-10 mt-1`} size={20} strokeWidth={1} />
-                                    </div>
-                                    
-                                    {selectedCup === i && <span className="absolute -top-4 text-[8px] tracking-[0.2em] font-bold uppercase text-black bg-white px-1.5 py-0.5 z-20">Pick</span>}
-                                </motion.div>
-                            ))}
+                {/* 7-Day Streak Progress Bar */}
+                <div className="mb-6 relative z-10">
+                    <div className="flex justify-between items-end mb-3">
+                        <div className="flex items-center gap-2">
+                            <div className="w-4 h-[2px] bg-amber-500 rounded-full" />
+                            <h3 className="text-[15px] font-bold tracking-tight text-espresso-50">7일 출석 챌린지</h3>
                         </div>
-                    </>
+                        <span className="text-[10px] font-black tracking-widest text-espresso-400">{status.streak} / 7 DAYS</span>
+                    </div>
+                    <div className="flex justify-between gap-1">
+                        {[1,2,3,4,5,6,7].map(day => (
+                            <div key={day} className="flex flex-col items-center gap-1.5 flex-1 relative group cursor-default">
+                                <div className={`w-full h-[3px] rounded-full transition-all duration-700 ${day <= status.streak ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]' : 'bg-espresso-800'}`} />
+                                <span className={`text-[9px] font-bold ${day <= status.streak ? 'text-amber-400' : 'text-espresso-600'}`}>
+                                    {day === 7 ? <Star size={10} className={`inline ${day <= status.streak ? 'fill-amber-500 text-amber-500' : 'fill-transparent text-espresso-600'}`} /> : day}
+                                </span>
+                                {day === 7 && (
+                                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-[8px] font-black tracking-widest uppercase px-2 py-0.5 rounded-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                        500 Beans
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* 3-Cup Game Area */}
+                <div className="text-center relative z-10">
+                    {!status.todayPlayed || (status.todayPlayed && selectedCup !== null && isShuffling) ? (
+                        <>
+                            <h4 className="text-[13px] font-medium text-espresso-200 mb-4 tracking-wide">
+                                행운의 커피 컵을 골라보세요.
+                            </h4>
+                            <div className="flex justify-center gap-5">
+                                {[0, 1, 2].map((i) => (
+                                    <motion.div 
+                                        key={i}
+                                        whileHover={!isShuffling ? { y: -4 } : {}}
+                                        whileTap={!isShuffling ? { scale: 0.95 } : {}}
+                                        onClick={() => handlePick(i)}
+                                        animate={
+                                            isShuffling 
+                                            ? { 
+                                                y: selectedCup === i ? -10 : [0, -5, 0], 
+                                                transition: { repeat: selectedCup === i ? 0 : Infinity, duration: 0.4, delay: i * 0.1 } 
+                                              } 
+                                            : {}
+                                        }
+                                        className={`w-[55px] h-[75px] cursor-pointer relative flex flex-col items-center justify-end ${selectedCup === i ? 'scale-110 z-10' : 'opacity-90 hover:opacity-100 transition-opacity'}`}
+                                    >
+                                        <div className={`w-full h-full rounded-lg flex items-center justify-center relative transition-all duration-300 shadow-inner ${selectedCup === i ? 'bg-gradient-to-b from-amber-400 to-amber-600 border-2 border-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.5)]' : 'bg-espresso-800 border border-espresso-700 hover:border-amber-500/50 hover:bg-espresso-700/80'}`}>
+                                            <div className="absolute top-0 w-full h-1.5 border-b border-white/5 rounded-t-lg bg-gradient-to-b from-white/10 to-transparent" />
+                                            <Coffee className={`${selectedCup === i ? 'text-black' : 'text-amber-500/80'} z-10 mt-1 drop-shadow-md`} size={24} strokeWidth={1.5} />
+                                        </div>
+                                        
+                                        {selectedCup === i && <span className="absolute -top-4 text-[8px] tracking-[0.2em] font-black uppercase text-black bg-amber-400 rounded-sm px-1.5 py-0.5 z-20 shadow-md">Pick</span>}
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </>
                 ) : (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="flex flex-col items-center">
                         <div className="flex justify-center gap-4 mb-4 mt-1">
@@ -159,26 +163,27 @@ const DailyRoulette = () => {
                                         initial={{ y: 10, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ delay: i * 0.1, duration: 0.6 }}
-                                        className={`w-[40px] h-[40px] rounded-full flex flex-col items-center justify-center mb-2 border ${selectedCup === i ? 'bg-amber-500 border-amber-400 text-black' : 'bg-transparent border-white/20 text-white/40 backdrop-blur-md'}`}
+                                        className={`w-[45px] h-[45px] rounded-full flex flex-col items-center justify-center mb-2 border shadow-inner ${selectedCup === i ? 'bg-gradient-to-br from-amber-400 to-amber-600 border-amber-300 text-black shadow-[0_0_15px_rgba(245,158,11,0.4)]' : 'bg-espresso-800 border-espresso-700 text-espresso-400'}`}
                                     >
-                                        <span className={`font-serif ${selectedCup === i ? 'text-[16px]' : 'text-[12px]'}`}>
+                                        <span className={`font-black tracking-tight ${selectedCup === i ? 'text-[18px]' : 'text-[13px]'}`}>
                                             {rewards ? rewards[i] : '?'}
                                         </span>
                                     </motion.div>
-                                    <span className={`text-[8px] font-bold tracking-widest uppercase ${selectedCup === i ? 'text-amber-500' : 'text-white/40'}`}>
+                                    <span className={`text-[8px] font-black tracking-widest uppercase ${selectedCup === i ? 'text-amber-500' : 'text-espresso-500'}`}>
                                         {selectedCup === i ? 'Reward' : 'Miss'}
                                     </span>
                                 </div>
                             ))}
                         </div>
                         
-                        <div className="w-full pt-4 border-t border-white/10">
-                            <h4 className="text-[14px] font-serif text-white mb-0.5">
+                        <div className="w-full pt-4 border-t border-espresso-800">
+                            <h4 className="text-[15px] font-bold text-espresso-50 mb-0.5">
                                 {rewards && selectedCup !== null ? `축하합니다. +${rewards[selectedCup]} Beans` : '내일 다시 도전하세요.'}
                             </h4>
                         </div>
                     </motion.div>
                 )}
+                </div>
             </div>
         </section>
     );
