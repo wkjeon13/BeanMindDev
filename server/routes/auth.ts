@@ -255,9 +255,13 @@ router.post('/google', authLimiter, async (req, res) => {
 
         if (token.split('.').length === 3) {
             // Very likely an ID token (JWT)
+            const iosClientId = '930079967834-ibcg0ai2amufd7ddv4danvi7bd4loq5m.apps.googleusercontent.com';
+            const webClientId = process.env.GOOGLE_CLIENT_ID || '';
+            const androidClientId = '930079967834-0ohcokilnrddppub69ku3meqp11dp8am.apps.googleusercontent.com'; // Using web client id for android by default usually, or add android specific if provided
+
             const ticket = await googleClient.verifyIdToken({
                 idToken: token,
-                audience: process.env.GOOGLE_CLIENT_ID,
+                audience: [webClientId, iosClientId, androidClientId].filter(Boolean),
             });
             const payload = ticket.getPayload();
             if (!payload || !payload.email) {
