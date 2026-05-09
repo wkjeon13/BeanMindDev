@@ -44,6 +44,20 @@ export default function SystemNoticePopup() {
         }
     };
 
+    const getImageUrl = (imageString: string) => {
+        if (!imageString) return '';
+        try {
+            const parsed = JSON.parse(imageString);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                const url = parsed[0];
+                return url.startsWith('http') || url.startsWith('data:') ? url : `${API_BASE}${url}`;
+            }
+        } catch (e) {
+            // Not JSON
+        }
+        return imageString.startsWith('http') || imageString.startsWith('data:') ? imageString : `${API_BASE}${imageString}`;
+    };
+
     return (
         <AnimatePresence>
             {notices.length > 0 && (
@@ -72,7 +86,7 @@ export default function SystemNoticePopup() {
                             {notices[currentIndex].image && (
                                 <div className="w-full rounded-lg overflow-hidden bg-[#2a2a2a] flex justify-center mb-5">
                                     <img 
-                                        src={notices[currentIndex].image} 
+                                        src={getImageUrl(notices[currentIndex].image)} 
                                         alt="notice" 
                                         className="w-full h-auto object-cover max-h-[160px]" 
                                     />

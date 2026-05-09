@@ -608,9 +608,9 @@ export default function Profile() {
         const platform = typeof (window as any).Capacitor !== 'undefined' ? (window as any).Capacitor.getPlatform() : 'web';
         const isNative = platform === 'ios' || platform === 'android';
         
-        // Use iOS specific client ID if on iOS, otherwise fallback to Web/Android client ID
-        const iosClientId = '930079967834-ibcg0ai2amufd7ddv4danvi7bd4loq5m.apps.googleusercontent.com';
-        const clientId = platform === 'ios' ? iosClientId : import.meta.env.VITE_GOOGLE_CLIENT_ID;
+        // As per @capawesome/capacitor-google-sign-in docs, clientId MUST be the Web Client ID on ALL platforms.
+        // The iOS URL scheme is automatically handled by the Info.plist configuration.
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
         if (isNative) {
             try {
@@ -628,7 +628,8 @@ export default function Profile() {
                 }
             } catch (err: any) {
                 console.error('Native Google Sign-In failed', err);
-                setAuthError('Google Login Cancelled or Failed');
+                const errorMessage = err?.message || 'Unknown error';
+                setAuthError(`Google Login Failed: ${errorMessage}`);
                 setIsLoading(false);
             }
             return;
