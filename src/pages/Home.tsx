@@ -692,14 +692,25 @@ export default function HomeDashboard() {
                              hideControls={true} 
                            />
                        </div>
-                       <div className="absolute inset-0 bg-gradient-to-t from-[#120a05] via-[#120a05]/50 to-transparent flex flex-col justify-end p-5">
-                           <div className="bg-emerald-500/90 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/20 shadow-sm w-fit mb-2.5">
-                               <span className="text-[11px] font-black text-white tracking-wider">{post.club?.name}</span>
-                           </div>
+                       <div className="absolute inset-0 bg-gradient-to-t from-[#120a05] via-[#120a05]/60 to-transparent flex flex-col justify-end p-5">
+                           <span className="text-[13px] font-black text-emerald-400 tracking-wider drop-shadow-md mb-1">{post.club?.name}</span>
                            <p className="font-bold text-[15px] line-clamp-2 text-white leading-snug drop-shadow-md">{post.content}</p>
-                           <div className="flex items-center gap-2 mt-2">
-                               <img 
-                                 src={post.author?.profileImageUrl ? (post.author.profileImageUrl.startsWith('http') ? post.author.profileImageUrl : `${API_BASE}${post.author.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} 
+                           <div className="flex items-center gap-2 mt-3">
+                               {post.club?.location && (
+                                   <span className="text-[11px] text-espresso-200 font-medium flex items-center gap-1 bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm border border-white/10">
+                                       <MapPin size={10} className="text-emerald-500" /> {post.club.location}
+                                   </span>
+                               )}
+                               {post.club?.isRecruiting && (
+                                   <span className="text-[10px] font-bold text-white bg-emerald-500 px-2 py-0.5 rounded-full shadow-sm">
+                                       모집중
+                                   </span>
+                               )}
+                           </div>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
                                  className="w-5 h-5 rounded-full border border-white/50 object-cover" 
                                  alt=""
                                />
