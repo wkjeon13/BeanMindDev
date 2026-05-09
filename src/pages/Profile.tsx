@@ -620,9 +620,9 @@ export default function Profile() {
                     clientId: clientId,
                 });
                 const result = await GoogleSignIn.signIn();
-                if (result.authentication && result.authentication.idToken) {
+                if (result.idToken) {
                     // Send the idToken to backend
-                    await handleGoogleCredentialResponse({ credential: result.authentication.idToken });
+                    await handleGoogleCredentialResponse({ credential: result.idToken });
                 } else {
                     setAuthError(t('profile.err_google_fail'));
                     setIsLoading(false);
