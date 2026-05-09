@@ -67,17 +67,18 @@ interface HomeSectionConfig {
 }
 
 const DEFAULT_LAYOUT: HomeSectionConfig[] = [
-  { id: 'hero', name: 'home.sections.hero', isVisible: true, order: 1, isFixed: true },
-  { id: 'flash_drop', name: 'home.sections.flash_drop', isVisible: true, order: 2 },
-  { id: 'daily_roulette', name: 'home.sections.daily_roulette', isVisible: true, order: 3 },
+  { id: 'quick_actions', name: 'home.sections.quick_actions', isVisible: true, order: 1, isFixed: true },
+  { id: 'shorts', name: 'home.sections.shorts', isVisible: true, order: 2 },
+  { id: 'trending', name: 'home.sections.trending', isVisible: true, order: 3 },
   { id: 'following', name: 'home.sections.following', isVisible: true, order: 4 },
-  { id: 'weekly_mbti', name: 'home.sections.weekly_mbti', isVisible: true, order: 5 },
-  { id: 'taste_match', name: 'home.sections.taste_match', isVisible: true, order: 6 },
+  { id: 'taste_match', name: 'home.sections.taste_match', isVisible: true, order: 5 },
+  { id: 'coffee_pairing', name: 'home.sections.coffee_pairing', isVisible: true, order: 6 },
   { id: 'my_clubs', name: 'home.sections.my_clubs', isVisible: true, order: 7 },
-  { id: 'shorts', name: 'home.sections.shorts', isVisible: true, order: 8 },
-  { id: 'trending', name: 'home.sections.trending', isVisible: true, order: 9 },
-  { id: 'coffee_pairing', name: 'home.sections.coffee_pairing', isVisible: true, order: 10 },
-  { id: 'recommended_clubs', name: 'home.sections.recommended_clubs', isVisible: true, order: 11 }
+  { id: 'recommended_clubs', name: 'home.sections.recommended_clubs', isVisible: true, order: 8 },
+  { id: 'hero', name: 'home.sections.hero', isVisible: false, order: 99 },
+  { id: 'flash_drop', name: 'home.sections.flash_drop', isVisible: false, order: 99 },
+  { id: 'daily_roulette', name: 'home.sections.daily_roulette', isVisible: false, order: 99 },
+  { id: 'weekly_mbti', name: 'home.sections.weekly_mbti', isVisible: false, order: 99 }
 ];
 
 const CoffeePairingSection = () => {
@@ -513,6 +514,37 @@ export default function HomeDashboard() {
 
       <PullToRefresh onRefresh={async () => { await fetchHomeData(false); }} className="flex-1 overflow-y-auto pb-24">
         {layoutConfigs.filter(l => l.isVisible).sort((a,b) => a.order - b.order).map(config => {
+  if (config.id === 'quick_actions') return (
+      <section key={config.id} className="px-4 py-4 w-full">
+          <div className="grid grid-cols-4 gap-2">
+              <button onClick={() => navigate('/curator')} className="flex flex-col items-center justify-center p-3 bg-espresso-900 border border-espresso-800 rounded-2xl hover:border-amber-500/50 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center mb-2">
+                      <Sparkles size={20} />
+                  </div>
+                  <span className="text-[10px] font-bold text-espresso-200">AI 추천</span>
+              </button>
+              <button onClick={() => {/* Trigger Flash Drop Modal */}} className="flex flex-col items-center justify-center p-3 bg-espresso-900 border border-espresso-800 rounded-2xl hover:border-red-500/50 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-red-500/10 text-red-400 flex items-center justify-center mb-2">
+                      <Zap size={20} />
+                  </div>
+                  <span className="text-[10px] font-bold text-espresso-200">특가</span>
+              </button>
+              <button onClick={() => {/* Trigger Roulette Modal */}} className="flex flex-col items-center justify-center p-3 bg-espresso-900 border border-espresso-800 rounded-2xl hover:border-amber-500/50 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-2">
+                      <Gift size={20} />
+                  </div>
+                  <span className="text-[10px] font-bold text-espresso-200">출석/룰렛</span>
+              </button>
+              <button onClick={() => {/* Trigger MBTI Modal */}} className="flex flex-col items-center justify-center p-3 bg-espresso-900 border border-espresso-800 rounded-2xl hover:border-blue-500/50 transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center mb-2">
+                      <Coffee size={20} />
+                  </div>
+                  <span className="text-[10px] font-bold text-espresso-200">취향검사</span>
+              </button>
+          </div>
+      </section>
+  );
+
   if (config.id === 'hero') return (
         <section key={config.id} className="pb-6 w-full">
           <motion.div 
@@ -704,29 +736,29 @@ export default function HomeDashboard() {
           // Remove fragments for mapping
 
           if (config.id === 'shorts') return (
-        <section key={config.id} className="py-8">
-          <div className="px-6 flex items-center justify-between mb-6">
-            <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
-              <Video className="text-amber-500 w-4 h-4" /> {t('home.title_shorts', '1분 커피 탐험')}
+        <section key={config.id} className="py-2">
+          <div className="px-4 flex items-center justify-between mb-4 mt-2">
+            <h3 className="text-[22px] font-serif tracking-tight text-white flex items-center gap-2">
+              <Video className="text-amber-500 w-5 h-5" /> 1분 커피 탐험
             </h3>
           </div>
-          <div className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
+          <div className="grid grid-cols-2 gap-3 px-4 pb-4">
             {isLoading ? (
-              [1, 2, 3].map(i => (
-                <div key={i} className="w-[120px] h-[200px] bg-espresso-800 animate-pulse rounded-2xl shrink-0 snap-center" />
+              [1, 2, 3, 4].map(i => (
+                <div key={i} className="aspect-[9/16] w-full bg-espresso-800 animate-pulse rounded-2xl shrink-0" />
               ))
             ) : shorts.length === 0 ? (
-              <div className="w-full h-[150px] flex items-center justify-center text-espresso-400 text-[13px] font-medium bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
+              <div className="col-span-2 aspect-[9/16] w-full flex items-center justify-center text-espresso-400 text-[13px] font-medium bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
                   아직 인기있는 숏폼 피드가 없습니다.
               </div>
-            ) : shorts.map((post) => (
+            ) : shorts.slice(0, 4).map((post) => (
               <div 
                 key={post.id}
-                className="relative w-[120px] h-[200px] rounded-2xl bg-espresso-800 overflow-hidden shrink-0 snap-center shadow-md cursor-pointer border border-espresso-800 hover:border-amber-500/50 transition-colors"
+                className="relative aspect-[9/16] w-full rounded-2xl bg-espresso-800 overflow-hidden shrink-0 shadow-md cursor-pointer group"
                 onClick={() => navigate('/community', { state: { filter: 'all', activePost: post.id } })}
               >
                 {post.image ? (
-                   <div className="w-full h-full pointer-events-none">
+                   <div className="w-full h-full pointer-events-none transition-transform duration-700 group-hover:scale-105">
                        <MediaRenderer 
                            src={getFirstVideo(post.image) || ''} 
                            className="w-full h-full object-cover" 
