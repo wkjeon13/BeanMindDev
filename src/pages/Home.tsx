@@ -798,10 +798,10 @@ export default function HomeDashboard() {
                       hideControls={true} 
                     />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                   <div className="absolute bottom-2 left-2 right-2 flex items-center">
-                    <div className="text-[10px] font-bold bg-amber-500 text-espresso-950 px-1.5 py-0.5 rounded flex items-center gap-0.5 max-w-full">
-                       <MapPin size={10} className="shrink-0" /> 
+                    <div className="text-[13px] font-bold text-white drop-shadow-md px-1 py-0.5 flex items-center gap-1 max-w-full">
+                       <MapPin size={12} className="shrink-0 text-amber-500" /> 
                        <span className="truncate">{store.name}</span>
                     </div>
                   </div>
