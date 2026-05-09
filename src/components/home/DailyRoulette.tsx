@@ -80,7 +80,7 @@ const DailyRoulette = () => {
     return (
         <section className="px-4 py-2 bg-espresso-950">
             {/* 7-Day Streak Progress Bar */}
-            <div className="mb-4 bg-espresso-900/80 rounded-2xl p-4 border border-espresso-700/80 shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
+            <div className="mb-4 bg-gradient-to-r from-[#2c1d11] to-[#1e130a] rounded-2xl p-4 border border-espresso-600/60 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
                 <div className="flex justify-between items-center mb-3">
                     <h3 className="text-white font-black text-[14px] flex items-center gap-1.5 drop-shadow-sm">
                         <Flame className="text-amber-500 fill-amber-500/20" size={16}/> 7일 출석 챌린지
@@ -109,7 +109,7 @@ const DailyRoulette = () => {
             </div>
 
             {/* 3-Cup Game Area */}
-            <div className="bg-gradient-to-b from-[#24170d] to-[#120a05] rounded-3xl p-6 border border-amber-500/30 text-center relative overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.6)]">
+            <div className="bg-gradient-to-b from-[#3a2618] to-[#22150c] rounded-3xl p-6 border border-amber-500/50 text-center relative overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.6)]">
                 {/* Background glow */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200px] h-[100px] bg-amber-500/10 blur-[50px] pointer-events-none" />
 
