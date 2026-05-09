@@ -589,7 +589,7 @@ export default function HomeDashboard() {
 
         {/* --- PERSONALIZED SECTIONS --- */}
                       if (config.id === 'following') return isLoggedIn && personalizedData && personalizedData.followingFeeds && personalizedData.followingFeeds.length > 0 && (
-              <section key={config.id} className="py-8">
+              <section key={config.id} className="py-2 mt-4">
                  <div className="px-6 flex items-center justify-between mb-6">
                    <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
                      <Users className="text-blue-500 w-4 h-4" /> {t('home.title_following_news', '내 이웃 & 단골 소식')}
@@ -637,7 +637,7 @@ export default function HomeDashboard() {
       if (config.id === 'weekly_mbti') return <WeeklyTasteTest key={config.id} />;
 
       if (config.id === 'taste_match') return isLoggedIn && personalizedData && personalizedData.tasteMatchedFeeds && personalizedData.tasteMatchedFeeds.length > 0 && (
-              <section key={config.id} className="py-8">
+              <section key={config.id} className="py-2 mt-4">
                  <div className="px-6 flex items-center justify-between mb-6">
                    <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
                      <Sparkles className="text-amber-500 w-4 h-4" /> {t('home.title_taste_match', '{{name}}님 취향 저격 피드', { name: greetingName })}
@@ -669,7 +669,7 @@ export default function HomeDashboard() {
             );
 
             if (config.id === 'my_clubs') return isLoggedIn && personalizedData && personalizedData.myClubFeeds && personalizedData.myClubFeeds.length > 0 && (
-              <section key={config.id} className="py-8">
+              <section key={config.id} className="py-2 mt-4">
                  <div className="px-6 flex items-center justify-between mb-6">
                    <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
                      <Users className="text-emerald-500 w-4 h-4" /> 
@@ -756,7 +756,7 @@ export default function HomeDashboard() {
   );
 
           if (config.id === 'trending') return (
-        <section key={config.id} className="py-8">
+        <section key={config.id} className="py-2 mt-4">
           <div className="px-6 flex items-center justify-between mb-6">
             <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
               <MapPin className="text-amber-500 w-4 h-4" /> {t('home.title_trending_cafes', '요즘 뜨는 성지')}

@@ -55,28 +55,27 @@ const WeeklyTasteTest = () => {
                 {step === -1 && (
                     <motion.div 
                         key="banner"
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, x: -50 }}
-                        className="relative w-full h-[260px] cursor-pointer flex flex-col justify-center px-6 group overflow-hidden"
+                        className="relative w-full h-[140px] cursor-pointer flex flex-col justify-center px-6 group overflow-hidden"
                         onClick={handleStart}
                     >
                         <div className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] group-hover:scale-110" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&q=80)' }} />
-                        <div className="absolute inset-0 bg-black/70" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/30" />
                         
                         <div className="relative z-10">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="w-6 h-[1px] bg-amber-500" />
-                                <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-amber-500 block">Weekly Taste Test</span>
+                            <div className="flex items-center gap-2 mb-2">
+                                <div className="w-4 h-[1px] bg-amber-500" />
+                                <span className="text-[8px] font-bold tracking-[0.2em] uppercase text-amber-500 block">Taste Test</span>
                             </div>
-                            <h3 className="text-[26px] font-serif leading-tight text-white mt-1">{WEEKLY_MBTI_DATA.title}</h3>
-                            <div className="w-10 h-[1px] bg-white/20 my-4" />
-                            <p className="text-[12px] text-white/60 font-light max-w-[85%] mb-6 leading-relaxed">간단한 3가지 질문으로 이번 주말 어울리는 스페셜티 커피를 찾아보세요.</p>
+                            <h3 className="text-[20px] font-serif leading-tight text-white mb-1">{WEEKLY_MBTI_DATA.title}</h3>
+                            <p className="text-[11px] text-white/70 font-light max-w-[80%] mb-4 leading-relaxed line-clamp-1">간단한 3가지 질문으로 어울리는 커피를 찾아요.</p>
                             
-                            <div className="flex items-center gap-3">
-                                <span className="text-white text-[10px] font-bold tracking-widest uppercase group-hover:text-amber-400 transition-colors">Start Test</span>
-                                <div className="w-7 h-7 rounded-full border border-white/30 flex items-center justify-center group-hover:border-amber-400 transition-colors">
-                                    <ArrowRight className="text-white group-hover:text-amber-400" size={12} />
+                            <div className="flex items-center gap-2">
+                                <span className="text-white text-[9px] font-bold tracking-widest uppercase group-hover:text-amber-400 transition-colors">Start</span>
+                                <div className="w-5 h-5 rounded-full border border-white/30 flex items-center justify-center group-hover:border-amber-400 transition-colors">
+                                    <ArrowRight className="text-white group-hover:text-amber-400" size={10} />
                                 </div>
                             </div>
                         </div>
