@@ -109,15 +109,15 @@ const CoffeePairingSection = () => {
             </div>
 
             {/* AI Pairing Roulette */}
-            <div className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x hide-scrollbar mb-4">
+            <div className="flex gap-4 overflow-x-auto px-4 pb-2 snap-x hide-scrollbar mb-4">
                 {DESSERTS.map((item, idx) => (
                     <button 
                         key={idx}
                         onClick={() => setActiveDessert(activeDessert === idx ? null : idx)}
-                        className={`flex flex-col items-center justify-center min-w-[70px] h-[70px] rounded-2xl shrink-0 snap-center transition-all duration-300 border ${activeDessert === idx ? 'bg-amber-500/20 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.2)]' : 'bg-espresso-900 border-espresso-800 hover:border-espresso-700'}`}
+                        className={`flex flex-col items-center justify-center min-w-[90px] h-[90px] rounded-2xl shrink-0 snap-center transition-all duration-300 border-2 shadow-md ${activeDessert === idx ? 'bg-gradient-to-b from-amber-500/20 to-transparent border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)]' : 'bg-espresso-800/80 border-espresso-700 hover:border-amber-500/50 hover:bg-espresso-800'}`}
                     >
-                        <span className="text-[24px] mb-1">{item.icon}</span>
-                        <span className={`text-[10px] font-bold transition-colors ${activeDessert === idx ? 'text-amber-400' : 'text-espresso-300'}`}>{item.name}</span>
+                        <span className="text-[32px] mb-1 drop-shadow-sm">{item.icon}</span>
+                        <span className={`text-[12px] font-black tracking-tight transition-colors ${activeDessert === idx ? 'text-amber-400' : 'text-espresso-200'}`}>{item.name}</span>
                     </button>
                 ))}
             </div>
