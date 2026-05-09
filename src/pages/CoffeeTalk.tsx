@@ -551,7 +551,19 @@ export default function CoffeeTalk() {
 
   React.useEffect(() => {
     currentFilterRef.current = activeFilter;
+    
+    let useCache = false;
     if (globalFeedCache[activeFilter]) {
+        if (targetPostIdToScroll.current) {
+            // Check if the target post is in the cache
+            const isTargetInCache = globalFeedCache[activeFilter].posts.some((p: any) => p.id === targetPostIdToScroll.current);
+            useCache = isTargetInCache;
+        } else {
+            useCache = true;
+        }
+    }
+
+    if (useCache) {
         setPosts(globalFeedCache[activeFilter].posts);
         setIsLiked(globalFeedCache[activeFilter].likes);
         setIsBookmarked(globalFeedCache[activeFilter].bookmarks);
@@ -559,6 +571,10 @@ export default function CoffeeTalk() {
         fetchPosts(true); // Silent background sync
     } else {
         setIsLoading(true); // Initial load with spinner
+        // Clear posts to prevent flickering old posts while waiting for the target post
+        if (targetPostIdToScroll.current) {
+            setPosts([]); 
+        }
         fetchPosts(false); 
     }
   }, [activeFilter]);
