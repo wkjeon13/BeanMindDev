@@ -6,6 +6,7 @@ import { useGoogleLogin, GoogleLogin } from '@react-oauth/google';
 import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
 import { App as CapApp } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
+import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
 import { useTranslation } from 'react-i18next';
 import HostAdDashboard from '../components/HostAdDashboard';
 import PrescriptionTicket from '../components/PrescriptionTicket';
@@ -607,6 +608,28 @@ export default function Profile() {
         const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
         const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
 
+        if (isNative) {
+            try {
+                setIsLoading(true);
+                await GoogleSignIn.initialize({
+                    clientId: clientId,
+                });
+                const result = await GoogleSignIn.signIn();
+                if (result.authentication && result.authentication.idToken) {
+                    // Send the idToken to backend
+                    await handleGoogleCredentialResponse({ credential: result.authentication.idToken });
+                } else {
+                    setAuthError(t('profile.err_google_fail'));
+                    setIsLoading(false);
+                }
+            } catch (err: any) {
+                console.error('Native Google Sign-In failed', err);
+                setAuthError('Google Login Cancelled or Failed');
+                setIsLoading(false);
+            }
+            return;
+        }
+
         let currentOrigin = window.location.origin;
         const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || currentOrigin;
 
@@ -614,21 +637,16 @@ export default function Profile() {
         // Google OAuth console requires the exact authorized URI and doesn't allow raw IPs.
         // We use the nip.io domain from VITE_API_BASE_URL to act as a "Bounce Page".
         // The bounce page will catch the redirect and trigger the capcurator:// deep link.
-        if (isNative || currentOrigin.includes('localhost') || currentOrigin.match(/\d+\.\d+\.\d+\.\d+/)) {
+        if (currentOrigin.includes('localhost') || currentOrigin.match(/\d+\.\d+\.\d+\.\d+/)) {
             currentOrigin = apiBaseUrl;
         }
 
         const redirectUri = encodeURIComponent(currentOrigin + '/profile');
         
-        const baseState = isNative ? 'native_google_login' : 'web_google_login';
+        const baseState = 'web_google_login';
         const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&state=${baseState}&scope=email%20profile`;
         
-        // Use Capacitor Browser instead of window.location.href for Native Android to avoid exiting app Context
-        if (isNative) {
-            await Browser.open({ url });
-        } else {
-            window.location.href = url;
-        }
+        window.location.href = url;
     };
 
     const handleGoogleCredentialResponse = async (credentialResponse: any) => {
