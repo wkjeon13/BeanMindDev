@@ -79,7 +79,7 @@ const DailyRoulette = () => {
 
     return (
         <section className="w-full py-4 px-4">
-            <div className="bg-gradient-to-b from-espresso-900/40 to-[#120a05] border border-espresso-800/60 rounded-3xl p-3 shadow-lg relative overflow-hidden">
+            <div className="bg-gradient-to-b from-espresso-800/60 to-espresso-950/80 border border-espresso-700 rounded-3xl p-4 shadow-xl relative overflow-hidden">
                 {/* Subtle background glow */}
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-1 bg-amber-500/20 blur-xl" />
 
@@ -88,15 +88,15 @@ const DailyRoulette = () => {
                     <div className="flex justify-between items-end mb-2">
                         <div className="flex items-center gap-1.5">
                             <div className="w-3 h-[2px] bg-amber-500 rounded-full" />
-                            <h3 className="text-[13px] font-bold tracking-tight text-espresso-50">7일 출석 챌린지</h3>
+                            <h3 className="text-[15px] font-bold tracking-tight text-espresso-50">7일 출석 챌린지</h3>
                         </div>
-                        <span className="text-[9px] font-black tracking-widest text-espresso-400">{status.streak} / 7 DAYS</span>
+                        <span className="text-[10px] font-black tracking-widest text-espresso-400">{status.streak} / 7 DAYS</span>
                     </div>
                     <div className="flex justify-between gap-1">
                         {[1,2,3,4,5,6,7].map(day => (
                             <div key={day} className="flex flex-col items-center gap-1.5 flex-1 relative group cursor-default">
                                 <div className={`w-full h-[3px] rounded-full transition-all duration-700 ${day <= status.streak ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.4)]' : 'bg-espresso-800'}`} />
-                                <span className={`text-[9px] font-bold ${day <= status.streak ? 'text-amber-400' : 'text-espresso-600'}`}>
+                                <span className={`text-[11px] font-bold ${day <= status.streak ? 'text-amber-400' : 'text-espresso-600'}`}>
                                     {day === 7 ? <Star size={10} className={`inline ${day <= status.streak ? 'fill-amber-500 text-amber-500' : 'fill-transparent text-espresso-600'}`} /> : day}
                                 </span>
                                 {day === 7 && (
@@ -113,7 +113,7 @@ const DailyRoulette = () => {
                 <div className="text-center relative z-10">
                     {!status.todayPlayed || (status.todayPlayed && selectedCup !== null && isShuffling) ? (
                         <>
-                            <h4 className="text-[11px] font-medium text-espresso-200 mb-2 tracking-wide">
+                            <h4 className="text-[14px] font-medium text-espresso-200 mb-3 tracking-wide">
                                 행운의 커피 컵을 골라보세요.
                             </h4>
                             <div className="flex justify-center gap-4">
@@ -131,11 +131,11 @@ const DailyRoulette = () => {
                                               } 
                                             : {}
                                         }
-                                        className={`w-[40px] h-[55px] cursor-pointer relative flex flex-col items-center justify-end ${selectedCup === i ? 'scale-110 z-10' : 'opacity-90 hover:opacity-100 transition-opacity'}`}
+                                        className={`w-[60px] h-[82px] cursor-pointer relative flex flex-col items-center justify-end ${selectedCup === i ? 'scale-110 z-10' : 'opacity-90 hover:opacity-100 transition-opacity'}`}
                                     >
                                         <div className={`w-full h-full rounded-lg flex items-center justify-center relative transition-all duration-300 shadow-inner ${selectedCup === i ? 'bg-gradient-to-b from-amber-400 to-amber-600 border border-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.5)]' : 'bg-espresso-800 border border-espresso-700 hover:border-amber-500/50 hover:bg-espresso-700/80'}`}>
                                             <div className="absolute top-0 w-full h-1 border-b border-white/5 rounded-t-lg bg-gradient-to-b from-white/10 to-transparent" />
-                                            <Coffee className={`${selectedCup === i ? 'text-black' : 'text-amber-500/80'} z-10 mt-1 drop-shadow-md`} size={18} strokeWidth={1.5} />
+                                            <Coffee className={`${selectedCup === i ? 'text-black' : 'text-amber-500/80'} z-10 mt-1 drop-shadow-md`} size={28} strokeWidth={1.5} />
                                         </div>
                                         
                                         {selectedCup === i && <span className="absolute -top-3 text-[7px] tracking-[0.2em] font-black uppercase text-black bg-amber-400 rounded-sm px-1 py-0.5 z-20 shadow-md">Pick</span>}
@@ -147,7 +147,7 @@ const DailyRoulette = () => {
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="flex flex-col items-center">
                         <div className="flex justify-center gap-4 mb-4 mt-1">
                              {[0, 1, 2].map((i) => (
-                                <div key={i} className={`w-[50px] flex flex-col items-center justify-end relative ${selectedCup === i ? 'scale-110 z-10' : 'opacity-40 scale-90'}`}>
+                                <div key={i} className={`w-[75px] flex flex-col items-center justify-end relative ${selectedCup === i ? 'scale-110 z-10' : 'opacity-40 scale-90'}`}>
                                     {selectedCup === i && (
                                         <motion.div 
                                             initial={{ opacity: 0, y: 5 }}
