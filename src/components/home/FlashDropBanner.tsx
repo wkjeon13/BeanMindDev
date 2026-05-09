@@ -53,9 +53,9 @@ const FlashDropBanner = () => {
 
     return (
         <div className="px-4 py-2 bg-espresso-950">
-            <div className={`relative rounded-2xl overflow-hidden shadow-lg border ${isLive ? 'border-amber-500/50' : 'border-espresso-700'}`}>
-                <img src={activeDrop.imageUrl} alt={activeDrop.title} className="w-full h-[120px] object-cover opacity-80" />
-                <div className="absolute inset-0 bg-gradient-to-r from-espresso-950/90 via-espresso-950/50 to-transparent p-4 flex flex-col justify-center">
+            <div className={`relative rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.5)] border-[1.5px] ${isLive ? 'border-amber-500/60' : 'border-espresso-700/80 bg-espresso-900'}`}>
+                <img src={activeDrop.imageUrl} alt={activeDrop.title} className="w-full h-[120px] object-cover opacity-60 mix-blend-overlay" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#1c120c] via-[#1c120c]/80 to-transparent p-4 flex flex-col justify-center">
                     <div className="flex items-center gap-2 mb-1">
                         <span className={`flex items-center gap-1 text-[10px] font-black px-1.5 py-0.5 rounded-sm ${isLive ? 'bg-red-500 text-white animate-pulse' : 'bg-espresso-800 text-espresso-300'}`}>
                             {isLive ? <Zap size={10} /> : <Timer size={10} />}
