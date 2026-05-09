@@ -609,6 +609,15 @@ export default function CoffeeTalk() {
     const targetId = window.location.hash ? window.location.hash.substring(1) : targetPostIdToScroll.current;
     
     if (posts.length > 0 && targetId) {
+      // 즉시 초기화하여 posts가 연달아 업데이트 될 때 스크롤이 중복으로 예약되는 것을 방지
+      if (targetPostIdToScroll.current === targetId) {
+          targetPostIdToScroll.current = null;
+      }
+      // 해시가 원인이었다면 해시도 지워서 중복 방지 (뒤로가기 등)
+      if (window.location.hash === `#${targetId}`) {
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+
       setTimeout(() => {
         const el = document.getElementById(`post-${targetId}`);
         const container = document.getElementById('coffee-feed-container');
@@ -617,23 +626,18 @@ export default function CoffeeTalk() {
           container.style.scrollBehavior = 'auto';
           el.scrollIntoView({ behavior: 'auto', block: 'start' });
           
-          if (!targetPostIdToScroll.current) { // 해시 기반으로 넘어온 경우에만 링 하이라이트 표시
-             el.classList.add('ring-4', 'ring-amber-500', 'ring-offset-2', 'ring-offset-espresso-950', 'transition-all', 'duration-500');
-             setTimeout(() => {
-                el.classList.remove('ring-4', 'ring-amber-500', 'ring-offset-2', 'ring-offset-espresso-950');
-             }, 2000);
-          }
-          // 한 번 성공적으로 이동했으면 초기화
-          if (targetPostIdToScroll.current === targetId) {
-              targetPostIdToScroll.current = null;
-          }
+          // 대상 피드 강조 링 표시 (항상)
+          el.classList.add('ring-4', 'ring-amber-500', 'ring-offset-2', 'ring-offset-espresso-950', 'transition-all', 'duration-500');
+          setTimeout(() => {
+             el.classList.remove('ring-4', 'ring-amber-500', 'ring-offset-2', 'ring-offset-espresso-950');
+          }, 2000);
           
           // Restore smooth scrolling after the jump
           setTimeout(() => {
               container.style.scrollBehavior = '';
           }, 50);
         }
-      }, 50); // Reduced delay so the jump happens before the user registers the old position
+      }, 50);
     }
   }, [posts, window.location.hash]);
 
