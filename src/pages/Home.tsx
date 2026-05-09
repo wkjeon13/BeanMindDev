@@ -711,15 +711,6 @@ export default function HomeDashboard() {
                      </div>
                    ))}
                  </div>
-                                 className="w-5 h-5 rounded-full border border-white/50 object-cover" 
-                                 alt=""
-                               />
-                               <span className="text-[11px] text-espresso-200 font-medium truncate">{post.author?.nickname}</span>
-                           </div>
-                       </div>
-                     </div>
-                   ))}
-                 </div>
               </section>
             );
           // Remove fragments for mapping
