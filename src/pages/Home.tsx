@@ -692,7 +692,7 @@ export default function HomeDashboard() {
                              hideControls={true} 
                            />
                        </div>
-                       <div className="absolute inset-0 bg-gradient-to-t from-[#120a05] via-[#120a05]/60 to-transparent flex flex-col justify-end p-5">
+                       <div className="absolute inset-0 flex flex-col justify-end p-5 bg-black/20">
                            <span className="text-[13px] font-black text-emerald-400 tracking-wider drop-shadow-md mb-1">{post.club?.name}</span>
                            <p className="font-bold text-[15px] line-clamp-2 text-white leading-snug drop-shadow-md">{post.content}</p>
                            <div className="flex items-center gap-2 mt-3">
