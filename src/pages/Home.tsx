@@ -85,6 +85,7 @@ const DEFAULT_LAYOUT: HomeSectionConfig[] = [
 
 const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { todayPairings?: any[], userPairings?: any[] }) => {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [activeDessert, setActiveDessert] = React.useState<number | null>(null);
 
     
@@ -143,7 +144,7 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
             </div>
             <div className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
                 {userPairings.map((post) => (
-                    <div key={post.id} className="relative w-[calc(33.333%-8px)] aspect-[3/4] max-h-[180px] rounded-2xl overflow-hidden shrink-0 snap-center shadow-lg group cursor-pointer border border-espresso-800">
+                    <div key={post.id} onClick={() => navigate('/community', { state: { activePost: post.id } })} className="relative w-[calc(33.333%-8px)] aspect-[3/4] max-h-[180px] rounded-2xl overflow-hidden shrink-0 snap-center shadow-lg group cursor-pointer border border-espresso-800">
                         <MediaRenderer src={getFirstImage(post.image) || 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=300&q=80'} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" hideControls={true} />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#120a05]/90 via-[#120a05]/30 to-transparent flex flex-col justify-end p-3 pointer-events-none">
                             <span className="text-[12px] font-bold text-espresso-50 leading-tight mb-1 line-clamp-2">{post.content}</span>
