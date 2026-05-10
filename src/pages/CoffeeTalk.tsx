@@ -1903,6 +1903,16 @@ export default function CoffeeTalk() {
                       <span className="text-[13px] font-medium">{post.shareCount}</span>
                     </button>
 
+                    {(post.recipeData || post.tastingNote) && activeFilter === 'shorts' && (
+                        <button onClick={() => setActiveRecipeNotePost(post)} className="flex items-center gap-1.5 pl-3 border-l border-espresso-700 ml-1 text-espresso-200 hover:text-amber-500 transition-colors group pointer-events-auto">
+                           <div className="relative">
+                               <div className="absolute inset-0 bg-emerald-400/20 blur-md rounded-full animate-pulse group-hover:bg-emerald-400/40"></div>
+                               <ListChecks size={20} className="text-emerald-400 relative z-10 -mt-0.5" />
+                           </div>
+                           <span className="text-[13px] font-medium text-emerald-400">레시피</span>
+                        </button>
+                    )}
+
                     {post.commentImages && post.commentImages.length > 0 && (
                         <button 
                             onClick={(e) => { e.stopPropagation(); setGalleryPostId(post.id); }}
