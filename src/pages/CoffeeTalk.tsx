@@ -133,6 +133,7 @@ export default function CoffeeTalk() {
   const [unreadClubsBadge, setUnreadClubsBadge] = useState(false);
   const [collectionPostId, setCollectionPostId] = useState<string | null>(null);
   const [selectedPublicUserId, setSelectedPublicUserId] = useState<string | null>(null);
+  const [activeRecipeNotePost, setActiveRecipeNotePost] = useState<Post | null>(null);
 
   let currentUserId = '';
   try {
@@ -2110,7 +2111,7 @@ export default function CoffeeTalk() {
                 )}
 
                 {/* Recipe Mini-Widget */}
-                {post.recipeData && post.recipeData.type !== 'prescription' && (
+                {post.recipeData && post.recipeData.type !== 'prescription' && activeFilter !== 'shorts' && (
                   <div className="mt-4 bg-espresso-950 border border-espresso-700 rounded-2xl p-4 shadow-sm relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500 rounded-l-2xl"></div>
                     <p className="text-[11px] font-bold text-emerald-500 mb-4 uppercase tracking-wide flex items-center gap-1.5"><Coffee size={14} className="opacity-80"/> Brewing Recipe</p>
@@ -2133,7 +2134,7 @@ export default function CoffeeTalk() {
                 )}
 
                 {/* Tasting Note Mini-Widget */}
-                {post.tastingNote && (
+                {post.tastingNote && activeFilter !== 'shorts' && (
                   <div className="relative z-10 mt-3 bg-espresso-800/40 rounded-2xl px-4 py-3 border border-espresso-600/50">
                     <p className="text-[11px] font-bold text-amber-500 mb-2 uppercase tracking-wide">Taster's Note</p>
                     <div className="space-y-1.5">
@@ -2708,6 +2709,85 @@ export default function CoffeeTalk() {
               onClose={() => setActiveCarouselUrls(null)} 
           />
       )}
+
+            {/* Shorts Recipe & Tasting Note Bottom Sheet */}
+      <AnimatePresence>
+          {activeRecipeNotePost && (
+              <>
+                  <motion.div 
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      className="fixed inset-0 bg-black/60 z-[300] backdrop-blur-sm"
+                      onClick={() => setActiveRecipeNotePost(null)}
+                  />
+                  <motion.div
+                      initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+                      transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                      className="fixed bottom-0 left-0 right-0 z-[310] bg-espresso-950/90 backdrop-blur-xl border-t border-espresso-800 rounded-t-3xl p-6 pb-safe flex flex-col max-h-[85vh] overflow-y-auto"
+                  >
+                      <div className="flex justify-between items-center mb-6">
+                          <h3 className="font-bold text-white text-[18px]">레시피 & 테이스팅 노트</h3>
+                          <button onClick={() => setActiveRecipeNotePost(null)} className="w-8 h-8 rounded-full bg-espresso-800 flex items-center justify-center text-espresso-200">
+                              <X size={18} />
+                          </button>
+                      </div>
+                      
+                      {activeRecipeNotePost.recipeData && (
+                          <div className="mb-6 bg-espresso-900/50 border border-emerald-500/20 rounded-2xl p-5">
+                              <p className="text-[12px] font-bold text-emerald-500 mb-4 uppercase tracking-wide flex items-center gap-1.5"><Coffee size={15}/> Brewing Recipe</p>
+                              <div className="grid grid-cols-2 gap-y-5 gap-x-4">
+                                  {[
+                                      { icon: <Scale size={14} />, label: t('coffee_talk.recipe_dose', '원두량'), value: activeRecipeNotePost.recipeData.dose },
+                                      { icon: <Droplets size={14} />, label: t('coffee_talk.recipe_yield', '추출량'), value: activeRecipeNotePost.recipeData.yield },
+                                      { icon: <Thermometer size={14} />, label: t('coffee_talk.recipe_temp', '물 온도'), value: activeRecipeNotePost.recipeData.temp },
+                                      { icon: <Timer size={14} />, label: t('coffee_talk.recipe_time', '추출 시간'), value: activeRecipeNotePost.recipeData.time },
+                                      { icon: <Settings size={14} />, label: t('coffee_talk.recipe_grinder', '그라인더'), value: activeRecipeNotePost.recipeData.grinder },
+                                      { icon: <Coffee size={14} />, label: t('coffee_talk.recipe_method', '추출 도구'), value: activeRecipeNotePost.recipeData.method },
+                                  ].filter(item => item.value).map((item, idx) => (
+                                      <div key={idx} className="flex flex-col">
+                                          <span className="text-[12px] font-medium text-espresso-300 flex items-center gap-1.5 mb-1.5">{item.icon} {item.label}</span>
+                                          <span className="text-[15px] font-bold text-espresso-50 pl-5">{item.value}</span>
+                                      </div>
+                                  ))}
+                              </div>
+                          </div>
+                      )}
+
+                      {activeRecipeNotePost.tastingNote && (
+                          <div className="bg-espresso-900/50 border border-amber-500/20 rounded-2xl p-5 mb-8">
+                              <p className="text-[12px] font-bold text-amber-500 mb-4 uppercase tracking-wide">Taster's Note</p>
+                              <div className="space-y-3">
+                                  {[
+                                      { label: t('coffee_talk.taste_acidity', '산미 (Acidity)'), val: activeRecipeNotePost.tastingNote.acidity },
+                                      { label: t('coffee_talk.taste_sweetness', '단맛 (Sweetness)'), val: activeRecipeNotePost.tastingNote.sweetness },
+                                      { label: t('coffee_talk.taste_bitterness', '쓴맛 (Bitterness)'), val: activeRecipeNotePost.tastingNote.bitterness },
+                                      { label: t('coffee_talk.taste_aroma', '향/아로마 (Aroma)'), val: activeRecipeNotePost.tastingNote.aroma },
+                                      { label: t('coffee_talk.taste_body', '바디감 (Body)'), val: activeRecipeNotePost.tastingNote.body }
+                                  ].map((taste, idx) => (
+                                      <div key={idx} className="flex items-center gap-3">
+                                          <span className="w-[120px] text-[13px] font-medium text-espresso-300">{taste.label}</span>
+                                          <div className="flex-1 h-2 bg-espresso-800 rounded-full overflow-hidden">
+                                              <div className="h-full bg-gradient-to-r from-amber-600 to-amber-400 rounded-full" style={{ width: `${(taste.val / 5) * 100}%` }} />
+                                          </div>
+                                          <span className="w-4 text-right text-[13px] font-bold text-espresso-100">{taste.val}</span>
+                                      </div>
+                                  ))}
+                              </div>
+                              {activeRecipeNotePost.tastingNote.flavorTags && (
+                                  <div className="mt-5 pt-4 border-t border-espresso-800/50">
+                                      <p className="text-[11px] font-bold text-espresso-400 mb-2">FLAVOR & AROMA</p>
+                                      <div className="flex flex-wrap gap-2">
+                                          {activeRecipeNotePost.tastingNote.flavorTags.split(',').map((tag: string, i: number) => (
+                                              <span key={i} className="px-3 py-1 bg-espresso-800 text-amber-100 rounded-full text-[12px] font-medium border border-espresso-700">{tag.trim()}</span>
+                                          ))}
+                                      </div>
+                                  </div>
+                              )}
+                          </div>
+                      )}
+                  </motion.div>
+              </>
+          )}
+      </AnimatePresence>
 
       {/* Reward Tier Selection Modal */}
       {showRewardModal && selectedRewardTarget && rewardTiers && (
