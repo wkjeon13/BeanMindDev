@@ -21,6 +21,12 @@ const DailyRoulette = () => {
                 const res = await fetch(`${API_BASE}/api/retention/daily-status`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                if (res.status === 401 || res.status === 403) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.reload();
+                    return;
+                }
                 const data = await res.json();
                 setStatus(data);
                 if (data.todayPlayed) {
@@ -45,24 +51,30 @@ const DailyRoulette = () => {
             const token = localStorage.getItem('token');
             const res = await fetch(`${API_BASE}/api/retention/daily-checkin`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ cupIndex: index })
             });
             const data = await res.json();
             
             if (res.ok) {
-                // Determine fake rewards for other cups
-                const allRewards = [10, 30, 50, 80, 100];
-                const fakes = allRewards.filter(r => r !== data.beansWon).sort(() => 0.5 - Math.random()).slice(0, 2);
+                const cupCount = status.cupCount || 3;
+                const fakes = data.fakes || [];
                 
-                const finalRewards = [0, 0, 0];
+                const finalRewards = Array(cupCount).fill(0);
                 finalRewards[index] = data.beansWon;
                 
-                const emptySlots = [0, 1, 2].filter(i => i !== index);
-                finalRewards[emptySlots[0]] = fakes[0];
-                finalRewards[emptySlots[1]] = fakes[1];
+                const cupIndexes = Array.from({ length: cupCount }, (_, i) => i);
+                const emptySlots = cupIndexes.filter(i => i !== index);
+                
+                emptySlots.forEach((slotIndex, i) => {
+                    finalRewards[slotIndex] = fakes[i] || 10;
+                });
                 
                 setRewards(finalRewards);
-                setStatus({ streak: data.streak, todayPlayed: true });
+                setStatus(prev => prev ? { ...prev, streak: data.streak, todayPlayed: true } : { streak: data.streak, todayPlayed: true, cupCount: 3 });
                 setMessage(data.message);
                 setTimeout(() => setIsHidden(true), 3500);
             } else {
@@ -77,7 +89,7 @@ const DailyRoulette = () => {
         }
     };
 
-    if (!status || isHidden) return null;
+    if (!status || isHidden || (status as any).disabled) return null;
 
     return (
         <section className="w-full py-4 px-4">
@@ -118,8 +130,8 @@ const DailyRoulette = () => {
                             <h4 className="text-[14px] font-medium text-espresso-200 mb-3 tracking-wide">
                                 {t('home.roulette_subtitle', '행운의 커피 컵을 골라보세요.')}
                             </h4>
-                            <div className="flex justify-center gap-4">
-                                {[0, 1, 2].map((i) => (
+                            <div className="flex justify-center gap-4 flex-wrap">
+                                {Array.from({ length: status.cupCount || 3 }, (_, i) => i).map((i) => (
                                     <motion.div 
                                         key={i}
                                         whileHover={!isShuffling ? { y: -3 } : {}}
@@ -147,8 +159,8 @@ const DailyRoulette = () => {
                         </>
                 ) : (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="flex flex-col items-center">
-                        <div className="flex justify-center gap-4 mb-4 mt-1">
-                             {[0, 1, 2].map((i) => (
+                        <div className="flex justify-center gap-4 mb-4 mt-1 flex-wrap">
+                             {Array.from({ length: status.cupCount || 3 }, (_, i) => i).map((i) => (
                                 <div key={i} className={`w-[75px] flex flex-col items-center justify-end relative ${selectedCup === i ? 'scale-110 z-10' : 'opacity-40 scale-90'}`}>
                                     {selectedCup === i && (
                                         <motion.div 

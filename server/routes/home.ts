@@ -17,67 +17,80 @@ const authenticateToken = (req: any, res: any, next: any) => {
     });
 };
 
+const optionalAuth = (req: any, res: any, next: any) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token == null) {
+        return next();
+    }
+
+    jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+        if (!err) {
+            req.user = user;
+        }
+        next();
+    });
+};
+
 const router = express.Router();
 import prisma from '../utils/prisma.js';
 
 // GET: /api/home/personalized
-// Fetches personalized content for the logged-in user
-router.get('/personalized', authenticateToken, async (req: any, res) => {
+// Fetches personalized content for the logged-in user, and public content for guests
+router.get('/personalized', optionalAuth, async (req: any, res) => {
     try {
         const currentUserId = req.user?.id;
-        if (!currentUserId) {
-            return res.status(401).json({ error: 'Unauthorized' });
-        }
 
-        // Fetch User and Preferences
-        const user = await (prisma as any).user.findUnique({
-            where: { id: currentUserId }
-        });
-
-        // 1. Latest Prescription for Hero Banner
-        const latestPrescription = await (prisma as any).prescription.findFirst({
-            where: { userId: currentUserId },
-            orderBy: { createdAt: 'desc' }
-        });
-
-        // 2. Following & Followed Store Feeds
-        const followedUsers = await (prisma as any).userFollow.findMany({
-            where: { followerId: currentUserId },
-            select: { followingId: true }
-        });
-        const followedUserIds = followedUsers.map((f: any) => f.followingId);
-
-        const followedStores = await (prisma as any).storeFollow.findMany({
-            where: { userId: currentUserId },
-            select: { storeId: true }
-        });
-        const followedStoreIds = followedStores.map((f: any) => f.storeId);
-
+        let latestPrescription = null;
         let followingFeeds: any[] = [];
-        if (followedUserIds.length > 0 || followedStoreIds.length > 0) {
-            followingFeeds = await (prisma as any).post.findMany({
-                where: {
-                    isHidden: false,
-                    clubId: null,
-                    OR: [
-                        ...(followedUserIds.length > 0 ? [{ authorId: { in: followedUserIds } }] : []),
-                        ...(followedStoreIds.length > 0 ? [{ storeId: { in: followedStoreIds } }] : [])
-                    ]
-                },
-                orderBy: { createdAt: 'desc' },
-                take: 10,
-                include: {
-                    author: { select: { id: true, nickname: true, profileImageUrl: true, role: true } },
-                    _count: { select: { likes: true, comments: true } }
-                }
+        let user: any = null;
+
+        if (currentUserId) {
+            // Fetch User and Preferences
+            user = await (prisma as any).user.findUnique({
+                where: { id: currentUserId }
             });
+
+            // 1. Latest Prescription for Hero Banner
+            latestPrescription = await (prisma as any).prescription.findFirst({
+                where: { userId: currentUserId },
+                orderBy: { createdAt: 'desc' }
+            });
+
+            // 2. Following & Followed Store Feeds
+            const followedUsers = await (prisma as any).userFollow.findMany({
+                where: { followerId: currentUserId },
+                select: { followingId: true }
+            });
+            const followedUserIds = followedUsers.map((f: any) => f.followingId);
+
+            const followedStores = await (prisma as any).storeFollow.findMany({
+                where: { userId: currentUserId },
+                select: { storeId: true }
+            });
+            const followedStoreIds = followedStores.map((f: any) => f.storeId);
+
+            if (followedUserIds.length > 0 || followedStoreIds.length > 0) {
+                followingFeeds = await (prisma as any).post.findMany({
+                    where: {
+                        isHidden: false,
+                        clubId: null,
+                        OR: [
+                            { authorId: { in: followedUserIds } },
+                            { storeId: { in: followedStoreIds } }
+                        ]
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    take: 5,
+                    include: {
+                        author: { select: { id: true, nickname: true, profileImage: true } },
+                        store: { select: { id: true, name: true, address: true } },
+                        _count: { select: { comments: true, likes: true } }
+                    }
+                });
+            }
         }
 
-        // 3. Taste Matched Feeds (Simplified match: Posts with non-null acidity/body that somewhat match user's profile)
-        // Note: For advanced math, it's better to fetch candidates and filter in memory, but for speed, we do a relaxed SQL check or just fetch recent tasting notes.
-        const userAcidity = user?.acidity || 3;
-        const userBody = user?.body || 3;
-        
         const { countryCode } = req.query;
         let finalCountryCode = countryCode && countryCode !== 'GLOBAL' ? String(countryCode) : undefined;
         if (user && user.countryCode && user.countryCode !== 'GLOBAL') {
@@ -160,7 +173,7 @@ router.get('/personalized', authenticateToken, async (req: any, res) => {
 
         // 4. My Club Feeds OR Recommended Clubs by Region
         const myClubMemberships = await (prisma as any).clubMember.findMany({
-            where: { userId: currentUserId },
+            where: { userId: currentUserId || 'NOT_LOGGED_IN' },
             select: { clubId: true, club: { select: { name: true } } }
         });
         const myClubIds = myClubMemberships.map((m: any) => m.clubId);
@@ -225,17 +238,45 @@ router.get('/personalized', authenticateToken, async (req: any, res) => {
 
         // 5. Today's Pairings (Randomized 4 items to keep UI clean and dynamic)
         const userCountry = user?.countryCode || 'KR';
+        const targetLang = userCountry === 'US' ? 'en' : (userCountry === 'JP' ? 'ja' : (userCountry === 'CN' ? 'zh' : 'ko'));
+        
         const allPairings = await (prisma as any).todayPairing.findMany({
-            where: { isActive: true, countryCode: userCountry }
+            where: { 
+                isActive: true,
+                OR: [
+                    { availableRegions: 'GLOBAL' },
+                    { availableRegions: { contains: userCountry } }
+                ]
+            },
+            include: { translations: true }
+        });
+        
+        // Flatten translations based on user language
+        const flattenedPairings = allPairings.map((p: any) => {
+            const translation = p.translations.find((t: any) => t.languageCode === targetLang) 
+                                || p.translations.find((t: any) => t.languageCode === 'en')
+                                || p.translations.find((t: any) => t.languageCode === 'ko') 
+                                || p.translations[0];
+            
+            return {
+                id: p.id,
+                icon: p.icon,
+                order: p.order,
+                name: translation?.name || 'Unknown',
+                coffee: translation?.coffee || 'Unknown',
+                desc: translation?.desc || '',
+                season: translation?.season || null,
+                tasteProfile: translation?.tasteProfile || null
+            };
         });
         
         // Simple Fisher-Yates shuffle
-        for (let i = allPairings.length - 1; i > 0; i--) {
+        for (let i = flattenedPairings.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [allPairings[i], allPairings[j]] = [allPairings[j], allPairings[i]];
+            [flattenedPairings[i], flattenedPairings[j]] = [flattenedPairings[j], flattenedPairings[i]];
         }
         
-        const todayPairings = allPairings.slice(0, 4);
+        const todayPairings = flattenedPairings.slice(0, 4);
 
         // 6. User Pairings (Posts with #페어링 or #Pairing based on country)
         const pairingTag = userCountry === 'US' ? '#Pairing' : '#페어링';
@@ -254,6 +295,47 @@ router.get('/personalized', authenticateToken, async (req: any, res) => {
             }
         });
 
+        // 7. Native Ad
+        const nativeAdSetting = await prisma.systemSetting.findUnique({ where: { key: 'HOME_NATIVE_AD' } });
+        let nativeAd = null;
+        if (nativeAdSetting && nativeAdSetting.value) {
+            try {
+                const config = JSON.parse(nativeAdSetting.value);
+                if (config.isActive) {
+                    nativeAd = config;
+                }
+            } catch (e) {}
+        }
+
+        // 8. Weekly MBTI
+        const weeklyMbtiSetting = await prisma.systemSetting.findUnique({ where: { key: 'HOME_WEEKLY_MBTI' } });
+        let weeklyMbti = { isActive: true, title: '이번 주말, 당신의 기분은?', imageUrl: '' };
+        if (weeklyMbtiSetting && weeklyMbtiSetting.value) {
+            try {
+                const config = JSON.parse(weeklyMbtiSetting.value);
+                weeklyMbti = config;
+            } catch (e) {}
+        }
+
+        // 9. Other Campaigns for Layout Visibility
+        const flashDropSetting = await prisma.systemSetting.findUnique({ where: { key: 'HOME_FLASH_DROP' } });
+        let flashDropActive = false;
+        if (flashDropSetting && flashDropSetting.value) {
+            try {
+                const config = JSON.parse(flashDropSetting.value);
+                flashDropActive = !!config.isActive;
+            } catch (e) {}
+        }
+
+        const rouletteSetting = await prisma.systemSetting.findUnique({ where: { key: 'HOME_ROULETTE' } });
+        let rouletteActive = true;
+        if (rouletteSetting && rouletteSetting.value) {
+            try {
+                const config = JSON.parse(rouletteSetting.value);
+                rouletteActive = !!config.isActive;
+            } catch (e) {}
+        }
+
         res.json({
             latestPrescription,
             followingFeeds,
@@ -261,7 +343,13 @@ router.get('/personalized', authenticateToken, async (req: any, res) => {
             myClubFeeds,
             recommendedClubs,
             todayPairings,
-            userPairings
+            userPairings,
+            nativeAd,
+            weeklyMbti,
+            campaigns: {
+                flashDrop: flashDropActive,
+                roulette: rouletteActive
+            }
         });
 
     } catch (error) {

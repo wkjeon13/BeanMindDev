@@ -1,12 +1,15 @@
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import { AdMobFallback } from './AdMobFallback';
+import { useTranslation } from 'react-i18next';
 
 interface MagazineAdProps {
     adData?: any;
 }
 
 export const MagazineAd: React.FC<MagazineAdProps> = ({ adData }) => {
+    const { i18n } = useTranslation();
+    const isEn = i18n.language === 'en';
     if (!adData || adData.fallback === 'ADMOB') {
         return (
             <div className="my-12 px-6">
@@ -18,11 +21,31 @@ export const MagazineAd: React.FC<MagazineAdProps> = ({ adData }) => {
         );
     }
 
+    const displayImage = adData.imageUrl || adData.content || 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=800';
+    const displaySponsor = isEn && adData.sponsorNameEn ? adData.sponsorNameEn : (adData.sponsorName || adData.campaignName || 'Sponsor Feature');
+    const displayTitle = isEn && adData.titleEn ? adData.titleEn : (adData.title || adData.name || 'The Art of Brewing');
+    
+    let formattedUrl = adData.linkUrl || '';
+    if (formattedUrl && !formattedUrl.startsWith('http://') && !formattedUrl.startsWith('https://')) {
+        formattedUrl = `https://${formattedUrl}`;
+    }
+
+    const handleAdClick = (e: React.MouseEvent) => {
+        if (formattedUrl) {
+            e.preventDefault();
+            window.open(formattedUrl, '_blank', 'noopener,noreferrer');
+        }
+    };
+
     return (
-        <div className="my-4 mx-4 relative w-[calc(100%-32px)] h-[400px] overflow-hidden group cursor-pointer rounded-3xl shadow-lg border border-espresso-800">
+        <div 
+            className="my-4 mx-4 relative w-[calc(100%-32px)] overflow-hidden group cursor-pointer rounded-3xl shadow-lg border border-espresso-800"
+            style={{ height: adData.height ? `${adData.height}px` : '400px' }}
+            onClick={handleAdClick}
+        >
             <img 
-                src={adData.content || 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=800'} 
-                alt="Magazine Feature"
+                src={displayImage} 
+                alt={displayTitle}
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
             />
             
@@ -30,10 +53,10 @@ export const MagazineAd: React.FC<MagazineAdProps> = ({ adData }) => {
             
             <div className="absolute inset-0 flex flex-col justify-end p-8 sm:p-12">
                 <p className="text-amber-500 font-serif text-sm tracking-widest uppercase mb-4">
-                    {adData.campaignName || 'Sponsor Feature'}
+                    {displaySponsor}
                 </p>
                 <h2 className="text-3xl sm:text-4xl font-serif text-white leading-tight mb-4 max-w-lg">
-                    {adData.name || 'The Art of Brewing'}
+                    {displayTitle}
                 </h2>
                 {adData.flavorTags && (
                     <p className="text-espresso-200 text-lg mb-8 max-w-md font-serif italic">
@@ -41,25 +64,13 @@ export const MagazineAd: React.FC<MagazineAdProps> = ({ adData }) => {
                     </p>
                 )}
                 
-                {adData.linkUrl && (
+                {formattedUrl && (
                     <div className="inline-flex items-center gap-3 text-white border-b border-white pb-1 w-max hover:text-amber-500 hover:border-amber-500 transition-colors">
                         <span className="font-serif uppercase tracking-wider text-sm">Discover More</span>
                         <ExternalLink size={16} />
                     </div>
                 )}
             </div>
-
-            {adData.linkUrl && (
-                <a 
-                    href={adData.linkUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="absolute inset-0 z-20"
-                    onClick={() => console.log('Magazine Ad Clicked')}
-                >
-                    <span className="sr-only">Visit Sponsor</span>
-                </a>
-            )}
         </div>
     );
 };

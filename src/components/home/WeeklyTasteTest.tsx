@@ -3,7 +3,7 @@ import { Share2, ArrowRight, RefreshCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { WEEKLY_MBTI_DATA } from '../../data/weeklyMbti';
 
-const WeeklyTasteTest = () => {
+const WeeklyTasteTest = ({ config }: { config?: any }) => {
     const [step, setStep] = useState(-1); // -1: Banner, 0~N: Questions, N+1: Result
     const [answers, setAnswers] = useState<string[]>([]);
 
@@ -61,16 +61,16 @@ const WeeklyTasteTest = () => {
                         className="relative w-full h-[140px] cursor-pointer flex flex-col justify-center px-6 group overflow-hidden"
                         onClick={handleStart}
                     >
-                        <div className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] group-hover:scale-110" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&q=80)' }} />
+                        <div className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] group-hover:scale-110" style={{ backgroundImage: `url(${config?.imageUrl || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&q=80'})` }} />
                         <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/30" />
                         
                         <div className="relative z-10">
                             <div className="flex items-center gap-2 mb-2">
                                 <div className="w-4 h-[1px] bg-amber-500" />
-                                <span className="text-[8px] font-bold tracking-[0.2em] uppercase text-amber-500 block">Taste Test</span>
+                                <span className="text-[8px] font-bold tracking-[0.2em] uppercase text-amber-500 block">{config?.badgeText || 'Taste Test'}</span>
                             </div>
-                            <h3 className="text-[20px] font-serif leading-tight text-white mb-1">{WEEKLY_MBTI_DATA.title}</h3>
-                            <p className="text-[11px] text-white/70 font-light max-w-[80%] mb-4 leading-relaxed line-clamp-1">간단한 3가지 질문으로 어울리는 커피를 찾아요.</p>
+                            <h3 className="text-[20px] font-serif leading-tight text-white mb-1">{config?.title || WEEKLY_MBTI_DATA.title}</h3>
+                            <p className="text-[11px] text-white/70 font-light max-w-[80%] mb-4 leading-relaxed line-clamp-1">{config?.subtitle || '간단한 3가지 질문으로 어울리는 커피를 찾아요.'}</p>
                             
                             <div className="flex items-center gap-2">
                                 <span className="text-white text-[9px] font-bold tracking-widest uppercase group-hover:text-amber-400 transition-colors">Start</span>

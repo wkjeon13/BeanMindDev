@@ -24,8 +24,12 @@ const authenticateAdmin = (req: any, res: any, next: any) => {
     if (!token) return res.status(401).json({ error: ERROR_CODES.MISSING_AUTH_HEADER });
 
     jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-        if (err) return res.status(403).json({ error: ERROR_CODES.INVALID_TOKEN });
+        if (err) {
+            console.error("authenticateAdmin: INVALID_TOKEN", err);
+            return res.status(403).json({ error: ERROR_CODES.INVALID_TOKEN });
+        }
         if (user.role !== 'ADMIN' && user.role !== 'MODERATOR') {
+            console.error("authenticateAdmin: UNAUTHORIZED_ACTION, role:", user.role);
             return res.status(403).json({ error: ERROR_CODES.UNAUTHORIZED_ACTION });
         }
         req.user = user;
@@ -302,6 +306,17 @@ const upload = multer({
 });
 
 router.post('/upload-ad-media', upload.single('media'), async (req: any, res: any) => {
+    try {
+        if (!req.file) return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
+        const mediaUrl = `/uploads/ads/${req.file.filename}`;
+        res.status(200).json({ url: mediaUrl });
+    } catch (error) {
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// Generic upload endpoint for Pairings and other settings
+router.post('/upload', upload.single('image'), async (req: any, res: any) => {
     try {
         if (!req.file) return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
         const mediaUrl = `/uploads/ads/${req.file.filename}`;
@@ -1542,6 +1557,169 @@ router.post('/banned-words/bulk', async (req: any, res: any) => {
         res.status(201).json({ success: true, insertedCount, skippedCount });
     } catch (error) {
         console.error("Bulk create banned words error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// --- Home Campaigns (SDUI) ---
+router.get('/home-campaigns', authenticateAdmin, async (req, res) => {
+    try {
+        const settings = await prisma.systemSetting.findMany({
+            where: {
+                key: { in: ['HOME_FLASH_DROP', 'HOME_ROULETTE', 'HOME_NATIVE_AD', 'HOME_WEEKLY_MBTI'] }
+            }
+        });
+        
+        const config: any = {
+            HOME_FLASH_DROP: { isActive: false, title: '', description: '', imageUrl: '', linkUrl: '', badgeText: 'Flash Drop' },
+            HOME_ROULETTE: { isActive: true },
+            HOME_NATIVE_AD: { isActive: false, title: '', imageUrl: '', linkUrl: '' },
+            HOME_WEEKLY_MBTI: { isActive: true, title: '', subtitle: '', imageUrl: '', badgeText: '' }
+        };
+
+        settings.forEach((s: any) => {
+            try {
+                config[s.key as keyof typeof config] = JSON.parse(s.value);
+            } catch (e) {}
+        });
+
+        res.json(config);
+    } catch (error) {
+        console.error('Fetch home campaigns error:', error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+router.put('/home-campaigns', authenticateAdmin, async (req, res) => {
+    try {
+        const payload = req.body;
+        // Upsert each key
+        for (const [key, value] of Object.entries(payload)) {
+            if (['HOME_FLASH_DROP', 'HOME_ROULETTE', 'HOME_NATIVE_AD', 'HOME_WEEKLY_MBTI'].includes(key)) {
+                await prisma.systemSetting.upsert({
+                    where: { key },
+                    update: { value: JSON.stringify(value) },
+                    create: { key, value: JSON.stringify(value) }
+                });
+            }
+        }
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Update home campaigns error:', error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// --- Today's Perfect Pairing Management ---
+
+// Get all pairings
+router.get('/pairings', async (req, res) => {
+    try {
+        const pairings = await prisma.todayPairing.findMany({
+            include: { translations: true },
+            orderBy: [
+                { order: 'asc' },
+                { createdAt: 'desc' }
+            ]
+        });
+        res.json(pairings);
+    } catch (error) {
+        console.error('Fetch pairings error:', error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// Create new pairing
+router.post('/pairings', async (req, res) => {
+    try {
+        const { icon, availableRegions, isActive, order, translations } = req.body;
+        
+        const newPairing = await prisma.todayPairing.create({
+            data: {
+                icon,
+                availableRegions: availableRegions || 'GLOBAL',
+                isActive: isActive ?? true,
+                order: order ?? 0,
+                translations: {
+                    create: translations || []
+                }
+            },
+            include: { translations: true }
+        });
+        res.json(newPairing);
+    } catch (error) {
+        console.error('Create pairing error:', error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// Update pairing
+router.put('/pairings/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { icon, availableRegions, isActive, order, translations } = req.body;
+        
+        // Upsert translations
+        const translationOps = [];
+        if (translations && Array.isArray(translations)) {
+            for (const t of translations) {
+                translationOps.push(
+                    prisma.todayPairingTranslation.upsert({
+                        where: { pairingId_languageCode: { pairingId: id, languageCode: t.languageCode } },
+                        update: {
+                            name: t.name,
+                            coffee: t.coffee,
+                            desc: t.desc,
+                            season: t.season,
+                            tasteProfile: t.tasteProfile
+                        },
+                        create: {
+                            pairingId: id,
+                            languageCode: t.languageCode,
+                            name: t.name,
+                            coffee: t.coffee,
+                            desc: t.desc,
+                            season: t.season,
+                            tasteProfile: t.tasteProfile
+                        }
+                    })
+                );
+            }
+        }
+        
+        const updated = await prisma.$transaction([
+            prisma.todayPairing.update({
+                where: { id },
+                data: {
+                    ...(icon !== undefined && { icon }),
+                    ...(availableRegions !== undefined && { availableRegions }),
+                    ...(isActive !== undefined && { isActive }),
+                    ...(order !== undefined && { order })
+                }
+            }),
+            ...translationOps
+        ]);
+
+        const finalItem = await prisma.todayPairing.findUnique({
+            where: { id },
+            include: { translations: true }
+        });
+        
+        res.json(finalItem);
+    } catch (error) {
+        console.error('Update pairing error:', error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// Delete pairing
+router.delete('/pairings/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await prisma.todayPairing.delete({ where: { id } });
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Delete pairing error:', error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
     }
 });

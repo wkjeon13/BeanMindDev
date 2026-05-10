@@ -78,17 +78,28 @@ const getStreakInfo = async (userId) => {
 
 router.get('/daily-status', authenticateToken, async (req, res) => {
     try {
+        const setting = await prisma.systemSetting.findUnique({ where: { key: 'HOME_ROULETTE' } });
+        let config: any = { isActive: true, cupCount: 3 };
+        if (setting && setting.value) {
+            try { config = JSON.parse(setting.value); } catch(e){}
+        }
+        
+        if (!config.isActive) {
+            return res.json({ disabled: true });
+        }
+
         const info = await getStreakInfo(req.user.id);
-        res.json(info);
+        res.json({ ...info, disabled: false, cupCount: config.cupCount || 3 });
     } catch (error) {
         console.error('Streak check error:', error);
         res.status(500).json({ error: 'Failed to fetch status.' });
     }
 });
 
-router.post('/daily-checkin', authenticateToken, async (req, res) => {
+router.post('/daily-checkin', authenticateToken, async (req: any, res: any) => {
     try {
         const userId = req.user.id;
+        const cupIndex = req.body.cupIndex || 0;
         const info = await getStreakInfo(userId);
 
         if (info.todayPlayed) {
@@ -98,11 +109,28 @@ router.post('/daily-checkin', authenticateToken, async (req, res) => {
         const newStreak = info.streak + 1;
         let beansWon = 0;
         
+        // 1. Check SystemSetting for rewards
+        const setting = await prisma.systemSetting.findUnique({ where: { key: 'HOME_ROULETTE' } });
+        let minR = 10;
+        let maxR = 100;
+        let cupCount = 3;
+        if (setting && setting.value) {
+            try {
+                const config = JSON.parse(setting.value);
+                if (config.isActive) {
+                    if (typeof config.minReward === 'number') minR = config.minReward;
+                    if (typeof config.maxReward === 'number') maxR = config.maxReward;
+                    if (typeof config.cupCount === 'number') cupCount = Math.max(1, Math.min(5, config.cupCount));
+                }
+            } catch (e) {}
+        }
+        
         if (newStreak === 7) {
             beansWon = 500; // Jackpot!
         } else {
-            // Normal: 10 ~ 100
-            beansWon = Math.floor(Math.random() * 91) + 10;
+            const min = Math.min(minR, maxR);
+            const max = Math.max(minR, maxR);
+            beansWon = Math.floor(Math.random() * (max - min + 1)) + min;
         }
 
         await prisma.$transaction([
@@ -123,7 +151,12 @@ router.post('/daily-checkin', authenticateToken, async (req, res) => {
             })
         ]);
 
-        res.json({ beansWon, message: newStreak === 7 ? '7일 연속 출석 달성! 잭팟!' : 'Check-in successful!', streak: newStreak });
+        const fakes = [];
+        for (let i=0; i < cupCount - 1; i++) {
+            fakes.push(Math.floor(Math.random() * (maxR - minR + 1)) + minR);
+        }
+
+        res.json({ beansWon, message: newStreak === 7 ? '7일 연속 출석 달성! 잭팟!' : 'Check-in successful!', streak: newStreak, fakes });
     } catch (error) {
         console.error('Daily check-in error:', error);
         res.status(500).json({ error: 'Failed to check in.' });
@@ -132,6 +165,31 @@ router.post('/daily-checkin', authenticateToken, async (req, res) => {
 
 router.get('/flash-drops', async (req, res) => {
     try {
+        const setting = await prisma.systemSetting.findUnique({ where: { key: 'HOME_FLASH_DROP' } });
+        if (setting && setting.value) {
+            const config = JSON.parse(setting.value);
+            if (config.isActive) {
+                // Return as array because frontend expects drops[0]
+                return res.json([{
+                    id: 'admin-configured',
+                    title: config.title || '이벤트',
+                    titleEn: config.titleEn || '',
+                    description: config.description || '',
+                    descriptionEn: config.descriptionEn || '',
+                    imageUrl: config.imageUrl || 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=800&q=80',
+                    linkUrl: config.linkUrl || '#',
+                    startTime: config.startTime || new Date().toISOString(),
+                    endTime: config.endTime || new Date(Date.now() + 86400000).toISOString(),
+                    badgeText: config.badgeText || 'Flash Drop : 게릴라 특가',
+                    badgeTextEn: config.badgeTextEn || '',
+                    status: 'ACTIVE'
+                }]);
+            } else {
+                return res.json([]);
+            }
+        }
+
+        // Fallback to old behavior
         const now = new Date();
         const activeDrops = await prisma.flashDrop.findMany({
             where: {
@@ -140,21 +198,6 @@ router.get('/flash-drops', async (req, res) => {
             },
             orderBy: { startTime: 'asc' }
         });
-
-        if (activeDrops.length === 0) {
-            return res.json([{
-                id: 'mock-1',
-                title: '파나마 게이샤 원두 한정 50% 특가',
-                description: '세계 최고의 커피, 파나마 게이샤를 반값에 만날 수 있는 단 2시간의 기회!',
-                imageUrl: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=800&q=80',
-                linkUrl: '#',
-                startTime: new Date(now.getTime() + 5 * 60 * 1000),
-                endTime: new Date(now.getTime() + 125 * 60 * 1000),
-                maxQuantity: 50,
-                claimedCount: 0,
-                status: 'ACTIVE'
-            }]);
-        }
         res.json(activeDrops);
     } catch (error) {
         console.error('Fetch flash drops error:', error);

@@ -903,16 +903,36 @@ enum InquiryStatus {
 
 
 model TodayPairing {
-  id           String   @id @default(uuid())
-  icon         String
+  id               String   @id @default(uuid())
+  icon             String
+  isActive         Boolean  @default(true)
+  order            Int      @default(0)
+  availableRegions String   @default("GLOBAL")
+  
+  translations     TodayPairingTranslation[]
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model TodayPairingTranslation {
+  id           String @id @default(uuid())
+  pairingId    String
+  pairing      TodayPairing @relation(fields: [pairingId], references: [id], onDelete: Cascade)
+  
+  languageCode String
   name         String
   coffee       String
   desc         String
   season       String?
   tasteProfile String?
-  countryCode  String   @default("KR")
-  isActive     Boolean  @default(true)
-  order        Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+
+  @@unique([pairingId, languageCode])
+}
+
+model SystemSetting {
+  key         String   @id
+  value       String   @db.LongText
+  description String?  @db.Text
+  updatedAt   DateTime @updatedAt
 }

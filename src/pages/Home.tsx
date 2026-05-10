@@ -104,16 +104,29 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
 
             {/* AI Pairing Roulette */}
             <div className="flex gap-2 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
-                {todayPairings.map((item, idx) => (
-                    <button 
-                        key={idx}
-                        onClick={() => setActiveDessert(activeDessert === idx ? null : idx)}
-                        className={`flex flex-col items-center justify-center w-[calc(25%-6px)] aspect-square rounded-2xl shrink-0 snap-center transition-all duration-300 border-2 shadow-md ${activeDessert === idx ? 'bg-gradient-to-b from-amber-500/20 to-transparent border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)]' : 'bg-espresso-800/80 border-espresso-700 hover:border-amber-500/50 hover:bg-espresso-800'}`}
-                    >
-                        <span className="text-[32px] mb-1 drop-shadow-sm">{item.icon}</span>
-                        <span className={`text-[12px] font-black tracking-tight transition-colors ${activeDessert === idx ? 'text-amber-400' : 'text-espresso-200'}`}>{item.name}</span>
-                    </button>
-                ))}
+                {todayPairings.map((item, idx) => {
+                    const isImageUrl = item.icon.startsWith('/') || item.icon.startsWith('http');
+                    return (
+                        <button 
+                            key={idx}
+                            onClick={() => setActiveDessert(activeDessert === idx ? null : idx)}
+                            className={`group flex flex-col items-center justify-center w-[calc(25%-6px)] aspect-square rounded-2xl shrink-0 snap-center transition-all duration-300 border-2 shadow-md relative overflow-hidden ${activeDessert === idx ? 'bg-gradient-to-b from-amber-500/20 to-transparent border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)]' : 'bg-espresso-800/80 border-espresso-700 hover:border-amber-500/50 hover:bg-espresso-800'}`}
+                        >
+                            {isImageUrl ? (
+                                <>
+                                    <img src={item.icon.startsWith('/') ? `${API_BASE}${item.icon}` : item.icon} alt={item.name} className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                                    <span className={`relative z-10 text-[12px] font-black tracking-tight mt-auto pb-2 px-1 text-center leading-tight transition-colors ${activeDessert === idx ? 'text-amber-400' : 'text-espresso-200'}`}>{item.name}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="text-[32px] mb-1 drop-shadow-sm">{item.icon}</span>
+                                    <span className={`text-[12px] font-black tracking-tight transition-colors ${activeDessert === idx ? 'text-amber-400' : 'text-espresso-200'}`}>{item.name}</span>
+                                </>
+                            )}
+                        </button>
+                    );
+                })}
             </div>
 
             <AnimatePresence>
@@ -164,12 +177,14 @@ const HomeLayoutEditor = ({
   isOpen, 
   onClose, 
   currentLayout, 
-  onSave 
+  onSave,
+  hiddenSectionIds = []
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
   currentLayout: HomeSectionConfig[]; 
   onSave: (newLayout: HomeSectionConfig[]) => void;
+  hiddenSectionIds?: string[];
 }) => {
   const { t } = useTranslation();
   const [layout, React_useState] = React.useState<HomeSectionConfig[]>([]);
@@ -222,7 +237,7 @@ const HomeLayoutEditor = ({
         <div className="p-5 flex-1 overflow-y-auto">
           <p className="text-[13px] text-espresso-300 mb-4">{t('home.layoutEditor.subtitle')}</p>
           <div className="space-y-3">
-            {layout.map((item, idx) => (
+            {layout.filter(item => !hiddenSectionIds.includes(item.id)).map((item, idx) => (
               <div key={item.id} className="flex items-center gap-3 bg-espresso-800/50 p-3 rounded-xl border border-espresso-800">
                 <div className="flex flex-col gap-1">
                   <button disabled={idx === 0} onClick={() => moveItem(idx, 'up')} className="text-espresso-400 hover:text-white disabled:opacity-30"><ArrowUp size={16} /></button>
@@ -296,7 +311,15 @@ export default function HomeDashboard() {
       // 1. Fetch Me & Layout independently
       if (isLoggedIn) {
           fetch(`${API_BASE}/api/users/me`, { headers })
-            .then(r => r.ok ? r.json() : null)
+            .then(r => {
+                if (r.status === 401 || r.status === 403) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.reload();
+                    return null;
+                }
+                return r.ok ? r.json() : null;
+            })
             .then(meData => {
                 if (meData) {
                     localStorage.setItem('user', JSON.stringify(meData));
@@ -385,19 +408,21 @@ export default function HomeDashboard() {
                 }
             }).catch(() => {});
 
-          // Personalized Data
-          if (isLoggedIn) {
-              const qsBase = `countryCode=${countryCode}`;
-              const qs = lat ? `?lat=${lat}&lng=${lng}&${qsBase}` : `?${qsBase}`;
-              fetch(`${API_BASE}/api/home/personalized${qs}`, { headers })
-                .then(r => r.ok ? r.json() : null)
-                .then(pData => {
-                    if (pData) {
-                        setPersonalizedData(pData);
-                        if (globalHomeCache) globalHomeCache.personalizedData = pData;
+          // Personalized Data (Now supports guests via optionalAuth)
+          const qsBase = `countryCode=${countryCode}`;
+          const qs = lat ? `?lat=${lat}&lng=${lng}&${qsBase}` : `?${qsBase}`;
+          fetch(`${API_BASE}/api/home/personalized${qs}`, { headers })
+            .then(r => r.ok ? r.json() : null)
+            .then(pData => {
+                if (pData) {
+                    setPersonalizedData(pData);
+                    if (pData.nativeAd) {
+                        setHomeNativeAd(pData.nativeAd);
+                        if (globalHomeCache) globalHomeCache.homeNativeAd = pData.nativeAd;
                     }
-                }).catch(() => {});
-          }
+                    if (globalHomeCache) globalHomeCache.personalizedData = pData;
+                }
+            }).catch(() => {});
       };
 
       if (!silent || !fastLat) {
@@ -480,6 +505,14 @@ export default function HomeDashboard() {
 
   const greetingName = currentUser?.nickname || t('home.guest', '방문자');
 
+  const hiddenSectionIds: string[] = [];
+  if (personalizedData) {
+    if (personalizedData.campaigns && !personalizedData.campaigns.flashDrop) hiddenSectionIds.push('flash_drop');
+    if (personalizedData.campaigns && !personalizedData.campaigns.roulette) hiddenSectionIds.push('daily_roulette');
+    if (personalizedData.weeklyMbti && !personalizedData.weeklyMbti.isActive) hiddenSectionIds.push('weekly_mbti');
+    if (!homeNativeAd) hiddenSectionIds.push('native_ad');
+  }
+
   return (
     <div className="absolute inset-0 bg-espresso-950 text-espresso-50 flex flex-col font-sans overflow-hidden">
 
@@ -488,6 +521,7 @@ export default function HomeDashboard() {
         onClose={() => setIsEditorOpen(false)} 
         currentLayout={layoutConfigs}
         onSave={handleSaveLayout}
+        hiddenSectionIds={hiddenSectionIds}
       />
 
       <header className="shrink-0 z-50 bg-espresso-900/80 backdrop-blur-xl border-b border-espresso-700/80 pt-safe">
@@ -642,7 +676,11 @@ export default function HomeDashboard() {
               </section>
           );
       }
-      if (config.id === 'weekly_mbti') return <WeeklyTasteTest key={config.id} />;
+      if (config.id === 'weekly_mbti') {
+          const mbtiConfig = personalizedData?.weeklyMbti || { isActive: true };
+          if (!mbtiConfig.isActive) return null;
+          return <WeeklyTasteTest key={config.id} config={mbtiConfig} />;
+      }
 
       if (config.id === 'taste_match') return isLoggedIn && personalizedData && personalizedData.tasteMatchedFeeds && personalizedData.tasteMatchedFeeds.length > 0 && (
               <section key={config.id} className="py-2 mt-1">

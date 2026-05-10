@@ -9,7 +9,9 @@ import AdminAdInquiries from './pages/AdminAdInquiries';
 import AdminSettings from './pages/AdminSettings';
 import AdminModeration from './pages/AdminModeration';
 import AdminLogin from './pages/AdminLogin';
-import { Settings, Users, Store, Coffee, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut } from 'lucide-react';
+import AdminHomeCampaigns from './pages/AdminHomeCampaigns';
+import AdminPairings from './pages/AdminPairings';
+import { Settings, Users, Store, Coffee, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut, Layout } from 'lucide-react';
 
 const Sidebar = () => {
   const handleLogout = () => {
@@ -41,6 +43,12 @@ const Sidebar = () => {
         </Link>
         <Link to="/ads" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors">
           <Target className="w-5 h-5 mr-3" /> Ads Management
+        </Link>
+        <Link to="/home-campaigns" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors text-amber-400 font-bold bg-gray-800/50">
+          <Layout className="w-5 h-5 mr-3" /> Home Campaigns
+        </Link>
+        <Link to="/pairings" className="flex items-center p-3 pl-11 rounded-lg hover:bg-gray-800 transition-colors text-sm">
+          Coffee Pairings
         </Link>
         <Link to="/ad-inquiries" className="flex items-center p-3 pl-11 rounded-lg hover:bg-gray-800 transition-colors text-sm">
           Ad Inquiries
@@ -89,6 +97,8 @@ function App() {
                   <Route path="/moderation" element={<AdminModeration />} />
                   <Route path="/ads" element={<AdminAds />} />
                   <Route path="/ad-inquiries" element={<AdminAdInquiries />} />
+                  <Route path="/home-campaigns" element={<AdminHomeCampaigns />} />
+                  <Route path="/pairings" element={<AdminPairings />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </main>
