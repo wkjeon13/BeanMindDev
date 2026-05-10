@@ -20,6 +20,8 @@ interface PersonalizedHomeData {
     recommendedClubs: any[];
     todayPairings?: any[];
     userPairings?: any[];
+    hotCoffeeTalkFeeds?: any[];
+    newestCoffeeTalkFeeds?: any[];
 }
 
 // In-memory cache to prevent loading screens when re-entering the tab
@@ -75,20 +77,62 @@ const DEFAULT_LAYOUT: HomeSectionConfig[] = [
   { id: 'daily_roulette', name: 'home.sections.daily_roulette', isVisible: true, order: 3 },
   { id: 'native_ad', name: 'home.sections.native_ad', isVisible: true, order: 4 },
   { id: 'shorts', name: 'home.sections.shorts', isVisible: true, order: 5 },
-  { id: 'trending', name: 'home.sections.trending', isVisible: true, order: 6 },
-  { id: 'following', name: 'home.sections.following', isVisible: true, order: 7 },
-  { id: 'taste_match', name: 'home.sections.taste_match', isVisible: true, order: 8 },
-  { id: 'coffee_pairing', name: 'home.sections.coffee_pairing', isVisible: true, order: 9 },
-  { id: 'my_clubs', name: 'home.sections.my_clubs', isVisible: true, order: 10 },
-  { id: 'recommended_clubs', name: 'home.sections.recommended_clubs', isVisible: true, order: 11 }
+  { id: 'hot_feeds', name: 'home.sections.hot_feeds', isVisible: true, order: 6 },
+  { id: 'new_feeds', name: 'home.sections.new_feeds', isVisible: true, order: 7 },
+  { id: 'trending', name: 'home.sections.trending', isVisible: true, order: 8 },
+  { id: 'following', name: 'home.sections.following', isVisible: true, order: 9 },
+  { id: 'taste_match', name: 'home.sections.taste_match', isVisible: true, order: 10 },
+  { id: 'coffee_pairing', name: 'home.sections.coffee_pairing', isVisible: true, order: 11 },
+  { id: 'my_clubs', name: 'home.sections.my_clubs', isVisible: true, order: 12 },
+  { id: 'recommended_clubs', name: 'home.sections.recommended_clubs', isVisible: true, order: 13 }
 ];
+
+const RawStateDump = ({ data, fetchError }: { data: any, fetchError?: string }) => (
+    <div style={{ padding: 20, background: 'red', color: 'white', wordBreak: 'break-all', fontSize: 10 }}>
+        ERROR: {fetchError || 'NONE'}
+        <br/>
+        KEYS: {data ? Object.keys(data).join(', ') : 'NULL'}
+        <br/>
+        TP_LEN: {data?.todayPairings?.length}
+        <br/>
+        RC_LEN: {data?.recommendedClubs?.length}
+        <br/>
+        API_BASE: {API_BASE}
+    </div>
+);
 
 const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { todayPairings?: any[], userPairings?: any[] }) => {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    const [activeDessert, setActiveDessert] = React.useState<number | null>(null);
+    const [activeDessert, setActiveDessert] = React.useState<number | null>(0);
 
-    
+    React.useEffect(() => {
+        if (!todayPairings || todayPairings.length === 0) return;
+        if (activeDessert !== null && activeDessert >= todayPairings.length) {
+            setActiveDessert(0);
+        }
+    }, [todayPairings, activeDessert]);
+
+    if (!todayPairings || !Array.isArray(todayPairings) || todayPairings.length === 0) {
+        return (
+            <section className="pt-6 pb-2 border-t border-espresso-800 bg-gradient-to-b from-espresso-950 to-[#160d08]">
+                <div className="px-4 flex items-center justify-between mb-4">
+                    <div>
+                        <h3 className="text-[17px] font-bold flex items-center gap-2 text-espresso-50">
+                            <Sparkles className="text-amber-500 w-4 h-4" /> 
+                            {t('home.title_pairing', '오늘의 완벽한 페어링')}
+                        </h3>
+                    </div>
+                </div>
+                <div className="px-4 py-8 text-center text-espresso-400 text-[13px] bg-espresso-900/50 mx-4 rounded-2xl border border-espresso-800 border-dashed">
+                    현재 지역에 추천할 페어링 데이터가 없습니다.<br/>
+                    (새로고침을 하거나 관리자 페이지를 확인해주세요)
+                </div>
+            </section>
+        );
+    }
+
+    const activeItem = activeDessert !== null ? todayPairings[activeDessert] : null;
 
     return (
         <section className="pt-6 pb-2 border-t border-espresso-800 bg-gradient-to-b from-espresso-950 to-[#160d08]">
@@ -105,23 +149,25 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
             {/* AI Pairing Roulette */}
             <div className="flex gap-2 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
                 {todayPairings.map((item, idx) => {
-                    const isImageUrl = item.icon.startsWith('/') || item.icon.startsWith('http');
+                    const iconStr = (item && item.icon) ? String(item.icon) : '';
+                    const isImageUrl = iconStr.startsWith('/') || iconStr.startsWith('http');
+                    const itemName = (item && item.name) ? item.name : '디저트';
                     return (
                         <button 
                             key={idx}
-                            onClick={() => setActiveDessert(activeDessert === idx ? null : idx)}
+                            onClick={() => setActiveDessert(prev => prev === idx ? null : idx)}
                             className={`group flex flex-col items-center justify-center w-[calc(25%-6px)] aspect-square rounded-2xl shrink-0 snap-center transition-all duration-300 border-2 shadow-md relative overflow-hidden ${activeDessert === idx ? 'bg-gradient-to-b from-amber-500/20 to-transparent border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)]' : 'bg-espresso-800/80 border-espresso-700 hover:border-amber-500/50 hover:bg-espresso-800'}`}
                         >
                             {isImageUrl ? (
                                 <>
-                                    <img src={item.icon.startsWith('/') ? `${API_BASE}${item.icon}` : item.icon} alt={item.name} className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity" />
+                                    <img src={iconStr.startsWith('/') ? `${API_BASE}${iconStr}` : iconStr} alt={itemName} className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-                                    <span className={`relative z-10 text-[12px] font-black tracking-tight mt-auto pb-2 px-1 text-center leading-tight transition-colors ${activeDessert === idx ? 'text-amber-400' : 'text-espresso-200'}`}>{item.name}</span>
+                                    <span className={`relative z-10 text-[12px] font-black tracking-tight mt-auto pb-2 px-1 text-center leading-tight transition-colors ${activeDessert === idx ? 'text-amber-400' : 'text-espresso-200'}`}>{itemName}</span>
                                 </>
                             ) : (
                                 <>
-                                    <span className="text-[32px] mb-1 drop-shadow-sm">{item.icon}</span>
-                                    <span className={`text-[12px] font-black tracking-tight transition-colors ${activeDessert === idx ? 'text-amber-400' : 'text-espresso-200'}`}>{item.name}</span>
+                                    <span className="text-[32px] mb-1 drop-shadow-sm">{iconStr || '🍰'}</span>
+                                    <span className={`text-[12px] font-black tracking-tight transition-colors ${activeDessert === idx ? 'text-amber-400' : 'text-espresso-200'}`}>{itemName}</span>
                                 </>
                             )}
                         </button>
@@ -129,9 +175,10 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
                 })}
             </div>
 
-            <AnimatePresence>
-                {activeDessert !== null && (
+            <AnimatePresence mode="wait">
+                {activeItem && (
                     <motion.div 
+                        key={activeDessert}
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
@@ -142,9 +189,9 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
                                 <Coffee size={24} />
                             </div>
                             <div>
-                                <div className="text-[11px] font-bold text-amber-500 mb-1">{todayPairings[activeDessert].name}에는 이런 커피 어때요?</div>
-                                <div className="text-[15px] font-black text-espresso-50 mb-1">{todayPairings[activeDessert].coffee}</div>
-                                <div className="text-[12px] text-espresso-300 line-clamp-2 leading-snug">{todayPairings[activeDessert].desc}</div>
+                                <div className="text-[11px] font-bold text-amber-500 mb-1">{t('home.pairing_recommendation', { name: activeItem.name || '디저트' })}</div>
+                                <div className="text-[15px] font-black text-espresso-50 mb-1">{activeItem.coffee || '추천 커피'}</div>
+                                <div className="text-[12px] text-espresso-300 line-clamp-2 leading-snug">{activeItem.desc || '설명이 없습니다.'}</div>
                             </div>
                         </div>
                     </motion.div>
@@ -272,7 +319,8 @@ export default function HomeDashboard() {
 
   const [pilgrimageFeeds, setPilgrimageFeeds] = useState<any[]>(globalHomeCache?.pilgrimageFeeds || []);
   const [activeClubs, setActiveClubs] = useState<any[]>(globalHomeCache?.activeClubs || []);
-  const [personalizedData, setPersonalizedData] = useState<PersonalizedHomeData | null>(globalHomeCache?.personalizedData || null);
+    const [personalizedData, setPersonalizedData] = React.useState<any>(globalHomeCache?.personalizedData || null);
+    const [fetchError, setFetchError] = React.useState<string>('');
   const [homeNativeAd, setHomeNativeAd] = useState<any>(globalHomeCache?.homeNativeAd || null);
   
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
@@ -411,18 +459,27 @@ export default function HomeDashboard() {
           // Personalized Data (Now supports guests via optionalAuth)
           const qsBase = `countryCode=${countryCode}`;
           const qs = lat ? `?lat=${lat}&lng=${lng}&${qsBase}` : `?${qsBase}`;
-          fetch(`${API_BASE}/api/home/personalized${qs}`, { headers })
-            .then(r => r.ok ? r.json() : null)
+          fetch(`${API_BASE}/api/home/personalized${qs}&_t=${Date.now()}`, { headers, cache: 'no-store' })
+            .then(async r => {
+                if (!r.ok) {
+                    return null;
+                }
+                return r.json();
+            })
             .then(pData => {
                 if (pData) {
                     setPersonalizedData(pData);
+                    globalHomeCache.personalizedData = pData;
                     if (pData.nativeAd) {
                         setHomeNativeAd(pData.nativeAd);
                         if (globalHomeCache) globalHomeCache.homeNativeAd = pData.nativeAd;
                     }
                     if (globalHomeCache) globalHomeCache.personalizedData = pData;
                 }
-            }).catch(() => {});
+            }).catch((e) => {
+                console.error("Failed to load personalized home data", e);
+                setPersonalizedData(null);
+            });
       };
 
       if (!silent || !fastLat) {
@@ -682,6 +739,95 @@ export default function HomeDashboard() {
           return <WeeklyTasteTest key={config.id} config={mbtiConfig} />;
       }
 
+      if (config.id === 'hot_feeds') return personalizedData && (
+          <section key={config.id} className="py-2 mt-1">
+             <div className="px-6 flex items-center justify-between mb-3">
+               <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
+                 <Flame className="text-amber-500 w-4 h-4" /> {t('home.title_hot_feeds', '인기 커피톡')}
+               </h3>
+               <button onClick={() => navigate('/community', { state: { filter: 'hot_3m' } })} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '더보기')}</button>
+             </div>
+             <div className="flex gap-3 overflow-x-auto px-4 pb-6 snap-x hide-scrollbar">
+                {(!personalizedData.hotCoffeeTalkFeeds || personalizedData.hotCoffeeTalkFeeds.length === 0) ? (
+                    <div className="w-full flex flex-col items-center justify-center py-8 text-[13px] text-espresso-400 bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
+                        <Flame size={24} className="mb-2 opacity-50" />
+                        최근 1달간 인기있는 피드가 없습니다.
+                    </div>
+                ) : personalizedData.hotCoffeeTalkFeeds.map((post: any) => (
+                  <div 
+                    key={post.id}
+                    onClick={() => navigate('/community', { state: { activePost: post.id } })}
+                    className="w-[calc(50%-8px)] flex flex-col shrink-0 snap-center cursor-pointer group bg-transparent"
+                  >
+                    <div className="w-full aspect-[4/5] rounded-2xl bg-espresso-800 overflow-hidden relative mb-2 shadow-md border border-espresso-800 group-hover:border-amber-500/50 transition-colors">
+                      <div className="w-full h-full pointer-events-none">
+                        {getFirstImage(post.image) ? (
+                            <MediaRenderer 
+                              src={getFirstImage(post.image)} 
+                              className="w-full h-full object-cover" 
+                              hideControls={true} 
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-espresso-800 to-espresso-950 flex flex-col items-center justify-center p-4">
+                                <MessageSquare size={24} className="text-espresso-600 mb-2" />
+                                <p className="text-[11px] text-espresso-300 text-center line-clamp-3 font-medium leading-relaxed italic opacity-80">"{post.content}"</p>
+                            </div>
+                        )}
+                      </div>
+                      <div className="absolute top-2 left-2 right-2 flex">
+                          <span className="bg-[#120a05]/80 backdrop-blur-md text-amber-400 text-[9px] font-bold px-1.5 py-0.5 rounded-md border border-amber-500/30 line-clamp-1 flex items-center gap-1">
+                            <Heart size={8} fill="currentColor"/> {post._count?.likes || 0}
+                          </span>
+                      </div>
+                    </div>
+                    <p className="font-medium text-[12px] line-clamp-2 text-espresso-100 px-1 leading-snug">
+                      {post.content}
+                    </p>
+                  </div>
+                ))}
+             </div>
+          </section>
+      );
+
+      if (config.id === 'new_feeds') return personalizedData && (
+          <section key={config.id} className="py-2 mb-2">
+             <div className="px-6 flex items-center justify-between mb-3">
+               <h3 className="text-[18px] font-serif tracking-tight text-white flex items-center gap-2">
+                 <Zap className="text-blue-400 w-4 h-4" /> {t('home.title_new_feeds', '최신 피드')}
+               </h3>
+             </div>
+             <div className="px-4 space-y-3">
+                {(!personalizedData.newestCoffeeTalkFeeds || personalizedData.newestCoffeeTalkFeeds.length === 0) ? (
+                    <div className="w-full flex flex-col items-center justify-center py-6 text-[13px] text-espresso-400 bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
+                        <Zap size={24} className="mb-2 opacity-50" />
+                        아직 등록된 피드가 없습니다.
+                    </div>
+                ) : personalizedData.newestCoffeeTalkFeeds.map((post: any) => (
+                  <div 
+                    key={post.id}
+                    onClick={() => navigate('/community', { state: { activePost: post.id } })}
+                    className="w-full flex items-center gap-3 bg-espresso-900 rounded-2xl p-3 cursor-pointer border border-espresso-800 hover:border-blue-500/50 transition-colors shadow-sm"
+                  >
+                    <div className="w-[80px] h-[80px] rounded-xl overflow-hidden bg-espresso-800 shrink-0">
+                        {getFirstImage(post.image) ? (
+                            <MediaRenderer src={getFirstImage(post.image)} className="w-full h-full object-cover" hideControls={true} />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-espresso-600"><MessageSquare size={16} /></div>
+                        )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-[13px] font-medium text-espresso-50 line-clamp-3 leading-snug mb-1">{post.content}</p>
+                        <div className="flex items-center gap-1.5">
+                            <img src={post.author?.profileImageUrl ? (post.author.profileImageUrl.startsWith('http') ? post.author.profileImageUrl : `${API_BASE}${post.author.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} className="w-3.5 h-3.5 rounded-full object-cover" alt="" />
+                            <span className="text-[10px] text-espresso-400 truncate">{post.author?.nickname}</span>
+                        </div>
+                    </div>
+                  </div>
+                ))}
+             </div>
+          </section>
+      );
+
       if (config.id === 'taste_match') return isLoggedIn && personalizedData && personalizedData.tasteMatchedFeeds && personalizedData.tasteMatchedFeeds.length > 0 && (
               <section key={config.id} className="py-2 mt-1">
                  <div className="px-6 flex items-center justify-between mb-3">
@@ -720,6 +866,52 @@ export default function HomeDashboard() {
                  </div>
               </section>
             );
+
+      if (config.id === 'following') return isLoggedIn && personalizedData && (
+          <section key={config.id} className="py-2 mt-1">
+             <div className="px-6 flex items-center justify-between mb-3">
+               <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
+                 <Heart className="text-pink-500 w-4 h-4" /> {t('home.title_following', '팔로잉 소식')}
+               </h3>
+               <button onClick={() => navigate('/community', { state: { filter: 'following_story' } })} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '더보기')}</button>
+             </div>
+             <div className="flex gap-3 overflow-x-auto px-4 pb-6 snap-x hide-scrollbar">
+                {(!personalizedData.followingFeeds || personalizedData.followingFeeds.length === 0) ? (
+                    <div className="w-full flex flex-col items-center justify-center py-8 text-[13px] text-espresso-400 bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
+                        <Heart size={24} className="mb-2 opacity-50" />
+                        팔로우한 사용자의 소식이 없습니다.
+                    </div>
+                ) : personalizedData.followingFeeds.map((post: any) => (
+                  <div 
+                    key={post.id}
+                    onClick={() => navigate('/community', { state: { activePost: post.id } })}
+                    className="w-[calc(40%-8px)] flex flex-col shrink-0 snap-center cursor-pointer group bg-transparent"
+                  >
+                    <div className="w-full aspect-[3/4] rounded-2xl bg-espresso-800 overflow-hidden relative mb-2 shadow-md border border-espresso-800 group-hover:border-pink-500/50 transition-colors">
+                      <div className="w-full h-full pointer-events-none">
+                        {getFirstImage(post.image) ? (
+                            <MediaRenderer 
+                              src={getFirstImage(post.image)} 
+                              className="w-full h-full object-cover" 
+                              hideControls={true} 
+                            />
+                        ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-espresso-800 to-espresso-950 flex flex-col items-center justify-center p-4">
+                                <MessageSquare size={24} className="text-espresso-600 mb-2" />
+                                <p className="text-[11px] text-espresso-300 text-center line-clamp-3 font-medium leading-relaxed italic opacity-80">"{post.content}"</p>
+                            </div>
+                        )}
+                      </div>
+                      <div className="absolute bottom-2 left-2 right-2 flex items-center gap-1.5">
+                          <img src={post.author?.profileImageUrl ? (post.author.profileImageUrl.startsWith('http') ? post.author.profileImageUrl : `${API_BASE}${post.author.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} className="w-5 h-5 rounded-full object-cover border border-white/50" alt="" />
+                          <span className="text-[10px] font-bold text-white drop-shadow-md truncate">{post.author?.nickname}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+             </div>
+          </section>
+      );
 
             if (config.id === 'my_clubs') return isLoggedIn && personalizedData && personalizedData.myClubFeeds && personalizedData.myClubFeeds.length > 0 && (
               <section key={config.id} className="py-2 mt-1">

@@ -27,7 +27,7 @@
     "btn_more": "View More",
     "badge_specialty": "Specialty",
     "badge_general": "General",
-    "title_hot_feeds": "Hot CoffeeTalk",
+    "title_hot_feeds": "Popular Coffee Talk",
     "title_shorts": "1-Minute Coffee Exploration",
     "title_hot_lounge": "Live Lounge Hot",
     "lbl_likes": "Likes",
@@ -56,7 +56,9 @@
       "daily_roulette": "Daily Check-in Roulette",
       "weekly_mbti": "Weekly Coffee MBTI",
       "coffee_pairing": "Coffee & Dessert Pairing",
-      "native_ad": "Special Magazine (AD)"
+      "native_ad": "Special Magazine (AD)",
+      "hot_feeds": "Popular Coffee Talk",
+      "new_feeds": "Newest Feeds"
     },
     "title_pairing": "Today's Perfect Pairing",
     "desc_pairing": "Pick a dessert you are craving!",
@@ -71,7 +73,9 @@
     "roulette_subtitle": "Pick a lucky coffee cup.",
     "roulette_win": "Congratulations. +{{amount}} Beans",
     "roulette_fail": "Try again tomorrow.",
-    "roulette_error": "A network error occurred."
+    "roulette_error": "A network error occurred.",
+    "pairing_recommendation": "How about this coffee for {{name}}?",
+    "title_new_feeds": "Newest Feeds"
   },
   "club_list": {
     "filter_recruiting": "Recruiting",

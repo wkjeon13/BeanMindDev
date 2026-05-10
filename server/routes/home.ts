@@ -1,4 +1,5 @@
 import express from 'express';
+import * as fs from 'fs';
 import { PrismaClient } from '@prisma/client';
 import jwt from 'jsonwebtoken';
 import { ERROR_CODES } from '../utils/errorCodes.js';
@@ -83,7 +84,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                     orderBy: { createdAt: 'desc' },
                     take: 5,
                     include: {
-                        author: { select: { id: true, nickname: true, profileImage: true } },
+                        author: { select: { id: true, nickname: true, profileImageUrl: true } },
                         store: { select: { id: true, name: true, address: true } },
                         _count: { select: { comments: true, likes: true } }
                     }
@@ -236,54 +237,61 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             }
         }
 
-        // 5. Today's Pairings (Randomized 4 items to keep UI clean and dynamic)
-        const userCountry = user?.countryCode || 'KR';
-        const targetLang = userCountry === 'US' ? 'en' : (userCountry === 'JP' ? 'ja' : (userCountry === 'CN' ? 'zh' : 'ko'));
+        // 5. Today's Pairings
+        const reqCountryCode = user?.countryCode || (req.query.countryCode as string) || 'KR';
+        const targetLang = reqCountryCode === 'US' ? 'en' : (reqCountryCode === 'JP' ? 'ja' : (reqCountryCode === 'CN' ? 'zh' : 'ko'));
         
-        const allPairings = await (prisma as any).todayPairing.findMany({
-            where: { 
-                isActive: true,
-                OR: [
-                    { availableRegions: 'GLOBAL' },
-                    { availableRegions: { contains: userCountry } }
-                ]
-            },
-            include: { translations: true }
-        });
-        
-        // Flatten translations based on user language
-        const flattenedPairings = allPairings.map((p: any) => {
-            const translation = p.translations.find((t: any) => t.languageCode === targetLang) 
-                                || p.translations.find((t: any) => t.languageCode === 'en')
-                                || p.translations.find((t: any) => t.languageCode === 'ko') 
-                                || p.translations[0];
+        let todayPairings: any[] = [];
+        try {
+            const allPairings = await (prisma as any).todayPairing.findMany({
+                where: { 
+                    isActive: true,
+                    OR: [
+                        { availableRegions: 'GLOBAL' },
+                        { availableRegions: { contains: reqCountryCode } }
+                    ]
+                },
+                include: { translations: true }
+            });
             
-            return {
-                id: p.id,
-                icon: p.icon,
-                order: p.order,
-                name: translation?.name || 'Unknown',
-                coffee: translation?.coffee || 'Unknown',
-                desc: translation?.desc || '',
-                season: translation?.season || null,
-                tasteProfile: translation?.tasteProfile || null
-            };
-        });
-        
-        // Simple Fisher-Yates shuffle
-        for (let i = flattenedPairings.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [flattenedPairings[i], flattenedPairings[j]] = [flattenedPairings[j], flattenedPairings[i]];
+            // Flatten translations based on user language
+            const flattenedPairings = allPairings.map((p: any) => {
+                const translation = p.translations?.find((t: any) => t.languageCode === targetLang) 
+                                    || p.translations?.find((t: any) => t.languageCode === 'en')
+                                    || p.translations?.find((t: any) => t.languageCode === 'ko') 
+                                    || (p.translations && p.translations[0]);
+                
+                return {
+                    id: p.id,
+                    icon: p.icon,
+                    order: p.order,
+                    name: translation?.name || 'Unknown',
+                    coffee: translation?.coffee || 'Unknown',
+                    desc: translation?.desc || '',
+                    season: translation?.season || null,
+                    tasteProfile: translation?.tasteProfile || null
+                };
+            });
+            
+            // Simple Fisher-Yates shuffle
+            for (let i = flattenedPairings.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [flattenedPairings[i], flattenedPairings[j]] = [flattenedPairings[j], flattenedPairings[i]];
+            }
+            
+            todayPairings = flattenedPairings.slice(0, 4);
+            console.log(`[PAIRING-DEBUG] Generated ${todayPairings.length} pairings for country=${reqCountryCode}`);
+        } catch (error) {
+            console.error(`[PAIRING-DEBUG] CRASH for country=${reqCountryCode}`, error);
+            todayPairings = [];
         }
-        
-        const todayPairings = flattenedPairings.slice(0, 4);
 
         // 6. User Pairings (Posts with #페어링 or #Pairing based on country)
-        const pairingTag = userCountry === 'US' ? '#Pairing' : '#페어링';
+        const pairingTag = reqCountryCode === 'US' ? '#Pairing' : '#페어링';
         const userPairings = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
-                countryCode: userCountry,
+                countryCode: reqCountryCode,
                 content: { contains: pairingTag },
                 image: { not: null }
             },
@@ -292,6 +300,49 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             include: {
                 author: { select: { nickname: true } },
                 _count: { select: { likes: true } }
+            }
+        });
+
+        // 6a. Hot Coffee Talk Feeds (Last 1 month, sorted by engagement)
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        
+        const recentNormalPosts = await (prisma as any).post.findMany({
+            where: {
+                isHidden: false,
+                postType: 'NORMAL',
+                isShorts: false,
+                countryCode: reqCountryCode,
+                createdAt: { gte: oneMonthAgo }
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 100, // Fetch up to 100 recent posts
+            include: {
+                author: { select: { nickname: true, profileImageUrl: true } },
+                _count: { select: { likes: true, comments: true } }
+            }
+        });
+        
+        // Sort in memory by engagement (likes + comments)
+        const hotCoffeeTalkFeeds = [...recentNormalPosts].sort((a: any, b: any) => {
+            const aScore = (a._count?.likes || 0) + (a._count?.comments || 0);
+            const bScore = (b._count?.likes || 0) + (b._count?.comments || 0);
+            return bScore - aScore;
+        }).slice(0, 4);
+
+        // 6b. Newest Coffee Talk Feeds
+        const newestCoffeeTalkFeeds = await (prisma as any).post.findMany({
+            where: {
+                isHidden: false,
+                postType: 'NORMAL',
+                isShorts: false,
+                countryCode: reqCountryCode
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 2,
+            include: {
+                author: { select: { nickname: true, profileImageUrl: true } },
+                _count: { select: { likes: true, comments: true } }
             }
         });
 
@@ -344,6 +395,8 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             recommendedClubs,
             todayPairings,
             userPairings,
+            hotCoffeeTalkFeeds,
+            newestCoffeeTalkFeeds,
             nativeAd,
             weeklyMbti,
             campaigns: {
@@ -352,9 +405,10 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             }
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error fetching personalized home data:", error);
-        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+        try { fs.writeFileSync('scratch/home_error.log', error.message || 'Unknown Error'); } catch(e) {}
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR, details: error.message, stack: error.stack });
     }
 });
 

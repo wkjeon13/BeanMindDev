@@ -52,7 +52,7 @@
     "btn_more": "더보기",
     "badge_specialty": "스페셜티",
     "badge_general": "일반",
-    "title_hot_feeds": "핫한 커피톡 피드",
+    "title_hot_feeds": "인기 커피톡",
     "title_shorts": "1분 커피 탐험",
     "title_hot_lounge": "실시간 라운지 핫게",
     "lbl_likes": "좋아요",
@@ -81,7 +81,9 @@
       "daily_roulette": "출석체크 룰렛",
       "weekly_mbti": "주간 커피 취향 테스트",
       "coffee_pairing": "커피 & 디저트 페어링",
-      "native_ad": "스페셜 매거진 (AD)"
+      "native_ad": "스페셜 매거진 (AD)",
+      "hot_feeds": "인기 커피톡",
+      "new_feeds": "최신 피드"
     },
     "title_pairing": "오늘의 완벽한 페어링",
     "desc_pairing": "지금 먹고 싶은 디저트를 골라보세요!",
@@ -96,7 +98,9 @@
     "roulette_subtitle": "행운의 커피 컵을 골라보세요.",
     "roulette_win": "축하합니다. +{{amount}} Beans",
     "roulette_fail": "내일 다시 도전하세요.",
-    "roulette_error": "네트워크 오류가 발생했습니다."
+    "roulette_error": "네트워크 오류가 발생했습니다.",
+    "pairing_recommendation": "{{name}}에는 이런 커피 어때요?",
+    "title_new_feeds": "최신 피드"
   },
   "club_list": {
     "filter_recruiting": "모집중",

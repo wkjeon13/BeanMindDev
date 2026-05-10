@@ -11,7 +11,9 @@ import mysqldump from 'mysqldump';
 import { ERROR_CODES } from '../utils/errorCodes';
 import { getSettings, updateSettings } from '../utils/systemSettings.js';
 import { refreshBannedWordsCache } from '../utils/contentFilter.js';
+import { GoogleGenAI } from '@google/genai';
 
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const router = express.Router();
 import prisma from '../utils/prisma.js';
 const JWT_SECRET = process.env.JWT_SECRET as string;
@@ -1662,6 +1664,17 @@ router.put('/pairings/:id', async (req, res) => {
         // Upsert translations
         const translationOps = [];
         if (translations && Array.isArray(translations)) {
+            // First, delete any translations that were removed in the UI
+            const activeLangCodes = translations.map(t => t.languageCode);
+            translationOps.push(
+                prisma.todayPairingTranslation.deleteMany({
+                    where: {
+                        pairingId: id,
+                        languageCode: { notIn: activeLangCodes }
+                    }
+                })
+            );
+
             for (const t of translations) {
                 translationOps.push(
                     prisma.todayPairingTranslation.upsert({
@@ -1706,7 +1719,7 @@ router.put('/pairings/:id', async (req, res) => {
         });
         
         res.json(finalItem);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Update pairing error:', error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
     }
@@ -1720,6 +1733,51 @@ router.delete('/pairings/:id', async (req, res) => {
         res.json({ success: true });
     } catch (error) {
         console.error('Delete pairing error:', error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// Auto-translate pairing fields
+router.post('/pairings/translate', authenticateAdmin, async (req, res) => {
+    try {
+        const { name, coffee, desc, season, tasteProfile } = req.body;
+        
+        if (!name || !coffee) {
+            return res.status(400).json({ error: 'Name and Coffee are required for translation.' });
+        }
+
+        const prompt = `You are a professional culinary translator specialized in coffee and dessert pairings.
+Translate the following pairing details from Korean to English, Japanese, and Simplified Chinese.
+
+Korean Input:
+Dessert Name: ${name}
+Matching Coffee: ${coffee}
+Description: ${desc || ''}
+Season: ${season || ''}
+Taste Profile: ${tasteProfile || ''}
+
+Return the response EXACTLY in the following JSON format without any markdown blocks or backticks:
+{
+  "en": { "name": "", "coffee": "", "desc": "", "season": "", "tasteProfile": "" },
+  "ja": { "name": "", "coffee": "", "desc": "", "season": "", "tasteProfile": "" },
+  "zh": { "name": "", "coffee": "", "desc": "", "season": "", "tasteProfile": "" }
+}`;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                temperature: 0.2,
+                responseMimeType: 'application/json'
+            }
+        });
+
+        const text = response.text || '';
+        const translations = JSON.parse(text);
+        
+        res.json(translations);
+    } catch (error) {
+        console.error('Translation error:', error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
     }
 });

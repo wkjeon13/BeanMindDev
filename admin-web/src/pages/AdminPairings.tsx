@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Image as ImageIcon, Loader2, Globe } from 'lucide-react';
+import { Plus, Edit2, Trash2, Image as ImageIcon, Loader2, Globe, Wand2 } from 'lucide-react';
 import { API_BASE } from '@/utils/apiConfig';
 
 const SUPPORTED_LANGUAGES = [
@@ -31,6 +31,7 @@ export default function AdminPairings() {
   });
   
   const [uploading, setUploading] = useState(false);
+  const [translating, setTranslating] = useState(false);
 
   useEffect(() => {
     fetchPairings();
@@ -39,8 +40,11 @@ export default function AdminPairings() {
   const fetchPairings = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`${API_BASE}/api/admin/pairings`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+      const res = await fetch(`${API_BASE}/api/admin/pairings?t=${new Date().getTime()}`, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Cache-Control': 'no-cache'
+        }
       });
       if (res.ok) {
         const data = await res.json();
@@ -98,7 +102,17 @@ export default function AdminPairings() {
       // Merge existing translations with defaults so all tabs exist
       const mergedTranslations = SUPPORTED_LANGUAGES.map(lang => {
         const existing = pairing.translations?.find((t: any) => t.languageCode === lang.code);
-        return existing || { languageCode: lang.code, name: '', coffee: '', desc: '', season: '', tasteProfile: '' };
+        if (existing) {
+          return {
+            ...existing,
+            name: existing.name || '',
+            coffee: existing.coffee || '',
+            desc: existing.desc || '',
+            season: existing.season || '',
+            tasteProfile: existing.tasteProfile || ''
+          };
+        }
+        return { languageCode: lang.code, name: '', coffee: '', desc: '', season: '', tasteProfile: '' };
       });
 
       setFormData({
@@ -134,6 +148,60 @@ export default function AdminPairings() {
     });
   };
 
+  const handleAutoTranslate = async () => {
+    const koTranslation = formData.translations.find(t => t.languageCode === 'ko');
+    if (!koTranslation || !koTranslation.name.trim() || !koTranslation.coffee.trim()) {
+      alert('Please fill out both Dessert Name and Matching Coffee in the Korean tab first.');
+      return;
+    }
+
+    setTranslating(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_BASE}/api/admin/pairings/translate`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: koTranslation.name,
+          coffee: koTranslation.coffee,
+          desc: koTranslation.desc,
+          season: koTranslation.season,
+          tasteProfile: koTranslation.tasteProfile
+        })
+      });
+
+      if (res.ok) {
+        const translated = await res.json();
+        setFormData(prev => {
+          const newTranslations = prev.translations.map(t => {
+            if (t.languageCode !== 'ko' && translated[t.languageCode]) {
+              return {
+                ...t,
+                name: translated[t.languageCode].name || t.name,
+                coffee: translated[t.languageCode].coffee || t.coffee,
+                desc: translated[t.languageCode].desc || t.desc,
+                season: translated[t.languageCode].season || t.season,
+                tasteProfile: translated[t.languageCode].tasteProfile || t.tasteProfile
+              };
+            }
+            return t;
+          });
+          return { ...prev, translations: newTranslations };
+        });
+        alert('Translation complete!');
+      } else {
+        alert('Translation failed. Please try again.');
+      }
+    } catch (err) {
+      alert('Network error during translation.');
+    } finally {
+      setTranslating(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.icon) {
@@ -141,17 +209,35 @@ export default function AdminPairings() {
       return;
     }
 
-    // Filter out completely empty translations before sending
-    const activeTranslations = formData.translations.filter(t => t.name.trim() !== '' && t.coffee.trim() !== '');
-    
-    if (activeTranslations.length === 0) {
-      alert('Please fill out at least one language translation (Name & Coffee required).');
+    // Validate translations
+    const validTranslations = [];
+    const partialTranslations = [];
+
+    for (const t of formData.translations) {
+      const hasName = t.name.trim() !== '';
+      const hasCoffee = t.coffee.trim() !== '';
+      const hasOther = t.desc.trim() !== '' || t.season.trim() !== '' || t.tasteProfile.trim() !== '';
+      
+      if (hasName && hasCoffee) {
+        validTranslations.push(t);
+      } else if (hasName || hasCoffee || hasOther) {
+        partialTranslations.push(t.languageCode.toUpperCase());
+      }
+    }
+
+    if (partialTranslations.length > 0) {
+      alert(`The following languages are partially filled. Both 'Dessert Name' and 'Matching Coffee' are required: ${partialTranslations.join(', ')}`);
+      return;
+    }
+
+    if (validTranslations.length === 0) {
+      alert('Please fill out at least one language translation completely (Name & Coffee required).');
       return;
     }
 
     const payload = {
       ...formData,
-      translations: activeTranslations
+      translations: validTranslations
     };
 
     try {
@@ -305,7 +391,7 @@ export default function AdminPairings() {
             </div>
             
             <div className="p-6 overflow-y-auto flex-1">
-              <form id="pairing-form" onSubmit={handleSubmit} className="space-y-8">
+              <form id="pairing-form" className="space-y-8">
                 
                 {/* Global Settings Section */}
                 <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
@@ -359,24 +445,35 @@ export default function AdminPairings() {
 
                 {/* Localized Translations Section */}
                 <div>
-                  <div className="flex border-b border-gray-200 mb-6">
-                    {SUPPORTED_LANGUAGES.map(lang => {
-                      const hasData = formData.translations.find(t => t.languageCode === lang.code)?.name.trim() !== '';
-                      return (
-                        <button
-                          key={lang.code}
-                          type="button"
-                          onClick={() => setActiveTab(lang.code)}
-                          className={`py-3 px-6 text-sm font-medium border-b-2 transition-colors ${
-                            activeTab === lang.code 
-                              ? 'border-indigo-600 text-indigo-600' 
-                              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                          }`}
-                        >
-                          {lang.label} {hasData && <span className="ml-1 w-2 h-2 inline-block bg-green-500 rounded-full" title="Data entered"></span>}
-                        </button>
-                      )
-                    })}
+                  <div className="flex justify-between items-end border-b border-gray-200 mb-6">
+                    <div className="flex">
+                      {SUPPORTED_LANGUAGES.map(lang => {
+                        const hasData = formData.translations.find(t => t.languageCode === lang.code)?.name.trim() !== '';
+                        return (
+                          <button
+                            key={lang.code}
+                            type="button"
+                            onClick={() => setActiveTab(lang.code)}
+                            className={`py-3 px-6 text-sm font-medium border-b-2 transition-colors ${
+                              activeTab === lang.code 
+                                ? 'border-indigo-600 text-indigo-600' 
+                                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                            }`}
+                          >
+                            {lang.label} {hasData && <span className="ml-1 w-2 h-2 inline-block bg-green-500 rounded-full" title="Data entered"></span>}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAutoTranslate}
+                      disabled={translating}
+                      className="mb-2 px-3 py-1.5 text-xs font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 rounded flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                    >
+                      {translating ? <Loader2 size={14} className="animate-spin" /> : <Wand2 size={14} />}
+                      Auto Translate from Korean
+                    </button>
                   </div>
 
                   <div className="space-y-4">
@@ -420,7 +517,7 @@ export default function AdminPairings() {
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 rounded-lg transition-colors">
                   Cancel
                 </button>
-                <button type="submit" form="pairing-form" className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
+                <button type="button" onClick={handleSubmit} className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
                   Save All Translations
                 </button>
               </div>
