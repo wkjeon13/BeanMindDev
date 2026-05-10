@@ -37,6 +37,7 @@ model User {
   prefBitterness      Float?
   prefBody            Float?
   prefSweetness       Float?
+  interests           String?            @db.Text
   fcmToken            String?            @db.Text
   equippedBadge       String?
   earnedBadges        String?            @db.Text

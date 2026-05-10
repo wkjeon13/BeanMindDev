@@ -666,6 +666,13 @@ export default function HomeDashboard() {
                               hideControls={true} 
                             />
                           </div>
+                          {post.matchReason && (
+                            <div className="absolute top-2 left-2 right-2 flex">
+                              <span className="bg-[#120a05]/80 backdrop-blur-md text-amber-400 text-[9px] font-bold px-1.5 py-0.5 rounded-md border border-amber-500/30 line-clamp-1">
+                                {post.matchReason}
+                              </span>
+                            </div>
+                          )}
                         </div>
                         <p className="font-medium text-[12px] line-clamp-2 text-espresso-100 px-1 leading-snug">
                           {post.content}

@@ -84,7 +84,7 @@ router.get('/personalized', authenticateToken, async (req: any, res) => {
             finalCountryCode = user.countryCode;
         }
 
-        const tasteMatchedFeeds = await (prisma as any).post.findMany({
+        const rawTasteFeeds = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
                 clubId: null,
@@ -93,12 +93,70 @@ router.get('/personalized', authenticateToken, async (req: any, res) => {
                 ...(finalCountryCode ? { countryCode: finalCountryCode } : {})
             },
             orderBy: { createdAt: 'desc' },
-            take: 10,
+            take: 50,
             include: {
                 author: { select: { id: true, nickname: true, profileImageUrl: true } },
                 _count: { select: { likes: true, comments: true } }
             }
         });
+
+        const userInterests = user?.interests ? user.interests.split(',').map((i: string) => i.trim().toLowerCase()) : [];
+
+        const scoredFeeds = rawTasteFeeds.map((post: any) => {
+            let score = 0;
+            let matchReason = '';
+
+            // 1. Interest Matching (Max 50 pts)
+            let interestScore = 0;
+            if (userInterests.length > 0 && post.content) {
+                const postContentLower = post.content.toLowerCase();
+                for (const interest of userInterests) {
+                    const cleanInterest = interest.replace('#', '');
+                    if (postContentLower.includes(cleanInterest)) {
+                        interestScore += 25; // max 50
+                        if (!matchReason) matchReason = `🎯 #${cleanInterest} 관심사 매치`;
+                    }
+                }
+                interestScore = Math.min(interestScore, 50);
+            }
+
+            // 2. Taste Profile Matching (Acidity, Body, Sweetness, Bitterness) (Max 50 pts)
+            let tasteScore = 0;
+            if (user?.prefAcidity && post.acidity) {
+                let distSq = 0;
+                let count = 0;
+                
+                if (post.acidity !== null) { distSq += Math.pow(user.prefAcidity - post.acidity, 2); count++; }
+                if (user.prefBody && post.body !== null) { distSq += Math.pow(user.prefBody - post.body, 2); count++; }
+                if (user.prefSweetness && post.sweetness !== null) { distSq += Math.pow(user.prefSweetness - post.sweetness, 2); count++; }
+                if (user.prefBitterness && post.bitterness !== null) { distSq += Math.pow(user.prefBitterness - post.bitterness, 2); count++; }
+
+                if (count > 0) {
+                    const avgDist = Math.sqrt(distSq / count);
+                    tasteScore = Math.max(0, 50 - (avgDist * 10)); 
+                    
+                    if (!matchReason && tasteScore > 35) {
+                        matchReason = `🎯 ${Math.round(tasteScore * 2)}% 취향 일치`;
+                    }
+                }
+            }
+
+            score = interestScore + tasteScore;
+            // Fallback reason
+            if (!matchReason) {
+                matchReason = '🔥 최신 트렌드 피드';
+            }
+
+            return { ...post, matchScore: score, matchReason };
+        });
+
+        // Sort by score DESC, then createdAt DESC
+        scoredFeeds.sort((a: any, b: any) => {
+            if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
+            return b.createdAt.getTime() - a.createdAt.getTime();
+        });
+
+        const tasteMatchedFeeds = scoredFeeds.slice(0, 10);
 
         // 4. My Club Feeds OR Recommended Clubs by Region
         const myClubMemberships = await (prisma as any).clubMember.findMany({
