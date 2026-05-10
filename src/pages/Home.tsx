@@ -266,6 +266,7 @@ export default function HomeDashboard() {
   const [pilgrimageFeeds, setPilgrimageFeeds] = useState<any[]>(globalHomeCache?.pilgrimageFeeds || []);
   const [activeClubs, setActiveClubs] = useState<any[]>(globalHomeCache?.activeClubs || []);
   const [personalizedData, setPersonalizedData] = useState<PersonalizedHomeData | null>(globalHomeCache?.personalizedData || null);
+  const [homeNativeAd, setHomeNativeAd] = useState<any>(globalHomeCache?.homeNativeAd || null);
   
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   const isLoggedIn = !!localStorage.getItem('token');
@@ -296,7 +297,7 @@ export default function HomeDashboard() {
       const countryCode = getDeviceCountryCode();
       if (!globalHomeCache) {
           globalHomeCache = {
-              shorts: [], pilgrimageFeeds: [], activeClubs: [], personalizedData: null, layoutConfigs: layoutConfigs, gpsLat: '', gpsLng: ''
+              shorts: [], pilgrimageFeeds: [], activeClubs: [], personalizedData: null, layoutConfigs: layoutConfigs, gpsLat: '', gpsLng: '', homeNativeAd: null
           };
       }
 
@@ -637,14 +638,7 @@ export default function HomeDashboard() {
               if (config.id === 'flash_drop') return <FlashDropBanner key={config.id} />;
       if (config.id === 'daily_roulette') return <DailyRoulette key={config.id} />;
       
-      if (config.id === 'native_ad') {
-          const adData = {
-              campaignName: 'Sponsored by OMNIA COFFEE',
-              name: '최고의 하루를 위한 싱글오리진',
-              flavorTags: '에티오피아 시다모 • 부드러운 산미와 자스민 향',
-              content: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800',
-              linkUrl: 'https://example.com'
-          };
+      if (config.id === 'native_ad' && homeNativeAd && homeNativeAd.fallback !== 'ADMOB') {
           return (
               <section key={config.id} className="py-2">
                   <div className="px-6 mb-2">
@@ -652,7 +646,7 @@ export default function HomeDashboard() {
                           <span className="text-[10px] font-bold text-amber-500 uppercase tracking-wider border border-amber-500/30 px-1.5 py-0.5 rounded-sm bg-amber-500/10">Sponsored</span>
                       </div>
                   </div>
-                  <MagazineAd adData={adData} />
+                  <MagazineAd adData={homeNativeAd} />
               </section>
           );
       }

@@ -42,6 +42,12 @@ export default function AdminShops() {
             });
 
             if (!res.ok) {
+                if (res.status === 401 || res.status === 403) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = '/';
+                    return;
+                }
                 const data = await res.json();
                 throw new Error(data.error || t('admin_dashboard.error_server'));
             }
