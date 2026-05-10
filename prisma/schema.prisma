@@ -13,7 +13,6 @@ model User {
   password            String?
   nickname            String
   phone               String?            @db.Text
-  countryCode         String             @default("KR")
   role                Role               @default(USER)
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
@@ -33,14 +32,11 @@ model User {
   gender              String?
   pointBalance        Int                @default(0)
   bio                 String?            @db.Text
-  bioMediaUrls        String?            @db.LongText
   isPublicProfile     Boolean            @default(true)
   prefAcidity         Float?
   prefBitterness      Float?
   prefBody            Float?
   prefSweetness       Float?
-  prefAroma           String?            @db.Text
-  preferredLanguage   String             @default("ko")
   fcmToken            String?            @db.Text
   equippedBadge       String?
   earnedBadges        String?            @db.Text
@@ -50,30 +46,34 @@ model User {
   rewardTier2Amount   Int                @default(50)
   rewardTier3Name     String             @default("최고")
   rewardTier3Amount   Int                @default(100)
+  bioMediaUrls        String?            @db.LongText
+  prefAroma           String?            @db.Text
+  countryCode         String             @default("KR")
+  preferredLanguage   String             @default("ko")
+  homeLayout          Json?
+  adInquiries         AdInquiry[]
+  advertiser          Advertiser?
   bookmarks           Bookmark[]
+  ownedClubs          Club[]             @relation("ClubOwner")
+  clubBookmarks       ClubBookmark[]
+  clubMemberships     ClubMember[]
+  collections         Collection[]
+  comments            Comment[]
+  commentReactions    CommentReaction[]
+  likes               Like[]
   pointTransactions   PointTransaction[]
+  pollVotes           PollVote[]
+  posts               Post[]
+  postBookmarks       PostBookmark[]
   prescriptions       Prescription[]
+  spamLogs            SpamLog[]
   stores              Store[]
+  checkIns            StoreCheckIn[]
   follows             StoreFollow[]
+  reviews             StoreReview[]
+  tastingNotes        TastingNote[]
   following           UserFollow[]       @relation("Following")
   followers           UserFollow[]       @relation("Followers")
-  reviews             StoreReview[]
-  posts               Post[]
-  comments            Comment[]
-  likes               Like[]
-  postBookmarks       PostBookmark[]
-  commentReactions    CommentReaction[]
-  advertiser          Advertiser?
-  adInquiries         AdInquiry[]
-  collections         Collection[]
-  pollVotes           PollVote[]
-  checkIns            StoreCheckIn[]
-  ownedClubs          Club[]             @relation("ClubOwner")
-  clubMemberships     ClubMember[]
-  clubBookmarks       ClubBookmark[]
-  tastingNotes        TastingNote[]
-  spamLogs            SpamLog[]
-  homeLayout          Json?
 }
 
 model Prescription {
@@ -104,8 +104,7 @@ model TastingNote {
   aroma            Int      @default(0)
   flavorTags       String?  @db.Text
   createdAt        DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
 }
@@ -173,15 +172,15 @@ model Store {
   viewCount             Int                @default(0)
   lastWeeklyViewReset   DateTime?
   bookmarks             Bookmark[]
-  media                 Media[]
   collectionItems       CollectionItem[]
+  media                 Media[]
   menuItems             MenuItem[]
+  posts                 Post[]
   owner                 User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  checkIns              StoreCheckIn[]
   followers             StoreFollow[]
   reviews               StoreReview[]
   translations          StoreTranslation[]
-  posts                 Post[]
-  checkIns              StoreCheckIn[]
 
   @@index([ownerId], map: "Store_ownerId_fkey")
 }
@@ -208,8 +207,7 @@ model MenuItem {
   category    String?  @default("COFFEE")
   orderIndex  Int      @default(0)
   createdAt   DateTime @default(now())
-
-  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   @@index([storeId])
 }
@@ -278,9 +276,8 @@ model UserFollow {
   followerId  String
   followingId String
   createdAt   DateTime @default(now())
-
-  follower  User @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
-  following User @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
+  follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
   @@index([followerId])
@@ -330,12 +327,11 @@ model PointTransaction {
 }
 
 model Post {
-  id                 String    @id @default(uuid())
+  id                 String           @id @default(uuid())
   authorId           String
-  countryCode        String    @default("KR")
-  postType           PostType  @default(NORMAL)
-  content            String    @db.Text
-  image              String?   @db.LongText
+  postType           PostType         @default(NORMAL)
+  content            String           @db.Text
+  image              String?          @db.LongText
   cafeName           String?
   cafeLocation       String?
   cafeLat            Float?
@@ -346,57 +342,58 @@ model Post {
   bitterness         Float?
   aroma              Int?
   taggedBean         String?
-  shortsCategory     String?
-  equipmentTag       String?
-  recipeData         String?   @db.LongText
-  shareCount         Int       @default(0)
-  isPinned           Boolean   @default(false)
-  isSystemPopup      Boolean   @default(false)
-  isPilgrimageLedger Boolean   @default(false)
-  isShorts           Boolean   @default(false)
-  isHidden           Boolean   @default(false)
+  recipeData         String?          @db.LongText
+  shareCount         Int              @default(0)
+  isPinned           Boolean          @default(false)
+  isSystemPopup      Boolean          @default(false)
+  isPilgrimageLedger Boolean          @default(false)
   pinnedStartDate    DateTime?
   pinnedEndDate      DateTime?
-  earnedBeans        Int       @default(0)
+  earnedBeans        Int              @default(0)
   storeId            String?
   attachedCourseId   String?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-
-  clubId          String?
-  club            Club?            @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  author          User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  store           Store?           @relation(fields: [storeId], references: [id], onDelete: SetNull)
-  attachedCourse  Collection?      @relation("PostAttachedCourse", fields: [attachedCourseId], references: [id], onDelete: SetNull)
-  comments        Comment[]
-  likes           Like[]
-  bookmarks       PostBookmark[]
-  poll            Poll?
-  collectionItems CollectionItem[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  clubId             String?
+  isShorts           Boolean          @default(false)
+  equipmentTag       String?
+  shortsCategory     String?
+  isHidden           Boolean          @default(false)
+  countryCode        String           @default("KR")
+  collectionItems    CollectionItem[]
+  comments           Comment[]
+  likes              Like[]
+  poll               Poll?
+  attachedCourse     Collection?      @relation("PostAttachedCourse", fields: [attachedCourseId], references: [id])
+  author             User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  club               Club?            @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  store              Store?           @relation(fields: [storeId], references: [id])
+  bookmarks          PostBookmark[]
 
   @@index([authorId])
   @@index([storeId])
   @@index([createdAt])
+  @@index([attachedCourseId], map: "Post_attachedCourseId_fkey")
+  @@index([clubId], map: "Post_clubId_fkey")
 }
 
 model Comment {
-  id          String   @id @default(uuid())
+  id          String            @id @default(uuid())
   postId      String
   authorId    String
   parentId    String?
-  content     String   @db.Text
-  imageUrl    String?  @db.LongText
-  isPinned    Boolean  @default(false)
-  isHidden    Boolean  @default(false)
-  earnedBeans Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  post      Post              @relation(fields: [postId], references: [id], onDelete: Cascade)
-  author    User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  parent    Comment?          @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   Comment[]         @relation("CommentReplies")
-  reactions CommentReaction[]
+  content     String            @db.Text
+  imageUrl    String?           @db.LongText
+  isPinned    Boolean           @default(false)
+  earnedBeans Int               @default(0)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  isHidden    Boolean           @default(false)
+  author      User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent      Comment?          @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Comment[]         @relation("CommentReplies")
+  post        Post              @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reactions   CommentReaction[]
 
   @@index([postId])
   @@index([authorId])
@@ -409,9 +406,8 @@ model CommentReaction {
   userId    String
   emoji     String
   createdAt DateTime @default(now())
-
-  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([commentId, userId, emoji])
   @@index([commentId])
@@ -423,9 +419,8 @@ model Like {
   postId    String
   userId    String
   createdAt DateTime @default(now())
-
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
   @@index([postId])
@@ -437,13 +432,360 @@ model PostBookmark {
   postId    String
   userId    String
   createdAt DateTime @default(now())
-
-  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([postId, userId])
   @@index([postId])
   @@index([userId])
+}
+
+model Club {
+  id              String         @id @default(uuid())
+  ownerId         String
+  name            String         @unique
+  description     String         @db.Text
+  coverImageUrl   String?        @db.LongText
+  isPrivate       Boolean        @default(false)
+  maxMembers      Int            @default(100)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  lat             Float?
+  lng             Float?
+  locationName    String?
+  leftCount       Int            @default(0)
+  isRecruiting    Boolean        @default(true)
+  recruitDeadline DateTime?
+  memberCount     Int            @default(1)
+  isDeleted       Boolean        @default(false)
+  countryCode     String         @default("KR")
+  owner           User           @relation("ClubOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  bookmarks       ClubBookmark[]
+  members         ClubMember[]
+  posts           Post[]
+
+  @@index([createdAt(sort: Desc)])
+  @@index([isRecruiting])
+  @@index([locationName])
+  @@index([ownerId])
+}
+
+model ClubMember {
+  id              String   @id @default(uuid())
+  clubId          String
+  userId          String
+  role            ClubRole @default(MEMBER)
+  joinedAt        DateTime @default(now())
+  applicationData String?  @db.Text
+  badges          String?
+  club            Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([clubId, userId])
+  @@index([clubId])
+  @@index([userId])
+}
+
+model ClubBookmark {
+  id        String   @id @default(uuid())
+  clubId    String
+  userId    String
+  createdAt DateTime @default(now())
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([clubId, userId])
+  @@index([clubId])
+  @@index([userId])
+}
+
+model Advertiser {
+  id             String           @id @default(uuid())
+  companyName    String
+  managerName    String
+  managerEmail   String
+  managerPhone   String?
+  businessNumber String?
+  address        String?
+  billingType    BillingType      @default(PREPAID)
+  taxInfo        String?
+  status         AdvertiserStatus @default(ACTIVE)
+  grade          AdvertiserGrade  @default(STANDARD)
+  memo           String?          @db.Text
+  userId         String?          @unique
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  user           User?            @relation(fields: [userId], references: [id])
+  campaigns      Campaign[]
+  contracts      Contract[]
+}
+
+model Contract {
+  id             String         @id @default(uuid())
+  advertiserId   String
+  startDate      DateTime
+  endDate        DateTime
+  totalBudget    Float          @default(0)
+  spentBudget    Float          @default(0)
+  pricingModel   PricingModel   @default(CPM)
+  priceRate      Float          @default(0)
+  maxImpressions Int?
+  maxClicks      Int?
+  status         ContractStatus @default(ACTIVE)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  name           String?
+  billings       Billing[]
+  campaigns      Campaign[]
+  advertiser     Advertiser     @relation(fields: [advertiserId], references: [id])
+
+  @@index([advertiserId], map: "Contract_advertiserId_fkey")
+}
+
+model Campaign {
+  id              String         @id @default(uuid())
+  advertiserId    String
+  contractId      String
+  name            String
+  objective       String?
+  startDate       DateTime
+  endDate         DateTime
+  budget          Float?
+  targetCountry   String         @default("GLOBAL")
+  targetLanguage  String?
+  targetOS        String?
+  targetAgeMin    Int?
+  targetAgeMax    Int?
+  targetGender    String?
+  targetInterests String?
+  targetDays      String?
+  targetHours     String?
+  status          CampaignStatus @default(ACTIVE)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  creatives       AdCreative[]
+  advertiser      Advertiser     @relation(fields: [advertiserId], references: [id])
+  contract        Contract       @relation(fields: [contractId], references: [id])
+
+  @@index([advertiserId], map: "Campaign_advertiserId_fkey")
+  @@index([contractId], map: "Campaign_contractId_fkey")
+}
+
+model AdCreative {
+  id              String         @id @default(uuid())
+  campaignId      String
+  name            String
+  type            AdType
+  size            AdSize
+  content         String         @db.Text
+  linkUrl         String?
+  flavorTags      String?
+  originTags      String?
+  cpcPrice        Float?
+  priority        Int            @default(1)
+  weight          Int            @default(1)
+  status          CreativeStatus @default(ACTIVE)
+  overlayText     String?        @db.Text
+  overlayFontSize Int?
+  overlayColor    String?
+  overlayPosition String?
+  placementId     String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  campaign        Campaign       @relation(fields: [campaignId], references: [id])
+  placement       Placement?     @relation(fields: [placementId], references: [id])
+  logs            AdLog[]
+
+  @@index([campaignId], map: "AdCreative_campaignId_fkey")
+  @@index([placementId], map: "AdCreative_placementId_fkey")
+}
+
+model Placement {
+  id             String       @id @default(uuid())
+  name           String
+  locationKey    String       @unique
+  supportedSizes String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  creatives      AdCreative[]
+}
+
+model AdLog {
+  id              String       @id @default(uuid())
+  creativeId      String
+  actionType      AdActionType
+  userId          String?
+  ipAddress       String?
+  userAgent       String?
+  deviceOS        String?
+  locationCountry String?
+  createdAt       DateTime     @default(now())
+  creative        AdCreative   @relation(fields: [creativeId], references: [id])
+
+  @@index([creativeId], map: "AdLog_creativeId_fkey")
+}
+
+model Billing {
+  id               String        @id @default(uuid())
+  contractId       String
+  periodStart      DateTime
+  periodEnd        DateTime
+  totalImpressions Int           @default(0)
+  totalClicks      Int           @default(0)
+  totalAmount      Float         @default(0)
+  tax              Float         @default(0)
+  status           BillingStatus @default(PENDING)
+  taxIssued        Boolean       @default(false)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  contract         Contract      @relation(fields: [contractId], references: [id])
+
+  @@index([contractId], map: "Billing_contractId_fkey")
+}
+
+model AdInquiry {
+  id           String        @id @default(uuid())
+  advertiser   String
+  content      String        @db.Text
+  contactName  String
+  contactPhone String
+  contactEmail String
+  status       InquiryStatus @default(PENDING)
+  adminMemo    String?       @db.Text
+  userId       String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  user         User?         @relation(fields: [userId], references: [id])
+
+  @@index([userId], map: "AdInquiry_userId_fkey")
+}
+
+model Poll {
+  id        String       @id @default(uuid())
+  postId    String       @unique
+  question  String
+  expiresAt DateTime?
+  createdAt DateTime     @default(now())
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  options   PollOption[]
+}
+
+model PollOption {
+  id     String     @id @default(uuid())
+  pollId String
+  text   String
+  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes  PollVote[]
+
+  @@index([pollId])
+}
+
+model PollVote {
+  id        String     @id @default(uuid())
+  userId    String
+  optionId  String
+  createdAt DateTime   @default(now())
+  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, optionId])
+  @@index([optionId])
+  @@index([userId])
+}
+
+model Collection {
+  id                 String           @id @default(uuid())
+  userId             String
+  name               String
+  description        String?          @db.Text
+  isPublic           Boolean          @default(true)
+  isPilgrimageCourse Boolean          @default(false)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items              CollectionItem[]
+  attachedPosts      Post[]           @relation("PostAttachedCourse")
+
+  @@index([userId])
+}
+
+model CollectionItem {
+  id           String     @id @default(uuid())
+  collectionId String
+  postId       String?
+  storeId      String?
+  createdAt    DateTime   @default(now())
+  orderIndex   Int        @default(0)
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  post         Post?      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  store        Store?     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, postId])
+  @@unique([collectionId, storeId])
+  @@index([postId])
+  @@index([storeId])
+  @@index([collectionId])
+}
+
+model StoreCheckIn {
+  id           String   @id @default(uuid())
+  userId       String
+  storeId      String
+  createdAt    DateTime @default(now())
+  lat          Float?
+  lng          Float?
+  memo         String?  @db.Text
+  memoImageUrl String?  @db.LongText
+  updatedAt    DateTime @default(now()) @updatedAt
+  store        Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, storeId])
+  @@index([storeId])
+  @@index([userId])
+}
+
+model BannedWord {
+  id        String   @id @default(uuid())
+  word      String   @unique
+  locale    String   @default("ko")
+  category  String   @default("PROFANITY")
+  createdAt DateTime @default(now())
+}
+
+model SpamLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  content   String   @db.Text
+  reason    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model DailyCheckIn {
+  id        String   @id @default(uuid())
+  userId    String
+  beansWon  Int
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model FlashDrop {
+  id           String   @id @default(uuid())
+  title        String
+  description  String   @db.Text
+  imageUrl     String   @db.LongText
+  linkUrl      String?
+  startTime    DateTime
+  endTime      DateTime
+  maxQuantity  Int      @default(0)
+  claimedCount Int      @default(0)
+  status       String   @default("ACTIVE")
+  createdAt    DateTime @default(now())
 }
 
 enum StorePlan {
@@ -471,68 +813,6 @@ enum Role {
   MODERATOR
 }
 
-model Club {
-  id              String    @id @default(uuid())
-  ownerId         String
-  name            String    @unique
-  description     String    @db.Text
-  coverImageUrl   String?   @db.LongText
-  locationName    String?
-  lat             Float?
-  lng             Float?
-  countryCode     String    @default("KR")
-  isPrivate       Boolean   @default(false)
-  maxMembers      Int       @default(100)
-  memberCount     Int       @default(1)
-  leftCount       Int       @default(0)
-  isRecruiting    Boolean   @default(true)
-  isDeleted       Boolean   @default(false)
-  recruitDeadline DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-
-  owner     User           @relation("ClubOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  members   ClubMember[]
-  posts     Post[]
-  bookmarks ClubBookmark[]
-
-  @@index([createdAt(sort: Desc)])
-  @@index([isRecruiting])
-  @@index([locationName])
-  @@index([ownerId])
-}
-
-model ClubMember {
-  id              String   @id @default(uuid())
-  clubId          String
-  userId          String
-  role            ClubRole @default(MEMBER)
-  applicationData String?  @db.Text
-  badges          String?
-  joinedAt        DateTime @default(now())
-
-  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([clubId, userId])
-  @@index([clubId])
-  @@index([userId])
-}
-
-model ClubBookmark {
-  id        String   @id @default(uuid())
-  clubId    String
-  userId    String
-  createdAt DateTime @default(now())
-
-  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([clubId, userId])
-  @@index([clubId])
-  @@index([userId])
-}
-
 enum ClubRole {
   OWNER
   ADMIN
@@ -542,177 +822,6 @@ enum ClubRole {
   NEWBIE
   PENDING
 }
-
-// ==========================================
-// FULL-SCALE ADVERTISEMENT NETWORK (AD SERVER)
-// ==========================================
-
-model Advertiser {
-  id             String           @id @default(uuid())
-  companyName    String
-  managerName    String
-  managerEmail   String
-  managerPhone   String?
-  businessNumber String?
-  address        String?
-  billingType    BillingType      @default(PREPAID) // 선불/후불
-  taxInfo        String?
-  status         AdvertiserStatus @default(ACTIVE)
-  grade          AdvertiserGrade  @default(STANDARD) // VIP/STANDARD
-  memo           String?          @db.Text
-
-  userId String? @unique
-  user   User?   @relation(fields: [userId], references: [id])
-
-  contracts Contract[]
-  campaigns Campaign[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Contract {
-  id           String     @id @default(uuid())
-  name         String? // Added to display a recognizable contract name in UI
-  advertiserId String
-  advertiser   Advertiser @relation(fields: [advertiserId], references: [id])
-
-  startDate    DateTime
-  endDate      DateTime
-  totalBudget  Float        @default(0)
-  spentBudget  Float        @default(0)
-  pricingModel PricingModel @default(CPM)
-  priceRate    Float        @default(0) // CPM/CPC rate
-
-  maxImpressions Int? // 노출 한도
-  maxClicks      Int? // 클릭 한도
-
-  status ContractStatus @default(ACTIVE)
-
-  campaigns Campaign[]
-  billings  Billing[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Campaign {
-  id           String     @id @default(uuid())
-  advertiserId String
-  contractId   String
-  advertiser   Advertiser @relation(fields: [advertiserId], references: [id])
-  contract     Contract   @relation(fields: [contractId], references: [id])
-
-  name      String
-  objective String? // 캠페인 목표 (BRAND_AWARENESS, INSTALL 등)
-  startDate DateTime
-  endDate   DateTime
-  budget    Float?
-
-  // Targeting
-  targetCountry   String  @default("GLOBAL")
-  targetLanguage  String?
-  targetOS        String? // iOS, Android, Web
-  targetAgeMin    Int?
-  targetAgeMax    Int?
-  targetGender    String?
-  targetInterests String? // 콤마 구분
-  targetDays      String? // 콤마 구분 (예: "0,1,2,3,4,5,6" - 0:Sun, 1:Mon)
-  targetHours     String? // 콤마 구분 (예: "08,09,12,18" - 24시간제 HH)
-
-  status CampaignStatus @default(ACTIVE)
-
-  creatives AdCreative[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model AdCreative {
-  id         String   @id @default(uuid())
-  campaignId String
-  campaign   Campaign @relation(fields: [campaignId], references: [id])
-
-  name String
-  type AdType
-  size AdSize
-
-  content String  @db.Text
-  linkUrl String?
-
-  flavorTags String? // e.g. "산미,플로럴,복숭아"
-  originTags String? // e.g. "에티오피아,파나마"
-  cpcPrice   Float? // e.g. 500 (Cost per click deducted from Contract budget)
-
-  priority Int            @default(1) // 우선순위
-  weight   Int            @default(1) // 노출 비율
-  status   CreativeStatus @default(ACTIVE)
-
-  // Text Overlay properties for Image Ads
-  overlayText     String? @db.Text
-  overlayFontSize Int?
-  overlayColor    String?
-  overlayPosition String?
-
-  placementId String?
-  placement   Placement? @relation(fields: [placementId], references: [id])
-
-  logs AdLog[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Placement {
-  id             String @id @default(uuid())
-  name           String // 노출 영역 이름 (e.g. "Main Feed Ad", "Map Popup Ad")
-  locationKey    String @unique // 코드 매핑 키 (e.g. "FEED_NATIVE")
-  supportedSizes String // 수용 가능 사이즈 배열 (JSON 문자열 혹은 콤마 구분)
-
-  creatives AdCreative[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model AdLog {
-  id         String     @id @default(uuid())
-  creativeId String
-  creative   AdCreative @relation(fields: [creativeId], references: [id])
-
-  actionType AdActionType // IMPRESSION, CLICK, CONVERSION
-
-  // Tracked Info
-  userId          String? // 식별된 유저인 경우
-  ipAddress       String?
-  userAgent       String?
-  deviceOS        String?
-  locationCountry String?
-
-  createdAt DateTime @default(now())
-}
-
-model Billing {
-  id         String   @id @default(uuid())
-  contractId String
-  contract   Contract @relation(fields: [contractId], references: [id])
-
-  periodStart DateTime
-  periodEnd   DateTime
-
-  totalImpressions Int   @default(0)
-  totalClicks      Int   @default(0)
-  totalAmount      Float @default(0)
-  tax              Float @default(0)
-
-  status    BillingStatus @default(PENDING)
-  taxIssued Boolean       @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// Enums
 
 enum BillingType {
   PREPAID
@@ -783,170 +892,10 @@ enum AdSize {
   FULL
 }
 
-model AdInquiry {
-  id           String @id @default(uuid())
-  advertiser   String // 광고주 (회사/매장명)
-  content      String @db.Text // 광고 내용 (상세)
-  contactName  String // 성함 (담당자명)
-  contactPhone String // 연락처
-  contactEmail String // 이메일
-
-  status    InquiryStatus @default(PENDING) // 진행 상태
-  adminMemo String?       @db.Text // 관리자 내부 메모
-
-  userId String? // 신청한 호스트 사용자 계정 매핑 (옵션)
-  user   User?   @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 enum InquiryStatus {
   PENDING
   REVIEWING
   MORE_INFO_NEEDED
   APPROVED
   REJECTED
-}
-
-model Poll {
-  id        String       @id @default(uuid())
-  postId    String       @unique
-  question  String
-  expiresAt DateTime?
-  createdAt DateTime     @default(now())
-  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
-  options   PollOption[]
-}
-
-model PollOption {
-  id     String @id @default(uuid())
-  pollId String
-  text   String
-
-  poll  Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
-  votes PollVote[]
-
-  @@index([pollId])
-}
-
-model PollVote {
-  id        String   @id @default(uuid())
-  userId    String
-  optionId  String
-  createdAt DateTime @default(now())
-
-  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  option PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, optionId])
-  @@index([optionId])
-  @@index([userId])
-}
-
-model Collection {
-  id                 String   @id @default(uuid())
-  userId             String
-  name               String
-  description        String?  @db.Text
-  isPublic           Boolean  @default(true)
-  isPilgrimageCourse Boolean  @default(false)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items         CollectionItem[]
-  attachedPosts Post[]           @relation("PostAttachedCourse")
-
-  @@index([userId])
-}
-
-model CollectionItem {
-  id           String   @id @default(uuid())
-  collectionId String
-  postId       String?
-  storeId      String?
-  orderIndex   Int      @default(0)
-  createdAt    DateTime @default(now())
-
-  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-  post       Post?      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  store      Store?     @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-  // A unique constraint is tricky now, leaving it out or substituting it with unique constraints
-  // Prisma allows multiple optional relations. We can rely on application logic to prevent duplicates per collection,
-  // or we can add individual unique keys for post and store combinations.
-  // For simplicity, we remove the @@unique([collectionId, postId]) constraint and rely on custom unique indices:
-  @@unique([collectionId, postId])
-  @@unique([collectionId, storeId])
-  @@index([postId])
-  @@index([storeId])
-  @@index([collectionId])
-}
-
-model StoreCheckIn {
-  id           String   @id @default(uuid())
-  userId       String
-  storeId      String
-  createdAt    DateTime @default(now())
-  lat          Float?
-  lng          Float?
-  memo         String?  @db.Text
-  memoImageUrl String?  @db.LongText
-  updatedAt    DateTime @default(now()) @updatedAt
-
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, storeId])
-  @@index([storeId])
-  @@index([userId])
-}
-
-model BannedWord {
-  id        String   @id @default(uuid())
-  word      String   @unique
-  locale    String   @default("ko")
-  category  String   @default("PROFANITY")
-  createdAt DateTime @default(now())
-}
-
-model SpamLog {
-  id        String   @id @default(uuid())
-  userId    String
-  action    String // 'POST' or 'COMMENT'
-  content   String   @db.Text
-  reason    String // 'RATE_LIMIT_EXCEEDED'
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-}
-
-// ==========================================
-// RETENTION & GAMIFICATION MODELS
-// ==========================================
-
-model DailyCheckIn {
-  id        String   @id @default(uuid())
-  userId    String
-  beansWon  Int
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-}
-
-model FlashDrop {
-  id           String   @id @default(uuid())
-  title        String
-  description  String   @db.Text
-  imageUrl     String   @db.LongText
-  linkUrl      String?
-  startTime    DateTime
-  endTime      DateTime
-  maxQuantity  Int      @default(0)
-  claimedCount Int      @default(0)
-  status       String   @default("ACTIVE")
-  createdAt    DateTime @default(now())
 }

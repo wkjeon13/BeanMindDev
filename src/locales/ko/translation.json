@@ -1489,5 +1489,11 @@
     "role_content_manager": "게시판 관리자",
     "role_newbie": "새내기",
     "lbl_my_role": "나의 권한"
+  },
+  "coffeetalk": {
+    "error_upload": "게시물 업로드 실패: {{error}}",
+    "error_edit": "게시물 수정 실패: {{error}}",
+    "error_generic": "오류가 발생했습니다. 다시 시도해주세요.",
+    "error_media_size": "첨부파일 용량이 초과되었습니다. (최대 100MB)"
   }
 }

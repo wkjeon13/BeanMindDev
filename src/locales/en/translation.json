@@ -1455,5 +1455,11 @@
     "role_content_manager": "Content Manager",
     "role_newbie": "Newbie",
     "lbl_my_role": "My Role"
+  },
+  "coffeetalk": {
+    "error_upload": "Failed to upload post: {{error}}",
+    "error_edit": "Failed to edit post: {{error}}",
+    "error_generic": "An error occurred. Please try again.",
+    "error_media_size": "Media file size exceeded. (Max 100MB)"
   }
 }

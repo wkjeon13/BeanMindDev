@@ -913,13 +913,24 @@ export default function CoffeeTalk() {
             fetchPosts();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            const errText = await res.text();
+            let errText = await res.text();
+            try {
+                const errJson = JSON.parse(errText);
+                if (errJson.errorCode) {
+                    errText = t(`api_error.${errJson.errorCode}`, errJson.error || errText);
+                } else if (errJson.error) {
+                    errText = t(`api_error.${errJson.error}`, errJson.error); // Fallback for raw string matching
+                    if (errText === `api_error.${errJson.error}`) errText = errJson.error; // If no translation, use raw string
+                }
+            } catch (e) {
+                // If not JSON, leave errText as is
+            }
             console.error("SERVER ERROR RESPONSE:", errText);
-            alert(editPostId ? `게시물 수정 실패: ${errText}` : `게시물 업로드 실패 (HTTP ${res.status}): ${errText}`);
+            alert(editPostId ? t('coffeetalk.error_edit', { error: errText }) : t('coffeetalk.error_upload', { error: errText }));
         }
     } catch (error) {
         console.error("Upload error", error);
-        alert("오류가 발생했습니다.");
+        alert(t('coffeetalk.error_generic') || "오류가 발생했습니다.");
     } finally {
         setIsSubmitting(false);
     }
