@@ -1267,7 +1267,7 @@ export default function CoffeeTalk() {
     }
     
     if (activeFilter === 'home_cafe') {
-       const tags = [t('coffee_talk.tag_bean_review', '원두리뷰'), t('coffee_talk.tag_gear_boast', '장비자랑'), t('coffee_talk.tag_home_brewing', '홈브루잉'), t('coffee_talk.tag_coffee_recipe', '커피레시피'), t('coffee_talk.tag_home_cafe_life', '홈카페일상')]; return tags.some(tag => post.content?.includes(`#${tag}`));
+       const tags = [t('coffee_talk.tag_bean_review', '원두리뷰'), t('coffee_talk.tag_gear_boast', '장비자랑'), t('coffee_talk.tag_home_brewing', '홈브루잉'), t('coffee_talk.tag_coffee_recipe', '커피레시피'), t('coffee_talk.tag_home_cafe_life', '홈카페일상'), t('coffee_talk.tag_pairing', '페어링')]; return tags.some(tag => post.content?.includes(`#${tag}`));
     }
     
     if (activeFilter === 'pilgrimage_talk') {
@@ -2443,7 +2443,7 @@ export default function CoffeeTalk() {
 
                       {/* Home Cafe Tags */}
                       <div className="w-full flex flex-wrap gap-2">
-                          {[t('coffee_talk.tag_bean_review', '원두리뷰'), t('coffee_talk.tag_gear_boast', '장비자랑'), t('coffee_talk.tag_home_brewing', '홈브루잉'), t('coffee_talk.tag_coffee_recipe', '커피레시피'), t('coffee_talk.tag_home_cafe_life', '홈카페일상')].map(tag => (
+                          {[t('coffee_talk.tag_bean_review', '원두리뷰'), t('coffee_talk.tag_gear_boast', '장비자랑'), t('coffee_talk.tag_home_brewing', '홈브루잉'), t('coffee_talk.tag_coffee_recipe', '커피레시피'), t('coffee_talk.tag_home_cafe_life', '홈카페일상'), t('coffee_talk.tag_pairing', '페어링')].map(tag => (
                               <button
                                   key={tag}
                                   type="button"
