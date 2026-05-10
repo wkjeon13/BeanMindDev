@@ -28,7 +28,7 @@
     "badge_specialty": "Specialty",
     "badge_general": "General",
     "title_hot_feeds": "Hot CoffeeTalk",
-    "title_shorts": "1-Min Coffee Shorts",
+    "title_shorts": "1-Minute Coffee Exploration",
     "title_hot_lounge": "Live Lounge Hot",
     "lbl_likes": "Likes",
     "title_active_clubs": "Active Crews/Clubs",
@@ -60,7 +60,18 @@
     },
     "title_pairing": "Today's Perfect Pairing",
     "desc_pairing": "Pick a dessert you are craving!",
-    "title_user_pairing": "User Pairing Recommendations"
+    "title_user_pairing": "User Pairing Recommendations",
+    "lbl_todays": "Today's",
+    "lbl_coffee_taste": "Coffee Taste",
+    "flash_drop_badge": "Flash Drop : Guerrilla Special",
+    "flash_drop_open": "Opens in",
+    "flash_drop_end": "Ends in",
+    "flash_drop_ended": "Ended",
+    "roulette_title": "7-Day Attendance Challenge",
+    "roulette_subtitle": "Pick a lucky coffee cup.",
+    "roulette_win": "Congratulations. +{{amount}} Beans",
+    "roulette_fail": "Try again tomorrow.",
+    "roulette_error": "A network error occurred."
   },
   "club_list": {
     "filter_recruiting": "Recruiting",

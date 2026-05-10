@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Timer, Zap } from 'lucide-react';
 import { API_BASE } from '../../utils/apiConfig';
+import { useTranslation } from 'react-i18next';
 
 const FlashDropBanner = () => {
+    const { t } = useTranslation();
     const [drops, setDrops] = useState<any[]>([]);
     const [timeLeft, setTimeLeft] = useState('');
 
@@ -31,15 +33,15 @@ const FlashDropBanner = () => {
                 const h = Math.floor(diff / (1000 * 60 * 60));
                 const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((diff % (1000 * 60)) / 1000);
-                setTimeLeft(`오픈까지 ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+                setTimeLeft(`${t('home.flash_drop_open', '오픈까지')} ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
             } else if (now >= start && now < end) {
                 const diff = end - now;
                 const h = Math.floor(diff / (1000 * 60 * 60));
                 const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const s = Math.floor((diff % (1000 * 60)) / 1000);
-                setTimeLeft(`종료까지 ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+                setTimeLeft(`${t('home.flash_drop_end', '종료까지')} ${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
             } else {
-                setTimeLeft('종료됨');
+                setTimeLeft(t('home.flash_drop_ended', '종료됨'));
             }
         }, 1000);
 
@@ -62,7 +64,7 @@ const FlashDropBanner = () => {
                             {isLive ? <Zap size={8} className="animate-pulse" /> : <Timer size={8} />}
                             {isLive ? 'Live Now' : 'Upcoming'}
                         </span>
-                        <span className="text-[10px] font-serif tracking-widest text-amber-500">Flash Drop : 게릴라 특가</span>
+                        <span className="text-[10px] font-serif tracking-widest text-amber-500">{t('home.flash_drop_badge', 'Flash Drop : 게릴라 특가')}</span>
                     </div>
                     
                     <h4 className="text-[16px] font-serif leading-[1.1] text-white mb-1 truncate">{activeDrop.title}</h4>

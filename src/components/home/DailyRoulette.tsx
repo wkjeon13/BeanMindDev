@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Gift, Coffee, CheckCircle, Flame, Star, Coins, Sparkles } from 'lucide-react';
 import { API_BASE } from '../../utils/apiConfig';
+import { useTranslation } from 'react-i18next';
 
 const DailyRoulette = () => {
+    const { t } = useTranslation();
     const [status, setStatus] = useState<{streak: number, todayPlayed: boolean} | null>(null);
     const [isShuffling, setIsShuffling] = useState(false);
     const [selectedCup, setSelectedCup] = useState<number | null>(null);
@@ -69,7 +71,7 @@ const DailyRoulette = () => {
                 setTimeout(() => setIsHidden(true), 3500);
             }
         } catch (e) {
-            setMessage('네트워크 오류가 발생했습니다.');
+            setMessage(t('home.roulette_error', '네트워크 오류가 발생했습니다.'));
         } finally {
             setIsShuffling(false);
         }
@@ -88,7 +90,7 @@ const DailyRoulette = () => {
                     <div className="flex justify-between items-end mb-2">
                         <div className="flex items-center gap-1.5">
                             <div className="w-3 h-[2px] bg-amber-500 rounded-full" />
-                            <h3 className="text-[15px] font-bold tracking-tight text-espresso-50">7일 출석 챌린지</h3>
+                            <h3 className="text-[15px] font-bold tracking-tight text-espresso-50">{t('home.roulette_title', '7일 출석 챌린지')}</h3>
                         </div>
                         <span className="text-[10px] font-black tracking-widest text-espresso-400">{status.streak} / 7 DAYS</span>
                     </div>
@@ -114,7 +116,7 @@ const DailyRoulette = () => {
                     {!status.todayPlayed || (status.todayPlayed && selectedCup !== null && isShuffling) ? (
                         <>
                             <h4 className="text-[14px] font-medium text-espresso-200 mb-3 tracking-wide">
-                                행운의 커피 컵을 골라보세요.
+                                {t('home.roulette_subtitle', '행운의 커피 컵을 골라보세요.')}
                             </h4>
                             <div className="flex justify-center gap-4">
                                 {[0, 1, 2].map((i) => (
@@ -178,7 +180,7 @@ const DailyRoulette = () => {
                         
                         <div className="w-full pt-4 border-t border-espresso-800">
                             <h4 className="text-[15px] font-bold text-espresso-50 mb-0.5">
-                                {rewards && selectedCup !== null ? `축하합니다. +${rewards[selectedCup]} Beans` : '내일 다시 도전하세요.'}
+                                {rewards && selectedCup !== null ? t('home.roulette_win', '축하합니다. +{{amount}} Beans', { amount: rewards[selectedCup] }) : t('home.roulette_fail', '내일 다시 도전하세요.')}
                             </h4>
                         </div>
                     </motion.div>

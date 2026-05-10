@@ -546,12 +546,12 @@ export default function HomeDashboard() {
                             {t('home.hero_title_1', '{{name}}님,', { name: greetingName })}
                           </span>
                           <span className="block text-[22px] font-serif leading-[1.1] tracking-tight text-white/95">
-                            지난번 추천받으신
+                            {t('home.lbl_previous_suggestion', '지난번 추천받으신')}
                           </span>
                           <span className="block text-[22px] font-serif leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white mt-1 truncate max-w-full">
                             {personalizedData.latestPrescription.beanName}
                           </span>
-                          <span className="block text-[11px] font-light text-espresso-200 mt-2 leading-relaxed max-w-[80%]">어떠셨나요? 당신을 위한 새로운 한 잔을 제안합니다.</span>
+                          <span className="block text-[11px] font-light text-espresso-200 mt-2 leading-relaxed max-w-[80%]">{t('home.lbl_ask_experience', '어떠셨나요? 당신을 위한 새로운 한 잔을 제안합니다.')}</span>
                       </>
                   ) : (
                       <>
@@ -734,7 +734,7 @@ export default function HomeDashboard() {
         <section key={config.id} className="py-2">
           <div className="px-4 flex items-center justify-between mb-4 mt-2">
             <h3 className="text-[22px] font-serif tracking-tight text-white flex items-center gap-2">
-              <Video className="text-amber-500 w-5 h-5" /> 1분 커피 탐험
+              <Video className="text-amber-500 w-5 h-5" /> {t('home.title_shorts', '1분 커피 탐험')}
             </h3>
           </div>
           <div className="grid grid-cols-2 gap-3 px-4 pb-4">

@@ -85,7 +85,18 @@
     },
     "title_pairing": "오늘의 완벽한 페어링",
     "desc_pairing": "지금 먹고 싶은 디저트를 골라보세요!",
-    "title_user_pairing": "유저들의 페어링 추천"
+    "title_user_pairing": "유저들의 페어링 추천",
+    "lbl_todays": "오늘의",
+    "lbl_coffee_taste": "커피 취향",
+    "flash_drop_badge": "Flash Drop : 게릴라 특가",
+    "flash_drop_open": "오픈까지",
+    "flash_drop_end": "종료까지",
+    "flash_drop_ended": "종료됨",
+    "roulette_title": "7일 출석 챌린지",
+    "roulette_subtitle": "행운의 커피 컵을 골라보세요.",
+    "roulette_win": "축하합니다. +{{amount}} Beans",
+    "roulette_fail": "내일 다시 도전하세요.",
+    "roulette_error": "네트워크 오류가 발생했습니다."
   },
   "club_list": {
     "filter_recruiting": "모집중",
