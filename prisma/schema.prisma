@@ -900,14 +900,17 @@ enum InquiryStatus {
   REJECTED
 }
 
+
 model TodayPairing {
-  id          String   @id @default(uuid())
-  icon        String
-  name        String
-  coffee      String
-  desc        String
-  isActive    Boolean  @default(true)
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid())
+  icon         String
+  name         String
+  coffee       String
+  desc         String
+  season       String?
+  tasteProfile String?
+  isActive     Boolean  @default(true)
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

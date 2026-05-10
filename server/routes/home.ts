@@ -165,11 +165,18 @@ router.get('/personalized', authenticateToken, async (req: any, res) => {
             }
         }
 
-        // 5. Today's Pairings
-        const todayPairings = await (prisma as any).todayPairing.findMany({
-            where: { isActive: true },
-            orderBy: { order: 'asc' }
+        // 5. Today's Pairings (Randomized 4 items to keep UI clean and dynamic)
+        const allPairings = await (prisma as any).todayPairing.findMany({
+            where: { isActive: true }
         });
+        
+        // Simple Fisher-Yates shuffle
+        for (let i = allPairings.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [allPairings[i], allPairings[j]] = [allPairings[j], allPairings[i]];
+        }
+        
+        const todayPairings = allPairings.slice(0, 4);
 
         // 6. User Pairings (Posts with #페어링)
         const userPairings = await (prisma as any).post.findMany({
