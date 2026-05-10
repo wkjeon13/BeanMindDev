@@ -165,12 +165,35 @@ router.get('/personalized', authenticateToken, async (req: any, res) => {
             }
         }
 
+        // 5. Today's Pairings
+        const todayPairings = await (prisma as any).todayPairing.findMany({
+            where: { isActive: true },
+            orderBy: { order: 'asc' }
+        });
+
+        // 6. User Pairings (Posts with #페어링)
+        const userPairings = await (prisma as any).post.findMany({
+            where: {
+                isHidden: false,
+                content: { contains: '#페어링' },
+                image: { not: null }
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 5,
+            include: {
+                author: { select: { nickname: true } },
+                _count: { select: { likes: true } }
+            }
+        });
+
         res.json({
             latestPrescription,
             followingFeeds,
             tasteMatchedFeeds,
             myClubFeeds,
-            recommendedClubs
+            recommendedClubs,
+            todayPairings,
+            userPairings
         });
 
     } catch (error) {

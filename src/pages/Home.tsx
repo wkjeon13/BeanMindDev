@@ -18,6 +18,8 @@ interface PersonalizedHomeData {
     tasteMatchedFeeds: any[];
     myClubFeeds: any[];
     recommendedClubs: any[];
+    todayPairings?: any[];
+    userPairings?: any[];
 }
 
 // In-memory cache to prevent loading screens when re-entering the tab
@@ -81,22 +83,11 @@ const DEFAULT_LAYOUT: HomeSectionConfig[] = [
   { id: 'recommended_clubs', name: 'home.sections.recommended_clubs', isVisible: true, order: 11 }
 ];
 
-const CoffeePairingSection = () => {
+const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { todayPairings?: any[], userPairings?: any[] }) => {
     const { t } = useTranslation();
     const [activeDessert, setActiveDessert] = React.useState<number | null>(null);
 
-    const DESSERTS = [
-      { icon: '🥐', name: '크루아상', coffee: '플랫 화이트', desc: '버터의 풍미를 살려주는 진하고 부드러운 우유' },
-      { icon: '🍰', name: '딸기 케이크', coffee: '에티오피아 예가체프', desc: '생크림의 느끼함을 잡아주는 화사한 산미' },
-      { icon: '🍫', name: '초콜릿', coffee: '다크 로스트 에스프레소', desc: '카카오의 쌉싸름함을 극대화하는 깊은 바디감' },
-      { icon: '🥯', name: '베이글', coffee: '아메리카노', desc: '담백한 빵과 어울리는 깔끔한 피니시' },
-    ];
-
-    const COMMUNITY_PAIRINGS = [
-      { id: 1, title: '바닐라 라떼 & 까눌레', author: '커피마스터', image: 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=300&q=80', likes: 24 },
-      { id: 2, title: '드립커피 & 치즈케이크', author: '디저트덕후', image: 'https://images.unsplash.com/photo-1514517220017-8ce97a34a7b6?w=300&q=80', likes: 18 },
-      { id: 3, title: '에스프레소 & 티라미수', author: '로스터리랩', image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=300&q=80', likes: 56 },
-    ];
+    
 
     return (
         <section className="pt-6 pb-2 border-t border-espresso-800 bg-gradient-to-b from-espresso-950 to-[#160d08]">
@@ -112,7 +103,7 @@ const CoffeePairingSection = () => {
 
             {/* AI Pairing Roulette */}
             <div className="flex gap-2 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
-                {DESSERTS.map((item, idx) => (
+                {todayPairings.map((item, idx) => (
                     <button 
                         key={idx}
                         onClick={() => setActiveDessert(activeDessert === idx ? null : idx)}
@@ -137,9 +128,9 @@ const CoffeePairingSection = () => {
                                 <Coffee size={24} />
                             </div>
                             <div>
-                                <div className="text-[11px] font-bold text-amber-500 mb-1">{DESSERTS[activeDessert].name}에는 이런 커피 어때요?</div>
-                                <div className="text-[15px] font-black text-espresso-50 mb-1">{DESSERTS[activeDessert].coffee}</div>
-                                <div className="text-[12px] text-espresso-300 line-clamp-2 leading-snug">{DESSERTS[activeDessert].desc}</div>
+                                <div className="text-[11px] font-bold text-amber-500 mb-1">{todayPairings[activeDessert].name}에는 이런 커피 어때요?</div>
+                                <div className="text-[15px] font-black text-espresso-50 mb-1">{todayPairings[activeDessert].coffee}</div>
+                                <div className="text-[12px] text-espresso-300 line-clamp-2 leading-snug">{todayPairings[activeDessert].desc}</div>
                             </div>
                         </div>
                     </motion.div>
@@ -151,14 +142,14 @@ const CoffeePairingSection = () => {
                 <h4 className="text-[14px] font-bold text-espresso-200">유저들의 페어링 추천</h4>
             </div>
             <div className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
-                {COMMUNITY_PAIRINGS.map((post) => (
+                {userPairings.map((post) => (
                     <div key={post.id} className="relative w-[calc(33.333%-8px)] aspect-[3/4] max-h-[180px] rounded-2xl overflow-hidden shrink-0 snap-center shadow-lg group cursor-pointer border border-espresso-800">
-                        <img src={post.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#120a05]/90 via-[#120a05]/30 to-transparent flex flex-col justify-end p-3">
-                            <span className="text-[12px] font-bold text-espresso-50 leading-tight mb-1">{post.title}</span>
+                        <MediaRenderer src={getFirstImage(post.image) || 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=300&q=80'} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" hideControls={true} />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#120a05]/90 via-[#120a05]/30 to-transparent flex flex-col justify-end p-3 pointer-events-none">
+                            <span className="text-[12px] font-bold text-espresso-50 leading-tight mb-1 line-clamp-2">{post.content}</span>
                             <div className="flex justify-between items-center w-full">
-                                <span className="text-[10px] text-espresso-300">{post.author}</span>
-                                <div className="flex items-center gap-1 text-[10px] text-amber-400 font-bold"><Heart size={10} fill="currentColor"/> {post.likes}</div>
+                                <span className="text-[10px] text-espresso-300">{post.author?.nickname || '커피러버'}</span>
+                                <div className="flex items-center gap-1 text-[10px] text-amber-400 font-bold"><Heart size={10} fill="currentColor"/> {post._count?.likes || 0}</div>
                             </div>
                         </div>
                     </div>
@@ -829,7 +820,7 @@ export default function HomeDashboard() {
   );
 
 
-          if (config.id === 'coffee_pairing') return <CoffeePairingSection key={config.id} />;
+          if (config.id === 'coffee_pairing') return <CoffeePairingSection key={config.id} todayPairings={personalizedData?.todayPairings} userPairings={personalizedData?.userPairings} />;
 
           if (config.id === 'recommended_clubs') return (
         <section key={config.id} className="pt-2 pb-4">
