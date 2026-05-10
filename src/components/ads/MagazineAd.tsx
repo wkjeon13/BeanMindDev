@@ -19,7 +19,7 @@ export const MagazineAd: React.FC<MagazineAdProps> = ({ adData }) => {
     }
 
     return (
-        <div className="my-16 relative w-full h-[600px] overflow-hidden group cursor-pointer">
+        <div className="my-4 mx-4 relative w-[calc(100%-32px)] h-[400px] overflow-hidden group cursor-pointer rounded-3xl shadow-lg border border-espresso-800">
             <img 
                 src={adData.content || 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=800'} 
                 alt="Magazine Feature"

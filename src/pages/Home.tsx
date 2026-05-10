@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DailyRoulette from '../components/home/DailyRoulette';
 import FlashDropBanner from '../components/home/FlashDropBanner';
 import WeeklyTasteTest from '../components/home/WeeklyTasteTest';
+import { MagazineAd } from '../components/ads/MagazineAd';
 
 interface PersonalizedHomeData {
     latestPrescription: any;
@@ -70,13 +71,14 @@ const DEFAULT_LAYOUT: HomeSectionConfig[] = [
   { id: 'hero', name: 'home.sections.hero', isVisible: true, order: 1, isFixed: true },
   { id: 'flash_drop', name: 'home.sections.flash_drop', isVisible: true, order: 2 },
   { id: 'daily_roulette', name: 'home.sections.daily_roulette', isVisible: true, order: 3 },
-  { id: 'shorts', name: 'home.sections.shorts', isVisible: true, order: 4 },
-  { id: 'trending', name: 'home.sections.trending', isVisible: true, order: 5 },
-  { id: 'following', name: 'home.sections.following', isVisible: true, order: 6 },
-  { id: 'taste_match', name: 'home.sections.taste_match', isVisible: true, order: 7 },
-  { id: 'coffee_pairing', name: 'home.sections.coffee_pairing', isVisible: true, order: 8 },
-  { id: 'my_clubs', name: 'home.sections.my_clubs', isVisible: true, order: 9 },
-  { id: 'recommended_clubs', name: 'home.sections.recommended_clubs', isVisible: true, order: 10 }
+  { id: 'native_ad', name: 'home.sections.native_ad', isVisible: true, order: 4 },
+  { id: 'shorts', name: 'home.sections.shorts', isVisible: true, order: 5 },
+  { id: 'trending', name: 'home.sections.trending', isVisible: true, order: 6 },
+  { id: 'following', name: 'home.sections.following', isVisible: true, order: 7 },
+  { id: 'taste_match', name: 'home.sections.taste_match', isVisible: true, order: 8 },
+  { id: 'coffee_pairing', name: 'home.sections.coffee_pairing', isVisible: true, order: 9 },
+  { id: 'my_clubs', name: 'home.sections.my_clubs', isVisible: true, order: 10 },
+  { id: 'recommended_clubs', name: 'home.sections.recommended_clubs', isVisible: true, order: 11 }
 ];
 
 const CoffeePairingSection = () => {
@@ -634,6 +636,26 @@ export default function HomeDashboard() {
             
               if (config.id === 'flash_drop') return <FlashDropBanner key={config.id} />;
       if (config.id === 'daily_roulette') return <DailyRoulette key={config.id} />;
+      
+      if (config.id === 'native_ad') {
+          const adData = {
+              campaignName: 'Sponsored by OMNIA COFFEE',
+              name: '최고의 하루를 위한 싱글오리진',
+              flavorTags: '에티오피아 시다모 • 부드러운 산미와 자스민 향',
+              content: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800',
+              linkUrl: 'https://example.com'
+          };
+          return (
+              <section key={config.id} className="py-2">
+                  <div className="px-6 mb-2">
+                      <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[10px] font-bold text-amber-500 uppercase tracking-wider border border-amber-500/30 px-1.5 py-0.5 rounded-sm bg-amber-500/10">Sponsored</span>
+                      </div>
+                  </div>
+                  <MagazineAd adData={adData} />
+              </section>
+          );
+      }
       if (config.id === 'weekly_mbti') return <WeeklyTasteTest key={config.id} />;
 
       if (config.id === 'taste_match') return isLoggedIn && personalizedData && personalizedData.tasteMatchedFeeds && personalizedData.tasteMatchedFeeds.length > 0 && (
