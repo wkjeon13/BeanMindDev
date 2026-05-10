@@ -111,12 +111,12 @@ const CoffeePairingSection = () => {
             </div>
 
             {/* AI Pairing Roulette */}
-            <div className="flex gap-4 overflow-x-auto px-4 pb-2 snap-x hide-scrollbar mb-4">
+            <div className="flex gap-2 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
                 {DESSERTS.map((item, idx) => (
                     <button 
                         key={idx}
                         onClick={() => setActiveDessert(activeDessert === idx ? null : idx)}
-                        className={`flex flex-col items-center justify-center min-w-[90px] h-[90px] rounded-2xl shrink-0 snap-center transition-all duration-300 border-2 shadow-md ${activeDessert === idx ? 'bg-gradient-to-b from-amber-500/20 to-transparent border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)]' : 'bg-espresso-800/80 border-espresso-700 hover:border-amber-500/50 hover:bg-espresso-800'}`}
+                        className={`flex flex-col items-center justify-center w-[calc(25%-6px)] aspect-square rounded-2xl shrink-0 snap-center transition-all duration-300 border-2 shadow-md ${activeDessert === idx ? 'bg-gradient-to-b from-amber-500/20 to-transparent border-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.3)]' : 'bg-espresso-800/80 border-espresso-700 hover:border-amber-500/50 hover:bg-espresso-800'}`}
                     >
                         <span className="text-[32px] mb-1 drop-shadow-sm">{item.icon}</span>
                         <span className={`text-[12px] font-black tracking-tight transition-colors ${activeDessert === idx ? 'text-amber-400' : 'text-espresso-200'}`}>{item.name}</span>
@@ -152,7 +152,7 @@ const CoffeePairingSection = () => {
             </div>
             <div className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
                 {COMMUNITY_PAIRINGS.map((post) => (
-                    <div key={post.id} className="relative w-[140px] h-[180px] rounded-2xl overflow-hidden shrink-0 snap-center shadow-lg group cursor-pointer border border-espresso-800">
+                    <div key={post.id} className="relative w-[calc(33.333%-8px)] aspect-[3/4] max-h-[180px] rounded-2xl overflow-hidden shrink-0 snap-center shadow-lg group cursor-pointer border border-espresso-800">
                         <img src={post.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#120a05]/90 via-[#120a05]/30 to-transparent flex flex-col justify-end p-3">
                             <span className="text-[12px] font-bold text-espresso-50 leading-tight mb-1">{post.title}</span>
@@ -659,14 +659,14 @@ export default function HomeDashboard() {
                      <Sparkles className="text-amber-500 w-4 h-4" /> {t('home.title_taste_match', '{{name}}님 취향 저격 피드', { name: greetingName })}
                    </h3>
                  </div>
-                 <div className="flex gap-4 overflow-x-auto px-6 pb-6 snap-x hide-scrollbar">
+                 <div className="flex gap-3 overflow-x-auto px-4 pb-6 snap-x hide-scrollbar">
                     {personalizedData.tasteMatchedFeeds.map((post: any) => (
                       <div 
                         key={post.id}
                         onClick={() => navigate('/community', { state: { activePost: post.id } })}
-                        className="w-[160px] flex flex-col shrink-0 snap-center cursor-pointer group bg-transparent"
+                        className="w-[calc(33.333%-8px)] flex flex-col shrink-0 snap-center cursor-pointer group bg-transparent"
                       >
-                        <div className="w-full h-[160px] rounded-2xl bg-espresso-800 overflow-hidden relative mb-2 shadow-md border border-espresso-800 group-hover:border-amber-500/50 transition-colors">
+                        <div className="w-full aspect-square rounded-2xl bg-espresso-800 overflow-hidden relative mb-2 shadow-md border border-espresso-800 group-hover:border-amber-500/50 transition-colors">
                           <div className="w-full h-full pointer-events-none">
                             <MediaRenderer 
                               src={getFirstImage(post.image) || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf'} 
@@ -793,10 +793,10 @@ export default function HomeDashboard() {
           <div className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
             {isLoading ? (
               [1, 2, 3].map(i => (
-                <div key={i} className="w-[160px] h-[160px] bg-espresso-800 animate-pulse rounded-2xl shrink-0 snap-center" />
+                <div key={i} className="w-[calc(50%-6px)] aspect-square bg-espresso-800 animate-pulse rounded-2xl shrink-0 snap-center" />
               ))
             ) : pilgrimageFeeds.length === 0 ? (
-              <div className="w-full h-[160px] flex flex-col items-center justify-center text-espresso-400 bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
+              <div className="w-full aspect-square flex flex-col items-center justify-center text-espresso-400 bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
                   <MapPin size={24} className="mb-2 opacity-50" />
                   <span className="text-[13px] font-medium">이 지역의 뜨는 성지가 없습니다.</span>
               </div>
@@ -804,9 +804,9 @@ export default function HomeDashboard() {
               <div 
                 key={store.id}
                 onClick={() => navigate('/map', { state: { targetShopId: store.id, targetLat: store.lat, targetLng: store.lng, targetName: store.name } })}
-                className="w-[160px] flex flex-col shrink-0 snap-center cursor-pointer group"
+                className="w-[calc(50%-6px)] flex flex-col shrink-0 snap-center cursor-pointer group"
               >
-                <div className="w-full h-[160px] rounded-2xl bg-espresso-800 overflow-hidden relative shadow-md border border-espresso-800 group-hover:border-amber-500/50 transition-colors">
+                <div className="w-full aspect-square rounded-2xl bg-espresso-800 overflow-hidden relative shadow-md border border-espresso-800 group-hover:border-amber-500/50 transition-colors">
                   <div className="w-full h-full pointer-events-none">
                     <MediaRenderer 
                       src={getFirstImage(store.mainImageUrl) || 'https://images.unsplash.com/photo-1554118811-1e0d58224f24'} 
