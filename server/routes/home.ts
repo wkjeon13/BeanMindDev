@@ -150,7 +150,9 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                     tasteScore = Math.max(0, 50 - (avgDist * 10)); 
                     
                     if (!matchReason && tasteScore > 35) {
-                        matchReason = `🎯 ${Math.round(tasteScore * 2)}% 취향 일치`;
+                        matchReason = req.query.countryCode === 'US' 
+                            ? `🎯 ${Math.round(tasteScore * 2)}% Taste Match` 
+                            : `🎯 ${Math.round(tasteScore * 2)}% 취향 일치`;
                     }
                 }
             }
@@ -158,7 +160,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             score = interestScore + tasteScore;
             // Fallback reason
             if (!matchReason) {
-                matchReason = '🔥 최신 트렌드 피드';
+                matchReason = req.query.countryCode === 'US' ? '🔥 Trending Now' : '🔥 최신 트렌드 피드';
             }
 
             return { ...post, matchScore: score, matchReason };
@@ -387,7 +389,24 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             } catch (e) {}
         }
 
+        const now = new Date();
+        const heroBanner = await (prisma as any).heroBanner.findFirst({
+            where: {
+                isActive: true,
+                OR: [
+                    { countryCode: (req.query.countryCode as string) || 'KR' },
+                    { countryCode: 'GLOBAL' }
+                ],
+                AND: [
+                    { OR: [{ startDate: null }, { startDate: { lte: now } }] },
+                    { OR: [{ endDate: null }, { endDate: { gte: now } }] }
+                ]
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
         res.json({
+            heroBanner,
             latestPrescription,
             followingFeeds,
             tasteMatchedFeeds,

@@ -11,7 +11,8 @@ import AdminModeration from './pages/AdminModeration';
 import AdminLogin from './pages/AdminLogin';
 import AdminHomeCampaigns from './pages/AdminHomeCampaigns';
 import AdminPairings from './pages/AdminPairings';
-import { Settings, Users, Store, Coffee, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut, Layout } from 'lucide-react';
+import AdminHeroBanner from './pages/AdminHeroBanner';
+import { Settings, Users, Store, Coffee, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut, Layout, Image as ImageIcon } from 'lucide-react';
 
 const Sidebar = () => {
   const handleLogout = () => {
@@ -46,6 +47,9 @@ const Sidebar = () => {
         </Link>
         <Link to="/home-campaigns" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors text-amber-400 font-bold bg-gray-800/50">
           <Layout className="w-5 h-5 mr-3" /> Home Campaigns
+        </Link>
+        <Link to="/hero-banners" className="flex items-center p-3 pl-11 rounded-lg hover:bg-gray-800 transition-colors text-sm">
+          Hero Banners
         </Link>
         <Link to="/pairings" className="flex items-center p-3 pl-11 rounded-lg hover:bg-gray-800 transition-colors text-sm">
           Coffee Pairings
@@ -99,6 +103,7 @@ function App() {
                   <Route path="/ad-inquiries" element={<AdminAdInquiries />} />
                   <Route path="/home-campaigns" element={<AdminHomeCampaigns />} />
                   <Route path="/pairings" element={<AdminPairings />} />
+                  <Route path="/hero-banners" element={<AdminHeroBanner />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </main>
