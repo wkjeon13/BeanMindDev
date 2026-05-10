@@ -1572,9 +1572,9 @@ export default function CoffeeTalk() {
                           className="absolute inset-0 z-0 overflow-hidden bg-[#0a0a0c] cursor-pointer"
                           onClick={(e) => { e.stopPropagation(); setActiveCarouselUrls(urls); }}
                       >
-                          {urls.length > 0 && <MediaRenderer src={urls[0]} className="w-full h-full object-cover opacity-[0.45] mix-blend-luminosity group-hover:mix-blend-normal group-hover:scale-105 group-hover:opacity-75 transition-all duration-[1200ms] ease-out outline-none" autoPlay={true} />}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent"></div>
-                          <div className="absolute inset-0 flex items-center justify-center opacity-[0.13] mix-blend-overlay">
+                          {urls.length > 0 && <MediaRenderer src={urls[0]} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 outline-none" autoPlay={true} />}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none"></div>
+                          <div className="hidden">
                               <span className="font-serif text-[60px] sm:text-[75px] font-black tracking-[0.3em] text-white rotate-[-12deg] leading-[0.8] text-center drop-shadow-2xl grayscale ml-4">PILGRIMAGE<br/>CERTIFIED</span>
                           </div>
                       </div>
@@ -1819,7 +1819,7 @@ export default function CoffeeTalk() {
               )}
 
               {/* Interactions & Content */}
-              <div className={activeFilter === 'shorts' ? "absolute bottom-0 left-0 right-0 z-[50] p-4 pt-32 pb-[110px] flex flex-col justify-end pointer-events-none bg-gradient-to-t from-black via-black/40 to-transparent" : "relative z-20 p-4 pt-3 flex flex-col justify-end mt-auto"}>
+              <div className={activeFilter === 'shorts' ? "absolute bottom-0 left-0 right-0 z-[50] p-4 pt-32 pb-[110px] flex flex-col justify-end pointer-events-none bg-gradient-to-t from-black/80 via-black/20 to-transparent" : "relative z-20 p-4 pt-3 flex flex-col justify-end mt-auto"}>
                 {/* Shorts / Pilgrimage Meta Tags Area */}
                 {(post.isPilgrimageLedger || activeFilter === 'shorts') && (post.cafeName || post.taggedBean || post.shortsCategory || post.equipmentTag) && (
                   <div className={`flex flex-col gap-2 mb-3 ${post.isPilgrimageLedger ? 'pb-2 w-full border-b border-white/5' : ''}`}>
