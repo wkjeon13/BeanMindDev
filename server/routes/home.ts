@@ -166,8 +166,9 @@ router.get('/personalized', authenticateToken, async (req: any, res) => {
         }
 
         // 5. Today's Pairings (Randomized 4 items to keep UI clean and dynamic)
+        const userCountry = user?.countryCode || 'KR';
         const allPairings = await (prisma as any).todayPairing.findMany({
-            where: { isActive: true }
+            where: { isActive: true, countryCode: userCountry }
         });
         
         // Simple Fisher-Yates shuffle
@@ -178,11 +179,13 @@ router.get('/personalized', authenticateToken, async (req: any, res) => {
         
         const todayPairings = allPairings.slice(0, 4);
 
-        // 6. User Pairings (Posts with #페어링)
+        // 6. User Pairings (Posts with #페어링 or #Pairing based on country)
+        const pairingTag = userCountry === 'US' ? '#Pairing' : '#페어링';
         const userPairings = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
-                content: { contains: '#페어링' },
+                countryCode: userCountry,
+                content: { contains: pairingTag },
                 image: { not: null }
             },
             orderBy: { createdAt: 'desc' },

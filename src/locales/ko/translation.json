@@ -82,7 +82,10 @@
       "weekly_mbti": "주간 커피 취향 테스트",
       "coffee_pairing": "커피 & 디저트 페어링",
       "native_ad": "스페셜 매거진 (AD)"
-    }
+    },
+    "title_pairing": "오늘의 완벽한 페어링",
+    "desc_pairing": "지금 먹고 싶은 디저트를 골라보세요!",
+    "title_user_pairing": "유저들의 페어링 추천"
   },
   "club_list": {
     "filter_recruiting": "모집중",

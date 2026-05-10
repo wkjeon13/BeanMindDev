@@ -909,6 +909,7 @@ model TodayPairing {
   desc         String
   season       String?
   tasteProfile String?
+  countryCode  String   @default("KR")
   isActive     Boolean  @default(true)
   order        Int      @default(0)
   createdAt    DateTime @default(now())

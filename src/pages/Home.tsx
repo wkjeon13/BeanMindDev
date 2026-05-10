@@ -98,7 +98,7 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
                         <Sparkles className="text-amber-500 w-4 h-4" /> 
                         {t('home.title_pairing', '오늘의 완벽한 페어링')}
                     </h3>
-                    <p className="text-[12px] text-espresso-400 mt-1">지금 먹고 싶은 디저트를 골라보세요!</p>
+                    <p className="text-[12px] text-espresso-400 mt-1">{t('home.desc_pairing', '지금 먹고 싶은 디저트를 골라보세요!')}</p>
                 </div>
             </div>
 
@@ -140,7 +140,7 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
 
             {/* Community Gallery */}
             <div className="px-4 flex items-center justify-between mb-3 mt-2">
-                <h4 className="text-[14px] font-bold text-espresso-200">유저들의 페어링 추천</h4>
+                <h4 className="text-[14px] font-bold text-espresso-200">{t('home.title_user_pairing', '유저들의 페어링 추천')}</h4>
             </div>
             <div className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
                 {userPairings.map((post) => (
