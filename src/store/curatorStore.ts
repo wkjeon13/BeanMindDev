@@ -224,8 +224,6 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
         .then(data => data.countryName || "South Korea")
         .catch(() => "South Korea");
 
-    const genai = getAi();
-
     measure("5. 국가 역지오코딩(Reverse Geocode) 대기 시작");
     try {
       countryName = await Promise.race([
@@ -234,7 +232,6 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
       ]);
       measure("6. 국가 역지오코딩(Reverse Geocode) 완료 (최대 1.5초 타임아웃 방어)");
       const targetLanguage = language.startsWith('en') ? 'English' : 'Korean';
-      if (!genai) throw new Error("AI not initialized");
 
       measure("6-1. 클라이언트 기반 휴리스틱 매칭 (0.1초 컷)");
       const scoredBeans = COFFEE_BEANS.map(bean => {

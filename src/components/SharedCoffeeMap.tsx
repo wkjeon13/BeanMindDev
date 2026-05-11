@@ -178,9 +178,46 @@ function MapControllerComponent({ center, setMapCenter, setMapBounds, boundsToFi
 }
 
 function MapClickHandler({ onMapClick }: { onMapClick?: (lat: number, lng: number) => void }) {
+    const timerRef = React.useRef<NodeJS.Timeout | null>(null);
+    const hasTriggeredRef = React.useRef<boolean>(false);
+
     useMapEvents({
         contextmenu(e) {
+            if (hasTriggeredRef.current) {
+                hasTriggeredRef.current = false;
+                return;
+            }
             if (onMapClick) onMapClick(e.latlng.lat, e.latlng.lng);
+        },
+        mousedown(e) {
+            if (e.originalEvent && (e.originalEvent as MouseEvent).button === 2) return;
+            
+            if (timerRef.current) clearTimeout(timerRef.current);
+            hasTriggeredRef.current = false;
+            
+            timerRef.current = setTimeout(() => {
+                hasTriggeredRef.current = true;
+                if (onMapClick) onMapClick(e.latlng.lat, e.latlng.lng);
+                timerRef.current = null;
+            }, 600);
+        },
+        mouseup() {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
+        },
+        mousemove() {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
+        },
+        dragstart() {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
         }
     });
     return null;

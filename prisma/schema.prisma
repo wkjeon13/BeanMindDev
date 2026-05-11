@@ -37,7 +37,6 @@ model User {
   prefBitterness      Float?
   prefBody            Float?
   prefSweetness       Float?
-  interests           String?            @db.Text
   fcmToken            String?            @db.Text
   equippedBadge       String?
   earnedBadges        String?            @db.Text
@@ -52,6 +51,7 @@ model User {
   countryCode         String             @default("KR")
   preferredLanguage   String             @default("ko")
   homeLayout          Json?
+  interests           String?            @db.Text
   adInquiries         AdInquiry[]
   advertiser          Advertiser?
   bookmarks           Bookmark[]
@@ -789,6 +789,56 @@ model FlashDrop {
   createdAt    DateTime @default(now())
 }
 
+model TodayPairing {
+  id               String                    @id @default(uuid())
+  icon             String
+  isActive         Boolean                   @default(true)
+  order            Int                       @default(0)
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+  availableRegions String                    @default("GLOBAL")
+  translations     TodayPairingTranslation[]
+}
+
+model TodayPairingTranslation {
+  id           String       @id @default(uuid())
+  pairingId    String
+  languageCode String
+  name         String
+  coffee       String
+  desc         String
+  season       String?
+  tasteProfile String?
+  pairing      TodayPairing @relation(fields: [pairingId], references: [id], onDelete: Cascade)
+
+  @@unique([pairingId, languageCode])
+}
+
+model SystemSetting {
+  key         String   @id
+  value       String   @db.LongText
+  description String?  @db.Text
+  updatedAt   DateTime @updatedAt
+}
+
+model HeroBanner {
+  id              String    @id @default(uuid())
+  title           String?   @db.Text
+  subtitle        String?   @db.Text
+  description     String?   @db.Text
+  backgroundImage String    @db.LongText
+  buttonText      String?
+  buttonLink      String?
+  textColor       String    @default("#FFFFFF")
+  alignment       String    @default("bottom-left")
+  countryCode     String    @default("GLOBAL")
+  isActive        Boolean   @default(true)
+  startDate       DateTime?
+  endDate         DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
 enum StorePlan {
   BASIC
   PREMIUM
@@ -899,58 +949,4 @@ enum InquiryStatus {
   MORE_INFO_NEEDED
   APPROVED
   REJECTED
-}
-
-
-model TodayPairing {
-  id               String   @id @default(uuid())
-  icon             String
-  isActive         Boolean  @default(true)
-  order            Int      @default(0)
-  availableRegions String   @default("GLOBAL")
-  
-  translations     TodayPairingTranslation[]
-  
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-}
-
-model TodayPairingTranslation {
-  id           String @id @default(uuid())
-  pairingId    String
-  pairing      TodayPairing @relation(fields: [pairingId], references: [id], onDelete: Cascade)
-  
-  languageCode String
-  name         String
-  coffee       String
-  desc         String
-  season       String?
-  tasteProfile String?
-
-  @@unique([pairingId, languageCode])
-}
-
-model SystemSetting {
-  key         String   @id
-  value       String   @db.LongText
-  description String?  @db.Text
-  updatedAt   DateTime @updatedAt
-}
-
-model HeroBanner {
-  id              String    @id @default(uuid())
-  title           String?   @db.Text
-  subtitle        String?   @db.Text
-  description     String?   @db.Text
-  backgroundImage String    @db.LongText
-  buttonText      String?
-  buttonLink      String?
-  textColor       String    @default("#FFFFFF")
-  alignment       String    @default("bottom-left")
-  countryCode     String    @default("GLOBAL")
-  isActive        Boolean   @default(true)
-  startDate       DateTime?
-  endDate         DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
 }

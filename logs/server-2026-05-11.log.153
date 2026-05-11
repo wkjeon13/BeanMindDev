@@ -1,0 +1,2728 @@
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:39] error: [Uncaught Exception] Error: EPIPE: broken pipe, write
+    at Socket._write (node:internal/net:63:18)
+    at writeOrBuffer (node:internal/streams/writable:572:12)
+    at _write (node:internal/streams/writable:501:10)
+    at Writable.write (node:internal/streams/writable:510:10)
+    at console.value (node:internal/console/constructor:298:16)
+    at console.error (node:internal/console/constructor:412:26)
+    at console.console.error (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:37:26)
+    at process.<anonymous> (C:\Working\beanmind_-ai-coffee-curator\server\index.ts:151:13)
+    at process.emit (node:events:518:28)
+    at process.emit (C:\Working\beanmind_-ai-coffee-curator\node_modules\tsx\dist\suppress-warnings.cjs:1:472) {
+  errno: -4047,
+  syscall: 'write',
+  code: 'EPIPE'
+}
+[2026-05-11 04:17:59] info: [Server] BeanMind AI Coffee Curator API running on port 3001
+[2026-05-11 04:17:59] info: [Server] Booting up... Node-cron initialized.
+[2026-05-11 04:17:59] info: [Media Cleanup Job] CRON Scheduled for 03:00 AM daily.
+[2026-05-11 04:17:59] info: [Auto-Moderation] Banned words cache refreshed. Total words: 10
+[2026-05-11 04:18:10] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:18:10] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:18:11] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:18:11] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:18:17] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:18:17] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:18:43] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:18:43] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:18:44] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:18:44] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:19:51] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:19:51] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:19:52] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:19:52] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:19:56] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:19:56] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:19:56] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:19:56] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:02] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:02] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:08] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:08] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:18] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:18] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:18] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:18] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:19] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:19] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:22] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:22] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:22] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:22] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:24] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:24] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:24] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:24] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:41] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:41] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:42] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:42] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:44] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:44] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:46] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:46] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:48] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:48] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:48] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:49] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:51] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:51] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:20:51] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:20:51] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:21:20] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:22:58] info: [Auto-Moderation] Banned words cache refreshed. Total words: 10
+[2026-05-11 04:27:16] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:27:16] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:27:21] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:27:21] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:27:58] info: [Auto-Moderation] Banned words cache refreshed. Total words: 10
+[2026-05-11 04:31:31] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:31:31] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:31:31] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:31:31] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:31:37] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:31:37] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:32:00] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:32:01] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:32:01] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:32:02] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:32:04] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:32:04] info: [PAIRING-DEBUG] Generated 4 pairings for country=KR
+[2026-05-11 04:32:04] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:32:04] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:32:07] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:32:07] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:32:58] info: [Auto-Moderation] Banned words cache refreshed. Total words: 10
+[2026-05-11 04:37:58] info: [Auto-Moderation] Banned words cache refreshed. Total words: 10
+[2026-05-11 04:42:05] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:42:05] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:42:08] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:42:08] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:42:58] info: [Auto-Moderation] Banned words cache refreshed. Total words: 10
+[2026-05-11 04:44:28] info: [PAIRING-DEBUG] Generated 4 pairings for country=US
+[2026-05-11 04:44:28] info: [PAIRING-DEBUG] Generated 4 pairings for country=US

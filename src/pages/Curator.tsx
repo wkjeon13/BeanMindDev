@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Coffee, Droplet, Pill, Beaker, ChevronRight, ChevronLeft, MapPin, Zap, ExternalLink, RefreshCw, Wind, Droplets, Flame, Search, Info, Save, Sunrise, Sun, Sunset, Moon, CloudRain, Cloud, Snowflake, ThermometerSun, ThermometerSnowflake, BatteryWarning, Brain, Sparkles, CheckCircle2, HeartPulse, Leaf, Activity, Stethoscope, Trophy, Flower2, Citrus, Cherry, Apple, CloudFog, Sprout, Music, Headphones, Mic2, Guitar, Radio, Tv, Speaker, Volume2, Milk, Gem } from 'lucide-react';
+import { Coffee, Droplet, Pill, Beaker, ChevronRight, ChevronLeft, MapPin, Zap, ExternalLink, RefreshCw, Wind, Droplets, Flame, Search, Info, Save, Sunrise, Sun, Sunset, Moon, CloudRain, Cloud, Snowflake, ThermometerSun, ThermometerSnowflake, BatteryWarning, Brain, Sparkles, CheckCircle2, HeartPulse, Leaf, Activity, Stethoscope, Trophy, Flower2, Citrus, Cherry, Apple, CloudFog, Sprout, Music, Headphones, Mic2, Guitar, Radio, Tv, Speaker, Volume2, Milk, Gem, X } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { GoogleGenAI } from "@google/genai";
@@ -42,7 +42,23 @@ export default function App() {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [step]);
+    
+    // Mark session as active for the Home resume popup logic
+    if (step > 0 && step < 4) {
+      sessionStorage.setItem('curator_active', 'true');
+      sessionStorage.removeItem('curator_popup_dismissed');
+    } else if (step === 4) {
+      // If it's step 4, it's only active if it's currently analyzing
+      if (isLoading || aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다...") {
+        sessionStorage.setItem('curator_active', 'true');
+        sessionStorage.removeItem('curator_popup_dismissed');
+      } else {
+        sessionStorage.removeItem('curator_active');
+      }
+    } else {
+      sessionStorage.removeItem('curator_active');
+    }
+  }, [step, isLoading, aiExplanation]);
 
   // Auto-detect context on mount
   useEffect(() => {
@@ -80,22 +96,9 @@ export default function App() {
       const token = localStorage.getItem('token');
       const userRole = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}').role; } catch { return 'USER'; } })();
       
-      // Admins and Moderators don't need automated AI prescriptions restored or generated
-      if (userRole === 'ADMIN' || userRole === 'MODERATOR') {
-          localStorage.removeItem('bm_sync_presc');
-          if (step !== 0) setStep(0);
-          return;
-      }
 
-      // User requested a fresh start (e.g., clicking the banner on the Home dashboard)
-      const locationState = location.state as any;
-      if (locationState?.startFresh) {
-          reset();
-          setStep(0);
-          // Clean up location state so we don't infinitely reset on re-renders
-          window.history.replaceState({}, document.title);
-          return;
-      }
+
+
 
       // CASE 1: User just logged in / returned with a pending anonymous prescription
       if (needsSync) {
@@ -151,7 +154,9 @@ export default function App() {
       }
 
       // CASE 2: User opened app fresh, is logged in, no pending sync data
-      if (isLoggedIn && token && !syncHandled.current) {
+      // CASE 2: If no anonymous prescription to restore, fetch latest history from server (ONLY if they aren't currently in a survey)
+      const currentStep = useCuratorStore.getState().step;
+      if (isLoggedIn && token && !syncHandled.current && (currentStep === 0 || currentStep === 4)) {
         try {
           const res = await fetch(`${API_BASE}/api/users/prescriptions`, { headers: { Authorization: `Bearer ${token}` } });
           if (res.ok) {
@@ -349,8 +354,14 @@ export default function App() {
 
         {/* BrewQuiz Header */}
         {step > 0 && step < 4 && (
-          <div className="px-6 pt-safe mt-[max(env(safe-area-inset-top),32px)] mb-2 z-20 shrink-0 flex flex-col items-center relative">
-            <h1 className="text-[28px] font-black tracking-wide text-espresso-50 leading-tight text-center tracking-tight uppercase shadow-black drop-shadow-xl">
+          <div className="px-6 pt-safe mt-[max(env(safe-area-inset-top),32px)] mb-2 z-20 shrink-0 flex flex-col items-center relative w-full">
+            <button 
+              onClick={() => { reset(); navigate('/', { replace: true }); }}
+              className="absolute right-4 top-0 p-2 text-espresso-300 hover:text-espresso-50 transition-colors bg-espresso-900/50 rounded-full backdrop-blur-sm border border-espresso-700/50"
+            >
+              <X size={20} />
+            </button>
+            <h1 className="text-[28px] font-black tracking-wide text-espresso-50 leading-tight text-center tracking-tight uppercase shadow-black drop-shadow-xl mt-2">
               YOUR DAILY<br/>COFFEE BREW
             </h1>
             <p className="text-[15px] text-espresso-100 mt-2 text-center drop-shadow-md font-medium">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, MapPin, Video, Flame, ChevronRight, Play, Users, MessageSquare, Settings, X, ArrowUp, ArrowDown, Coffee, Heart, Zap, Gift } from 'lucide-react';
 import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
@@ -11,7 +11,7 @@ import DailyRoulette from '../components/home/DailyRoulette';
 import FlashDropBanner from '../components/home/FlashDropBanner';
 import WeeklyTasteTest from '../components/home/WeeklyTasteTest';
 import { MagazineAd } from '../components/ads/MagazineAd';
-
+import { useCuratorStore } from '../store/curatorStore';
 interface PersonalizedHomeData {
     latestPrescription: any;
     followingFeeds: any[];
@@ -314,6 +314,18 @@ const HomeLayoutEditor = ({
 export default function HomeDashboard() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const curatorStep = useCuratorStore(state => state.step);
+  const [showResumePopup, setShowResumePopup] = useState(false);
+
+  useEffect(() => {
+    // If user returns to Home and has an active session (started during this browser session), show the popup
+    const isSessionActive = sessionStorage.getItem('curator_active') === 'true';
+    const isDismissed = sessionStorage.getItem('curator_popup_dismissed') === 'true';
+    if (curatorStep > 0 && curatorStep <= 4 && isSessionActive && !isDismissed) {
+      setShowResumePopup(true);
+    }
+  }, [curatorStep]);
+
   const [isLoading, setIsLoading] = useState(!globalHomeCache);
   const [shorts, setShorts] = useState<any[]>(globalHomeCache?.shorts || []);
 
@@ -572,7 +584,6 @@ export default function HomeDashboard() {
 
   return (
     <div className="absolute inset-0 bg-espresso-950 text-espresso-50 flex flex-col font-sans overflow-hidden">
-
       <HomeLayoutEditor 
         isOpen={isEditorOpen} 
         onClose={() => setIsEditorOpen(false)} 
@@ -1190,6 +1201,61 @@ export default function HomeDashboard() {
 })}
 
       </PullToRefresh>
+
+      <AnimatePresence>
+        {showResumePopup && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-6"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-espresso-900 border border-espresso-700/50 rounded-3xl p-6 w-full max-w-sm shadow-2xl relative overflow-hidden"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-amber-300" />
+              
+              <div className="flex justify-center mb-5 mt-2">
+                <div className="w-14 h-14 bg-amber-500/10 rounded-full flex items-center justify-center border border-amber-500/20">
+                  <Coffee size={28} className="text-amber-500" />
+                </div>
+              </div>
+              
+              <h3 className="text-xl font-bold text-espresso-50 text-center mb-3">
+                {t('curator.resume_popup_title', 'AI 분석 진행 중')}
+              </h3>
+              
+              <p className="text-sm text-espresso-200 text-center mb-8 leading-relaxed break-keep">
+                {t('curator.resume_popup_desc', '현재 AI 취향 추천 분석이 진행 중입니다. 이어서 진행하시겠습니까, 아니면 나중에 다시 확인하시겠습니까?')}
+              </p>
+              
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={() => {
+                    setShowResumePopup(false);
+                    navigate('/curator');
+                  }}
+                  className="w-full py-4 bg-amber-500 text-espresso-950 font-bold rounded-xl text-[15px] hover:bg-amber-400 active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+                >
+                  {t('curator.resume_popup_continue', 'AI 추천 받기 진행 상황보기')}
+                </button>
+                <button 
+                  onClick={() => {
+                    sessionStorage.setItem('curator_popup_dismissed', 'true');
+                    setShowResumePopup(false);
+                  }}
+                  className="w-full py-3.5 bg-espresso-800 text-espresso-200 font-medium rounded-xl text-[14px] hover:bg-espresso-700 active:scale-[0.98] transition-all"
+                >
+                  {t('curator.resume_popup_later', '나중에 확인하기')}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

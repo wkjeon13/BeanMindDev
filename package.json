@@ -9,6 +9,7 @@
     "dev:admin": "npm run dev --prefix admin-web",
     "dev:all": "concurrently \"npm run server\" \"npm run dev\" \"npm run dev:admin\"",
     "build": "vite build",
+    "build:all": "concurrently \"npm run build\" \"npm run build --prefix admin-web\"",
     "preview": "vite preview",
     "clean": "node -e \"var fs=require('fs'); fs.rmSync('dist', {recursive:true, force:true});\"",
     "lint": "tsc --noEmit"
