@@ -160,8 +160,8 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
                         >
                             {isImageUrl ? (
                                 <>
-                                    <img src={iconStr.startsWith('/') ? `${API_BASE}${iconStr}` : iconStr} alt={itemName} className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                                    <img src={iconStr.startsWith('/') ? `${API_BASE}${iconStr}` : iconStr} alt={itemName} className="absolute inset-0 w-full h-full object-cover transition-opacity" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
                                     <span className={`relative z-10 text-[12px] font-black tracking-tight mt-auto pb-2 px-1 text-center leading-tight transition-colors ${activeDessert === idx ? 'text-amber-400' : 'text-espresso-200'}`}>{itemName}</span>
                                 </>
                             ) : (

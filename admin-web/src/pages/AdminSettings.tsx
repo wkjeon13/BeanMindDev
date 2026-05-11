@@ -79,6 +79,14 @@ export default function AdminSettings() {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
+            if (res.status === 401 || res.status === 403) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+                window.location.href = '/';
+                return;
+            }
+
             if (!res.ok) throw new Error('Failed to load settings.');
 
             const data = await res.json();
@@ -127,6 +135,12 @@ export default function AdminSettings() {
             const res = await fetch(`${API_BASE}/api/admin/settings`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            if (res.status === 401 || res.status === 403) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/';
+                return;
+            }
             if (res.ok) {
                 const data = await res.json();
                 setSystemSettings(data);
@@ -163,6 +177,12 @@ export default function AdminSettings() {
             const res = await fetch(`${API_BASE}/api/admin/banned-words`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            if (res.status === 401 || res.status === 403) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/';
+                return;
+            }
             if (res.ok) {
                 const data = await res.json();
                 setBannedWords(data);
