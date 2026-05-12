@@ -202,6 +202,7 @@ export default function CoffeeTalk() {
   // Rewards State
   const [rewardTiers, setRewardTiers] = useState<any>(null);
   const [showRewardModal, setShowRewardModal] = useState(false);
+  const [isRewarding, setIsRewarding] = useState(false);
   const [selectedRewardTarget, setSelectedRewardTarget] = useState<{ id: string, name: string, entityId: string } | null>(null);
   const [activeCarouselUrls, setActiveCarouselUrls] = useState<string[] | null>(null);
 
@@ -741,7 +742,7 @@ export default function CoffeeTalk() {
         return;
     }
 
-    setIsLoading(true);
+    setIsRewarding(true);
     try {
         const res = await fetch(`${API_BASE}/api/points/reward`, {
             method: 'POST',
@@ -773,7 +774,7 @@ export default function CoffeeTalk() {
         console.error('Failed to reward', error);
         alert('오류가 발생했습니다.');
     } finally {
-        setIsLoading(false);
+        setIsRewarding(false);
     }
   };
 
