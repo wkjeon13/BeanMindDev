@@ -9,7 +9,8 @@ const FlashDropBanner = () => {
     const [timeLeft, setTimeLeft] = useState('');
 
     useEffect(() => {
-        fetch(`${API_BASE}/api/retention/flash-drops`)
+        const countryCode = localStorage.getItem('region') || 'KR';
+        fetch(`${API_BASE}/api/retention/flash-drops?countryCode=${countryCode}`)
             .then(res => res.json())
             .then(data => {
                 if (Array.isArray(data) && data.length > 0) {

@@ -627,6 +627,11 @@ export default function HomeDashboard() {
       };
 
       if (banner) {
+          const isEn = i18n.language === 'en';
+          const displayTitle = isEn && banner.titleEn ? banner.titleEn : banner.title;
+          const displayDesc = isEn && banner.descriptionEn ? banner.descriptionEn : banner.description;
+          const displayBtn = isEn && banner.buttonTextEn ? banner.buttonTextEn : banner.buttonText;
+
           return (
             <section key={config.id} className="w-full">
               <motion.div 
@@ -649,9 +654,9 @@ export default function HomeDashboard() {
                         Curation
                       </span>
                     </div>
-                    {banner.title && (
+                    {displayTitle && (
                         <span className="block text-[24px] font-serif font-medium leading-[1.1] tracking-tight mb-1" style={{ color: banner.textColor || '#FFFFFF' }}>
-                          {banner.title}
+                          {displayTitle}
                         </span>
                     )}
                     {personalizedData?.latestPrescription ? (
@@ -660,18 +665,18 @@ export default function HomeDashboard() {
                         </span>
                     ) : (
                         <span className="block text-[24px] font-serif font-bold leading-[1.1] tracking-tight mt-1" style={{ color: banner.textColor === '#FFFFFF' ? '#FCD34D' : banner.textColor }}>
-                          커피 취향
+                          {isEn ? 'Coffee Match' : '커피 취향'}
                         </span>
                     )}
-                    {banner.description && (
+                    {displayDesc && (
                         <span className="block text-[11px] mt-2 leading-relaxed max-w-[80%] opacity-90" style={{ color: banner.textColor || '#FFFFFF' }}>
-                            {banner.description}
+                            {displayDesc}
                         </span>
                     )}
                     
                     <div className="mt-4 flex items-center">
                       <button className="text-[10px] font-bold tracking-widest uppercase flex items-center gap-2 transition-colors opacity-90 hover:opacity-100" style={{ color: banner.textColor || '#FFFFFF' }}>
-                        {banner.buttonText || t('home.btn_get_recommend', 'Discover More')} 
+                        {displayBtn || t('home.btn_get_recommend', 'Discover More')} 
                         <div className="w-6 h-6 rounded-full border border-current/30 flex items-center justify-center transition-colors">
                             <ChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
                         </div>

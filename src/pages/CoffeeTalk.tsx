@@ -1509,9 +1509,10 @@ export default function CoffeeTalk() {
 
                       {/* Official Post Body Content */}
                       <div 
-                          className={`p-4 relative ${post.content && (post.content.length > 150 || post.content.split('\n').length > 4) && !expandedPosts.has(post.id) ? 'cursor-pointer active:bg-espresso-900/50 transition-colors rounded-b-xl' : ''}`}
+                          className={`p-4 relative ${((i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content) && (((i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content).length > 150 || ((i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content).split('\n').length > 4) && !expandedPosts.has(post.id) ? 'cursor-pointer active:bg-espresso-900/50 transition-colors rounded-b-xl' : ''}`}
                           onClick={(e) => {
-                              if (post.content && (post.content.length > 150 || post.content.split('\n').length > 4)) {
+                              const contentToUse = (i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content;
+                              if (contentToUse && (contentToUse.length > 150 || contentToUse.split('\n').length > 4)) {
                                   e.stopPropagation();
                                   setExpandedPosts(prev => {
                                       const next = new Set(prev);
@@ -1528,9 +1529,9 @@ export default function CoffeeTalk() {
                           </div>
                       
                           <p className={`text-[14px] text-espresso-50 leading-relaxed whitespace-pre-wrap font-medium break-words z-10 relative overflow-hidden transition-all duration-300 ${!expandedPosts.has(post.id) ? 'line-clamp-4' : ''}`}>
-                              {renderWithLinks(post.content)}
+                              {renderWithLinks((i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content)}
                           </p>
-                          {(post.content?.split('\n').length > 4 || (post.content?.length || 0) > 150) && !expandedPosts.has(post.id) && (
+                          {(((i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content)?.split('\n').length > 4 || (((i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content)?.length || 0) > 150) && !expandedPosts.has(post.id) && (
                               <div className="mt-2 text-right z-10 relative">
                                   <span className="text-[12px] font-bold text-amber-500 transition-colors">
                                       {t('coffee_talk.btn_expand', '더 보기')}
@@ -1539,12 +1540,13 @@ export default function CoffeeTalk() {
                           )}
                           
                           {/* Official Media Banner */}
-                          {post.image && (
+                          {((i18n.language === 'en' && post.imageEn) ? post.imageEn : post.image) && (
                               <div className="relative mt-4 aspect-[4/3] sm:aspect-[16/9] w-[calc(100%+2rem)] -mx-4 group shadow-inner">
                                   {(() => {
-                                      let urls = [post.image];
+                                      const imageToUse = (i18n.language === 'en' && post.imageEn) ? post.imageEn : post.image;
+                                      let urls = [imageToUse];
                                       try {
-                                          const parsed = JSON.parse(post.image);
+                                          const parsed = JSON.parse(imageToUse);
                                           if (Array.isArray(parsed)) urls = parsed;
                                       } catch(e) {}
                                       

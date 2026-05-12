@@ -21,6 +21,9 @@ export default function AdminAnnouncements() {
     const [announcementEndDate, setAnnouncementEndDate] = useState('');
     const [announcementImage, setAnnouncementImage] = useState<File | null>(null);
     const [announcementImagePreview, setAnnouncementImagePreview] = useState<string | null>(null);
+    const [announcementContentEn, setAnnouncementContentEn] = useState('');
+    const [announcementImageEn, setAnnouncementImageEn] = useState<File | null>(null);
+    const [announcementImagePreviewEn, setAnnouncementImagePreviewEn] = useState<string | null>(null);
     const [isSavingAnnouncement, setIsSavingAnnouncement] = useState(false);
 
     const token = localStorage.getItem('token');
@@ -81,6 +84,9 @@ export default function AdminAnnouncements() {
             setAnnouncementEndDate(anno.pinnedEndDate ? formatLocalDate(anno.pinnedEndDate) : '');
             setAnnouncementImagePreview(anno.image || null);
             setAnnouncementImage(null);
+            setAnnouncementContentEn(anno.contentEn || '');
+            setAnnouncementImagePreviewEn(anno.imageEn || null);
+            setAnnouncementImageEn(null);
             setIsSystemPopup(anno.isSystemPopup || false);
         } else {
             setEditAnnouncementId(null);
@@ -89,6 +95,9 @@ export default function AdminAnnouncements() {
             setAnnouncementEndDate('');
             setAnnouncementImage(null);
             setAnnouncementImagePreview(null);
+            setAnnouncementContentEn('');
+            setAnnouncementImageEn(null);
+            setAnnouncementImagePreviewEn(null);
             setIsSystemPopup(false);
         }
         setIsAnnouncementModalOpen(true);
@@ -104,6 +113,7 @@ export default function AdminAnnouncements() {
         try {
             const formData = new FormData();
             let base64Image = null;
+            let base64ImageEn = null;
 
             if (announcementImage) {
                 base64Image = await new Promise((resolve) => {
@@ -112,9 +122,17 @@ export default function AdminAnnouncements() {
                     reader.readAsDataURL(announcementImage);
                 });
             }
+            if (announcementImageEn) {
+                base64ImageEn = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.readAsDataURL(announcementImageEn);
+                });
+            }
 
             const payload: any = {
                 content: announcementContent,
+                contentEn: announcementContentEn,
                 startDate: announcementStartDate ? new Date(`${announcementStartDate}T00:00:00`).toISOString() : null,
                 endDate: announcementEndDate ? new Date(`${announcementEndDate}T23:59:59`).toISOString() : null,
                 isSystemPopup,
@@ -124,6 +142,11 @@ export default function AdminAnnouncements() {
                 payload.image = base64Image;
             } else if (announcementImagePreview && !announcementImagePreview.startsWith('blob:')) {
                 payload.image = announcementImagePreview;
+            }
+            if (base64ImageEn) {
+                payload.imageEn = base64ImageEn;
+            } else if (announcementImagePreviewEn && !announcementImagePreviewEn.startsWith('blob:')) {
+                payload.imageEn = announcementImagePreviewEn;
             }
 
             const url = editAnnouncementId 
@@ -239,7 +262,7 @@ export default function AdminAnnouncements() {
                                             <p className="text-sm text-espresso-50 whitespace-pre-wrap leading-relaxed">{anno.content}</p>
                                             {anno.image && (
                                                 <div className="w-32 h-32 rounded-lg overflow-hidden border border-coffee-100">
-                                                    <img src={anno.image} alt="announcement image" className="w-full h-full object-cover" />
+                                                    <img src={anno.image.startsWith('/') ? `${API_BASE}${anno.image}` : anno.image} alt="announcement image" className="w-full h-full object-cover" />
                                                 </div>
                                             )}
                                         </div>
@@ -270,11 +293,20 @@ export default function AdminAnnouncements() {
                             
                             <div className="flex-1 overflow-y-auto space-y-4 no-scrollbar pb-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-bold text-espresso-50">{t('admin_announcements.lbl_content', '내용')}</label>
+                                    <label className="text-sm font-bold text-espresso-50">{t('admin_announcements.lbl_content', '내용 (KR)')}</label>
                                     <textarea 
                                         value={announcementContent} 
                                         onChange={e => setAnnouncementContent(e.target.value)} 
                                         placeholder={t('admin_announcements.ph_content', '공지 내용을 입력하세요...')} 
+                                        className="w-full bg-espresso-950 border border-espresso-700 p-3 rounded-xl focus:ring-2 focus:ring-coffee-700 outline-none text-espresso-50 placeholder:text-espresso-500 text-[14px] min-h-[120px] resize-none"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-sm font-bold text-espresso-50">{t('admin_announcements.lbl_content_en', '내용 (EN)')}</label>
+                                    <textarea 
+                                        value={announcementContentEn} 
+                                        onChange={e => setAnnouncementContentEn(e.target.value)} 
+                                        placeholder={t('admin_announcements.ph_content_en', '영문 공지 내용을 입력하세요...')} 
                                         className="w-full bg-espresso-950 border border-espresso-700 p-3 rounded-xl focus:ring-2 focus:ring-coffee-700 outline-none text-espresso-50 placeholder:text-espresso-500 text-[14px] min-h-[120px] resize-none"
                                     />
                                 </div>
@@ -290,24 +322,47 @@ export default function AdminAnnouncements() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="text-sm font-bold text-espresso-50">{t('admin_announcements.lbl_img', '첨부 이미지 (선택)')}</label>
-                                    <div className="flex items-center gap-3">
-                                        <label className="shrink-0 w-24 h-24 border-2 border-dashed border-espresso-600 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-espresso-950 hover:border-coffee-500 transition-colors">
-                                            <span className="text-xs font-bold text-espresso-300">{t('admin_announcements.btn_upload', '+ 업로드')}</span>
-                                            <input type="file" accept="image/*" className="hidden" onChange={e => {
-                                                if(e.target.files && e.target.files[0]) {
-                                                    setAnnouncementImage(e.target.files[0]);
-                                                    setAnnouncementImagePreview(URL.createObjectURL(e.target.files[0]));
-                                                }
-                                            }} />
-                                        </label>
-                                        {announcementImagePreview && (
-                                            <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-coffee-100">
-                                                <img src={announcementImagePreview} alt="preview" className="w-full h-full object-cover" />
-                                                <button onClick={() => { setAnnouncementImage(null); setAnnouncementImagePreview(null); }} className="absolute top-1 right-1 bg-espresso-950/50 text-espresso-50 rounded-full p-1"><X size={14}/></button>
-                                            </div>
-                                        )}
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-bold text-espresso-50">{t('admin_announcements.lbl_img', '첨부 이미지 (KR)')}</label>
+                                        <div className="flex items-center gap-3">
+                                            <label className="shrink-0 w-24 h-24 border-2 border-dashed border-espresso-600 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-espresso-950 hover:border-coffee-500 transition-colors">
+                                                <span className="text-xs font-bold text-espresso-300">{t('admin_announcements.btn_upload', '+ 업로드')}</span>
+                                                <input type="file" accept="image/*" className="hidden" onChange={e => {
+                                                    if(e.target.files && e.target.files[0]) {
+                                                        setAnnouncementImage(e.target.files[0]);
+                                                        setAnnouncementImagePreview(URL.createObjectURL(e.target.files[0]));
+                                                    }
+                                                }} />
+                                            </label>
+                                            {announcementImagePreview && (
+                                                <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-coffee-100">
+                                                    <img src={announcementImagePreview.startsWith('/') ? `${API_BASE}${announcementImagePreview}` : announcementImagePreview} alt="preview" className="w-full h-full object-cover" />
+                                                    <button onClick={() => { setAnnouncementImage(null); setAnnouncementImagePreview(null); }} className="absolute top-1 right-1 bg-espresso-950/50 text-espresso-50 rounded-full p-1"><X size={14}/></button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="text-sm font-bold text-espresso-50">{t('admin_announcements.lbl_img_en', '첨부 이미지 (EN)')}</label>
+                                        <div className="flex items-center gap-3">
+                                            <label className="shrink-0 w-24 h-24 border-2 border-dashed border-espresso-600 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-espresso-950 hover:border-coffee-500 transition-colors">
+                                                <span className="text-xs font-bold text-espresso-300">{t('admin_announcements.btn_upload', '+ 업로드')}</span>
+                                                <input type="file" accept="image/*" className="hidden" onChange={e => {
+                                                    if(e.target.files && e.target.files[0]) {
+                                                        setAnnouncementImageEn(e.target.files[0]);
+                                                        setAnnouncementImagePreviewEn(URL.createObjectURL(e.target.files[0]));
+                                                    }
+                                                }} />
+                                            </label>
+                                            {announcementImagePreviewEn && (
+                                                <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-coffee-100">
+                                                    <img src={announcementImagePreviewEn.startsWith('/') ? `${API_BASE}${announcementImagePreviewEn}` : announcementImagePreviewEn} alt="preview" className="w-full h-full object-cover" />
+                                                    <button onClick={() => { setAnnouncementImageEn(null); setAnnouncementImagePreviewEn(null); }} className="absolute top-1 right-1 bg-espresso-950/50 text-espresso-50 rounded-full p-1"><X size={14}/></button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 

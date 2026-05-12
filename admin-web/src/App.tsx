@@ -12,7 +12,8 @@ import AdminLogin from './pages/AdminLogin';
 import AdminHomeCampaigns from './pages/AdminHomeCampaigns';
 import AdminPairings from './pages/AdminPairings';
 import AdminHeroBanner from './pages/AdminHeroBanner';
-import { Settings, Users, Store, Coffee, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut, Layout, Image as ImageIcon } from 'lucide-react';
+import AdminFlashDrop from './pages/AdminFlashDrop';
+import { Settings, Users, Store, Coffee, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut, Layout, Image as ImageIcon, Zap } from 'lucide-react';
 
 const Sidebar = () => {
   const handleLogout = () => {
@@ -50,6 +51,9 @@ const Sidebar = () => {
         </Link>
         <Link to="/hero-banners" className="flex items-center p-3 pl-11 rounded-lg hover:bg-gray-800 transition-colors text-sm">
           Hero Banners
+        </Link>
+        <Link to="/flash-drops" className="flex items-center p-3 pl-11 rounded-lg hover:bg-gray-800 transition-colors text-sm">
+          Flash Drops
         </Link>
         <Link to="/pairings" className="flex items-center p-3 pl-11 rounded-lg hover:bg-gray-800 transition-colors text-sm">
           Coffee Pairings
@@ -104,6 +108,7 @@ function App() {
                   <Route path="/home-campaigns" element={<AdminHomeCampaigns />} />
                   <Route path="/pairings" element={<AdminPairings />} />
                   <Route path="/hero-banners" element={<AdminHeroBanner />} />
+                  <Route path="/flash-drops" element={<AdminFlashDrop />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </main>

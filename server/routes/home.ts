@@ -371,14 +371,14 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
         }
 
         // 9. Other Campaigns for Layout Visibility
-        const flashDropSetting = await prisma.systemSetting.findUnique({ where: { key: 'HOME_FLASH_DROP' } });
-        let flashDropActive = false;
-        if (flashDropSetting && flashDropSetting.value) {
-            try {
-                const config = JSON.parse(flashDropSetting.value);
-                flashDropActive = !!config.isActive;
-            } catch (e) {}
-        }
+        const flashDropNow = new Date();
+        const activeFlashDrop = await prisma.flashDrop.findFirst({
+            where: {
+                status: 'ACTIVE',
+                endTime: { gt: new Date(flashDropNow.getTime() - 24 * 60 * 60 * 1000) } // Same check as retention.ts
+            }
+        });
+        const flashDropActive = !!activeFlashDrop;
 
         const rouletteSetting = await prisma.systemSetting.findUnique({ where: { key: 'HOME_ROULETTE' } });
         let rouletteActive = true;

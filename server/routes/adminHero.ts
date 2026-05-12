@@ -20,7 +20,7 @@ router.get('/', async (req, res) => {
 // Create a new hero banner
 router.post('/', async (req, res) => {
     try {
-        const { title, subtitle, description, backgroundImage, buttonText, buttonLink, textColor, alignment, countryCode, isActive, startDate, endDate } = req.body;
+        const { title, titleEn, subtitle, subtitleEn, description, descriptionEn, backgroundImage, buttonText, buttonTextEn, buttonLink, textColor, alignment, countryCode, isActive, startDate, endDate } = req.body;
         
         if (!backgroundImage) {
             return res.status(400).json({ error: 'Background image is required' });
@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
 
         const banner = await prisma.heroBanner.create({
             data: {
-                title, subtitle, description, backgroundImage, buttonText, buttonLink, textColor, alignment, countryCode, isActive,
+                title, titleEn, subtitle, subtitleEn, description, descriptionEn, backgroundImage, buttonText, buttonTextEn, buttonLink, textColor, alignment, countryCode, isActive,
                 startDate: startDate ? new Date(startDate) : null,
                 endDate: endDate ? new Date(endDate) : null
             }
@@ -44,12 +44,12 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, subtitle, description, backgroundImage, buttonText, buttonLink, textColor, alignment, countryCode, isActive, startDate, endDate } = req.body;
+        const { title, titleEn, subtitle, subtitleEn, description, descriptionEn, backgroundImage, buttonText, buttonTextEn, buttonLink, textColor, alignment, countryCode, isActive, startDate, endDate } = req.body;
         
         const banner = await prisma.heroBanner.update({
             where: { id },
             data: {
-                title, subtitle, description, backgroundImage, buttonText, buttonLink, textColor, alignment, countryCode, isActive,
+                title, titleEn, subtitle, subtitleEn, description, descriptionEn, backgroundImage, buttonText, buttonTextEn, buttonLink, textColor, alignment, countryCode, isActive,
                 startDate: startDate ? new Date(startDate) : null,
                 endDate: endDate ? new Date(endDate) : null
             }

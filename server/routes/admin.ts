@@ -846,7 +846,7 @@ router.get('/announcements', async (req: any, res: any) => {
 // A robust implementation would use multer here too if admins upload fresh images.
 router.post('/announcements', async (req: any, res: any) => {
     try {
-        const { content, startDate, endDate, image, isSystemPopup } = req.body;
+        const { content, contentEn, startDate, endDate, image, imageEn, isSystemPopup } = req.body;
         
         if (!content) {
             return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
@@ -855,7 +855,9 @@ router.post('/announcements', async (req: any, res: any) => {
         const announcementData: any = {
             authorId: req.user.id,
             content,
+            contentEn: contentEn || null,
             image: image || null,
+            imageEn: imageEn || null,
             isPinned: true,
             postType: 'ANNOUNCEMENT',
             isSystemPopup: isSystemPopup ? true : false,
@@ -878,14 +880,16 @@ router.post('/announcements', async (req: any, res: any) => {
 router.put('/announcements/:id', async (req: any, res: any) => {
     try {
         const { id } = req.params;
-        const { content, startDate, endDate, isPinned, image, isSystemPopup } = req.body;
+        const { content, contentEn, startDate, endDate, isPinned, image, imageEn, isSystemPopup } = req.body;
 
         const updateData: any = { postType: 'ANNOUNCEMENT' };
         if (content !== undefined) updateData.content = content;
+        if (contentEn !== undefined) updateData.contentEn = contentEn;
         if (startDate !== undefined) updateData.pinnedStartDate = startDate ? new Date(startDate) : null;
         if (endDate !== undefined) updateData.pinnedEndDate = endDate ? new Date(endDate) : null;
         if (isPinned !== undefined) updateData.isPinned = isPinned;
         if (image !== undefined) updateData.image = image;
+        if (imageEn !== undefined) updateData.imageEn = imageEn;
         if (isSystemPopup !== undefined) updateData.isSystemPopup = isSystemPopup;
 
         const announcement = await prisma.post.update({

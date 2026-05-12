@@ -165,36 +165,16 @@ router.post('/daily-checkin', authenticateToken, async (req: any, res: any) => {
 
 router.get('/flash-drops', async (req, res) => {
     try {
-        const setting = await prisma.systemSetting.findUnique({ where: { key: 'HOME_FLASH_DROP' } });
-        if (setting && setting.value) {
-            const config = JSON.parse(setting.value);
-            if (config.isActive) {
-                // Return as array because frontend expects drops[0]
-                return res.json([{
-                    id: 'admin-configured',
-                    title: config.title || '이벤트',
-                    titleEn: config.titleEn || '',
-                    description: config.description || '',
-                    descriptionEn: config.descriptionEn || '',
-                    imageUrl: config.imageUrl || 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=800&q=80',
-                    linkUrl: config.linkUrl || '#',
-                    startTime: config.startTime || new Date().toISOString(),
-                    endTime: config.endTime || new Date(Date.now() + 86400000).toISOString(),
-                    badgeText: config.badgeText || 'Flash Drop : 게릴라 특가',
-                    badgeTextEn: config.badgeTextEn || '',
-                    status: 'ACTIVE'
-                }]);
-            } else {
-                return res.json([]);
-            }
-        }
-
-        // Fallback to old behavior
+        const countryCode = (req.query.countryCode as string) || 'KR';
         const now = new Date();
         const activeDrops = await prisma.flashDrop.findMany({
             where: {
                 status: 'ACTIVE',
-                endTime: { gt: new Date(now.getTime() - 24 * 60 * 60 * 1000) }
+                endTime: { gt: new Date(now.getTime() - 24 * 60 * 60 * 1000) },
+                OR: [
+                    { region: 'GLOBAL' },
+                    { region: countryCode }
+                ]
             },
             orderBy: { startTime: 'asc' }
         });

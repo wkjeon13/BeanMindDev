@@ -332,7 +332,9 @@ model Post {
   authorId           String
   postType           PostType         @default(NORMAL)
   content            String           @db.Text
+  contentEn          String?          @db.Text
   image              String?          @db.LongText
+  imageEn            String?          @db.LongText
   cafeName           String?
   cafeLocation       String?
   cafeLat            Float?
@@ -776,17 +778,20 @@ model DailyCheckIn {
 }
 
 model FlashDrop {
-  id           String   @id @default(uuid())
-  title        String
-  description  String   @db.Text
-  imageUrl     String   @db.LongText
-  linkUrl      String?
-  startTime    DateTime
-  endTime      DateTime
-  maxQuantity  Int      @default(0)
-  claimedCount Int      @default(0)
-  status       String   @default("ACTIVE")
-  createdAt    DateTime @default(now())
+  id            String   @id @default(uuid())
+  title         String
+  titleEn       String?
+  description   String   @db.Text
+  descriptionEn String?  @db.Text
+  imageUrl      String   @db.LongText
+  linkUrl       String?
+  region        String   @default("GLOBAL")
+  startTime     DateTime
+  endTime       DateTime
+  maxQuantity   Int      @default(0)
+  claimedCount  Int      @default(0)
+  status        String   @default("ACTIVE")
+  createdAt     DateTime @default(now())
 }
 
 model TodayPairing {
@@ -824,10 +829,14 @@ model SystemSetting {
 model HeroBanner {
   id              String    @id @default(uuid())
   title           String?   @db.Text
+  titleEn         String?   @db.Text
   subtitle        String?   @db.Text
+  subtitleEn      String?   @db.Text
   description     String?   @db.Text
+  descriptionEn   String?   @db.Text
   backgroundImage String    @db.LongText
   buttonText      String?
+  buttonTextEn    String?
   buttonLink      String?
   textColor       String    @default("#FFFFFF")
   alignment       String    @default("bottom-left")

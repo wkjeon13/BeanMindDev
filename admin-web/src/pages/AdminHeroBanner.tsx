@@ -6,10 +6,14 @@ const API_BASE = 'http://localhost:3001/api'; // Or use env var if available
 interface HeroBanner {
     id: string;
     title: string | null;
+    titleEn: string | null;
     subtitle: string | null;
+    subtitleEn: string | null;
     description: string | null;
+    descriptionEn: string | null;
     backgroundImage: string;
     buttonText: string | null;
+    buttonTextEn: string | null;
     buttonLink: string | null;
     textColor: string;
     alignment: string;
@@ -51,6 +55,12 @@ export default function AdminHeroBanner() {
     const fetchBanners = async () => {
         try {
             const res = await fetch(`${API_BASE}/admin/hero`, { headers: getHeaders() });
+            if (res.status === 401 || res.status === 403) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/';
+                return;
+            }
             if (!res.ok) throw new Error('Failed to fetch');
             const data = await res.json();
             if (Array.isArray(data)) {
@@ -202,24 +212,45 @@ export default function AdminHeroBanner() {
                         
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Title (KR)</label>
                                 <input type="text" value={currentBanner.title || ''} onChange={e => setCurrentBanner({...currentBanner, title: e.target.value})} className="w-full border rounded p-2" placeholder="e.g. 오늘의" />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle <span className="text-[10px] text-amber-500 ml-1">(Auto-generated)</span></label>
-                                <input type="text" value="User's Recommended Coffee" disabled className="w-full border rounded p-2 bg-gray-100 text-gray-500" />
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Title (EN)</label>
+                                <input type="text" value={currentBanner.titleEn || ''} onChange={e => setCurrentBanner({...currentBanner, titleEn: e.target.value})} className="w-full border rounded p-2" placeholder="e.g. Today's" />
                             </div>
                         </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <textarea value={currentBanner.description || ''} onChange={e => setCurrentBanner({...currentBanner, description: e.target.value})} className="w-full border rounded p-2" rows={2} />
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle (KR) <span className="text-[10px] text-amber-500 ml-1">(Auto-generated)</span></label>
+                                <input type="text" value="User's Recommended Coffee" disabled className="w-full border rounded p-2 bg-gray-100 text-gray-500" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle (EN) <span className="text-[10px] text-amber-500 ml-1">(Auto-generated)</span></label>
+                                <input type="text" value={currentBanner.subtitleEn || "User's Recommended Coffee"} disabled className="w-full border rounded p-2 bg-gray-100 text-gray-500" />
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Button Text</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Description (KR)</label>
+                                <textarea value={currentBanner.description || ''} onChange={e => setCurrentBanner({...currentBanner, description: e.target.value})} className="w-full border rounded p-2" rows={2} />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Description (EN)</label>
+                                <textarea value={currentBanner.descriptionEn || ''} onChange={e => setCurrentBanner({...currentBanner, descriptionEn: e.target.value})} className="w-full border rounded p-2" rows={2} />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Button Text (KR)</label>
                                 <input type="text" value={currentBanner.buttonText || ''} onChange={e => setCurrentBanner({...currentBanner, buttonText: e.target.value})} className="w-full border rounded p-2" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Button Text (EN)</label>
+                                <input type="text" value={currentBanner.buttonTextEn || ''} onChange={e => setCurrentBanner({...currentBanner, buttonTextEn: e.target.value})} className="w-full border rounded p-2" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Button Link <span className="text-[10px] text-amber-500 ml-1">(Fixed)</span></label>
