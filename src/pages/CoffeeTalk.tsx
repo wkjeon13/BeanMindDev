@@ -1754,7 +1754,7 @@ export default function CoffeeTalk() {
                             <>
                                 <MediaRenderer 
                                     src={urls[0]} 
-                                    className="w-full h-full object-cover cursor-pointer block" 
+                                    className="absolute inset-0 w-full h-full object-cover cursor-pointer block" 
                                     autoPlay={true} 
                                     onClick={() => setActiveCarouselUrls(urls)} 
                                 />

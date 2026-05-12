@@ -19,10 +19,20 @@ export default function MediaRenderer({ src, className = '', autoPlay = true, on
   const [hasError, setHasError] = useState(false);
   const manuallyPaused = useRef(false);
   // Normalize src for uploads
-  const displaySrc = src && src.startsWith('/') && !src.startsWith('//') ? `${API_BASE}${src}` : src;
+  let displaySrc = src && src.startsWith('/') && !src.startsWith('//') ? `${API_BASE}${src}` : src;
+  
+  // Fix for native devices: If the DB stored an absolute localhost URL, rewrite it to the actual API_BASE
+  if (displaySrc && typeof displaySrc === 'string') {
+      if (displaySrc.includes('localhost') && !API_BASE.includes('localhost')) {
+          displaySrc = displaySrc.replace(/https?:\/\/localhost:\d+/, API_BASE);
+      }
+      if (displaySrc.includes('127.0.0.1') && !API_BASE.includes('127.0.0.1')) {
+          displaySrc = displaySrc.replace(/https?:\/\/127\.0\.0\.1:\d+/, API_BASE);
+      }
+  }
   
   // Basic extension check for video
-  const isVideo = forceVideo || displaySrc.split('?')[0].match(/\.(mp4|webm|ogg|mov|m4v|3gp|avi)(\b|$)/i) || displaySrc.includes('video');
+  const isVideo = forceVideo || (displaySrc && displaySrc.split('?')[0].match(/\.(mp4|webm|ogg|mov|m4v|3gp|avi)(\b|$)/i)) || (displaySrc && displaySrc.includes('video'));
 
   useEffect(() => {
       setIsReady(!isVideo);
