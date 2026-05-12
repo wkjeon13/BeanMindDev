@@ -5,7 +5,7 @@ import { API_BASE } from '../utils/apiConfig';
 import { useTranslation } from 'react-i18next';
 
 export default function SystemNoticePopup() {
-    const { i18n } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [notices, setNotices] = useState<any[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -111,13 +111,13 @@ export default function SystemNoticePopup() {
                                 onClick={handleHideToday}
                                 className="flex-1 py-3 text-[14px] font-medium text-white border border-white/20 rounded-lg hover:bg-white/5 transition-colors focus:outline-none"
                             >
-                                다시 보지 않기
+                                {t('system_notice.btn_hide_today', '다시 보지 않기')}
                             </button>
                             <button 
                                 onClick={handleClose}
                                 className="flex-1 py-3 text-[14px] font-bold text-black bg-white rounded-lg hover:bg-zinc-200 transition-colors focus:outline-none"
                             >
-                                닫기
+                                {t('system_notice.btn_close', '닫기')}
                             </button>
                         </div>
                     </motion.div>

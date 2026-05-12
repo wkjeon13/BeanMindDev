@@ -1515,5 +1515,9 @@
     "error_edit": "게시물 수정 실패: {{error}}",
     "error_generic": "오류가 발생했습니다. 다시 시도해주세요.",
     "error_media_size": "첨부파일 용량이 초과되었습니다. (최대 100MB)"
+  },
+  "system_notice": {
+    "btn_hide_today": "다시 보지 않기",
+    "btn_close": "닫기"
   }
 }

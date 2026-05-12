@@ -1481,5 +1481,9 @@
     "error_edit": "Failed to edit post: {{error}}",
     "error_generic": "An error occurred. Please try again.",
     "error_media_size": "Media file size exceeded. (Max 100MB)"
+  },
+  "system_notice": {
+    "btn_hide_today": "Do not show today",
+    "btn_close": "Close"
   }
 }
