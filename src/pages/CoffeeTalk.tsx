@@ -762,7 +762,7 @@ export default function CoffeeTalk() {
             alert(t('coffee_talk.alert_reward_ok', '{{name}}님에게 커피콩 선물을 완료했습니다! ☕🎁', {name: selectedRewardTarget.name}));
             setShowRewardModal(false);
             setSelectedRewardTarget(null);
-            fetchPosts(); // Refresh feed to update earned beans
+            fetchPosts(true); // Refresh feed silently to update earned beans without losing scroll position
         } else {
             const errData = await res.json();
             let errMsg = errData.error || '선물에 실패했습니다.';
