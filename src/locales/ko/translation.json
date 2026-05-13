@@ -1397,7 +1397,8 @@
     "desc_pilgrimage_compose_2": "멋진 사진과 어울리는 리뷰를 남겨주세요!",
     "sort_latest": "최신순",
     "sort_popular": "인기순",
-    "sort_sponsored": "후원순"
+    "sort_sponsored": "후원순",
+    "badge_system_notice": "BeanMind 시스템 공지"
   },
   "shared": {
     "btn_share": "외부 공유",

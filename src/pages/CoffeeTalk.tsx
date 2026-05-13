@@ -28,7 +28,7 @@ import { useAdStore } from '../store/adStore';
 
 interface Post {
   id: string;
-  author: { id: string; name: string; avatar: string; badges: string[] };
+  author: { id: string; name: string; avatar: string; badges: string[]; role?: string };
   postType?: 'NORMAL' | 'ANNOUNCEMENT' | 'EVENT';
   image: string;
   imageEn?: string;
@@ -292,7 +292,8 @@ export default function CoffeeTalk() {
                 id: d.author?.id,
                 name: d.author.role === 'OWNER' && d.author.stores && d.author.stores.length > 0 ? d.author.stores[0].name : d.author.nickname,
                 avatar: d.author.profileImageUrl || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
-                badges: d.author.role === 'OWNER' ? [t('coffee_talk.badge_official', '공식 매장')] : [t('coffee_talk.badge_lover', '커피 애호가')]
+                badges: d.author.role === 'OWNER' ? [t('coffee_talk.badge_official', '공식 매장')] : [t('coffee_talk.badge_lover', '커피 애호가')],
+                role: d.author.role
               },
               postType: d.postType,
               image: d.image || null,
@@ -345,7 +346,8 @@ export default function CoffeeTalk() {
                               id: d.author?.id,
                               name: d.author.role === 'OWNER' && d.author.stores && d.author.stores.length > 0 ? d.author.stores[0].name : d.author.nickname,
                               avatar: d.author.profileImageUrl || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
-                              badges: d.author.role === 'OWNER' ? [t('coffee_talk.badge_official', '공식 매장')] : [t('coffee_talk.badge_lover', '커피 애호가')]
+                              badges: d.author.role === 'OWNER' ? [t('coffee_talk.badge_official', '공식 매장')] : [t('coffee_talk.badge_lover', '커피 애호가')],
+                              role: d.author.role
                           },
                           postType: d.postType,
                           image: d.image || null,
@@ -1465,7 +1467,7 @@ export default function CoffeeTalk() {
                       {/* Prominent Official Top Banner */}
                       <div className="w-full bg-amber-500 py-2.5 px-4 flex items-center justify-between shadow-sm">
                           <span className="text-espresso-950 font-black text-sm tracking-widest flex items-center gap-1.5">
-                              📢 {post.postType === 'EVENT' ? t('coffee_talk.badge_event', '공식 이벤트 (EVENT)') : t('coffee_talk.badge_notice', '매장 공식 공지사항 (NOTICE)')}
+                              📢 {post.postType === 'EVENT' ? t('coffee_talk.badge_event', '공식 이벤트 (EVENT)') : (post.author?.role === 'ADMIN' || post.author?.role === 'SUPER_ADMIN' ? t('coffee_talk.badge_system_notice', 'BeanMind 시스템 공지') : t('coffee_talk.badge_notice', '매장 공식 공지사항 (NOTICE)'))}
                           </span>
                       </div>
                       {/* Official Badge Header */}

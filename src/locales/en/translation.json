@@ -1364,7 +1364,8 @@
     "desc_pilgrimage_compose_2": "Please leave a review that goes well with great photos!",
     "sort_latest": "Latest",
     "sort_popular": "Popular",
-    "sort_sponsored": "Sponsored"
+    "sort_sponsored": "Sponsored",
+    "badge_system_notice": "BeanMind System Notice"
   },
   "shared": {
     "btn_share": "External Share",
