@@ -53,7 +53,7 @@ app.use(cors({
         if (!origin || origin === 'null') return callback(null, true);
         
         // Dynamically permit localhost, local network devices, and external IPs
-        if (/^https?:\/\/(localhost|127\.0\.0\.1|\d+\.\d+\.\d+\.\d+(\.nip\.io)?)(:\d+)?$/.test(origin)) {
+        if (/^https?:\/\/(localhost|127\.0\.0\.1|\d+\.\d+\.\d+\.\d+(\.nip\.io)?|(www\.)?beanmindcurator\.com)(:\d+)?$/.test(origin)) {
             return callback(null, true);
         }
         
