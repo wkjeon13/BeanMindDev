@@ -166,8 +166,9 @@ router.get('/hotspots', async (req, res) => {
 // GET: Fetch Posts (Feed)
 router.get('/posts', async (req, res) => {
     try {
-        const { storeId, filter, countryCode } = req.query;
-          let whereClause: any = { isHidden: false, isSystemPopup: false };
+        const { storeId, filter, countryCode, sort } = req.query;
+        console.log(`[DEBUG] GET /posts sort=${sort} filter=${filter}`);
+        let whereClause: any = { isHidden: false, isSystemPopup: false };
 
         if (countryCode && countryCode !== 'GLOBAL') {
             whereClause.countryCode = { in: [String(countryCode), 'GLOBAL'] };
@@ -264,16 +265,22 @@ router.get('/posts', async (req, res) => {
         }
 
         let takeCount = 30; // Optimized from 50
-        if (filter === 'hot_3m' || filter === 'hot_today') {
+        if (filter === 'hot_3m' || filter === 'hot_today' || sort === 'popular') {
             takeCount = 100; // Fetch more to sort by reactions in memory
         }
 
+        let orderByClause: any[] = [];
+        if (sort === 'latest' || !sort) {
+            orderByClause.push({ isPinned: 'desc' });
+        }
+        if (sort === 'sponsored') {
+            orderByClause.push({ earnedBeans: 'desc' });
+        }
+        orderByClause.push({ createdAt: 'desc' });
+
         const posts = await (prisma as any).post.findMany({
             where: whereClause,
-            orderBy: [
-                { isPinned: 'desc' },
-                { createdAt: 'desc' }
-            ],
+            orderBy: orderByClause,
             take: takeCount,
             include: {
                 author: { select: {
@@ -348,6 +355,20 @@ router.get('/posts', async (req, res) => {
             });
             if (filter === 'hot_3m') processedPosts.splice(10); // Keep top 10
             if (filter === 'hot_today') processedPosts.splice(5); // Keep top 5
+        } else if (sort === 'popular') {
+            processedPosts.sort((a: any, b: any) => {
+                const aScore = (a._count?.likes || 0) + (a._count?.comments || 0);
+                const bScore = (b._count?.likes || 0) + (b._count?.comments || 0);
+                if (aScore !== bScore) return bScore - aScore;
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            });
+        } else if (sort === 'sponsored') {
+            processedPosts.sort((a: any, b: any) => {
+                const aBeans = a.earnedBeans || 0;
+                const bBeans = b.earnedBeans || 0;
+                if (aBeans !== bBeans) return bBeans - aBeans;
+                return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+            });
         } else {
             processedPosts.sort((a: any, b: any) => {
                 if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;

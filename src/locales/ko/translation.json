@@ -1394,7 +1394,10 @@
     "btn_view_shop_detail": "매장 상세보기",
     "title_pilgrimage_compose": "성지순례 방명록 남기기",
     "desc_pilgrimage_compose_1": "이 매장의 명예의 전당 장부에 영구적으로 기록됩니다.",
-    "desc_pilgrimage_compose_2": "멋진 사진과 어울리는 리뷰를 남겨주세요!"
+    "desc_pilgrimage_compose_2": "멋진 사진과 어울리는 리뷰를 남겨주세요!",
+    "sort_latest": "최신순",
+    "sort_popular": "인기순",
+    "sort_sponsored": "후원순"
   },
   "shared": {
     "btn_share": "외부 공유",

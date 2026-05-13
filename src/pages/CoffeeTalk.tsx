@@ -123,6 +123,7 @@ export default function CoffeeTalk() {
   const location = useLocation();
   const initialFilter = location.state?.filter || 'all';
   const [activeFilter, setActiveFilter] = useState(initialFilter);
+    const [sortOption, setSortOption] = useState('latest');
   const [isDeepLinked, setIsDeepLinked] = useState(!!location.state?.activePost || !!window.location.hash);
   const currentFilterRef = useRef(activeFilter);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -258,7 +259,7 @@ export default function CoffeeTalk() {
     try {
       if (!silent) setIsLoading(true);
       const filterToFetch = activeFilter || 'all';
-      const url = `${API_BASE}/api/community/posts?filter=${filterToFetch}&countryCode=${getDeviceCountryCode()}&_t=${Date.now()}`;
+      const url = `${API_BASE}/api/community/posts?filter=${filterToFetch}&sort=${sortOption}&countryCode=${getDeviceCountryCode()}&_t=${Date.now()}`;
       const token = localStorage.getItem('token');
       const headers: any = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -403,7 +404,8 @@ export default function CoffeeTalk() {
             setPosts(mappedPosts);
           }
           
-          globalFeedCache[filterToFetch] = {
+          const cacheKey = filterToFetch + '_' + sortOption;
+          globalFeedCache[cacheKey] = {
               posts: mappedPosts,
               likes: initialLikes,
               bookmarks: initialBookmarks
@@ -563,12 +565,13 @@ export default function CoffeeTalk() {
 
   React.useEffect(() => {
     currentFilterRef.current = activeFilter;
+    const cacheKey = activeFilter + '_' + sortOption;
     
     let useCache = false;
-    if (globalFeedCache[activeFilter]) {
+    if (globalFeedCache[cacheKey]) {
         if (targetPostIdToScroll.current) {
             // Check if the target post is in the cache
-            const isTargetInCache = globalFeedCache[activeFilter].posts.some((p: any) => p.id === targetPostIdToScroll.current);
+            const isTargetInCache = globalFeedCache[cacheKey].posts.some((p: any) => p.id === targetPostIdToScroll.current);
             useCache = isTargetInCache;
         } else {
             useCache = true;
@@ -576,20 +579,18 @@ export default function CoffeeTalk() {
     }
 
     if (useCache) {
-        setPosts(globalFeedCache[activeFilter].posts);
-        setIsLiked(globalFeedCache[activeFilter].likes);
-        setIsBookmarked(globalFeedCache[activeFilter].bookmarks);
+        setPosts(globalFeedCache[cacheKey].posts);
+        setIsLiked(globalFeedCache[cacheKey].likes);
+        setIsBookmarked(globalFeedCache[cacheKey].bookmarks);
         setIsLoading(false); // MUST clear spinner immediately
         fetchPosts(true); // Silent background sync
     } else {
         setIsLoading(true); // Initial load with spinner
         // Clear posts to prevent flickering old posts while waiting for the target post
-        if (targetPostIdToScroll.current) {
-            setPosts([]); 
-        }
+        setPosts([]); // Always clear posts when switching filters/sorts to show loading spinner
         fetchPosts(false); 
     }
-  }, [activeFilter]);
+  }, [activeFilter, sortOption]);
 
   React.useEffect(() => {
     fetchRewardTiers();
@@ -1312,7 +1313,26 @@ export default function CoffeeTalk() {
               <h1 className="text-xl font-extrabold tracking-tight text-espresso-50 flex items-center gap-2">
                 Coffee Talk <span className="flex h-2 w-2 rounded-full bg-amber-500"></span>
               </h1>
-              <div className="flex items-center gap-3 text-espresso-200">
+              <div className="flex items-center gap-1 text-espresso-200">
+                <div className="relative flex items-center pr-1">
+                  <span className="text-[12px] font-bold text-espresso-300 hidden sm:inline-block mr-1">{t('coffee_talk.sort_label', '정렬:')}</span>
+                  <select
+                    value={sortOption}
+                    onChange={(e) => setSortOption(e.target.value)}
+                    className="appearance-none bg-transparent text-[13px] font-extrabold text-amber-500 pr-4 pl-1 outline-none cursor-pointer hover:text-amber-400 transition-colors"
+                    style={{ WebkitAppearance: 'none', MozAppearance: 'none' }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <option value="latest" className="text-espresso-950 font-bold">{t('coffee_talk.sort_latest', '최신순')}</option>
+                    <option value="popular" className="text-espresso-950 font-bold">{t('coffee_talk.sort_popular', '인기순')}</option>
+                    <option value="sponsored" className="text-espresso-950 font-bold">{t('coffee_talk.sort_sponsored', '후원순')}</option>
+                  </select>
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none opacity-80">
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500" />
+                    </svg>
+                  </div>
+                </div>
                 <button onClick={() => setIsSearchOpen(true)} className="p-2 hover:bg-espresso-800 rounded-full transition-colors"><Search size={22} /></button>
               </div>
             </>
