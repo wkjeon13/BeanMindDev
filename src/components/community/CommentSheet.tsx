@@ -105,6 +105,7 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
         const [selectedRewardTarget, setSelectedRewardTarget] = useState<{ id: string, name: string, entityId: string } | null>(null);
     const [activeCommentMenuId, setActiveCommentMenuId] = useState<string | null>(null);
     const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+    const [showRootInput, setShowRootInput] = useState(false);
 
     
     // Derived state for current user to show active reactions and pin permissions
@@ -400,6 +401,7 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                 setImagePreviews([]);
                 setReplyingTo(null);
                 setEditingCommentId(null);
+                setShowRootInput(false);
                 // Scroll to bottom could be added here
             } else {
                 const errData = await res.json().catch(() => ({}));
@@ -586,7 +588,7 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
         }, 100);
     };
 
-    const renderInputArea = (isInline = false) => {
+    const renderInputArea = (isInline = false, placeholderText = "Add a reply...") => {
         if (isInline) {
             return (
                 <div className="mt-2 mb-2 pl-4 flex items-center gap-2 relative z-20">
@@ -594,7 +596,7 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                         <img src={currentUserProfileImageUrl || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} className="w-full h-full object-cover" />
                     </div>
                     <form onSubmit={handleSubmit} className="flex-1 flex items-center bg-espresso-900/60 border border-espresso-700/50 rounded-full px-3 py-1.5">
-                         <input type="text" value={newComment} onChange={e=>setNewComment(e.target.value)} placeholder="Add a reply..." className="flex-1 bg-transparent text-espresso-50 text-[13px] focus:outline-none placeholder:text-espresso-500" />
+                         <input type="text" value={newComment} onChange={e=>setNewComment(e.target.value)} placeholder={placeholderText} className="flex-1 bg-transparent text-espresso-50 text-[13px] focus:outline-none placeholder:text-espresso-500" />
                          <button type="submit" disabled={!newComment.trim() || isSubmitting} className="text-amber-500 disabled:opacity-50"><Send size={14}/></button>
                     </form>
                 </div>
@@ -807,8 +809,29 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                         </div>
                     )}
 
+                {/* Root Comment Action for Embedded Mode */}
+                {isEmbedded && !replyingTo && (
+                    <div className="mb-2">
+                        {showRootInput ? (
+                            <div className="pt-2">
+                                {renderInputArea(true, "Add a comment...")}
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-4 mt-1 mb-2 text-[12px] font-bold text-espresso-400">
+                                <button 
+                                    onClick={() => setShowRootInput(true)} 
+                                    className="hover:text-amber-500 transition-colors text-amber-500/80"
+                                >
+                                    Reply
+                                </button>
+                            </div>
+                        )}
+                        <div className="border-t border-espresso-800/50 w-full" />
+                    </div>
+                )}
+
                 {/* Comment List */}
-                <div className={`py-4 space-y-5 relative ${isEmbedded ? 'pb-24' : 'px-5 min-h-[50vh] pb-32'}`}>
+                <div className={`py-2 space-y-5 relative ${isEmbedded ? 'pb-2' : 'px-5 min-h-[50vh] pb-32 pt-4'}`}>
                     {isLoading ? (
                         <p className="text-center text-espresso-300 py-10">{t('community_comments.loading', '댓글을 불러오는 중...')}</p>
                     ) : comments.length === 0 ? (
@@ -995,8 +1018,8 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                 </div>
                 </div>
 
-                {/* Input Area */}
-                {!replyingTo && renderInputArea(false)}
+                {/* Input Area (For Modal Mode only) */}
+                {!isEmbedded && !replyingTo && renderInputArea(false)}
             </div>
 
             {/* Fullscreen Image/Media Modal */}

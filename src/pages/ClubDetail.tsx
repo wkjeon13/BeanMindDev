@@ -1097,7 +1097,7 @@ export default function ClubDetail() {
                                         );
                                     })()}
                                     
-                                    <div className="mt-1 pt-2 border-t border-espresso-800/50">
+                                    <div className="mt-1">
                                         <CommentSheet 
                                             isOpen={true} 
                                             postId={post.id} 
