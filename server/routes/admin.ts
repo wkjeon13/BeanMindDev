@@ -846,7 +846,7 @@ router.get('/announcements', async (req: any, res: any) => {
 // A robust implementation would use multer here too if admins upload fresh images.
 router.post('/announcements', async (req: any, res: any) => {
     try {
-        const { content, contentEn, startDate, endDate, image, imageEn, isSystemPopup } = req.body;
+        const { content, contentEn, startDate, endDate, image, imageEn, isSystemPopup, countryCode } = req.body;
         
         if (!content) {
             return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
@@ -860,6 +860,7 @@ router.post('/announcements', async (req: any, res: any) => {
             imageEn: imageEn || null,
             isPinned: true,
             postType: 'ANNOUNCEMENT',
+            countryCode: countryCode || 'GLOBAL',
             isSystemPopup: isSystemPopup ? true : false,
             pinnedStartDate: startDate ? new Date(startDate) : null,
             pinnedEndDate: endDate ? new Date(endDate) : null,
@@ -880,7 +881,7 @@ router.post('/announcements', async (req: any, res: any) => {
 router.put('/announcements/:id', async (req: any, res: any) => {
     try {
         const { id } = req.params;
-        const { content, contentEn, startDate, endDate, isPinned, image, imageEn, isSystemPopup } = req.body;
+        const { content, contentEn, startDate, endDate, isPinned, image, imageEn, isSystemPopup, countryCode } = req.body;
 
         const updateData: any = { postType: 'ANNOUNCEMENT' };
         if (content !== undefined) updateData.content = content;
@@ -891,6 +892,7 @@ router.put('/announcements/:id', async (req: any, res: any) => {
         if (image !== undefined) updateData.image = image;
         if (imageEn !== undefined) updateData.imageEn = imageEn;
         if (isSystemPopup !== undefined) updateData.isSystemPopup = isSystemPopup;
+        if (countryCode !== undefined) updateData.countryCode = countryCode;
 
         const announcement = await prisma.post.update({
             where: { id },

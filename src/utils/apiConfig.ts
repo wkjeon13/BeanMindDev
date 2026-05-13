@@ -50,6 +50,17 @@ export const handleApiError = async (response: Response) => {
 };
 
 export const getDeviceCountryCode = () => {
+    // 0. User DB Region takes absolute highest priority if logged in
+    try {
+        const userStr = localStorage.getItem('user');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            if (user.countryCode && user.countryCode !== 'GLOBAL') {
+                return user.countryCode;
+            }
+        }
+    } catch(e) {}
+
     // 1. App language takes priority (User's explicit choice)
     try {
         const appLang = localStorage.getItem('i18nextLng') || '';

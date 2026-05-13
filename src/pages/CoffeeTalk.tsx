@@ -31,7 +31,10 @@ interface Post {
   author: { id: string; name: string; avatar: string; badges: string[] };
   postType?: 'NORMAL' | 'ANNOUNCEMENT' | 'EVENT';
   image: string;
+  imageEn?: string;
   content: string;
+  contentEn?: string;
+  countryCode?: string;
   cafeName?: string;
   cafeLocation?: string;
   cafeLat?: number;
@@ -293,6 +296,9 @@ export default function CoffeeTalk() {
               postType: d.postType,
               image: d.image || null,
               content: d.content,
+                contentEn: d.contentEn,
+                imageEn: d.imageEn,
+                countryCode: d.countryCode,
               cafeName: d.cafeName,
               cafeLocation: d.cafeLocation,
               cafeLat: d.cafeLat ? parseFloat(d.cafeLat) : undefined,
@@ -343,6 +349,9 @@ export default function CoffeeTalk() {
                           postType: d.postType,
                           image: d.image || null,
                           content: d.content,
+                contentEn: d.contentEn,
+                            imageEn: d.imageEn,
+                            countryCode: d.countryCode,
                           cafeName: d.cafeName,
                           cafeLocation: d.cafeLocation,
                           cafeLat: d.cafeLat ? parseFloat(d.cafeLat) : undefined,
@@ -1509,9 +1518,9 @@ export default function CoffeeTalk() {
 
                       {/* Official Post Body Content */}
                       <div 
-                          className={`p-4 relative ${((i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content) && (((i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content).length > 150 || ((i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content).split('\n').length > 4) && !expandedPosts.has(post.id) ? 'cursor-pointer active:bg-espresso-900/50 transition-colors rounded-b-xl' : ''}`}
+                          className={`p-4 relative ${(((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && post.contentEn) ? post.contentEn : post.content) && ((((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && post.contentEn) ? post.contentEn : post.content).length > 150 || (((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && post.contentEn) ? post.contentEn : post.content).split('\n').length > 4) && !expandedPosts.has(post.id) ? 'cursor-pointer active:bg-espresso-900/50 transition-colors rounded-b-xl' : ''}`}
                           onClick={(e) => {
-                              const contentToUse = (i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content;
+                              const contentToUse = ((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && post.contentEn) ? post.contentEn : post.content;
                               if (contentToUse && (contentToUse.length > 150 || contentToUse.split('\n').length > 4)) {
                                   e.stopPropagation();
                                   setExpandedPosts(prev => {
@@ -1529,9 +1538,9 @@ export default function CoffeeTalk() {
                           </div>
                       
                           <p className={`text-[14px] text-espresso-50 leading-relaxed whitespace-pre-wrap font-medium break-words z-10 relative overflow-hidden transition-all duration-300 ${!expandedPosts.has(post.id) ? 'line-clamp-4' : ''}`}>
-                              {renderWithLinks((i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content)}
+                              {renderWithLinks(((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && post.contentEn) ? post.contentEn : post.content)}
                           </p>
-                          {(((i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content)?.split('\n').length > 4 || (((i18n.language === 'en' && post.contentEn) ? post.contentEn : post.content)?.length || 0) > 150) && !expandedPosts.has(post.id) && (
+                          {((((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && post.contentEn) ? post.contentEn : post.content)?.split('\n').length > 4 || ((((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && post.contentEn) ? post.contentEn : post.content)?.length || 0) > 150) && !expandedPosts.has(post.id) && (
                               <div className="mt-2 text-right z-10 relative">
                                   <span className="text-[12px] font-bold text-amber-500 transition-colors">
                                       {t('coffee_talk.btn_expand', '더 보기')}
@@ -1540,10 +1549,10 @@ export default function CoffeeTalk() {
                           )}
                           
                           {/* Official Media Banner */}
-                          {((i18n.language === 'en' && post.imageEn) ? post.imageEn : post.image) && (
+                          {(((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && post.imageEn) ? post.imageEn : post.image) && (
                               <div className="relative mt-4 aspect-[4/3] sm:aspect-[16/9] w-[calc(100%+2rem)] -mx-4 group shadow-inner">
                                   {(() => {
-                                      const imageToUse = (i18n.language === 'en' && post.imageEn) ? post.imageEn : post.image;
+                                      const imageToUse = ((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && post.imageEn) ? post.imageEn : post.image;
                                       let urls = [imageToUse];
                                       try {
                                           const parsed = JSON.parse(imageToUse);

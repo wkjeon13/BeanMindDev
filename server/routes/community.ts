@@ -98,16 +98,24 @@ const upload = multer({
 // GET: Fetch Active System Popups
 router.get('/system-notices', async (req, res) => {
     try {
+        const { countryCode } = req.query;
         const now = new Date();
+        
+        let whereClause: any = {
+            postType: 'ANNOUNCEMENT',
+            isSystemPopup: true,
+            AND: [
+                { OR: [{ pinnedStartDate: null }, { pinnedStartDate: { lte: now } }] },
+                { OR: [{ pinnedEndDate: null }, { pinnedEndDate: { gte: now } }] }
+            ]
+        };
+
+        if (countryCode && countryCode !== 'GLOBAL') {
+            whereClause.countryCode = { in: [String(countryCode), 'GLOBAL'] };
+        }
+
         const notices = await (prisma as any).post.findMany({
-            where: {
-                postType: 'ANNOUNCEMENT',
-                isSystemPopup: true,
-                AND: [
-                    { OR: [{ pinnedStartDate: null }, { pinnedStartDate: { lte: now } }] },
-                    { OR: [{ pinnedEndDate: null }, { pinnedEndDate: { gte: now } }] }
-                ]
-            },
+            where: whereClause,
             orderBy: { createdAt: 'desc' }
         });
         res.status(200).json(notices);
@@ -159,10 +167,10 @@ router.get('/hotspots', async (req, res) => {
 router.get('/posts', async (req, res) => {
     try {
         const { storeId, filter, countryCode } = req.query;
-        let whereClause: any = { isHidden: false };
+          let whereClause: any = { isHidden: false, isSystemPopup: false };
 
         if (countryCode && countryCode !== 'GLOBAL') {
-            whereClause.countryCode = String(countryCode);
+            whereClause.countryCode = { in: [String(countryCode), 'GLOBAL'] };
         }
         
         let currentUserId: string | null = null;
@@ -176,7 +184,7 @@ router.get('/posts', async (req, res) => {
                 // Override device countryCode with user's registered countryCode
                 const dbUser = await (prisma as any).user.findUnique({ where: { id: currentUserId }, select: { countryCode: true } });
                 if (dbUser && dbUser.countryCode && dbUser.countryCode !== 'GLOBAL') {
-                    whereClause.countryCode = dbUser.countryCode;
+                    whereClause.countryCode = { in: [dbUser.countryCode, 'GLOBAL'] };
                 }
             } catch (e) {}
         }
@@ -221,7 +229,7 @@ router.get('/posts', async (req, res) => {
             });
             const followedUserIds = followedUsers.map((f: any) => f.followingId);
 
-            whereClause.postType = { not: 'NORMAL' };
+            whereClause.postType = { in: ['NORMAL', 'ANNOUNCEMENT', 'EVENT'] };
             whereClause.OR = [
                 { authorId: currentUserId },
                 { store: { ownerId: currentUserId } }
@@ -244,14 +252,14 @@ router.get('/posts', async (req, res) => {
             threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
             whereClause.createdAt = { gte: threeMonthsAgo };
             whereClause.image = { not: null };
-            whereClause.postType = 'NORMAL';
+            whereClause.postType = { in: ['NORMAL', 'ANNOUNCEMENT', 'EVENT'] };
         } else if (filter === 'hot_today') {
             const threeDaysAgo = new Date();
             threeDaysAgo.setDate(threeDaysAgo.getDate() - 3); // Expanded to 3 days to avoid empty feed in dev
             whereClause.createdAt = { gte: threeDaysAgo };
-            whereClause.postType = 'NORMAL';
+            whereClause.postType = { in: ['NORMAL', 'ANNOUNCEMENT', 'EVENT'] };
         } else if (!storeId && filter !== 'near_live') {
-            whereClause.postType = 'NORMAL';
+            whereClause.postType = { in: ['NORMAL', 'ANNOUNCEMENT', 'EVENT'] };
             whereClause.isShorts = false;
         }
 

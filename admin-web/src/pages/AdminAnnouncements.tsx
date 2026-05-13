@@ -17,6 +17,7 @@ export default function AdminAnnouncements() {
     const [editAnnouncementId, setEditAnnouncementId] = useState<string | null>(null);
     const [announcementContent, setAnnouncementContent] = useState('');
     const [isSystemPopup, setIsSystemPopup] = useState(false);
+    const [noticeRegion, setNoticeRegion] = useState<'GLOBAL' | 'KR' | 'US'>('GLOBAL');
     const [announcementStartDate, setAnnouncementStartDate] = useState('');
     const [announcementEndDate, setAnnouncementEndDate] = useState('');
     const [announcementImage, setAnnouncementImage] = useState<File | null>(null);
@@ -88,6 +89,7 @@ export default function AdminAnnouncements() {
             setAnnouncementImagePreviewEn(anno.imageEn || null);
             setAnnouncementImageEn(null);
             setIsSystemPopup(anno.isSystemPopup || false);
+            setNoticeRegion(anno.countryCode || 'GLOBAL');
         } else {
             setEditAnnouncementId(null);
             setAnnouncementContent('');
@@ -99,6 +101,7 @@ export default function AdminAnnouncements() {
             setAnnouncementImageEn(null);
             setAnnouncementImagePreviewEn(null);
             setIsSystemPopup(false);
+            setNoticeRegion('GLOBAL');
         }
         setIsAnnouncementModalOpen(true);
     };
@@ -136,6 +139,7 @@ export default function AdminAnnouncements() {
                 startDate: announcementStartDate ? new Date(`${announcementStartDate}T00:00:00`).toISOString() : null,
                 endDate: announcementEndDate ? new Date(`${announcementEndDate}T23:59:59`).toISOString() : null,
                 isSystemPopup,
+                countryCode: noticeRegion,
             };
 
             if (base64Image) {
@@ -367,45 +371,57 @@ export default function AdminAnnouncements() {
                                 </div>
 
                                 <div className="pt-4 pb-2 border-t border-espresso-700/50 mt-2 shrink-0">
+                                    <label className="text-sm font-bold text-espresso-50 block mb-3">타겟 지역 (Region)</label>
+                                    <div className="flex gap-2">
+                                        {[
+                                            { id: 'GLOBAL', label: 'GLOBAL', desc: '전 세계' },
+                                            { id: 'KR', label: 'KR', desc: '대한민국' },
+                                            { id: 'US', label: 'US', desc: '미국' }
+                                        ].map((region) => (
+                                            <button
+                                                key={region.id}
+                                                onClick={() => setNoticeRegion(region.id as any)}
+                                                className={`flex-1 p-3 rounded-xl border flex flex-col items-center justify-center transition-all ${noticeRegion === region.id ? 'border-coffee-500 bg-coffee-500/10' : 'border-espresso-800 bg-espresso-950 hover:border-coffee-500/50'}`}
+                                            >
+                                                <span className={`text-sm font-bold ${noticeRegion === region.id ? 'text-coffee-400' : 'text-espresso-100'}`}>{region.label}</span>
+                                                <span className="text-[11px] text-espresso-400 mt-0.5">{region.desc}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 pb-2 border-t border-espresso-700/50 mt-2 shrink-0">
                                     <label className="text-sm font-bold text-espresso-50 block mb-3">공지 노출 유형</label>
                                     <div className="space-y-2">
-                                        <label className="flex items-start gap-3 cursor-pointer group w-full p-3 rounded-xl border border-espresso-800 bg-espresso-950 hover:border-coffee-500 transition-all">
+                                        <div 
+                                            onClick={() => setIsSystemPopup(false)}
+                                            className={`flex items-start gap-3 cursor-pointer group w-full p-3 rounded-xl border transition-all ${!isSystemPopup ? 'border-coffee-500 bg-coffee-500/10' : 'border-espresso-800 bg-espresso-950 hover:border-coffee-500/50'}`}
+                                        >
                                             <div className="relative flex items-center justify-center shrink-0 mt-0.5">
-                                                <input 
-                                                    type="radio" 
-                                                    name="noticeType"
-                                                    checked={!isSystemPopup} 
-                                                    onChange={() => setIsSystemPopup(false)} 
-                                                    className="peer sr-only" 
-                                                />
-                                                <div className="w-5 h-5 border-2 border-espresso-500 rounded-full peer-checked:border-coffee-500 flex items-center justify-center transition-colors">
-                                                    <div className="w-2.5 h-2.5 rounded-full bg-coffee-500 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                                <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center transition-colors ${!isSystemPopup ? 'border-coffee-500' : 'border-espresso-500'}`}>
+                                                    <div className={`w-2.5 h-2.5 rounded-full bg-coffee-500 transition-opacity ${!isSystemPopup ? 'opacity-100' : 'opacity-0'}`}></div>
                                                 </div>
                                             </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-espresso-100 group-hover:text-espresso-50 transition-colors">커피톡 공지</span>
+                                            <div className="flex flex-col pointer-events-none">
+                                                <span className={`text-sm font-bold transition-colors ${!isSystemPopup ? 'text-coffee-400' : 'text-espresso-100 group-hover:text-espresso-50'}`}>커피톡 공지</span>
                                                 <span className="text-[12px] text-espresso-400 mt-1 leading-relaxed">커피톡 피드 상단에만 고정되어 노출됩니다.</span>
                                             </div>
-                                        </label>
+                                        </div>
 
-                                        <label className="flex items-start gap-3 cursor-pointer group w-full p-3 rounded-xl border border-espresso-800 bg-espresso-950 hover:border-red-500 transition-all">
+                                        <div 
+                                            onClick={() => setIsSystemPopup(true)}
+                                            className={`flex items-start gap-3 cursor-pointer group w-full p-3 rounded-xl border transition-all ${isSystemPopup ? 'border-red-500 bg-red-500/10' : 'border-espresso-800 bg-espresso-950 hover:border-red-500/50'}`}
+                                        >
                                             <div className="relative flex items-center justify-center shrink-0 mt-0.5">
-                                                <input 
-                                                    type="radio" 
-                                                    name="noticeType"
-                                                    checked={isSystemPopup} 
-                                                    onChange={() => setIsSystemPopup(true)} 
-                                                    className="peer sr-only" 
-                                                />
-                                                <div className="w-5 h-5 border-2 border-espresso-500 rounded-full peer-checked:border-red-500 flex items-center justify-center transition-colors">
-                                                    <div className="w-2.5 h-2.5 rounded-full bg-red-500 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                                <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center transition-colors ${isSystemPopup ? 'border-red-500' : 'border-espresso-500'}`}>
+                                                    <div className={`w-2.5 h-2.5 rounded-full bg-red-500 transition-opacity ${isSystemPopup ? 'opacity-100' : 'opacity-0'}`}></div>
                                                 </div>
                                             </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-espresso-100 group-hover:text-espresso-50 transition-colors">전체 공지 (시스템 팝업 + 피드)</span>
-                                                <span className="text-[12px] text-espresso-400 mt-1 leading-relaxed">사용자가 앱 진입 시 중앙 팝업으로 우선 강제 노출되며 피드에도 고정됩니다.</span>
+                                            <div className="flex flex-col pointer-events-none">
+                                                <span className={`text-sm font-bold transition-colors ${isSystemPopup ? 'text-red-400' : 'text-espresso-100 group-hover:text-espresso-50'}`}>전체 공지 (시스템 팝업)</span>
+                                                <span className="text-[12px] text-espresso-400 mt-1 leading-relaxed">사용자가 앱 진입 시 중앙 팝업창으로만 노출됩니다. (피드 제외)</span>
                                             </div>
-                                        </label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

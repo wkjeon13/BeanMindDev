@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bell } from 'lucide-react';
-import { API_BASE } from '../utils/apiConfig';
+import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
 import { useTranslation } from 'react-i18next';
 
 export default function SystemNoticePopup() {
@@ -12,7 +12,7 @@ export default function SystemNoticePopup() {
     useEffect(() => {
         const fetchNotices = async () => {
             try {
-                const res = await fetch(`${API_BASE}/api/community/system-notices`);
+                const res = await fetch(`${API_BASE}/api/community/system-notices?countryCode=${getDeviceCountryCode()}`);
                 if (res.ok) {
                     const data = await res.json();
                     
@@ -86,10 +86,10 @@ export default function SystemNoticePopup() {
 
                         {/* Content Body */}
                         <div className="flex-1 overflow-y-auto no-scrollbar pb-6 flex flex-col items-center">
-                            {((i18n.language === 'en' && notices[currentIndex].imageEn) ? notices[currentIndex].imageEn : notices[currentIndex].image) && (
+                            {(((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && notices[currentIndex].imageEn) ? notices[currentIndex].imageEn : notices[currentIndex].image) && (
                                 <div className="w-full rounded-lg overflow-hidden bg-[#2a2a2a] flex justify-center mb-5">
                                     <img 
-                                        src={getImageUrl((i18n.language === 'en' && notices[currentIndex].imageEn) ? notices[currentIndex].imageEn : notices[currentIndex].image)} 
+                                        src={getImageUrl(((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && notices[currentIndex].imageEn) ? notices[currentIndex].imageEn : notices[currentIndex].image)} 
                                         alt="notice" 
                                         className="w-full h-auto object-cover max-h-[160px]" 
                                     />
@@ -97,10 +97,10 @@ export default function SystemNoticePopup() {
                             )}
                             <div className="text-center w-full px-2">
                                 <p className="text-white whitespace-pre-wrap text-[15px] font-semibold leading-relaxed mb-2">
-                                    {((i18n.language === 'en' && notices[currentIndex].contentEn) ? notices[currentIndex].contentEn : notices[currentIndex].content).split('\n')[0]}
+                                    {(((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && notices[currentIndex].contentEn) ? notices[currentIndex].contentEn : notices[currentIndex].content).split('\n')[0]}
                                 </p>
                                 <p className="text-[#a1a1aa] whitespace-pre-wrap text-[13px] leading-relaxed font-normal">
-                                    {((i18n.language === 'en' && notices[currentIndex].contentEn) ? notices[currentIndex].contentEn : notices[currentIndex].content).split('\n').length > 1 ? ((i18n.language === 'en' && notices[currentIndex].contentEn) ? notices[currentIndex].contentEn : notices[currentIndex].content).split('\n').slice(1).join('\n') : ''}
+                                    {(((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && notices[currentIndex].contentEn) ? notices[currentIndex].contentEn : notices[currentIndex].content).split('\n').length > 1 ? (((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && notices[currentIndex].contentEn) ? notices[currentIndex].contentEn : notices[currentIndex].content).split('\n').slice(1).join('\n') : ''}
                                 </p>
                             </div>
                         </div>
