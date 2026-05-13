@@ -1428,38 +1428,58 @@ export default function CoffeeTalk() {
                    </>
                )}
             </div>
-          )}{!isLoading && premiumAd && activeFilter === 'all' && !isDeepLinked && (
-             <div className="-mt-4 mb-3 sm:mb-4 mx-0">
-                 <FeedAdCard adData={premiumAd.ad || premiumAd} />
-             </div>
-          )}
-          {!isLoading && neighborPremiumAd && activeFilter === 'near_live' && !isDeepLinked && (
-             <div className="mb-3 sm:mb-4 mx-0">
-                 <FeedAdCard adData={neighborPremiumAd.ad || neighborPremiumAd} />
-             </div>
-          )}
+          )}{!isLoading && premiumAd && activeFilter === 'all' && !isDeepLinked && (() => {
+               const ad = premiumAd.ad || premiumAd;
+               if (!ad || ad.fallback === 'ADMOB') return null;
+               return (
+                   <div className="-mt-4 mb-3 sm:mb-4 mx-0">
+                       <FeedAdCard adData={ad} />
+                   </div>
+               );
+          })()}
+          {!isLoading && neighborPremiumAd && activeFilter === 'near_live' && !isDeepLinked && (() => {
+               const ad = neighborPremiumAd.ad || neighborPremiumAd;
+               if (!ad || ad.fallback === 'ADMOB') return null;
+               return (
+                   <div className="mb-3 sm:mb-4 mx-0">
+                       <FeedAdCard adData={ad} />
+                   </div>
+               );
+          })()}
           {!isLoading && filteredPosts.map((post, idx) => (
             <React.Fragment key={post.id}>
               
               {/* Standard Ad Injection: 1 ad every 5 posts */}
-              {idx > 0 && (idx + 1) % 5 === 0 && feedAd && ['all', 'taste_match', 'home_cafe', 'following_story', 'pilgrimage_talk'].includes(activeFilter) && !isDeepLinked && (
-                 <div className="mb-3 sm:mb-4 mx-0">
-                     <FeedAdCard adData={feedAd.ads?.length > 0 ? feedAd.ads[Math.floor(idx / 5) % feedAd.ads.length] : (feedAd.ad || feedAd)} />
-                 </div>
-              )}
+              {idx > 0 && (idx + 1) % 5 === 0 && feedAd && ['all', 'taste_match', 'home_cafe', 'following_story', 'pilgrimage_talk'].includes(activeFilter) && !isDeepLinked && (() => {
+                 const ad = feedAd.ads?.length > 0 ? feedAd.ads[Math.floor(idx / 5) % feedAd.ads.length] : (feedAd.ad || feedAd);
+                 if (!ad || ad.fallback === 'ADMOB') return null;
+                 return (
+                     <div className="mb-3 sm:mb-4 mx-0">
+                         <FeedAdCard adData={ad} />
+                     </div>
+                 );
+              })()}
 
-              {idx > 0 && (idx + 1) % 5 === 0 && neighborAd && activeFilter === 'near_live' && !isDeepLinked && (
-                 <div className="mb-3 sm:mb-4 mx-0">
-                     <FeedAdCard adData={neighborAd.ads?.length > 0 ? neighborAd.ads[Math.floor(idx / 5) % neighborAd.ads.length] : (neighborAd.ad || neighborAd)} />
-                 </div>
-              )}
+              {idx > 0 && (idx + 1) % 5 === 0 && neighborAd && activeFilter === 'near_live' && !isDeepLinked && (() => {
+                 const ad = neighborAd.ads?.length > 0 ? neighborAd.ads[Math.floor(idx / 5) % neighborAd.ads.length] : (neighborAd.ad || neighborAd);
+                 if (!ad || ad.fallback === 'ADMOB') return null;
+                 return (
+                     <div className="mb-3 sm:mb-4 mx-0">
+                         <FeedAdCard adData={ad} />
+                     </div>
+                 );
+              })()}
 
               {/* Shorts Ad Injection: 1 ad every 3 shorts */}
-              {idx > 0 && (idx + 1) % 3 === 0 && shortsAd && activeFilter === 'shorts' && !isDeepLinked && (
-                 <div className="snap-start snap-always w-full h-full shrink-0 mx-0 mb-0 border-0 rounded-none overflow-hidden bg-black relative flex items-center justify-center">
-                     <ShortsAdCard adData={shortsAd.ads?.length > 0 ? shortsAd.ads[Math.floor(idx / 3) % shortsAd.ads.length] : (shortsAd.ad || shortsAd)} isActive={true} />
-                 </div>
-              )}
+              {idx > 0 && (idx + 1) % 3 === 0 && shortsAd && activeFilter === 'shorts' && !isDeepLinked && (() => {
+                 const ad = shortsAd.ads?.length > 0 ? shortsAd.ads[Math.floor(idx / 3) % shortsAd.ads.length] : (shortsAd.ad || shortsAd);
+                 if (!ad || ad.fallback === 'ADMOB') return null;
+                 return (
+                     <div className="snap-start snap-always w-full h-full shrink-0 mx-0 mb-0 border-0 rounded-none overflow-hidden bg-black relative flex items-center justify-center">
+                         <ShortsAdCard adData={ad} isActive={true} />
+                     </div>
+                 );
+              })()}
               
               {/* Branch between Official Announcements and Normal Posts */}
               {post.postType === 'ANNOUNCEMENT' || post.postType === 'EVENT' ? (
@@ -1488,9 +1508,11 @@ export default function CoffeeTalk() {
                                       </h3>
                                   </div>
                                   <div className="flex items-center gap-1.5 mt-1">
-                                      <span className="text-[10px] font-black bg-amber-500 text-espresso-950 px-2 py-0.5 rounded-sm tracking-wider">
-                                          {post.postType === 'EVENT' ? 'EVENT' : t('coffee_talk.label_regular_notice', '단골 소식')}
-                                      </span>
+                                      {!(post.author?.role === 'ADMIN' || post.author?.role === 'SUPER_ADMIN') && (
+                                          <span className="text-[10px] font-black bg-amber-500 text-espresso-950 px-2 py-0.5 rounded-sm tracking-wider">
+                                              {post.postType === 'EVENT' ? 'EVENT' : t('coffee_talk.label_regular_notice', '단골 소식')}
+                                          </span>
+                                      )}
                                       <span className="text-[10px] text-amber-200/80 font-medium">{post.timeAgo}</span>
                                   </div>
                               </div>

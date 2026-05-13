@@ -71,7 +71,7 @@ export const FeedAdCard: React.FC<FeedAdCardProps> = ({ adData }) => {
     }, [adData?.id, hasTrackedImpression]);
     
     if (!adData || adData.fallback === 'ADMOB') {
-        return <AdMobFallback format="rectangle" className="rounded-2xl border border-espresso-800" />;
+        return <AdMobFallback format="rectangle" />;
     }
 
     const adSize = adData.size || 'SMALL';
