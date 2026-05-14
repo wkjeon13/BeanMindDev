@@ -1127,7 +1127,7 @@ export default function Profile() {
     return (
         <div id="profile-scroll-container" className="h-full w-full bg-espresso-950 overflow-y-auto pb-24 font-sans selection:bg-espresso-700 selection:text-espresso-50">
             <MockPaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} onSuccess={handleChargePoints} />
-            <div className="max-w-md mx-auto relative flex flex-col min-h-full">
+            <div className="max-w-md md:max-w-2xl mx-auto relative flex flex-col min-h-full">
 
                 {/* Header Options */}
                 <header className="px-6 py-8 pb-4 pt-safe mt-4 shrink-0 flex justify-between items-center">

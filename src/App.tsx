@@ -51,24 +51,24 @@ const BottomNav = () => {
   };
 
   return (
-    <div className="fixed bottom-0 w-full bg-espresso-900/95 backdrop-blur-xl border-t border-espresso-700/80 flex justify-around items-center px-4 py-3 pb-safe z-[100] shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-      <Link to="/" onClick={(e) => handleNavClick(e, '/')} className={`flex flex-col items-center gap-1.5 transition-all flex-1 py-1.5 rounded-2xl ${currentPath === '/' ? 'text-amber-500 bg-amber-900/30' : 'text-espresso-200 hover:text-espresso-50'}`}>
+    <div className="fixed bottom-0 w-full md:w-[72px] md:h-full md:left-0 md:top-0 md:flex-col md:justify-center md:border-t-0 md:border-r bg-espresso-900/95 backdrop-blur-xl border-t border-espresso-700/80 flex justify-around items-center px-4 py-3 pb-safe md:py-8 md:gap-8 z-[100] shadow-[0_-10px_30px_rgba(0,0,0,0.5)] md:shadow-[10px_0_30px_rgba(0,0,0,0.5)]">
+      <Link to="/" onClick={(e) => handleNavClick(e, '/')} className={`flex flex-col items-center gap-1.5 transition-all flex-1 md:flex-none py-1.5 md:w-full rounded-2xl ${currentPath === '/' ? 'text-amber-500 bg-amber-900/30' : 'text-espresso-200 hover:text-espresso-50 hover:bg-espresso-800/50'}`}>
         <Home size={24} strokeWidth={currentPath === '/' ? 2.5 : 2} />
         <span className="text-[10px] font-bold font-mono tracking-widest text-center whitespace-nowrap">{t('app.nav_home', '홈')}</span>
       </Link>
-      <Link to="/community" onClick={(e) => handleNavClick(e, '/community')} className={`flex flex-col items-center gap-1.5 transition-all flex-1 py-1.5 rounded-2xl ${currentPath.startsWith('/community') ? 'text-amber-500 bg-amber-900/30' : 'text-espresso-200 hover:text-espresso-50'}`}>
+      <Link to="/community" onClick={(e) => handleNavClick(e, '/community')} className={`flex flex-col items-center gap-1.5 transition-all flex-1 md:flex-none py-1.5 md:w-full rounded-2xl ${currentPath.startsWith('/community') ? 'text-amber-500 bg-amber-900/30' : 'text-espresso-200 hover:text-espresso-50 hover:bg-espresso-800/50'}`}>
         <MessageSquare size={24} strokeWidth={currentPath.startsWith('/community') ? 2.5 : 2} />
         <span className="text-[10px] font-bold font-mono tracking-widest text-center whitespace-nowrap">{t('app.nav_community', '커피톡')}</span>
       </Link>
-      <Link to="/clubs" onClick={(e) => handleNavClick(e, '/clubs')} className={`flex flex-col items-center gap-1.5 transition-all flex-1 py-1.5 rounded-2xl ${currentPath.startsWith('/clubs') ? 'text-amber-500 bg-amber-900/30' : 'text-espresso-200 hover:text-espresso-50'}`}>
+      <Link to="/clubs" onClick={(e) => handleNavClick(e, '/clubs')} className={`flex flex-col items-center gap-1.5 transition-all flex-1 md:flex-none py-1.5 md:w-full rounded-2xl ${currentPath.startsWith('/clubs') ? 'text-amber-500 bg-amber-900/30' : 'text-espresso-200 hover:text-espresso-50 hover:bg-espresso-800/50'}`}>
         <Users size={24} strokeWidth={currentPath.startsWith('/clubs') ? 2.5 : 2} />
         <span className="text-[10px] font-bold font-mono tracking-widest text-center whitespace-nowrap">{t('app.nav_clubs')}</span>
       </Link>
-      <Link to="/map" onClick={(e) => handleNavClick(e, '/map')} className={`flex flex-col items-center gap-1.5 transition-all flex-1 py-1.5 rounded-2xl ${currentPath === '/map' ? 'text-amber-500 bg-amber-900/30' : 'text-espresso-200 hover:text-espresso-50'}`}>
+      <Link to="/map" onClick={(e) => handleNavClick(e, '/map')} className={`flex flex-col items-center gap-1.5 transition-all flex-1 md:flex-none py-1.5 md:w-full rounded-2xl ${currentPath === '/map' ? 'text-amber-500 bg-amber-900/30' : 'text-espresso-200 hover:text-espresso-50 hover:bg-espresso-800/50'}`}>
         <Map size={24} strokeWidth={currentPath === '/map' ? 2.5 : 2} />
         <span className="text-[10px] font-bold font-mono tracking-widest text-center whitespace-nowrap">{t('app.nav_map', '커피맵')}</span>
       </Link>
-      <Link to="/profile" onClick={(e) => handleNavClick(e, '/profile')} className={`flex flex-col items-center gap-1.5 transition-all flex-1 py-1.5 rounded-2xl ${currentPath.startsWith('/profile') ? 'text-amber-500 bg-amber-900/30' : 'text-espresso-200 hover:text-espresso-50'}`}>
+      <Link to="/profile" onClick={(e) => handleNavClick(e, '/profile')} className={`flex flex-col items-center gap-1.5 transition-all flex-1 md:flex-none py-1.5 md:w-full rounded-2xl ${currentPath.startsWith('/profile') ? 'text-amber-500 bg-amber-900/30' : 'text-espresso-200 hover:text-espresso-50 hover:bg-espresso-800/50'}`}>
         <User size={24} strokeWidth={currentPath.startsWith('/profile') ? 2.5 : 2} />
         <span className="text-[10px] font-bold font-mono tracking-widest text-center whitespace-nowrap">{isLoggedIn ? t('profile.title', '내 정보') : t('app.nav_login', '로그인')}</span>
       </Link>
@@ -156,7 +156,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       {/* Global Popup Ad Injection */}
       <GlobalAdBanner placement="ETC_POPUP" />
 
-      <div className={`flex-1 min-h-0 w-full relative overflow-hidden flex flex-col ${hideBottomNav ? '' : 'pb-20'}`}>
+      <div className={`flex-1 min-h-0 w-full relative overflow-hidden flex flex-col ${hideBottomNav ? '' : 'pb-20 md:pb-0 md:pl-[72px]'}`}>
         {children}
       </div>
       <BottomNav />

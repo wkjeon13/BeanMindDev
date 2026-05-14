@@ -1494,7 +1494,7 @@ export default function ShopBrowser() {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: 20 }}
                                         transition={{ duration: 0.3 }}
-                                        className="pointer-events-auto bg-[#1a1a1f] border border-espresso-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col w-full max-w-md mx-auto relative cursor-pointer active:scale-[0.98] transition-transform"
+                                        className="pointer-events-auto bg-[#1a1a1f] border border-espresso-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col w-full max-w-md mx-auto md:mx-0 md:ml-4 relative cursor-pointer active:scale-[0.98] transition-transform"
                                         onClick={() => { setSelectedShop(shop); setIsDetailModalOpen(true); }}
                                     >
                                         <div className="flex items-center p-3 gap-3">
@@ -1592,7 +1592,7 @@ export default function ShopBrowser() {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     exit={{ opacity: 0 }}
-                                    className="pointer-events-auto bg-[#121215]/90 backdrop-blur-md border border-espresso-800/50 rounded-full px-5 py-2.5 shadow-lg flex items-center justify-between w-max mx-auto"
+                                    className="pointer-events-auto bg-[#121215]/90 backdrop-blur-md border border-espresso-800/50 rounded-full px-5 py-2.5 shadow-lg flex items-center justify-between w-max mx-auto md:mx-0 md:ml-6"
                                 >
                                     <span className="text-[12px] font-medium text-espresso-200">
                                         {combinedShops.length > 0 

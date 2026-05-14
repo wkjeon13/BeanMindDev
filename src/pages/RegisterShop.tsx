@@ -275,7 +275,7 @@ export default function RegisterShop() {
 
     return (
         <div className="h-[100dvh] w-full bg-espresso-950 overflow-hidden flex flex-col text-espresso-50 font-sans relative z-[200]">
-            <div className="flex-1 w-full max-w-md mx-auto relative flex flex-col bg-espresso-900 overflow-hidden shadow-2xl">
+            <div className="flex-1 w-full max-w-md md:max-w-2xl mx-auto relative flex flex-col bg-espresso-900 overflow-hidden shadow-2xl">
 
                 {/* Header */}
                 {step < 6 && (

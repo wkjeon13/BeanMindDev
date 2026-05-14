@@ -1411,7 +1411,7 @@ export default function CoffeeTalk() {
 
       {/* Main Feed Content */}
       <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto scroll-smooth ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24 pt-4'}`}>
-        <div className={`mx-auto ${activeFilter === 'shorts' ? 'w-full max-w-[500px] h-full sm:border-x sm:border-espresso-800' : 'max-w-md sm:p-4'}`}>
+        <div className={`mx-auto ${activeFilter === 'shorts' ? 'w-full max-w-[500px] h-full sm:border-x sm:border-espresso-800' : 'max-w-md md:max-w-2xl sm:p-4'}`}>
           {activeFilter === 'near_live' && <HotspotMap />}
           {isLoading && <p className="text-center text-espresso-200 mt-10">{t('coffee_talk.loading_feed', '피드를 불러오는 중입니다...')}</p>}
           {!isLoading && filteredPosts.length === 0 && (
@@ -2247,7 +2247,7 @@ export default function CoffeeTalk() {
       </PullToRefresh>
 
       {/* Write Post Speed Dial FAB */}
-      <div className="fixed bottom-[90px] inset-x-0 mx-auto w-full max-w-md z-50 flex flex-col items-end gap-3 px-4 pointer-events-none">
+      <div className="fixed bottom-[90px] inset-x-0 mx-auto w-full max-w-md md:max-w-2xl z-50 flex flex-col items-end gap-3 px-4 pointer-events-none">
           {isFabOpen && (
               <>
                   <div 
