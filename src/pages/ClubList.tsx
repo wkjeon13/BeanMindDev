@@ -397,7 +397,7 @@ export default function ClubList() {
                                         onClick={() => setIsRecruitingFilter(!isRecruitingFilter)}
                                         className={`shrink-0 px-2 py-1 mr-0.5 rounded-full text-[11px] font-bold border transition-colors ${isRecruitingFilter ? 'bg-amber-500/20 text-amber-500 border-amber-500/50' : 'bg-transparent text-espresso-400 border-espresso-800 hover:border-espresso-600'}`}
                                     >
-                                        {t('club_list.filter_recruiting', '紐⑥쭛以?)}
+                                        {t('club_list.filter_recruiting', '모집중')}
                                     </button>
                                     <button onClick={() => setIsSearchOpen(true)} className="p-2 hover:bg-espresso-800 rounded-full transition-colors text-espresso-200">
                                         <Search size={20} />
@@ -608,6 +608,7 @@ export default function ClubList() {
         </div>
     );
 }
+
 
 
 
