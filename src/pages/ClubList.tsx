@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, Users, Plus, Lock, Globe, Search, RefreshCw, Image as ImageIcon, MapPin, X } from 'lucide-react';
 import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
@@ -50,7 +50,7 @@ export default function ClubList() {
         const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
         if (files.length > 10) {
-            alert('최대 10장까지만 첨부할 수 있습니다.');
+            alert('理쒕? 10?κ퉴吏留?泥⑤??????덉뒿?덈떎.');
             return;
         }
 
@@ -263,10 +263,10 @@ export default function ClubList() {
                 navigate(`/clubs/${newClub.id}`);
             } else {
                 const err = await res.json();
-                alert(err.error || '모임 생성 실패');
+                alert(err.error || '紐⑥엫 ?앹꽦 ?ㅽ뙣');
             }
         } catch(e) {
-            alert('모임 생성 중 오류가 발생했습니다.');
+            alert('紐⑥엫 ?앹꽦 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.');
         } finally {
             setIsSubmitting(false);
         }
@@ -317,36 +317,36 @@ export default function ClubList() {
                         {club.name}
                     </h3>
                 </div>
-                <p className="text-[13px] text-espresso-300 line-clamp-1 mb-2">{club.isDeleted ? '모임장에 의해 폐쇄된 소모임입니다.' : club.description}</p>
+                <p className="text-[13px] text-espresso-300 line-clamp-1 mb-2">{club.isDeleted ? '紐⑥엫?μ뿉 ?섑빐 ?먯뇙???뚮え?꾩엯?덈떎.' : club.description}</p>
                 <div className="flex items-center gap-1.5 text-[11px] font-medium mb-1 flex-nowrap overflow-x-auto hide-scrollbar pb-1">
                     {club.isDeleted ? (
-                        <span className="px-2 py-0.5 bg-red-500/20 text-red-500 border border-red-500/30 rounded-full w-fit flex flex-row items-center gap-1 font-bold">
-                            ❌ 폐쇄됨
+                        <span className="px-2 py-0.5 bg-red-500/20 text-red-500 border border-red-500/30 rounded-full w-fit flex flex-row shrink-0 whitespace-nowrap items-center gap-1 font-bold">
+                            ???먯뇙??
                         </span>
                     ) : isRecruiting ? (
-                        <span className="px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/50 rounded-full w-fit flex flex-row items-center gap-1">
+                        <span className="px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/50 rounded-full w-fit flex flex-row shrink-0 whitespace-nowrap items-center gap-1">
                             {t('club_list.recruiting')} {deadlineStr && `( ~${deadlineStr} )`}
                         </span>
                     ) : (
-                        <span className="px-2 py-0.5 bg-espresso-800 text-espresso-400 border border-espresso-700/50 rounded-full w-fit flex flex-row items-center gap-1">
+                        <span className="px-2 py-0.5 bg-espresso-800 text-espresso-400 border border-espresso-700/50 rounded-full w-fit flex flex-row shrink-0 whitespace-nowrap items-center gap-1">
                             {t('club_list.recruitment_closed')}
                         </span>
                     )}
-                    <span className="px-2 py-0.5 bg-espresso-950 rounded-full w-fit text-amber-500/80 border border-amber-900/50 flex flex-row items-center gap-1">
+                    <span className="px-2 py-0.5 bg-espresso-950 rounded-full w-fit text-amber-500/80 border border-amber-900/50 flex flex-row items-center gap-1 shrink-0 whitespace-nowrap">
                         <Users size={12} /> {club.memberCount || 0}{t('club_list.unit_person')}
                     </span>
                     {club.locationName && (
-                        <span className="px-2 py-0.5 bg-espresso-900 rounded-full text-espresso-300 border border-espresso-800 flex items-center gap-1">
+                        <span className="px-2 py-0.5 bg-espresso-900 rounded-full text-espresso-300 border shrink-0 whitespace-nowrap border-espresso-800 flex items-center gap-1">
                              <MapPin size={10} /> {club.locationName}
                         </span>
                     )}
                     {club.owner?.nickname && (
-                        <span className="px-2 py-0.5 bg-espresso-900 rounded-full text-espresso-300 border border-espresso-800">
+                        <span className="px-2 py-0.5 bg-espresso-900 rounded-full text-espresso-300 border shrink-0 whitespace-nowrap border-espresso-800">
                              {t('club_list.lbl_owner')}: {club.owner.nickname}
                         </span>
                     )}
                     {actualPendingCount > 0 && (
-                        <span className="px-2 py-0.5 bg-red-500/20 text-red-500 border border-red-500/50 rounded-full font-bold ml-auto flex items-center gap-1 animate-pulse">
+                        <span className="px-2 py-0.5 bg-red-500/20 text-red-500 border border-red-500/50 rounded-full font-bold ml-auto flex items-center gap-1 animate-pulse shrink-0 whitespace-nowrap">
                             <span className="w-1.5 h-1.5 bg-red-500 rounded-full"/> {t('club_list.lbl_pending')} {actualPendingCount}{t('club_list.unit_person')}
                         </span>
                     )}
@@ -397,7 +397,7 @@ export default function ClubList() {
                                         onClick={() => setIsRecruitingFilter(!isRecruitingFilter)}
                                         className={`shrink-0 px-2 py-1 mr-0.5 rounded-full text-[11px] font-bold border transition-colors ${isRecruitingFilter ? 'bg-amber-500/20 text-amber-500 border-amber-500/50' : 'bg-transparent text-espresso-400 border-espresso-800 hover:border-espresso-600'}`}
                                     >
-                                        {t('club_list.filter_recruiting', '모집중')}
+                                        {t('club_list.filter_recruiting', '紐⑥쭛以?)}
                                     </button>
                                     <button onClick={() => setIsSearchOpen(true)} className="p-2 hover:bg-espresso-800 rounded-full transition-colors text-espresso-200">
                                         <Search size={20} />
@@ -472,7 +472,7 @@ export default function ClubList() {
                         allClubs.map((club, index) => renderClubCard(club, index))
                     ) : (
                         <div className="text-center mt-20 text-espresso-300 text-sm">
-                            새로운 소모임이 없습니다.
+                            ?덈줈???뚮え?꾩씠 ?놁뒿?덈떎.
                         </div>
                     )
                 )}
@@ -608,3 +608,6 @@ export default function ClubList() {
         </div>
     );
 }
+
+
+
