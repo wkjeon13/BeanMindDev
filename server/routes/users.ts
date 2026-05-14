@@ -937,7 +937,22 @@ router.get('/checkins', authenticateToken, async (req: any, res: any) => {
             },
             orderBy: { createdAt: 'desc' }
         });
-        res.status(200).json(checkins);
+        
+        const decryptedCheckins = checkins.map(c => {
+            let safeAddress = c.store.address;
+            try {
+                if (safeAddress) safeAddress = decryptPII(safeAddress);
+            } catch (e) {}
+            return {
+                ...c,
+                store: {
+                    ...c.store,
+                    address: safeAddress
+                }
+            };
+        });
+        
+        res.status(200).json(decryptedCheckins);
     } catch (error) {
         console.error("Fetch checkins error:", error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });

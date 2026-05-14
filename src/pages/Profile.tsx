@@ -1695,7 +1695,13 @@ export default function Profile() {
                                         // Use same fallback mapping logic as main map
                                         let heroImage = store?.markerImageUrl || store?.mainImageUrl;
                                         if (heroImage?.startsWith('/mock-bucket')) heroImage = 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800';
-                                        const imageUrl = heroImage || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=40&w=200';
+                                        
+                                        let finalHeroImage = heroImage;
+                                        if (finalHeroImage && finalHeroImage.startsWith('/') && !finalHeroImage.startsWith('http')) {
+                                            finalHeroImage = `${API_BASE}${finalHeroImage}`;
+                                        }
+                                        
+                                        const imageUrl = finalHeroImage || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=40&w=200';
                                         
                                         return (
                                             <div key={checkin.id || idx} className="relative aspect-square rounded-[1.5rem] bg-espresso-800 border-2 border-espresso-700 overflow-hidden shadow-lg group pointer-events-auto cursor-pointer active:scale-95 transition-transform" onClick={() => navigate('/map', { state: { targetShopId: store?.id, targetLat: store?.lat, targetLng: store?.lng, targetName: store?.name } })}>
