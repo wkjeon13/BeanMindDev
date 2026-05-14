@@ -332,8 +332,8 @@ export default function App() {
   };
 
   return (
-    <div className="flex-1 w-full bg-espresso-950 overflow-hidden flex flex-col text-espresso-50 font-sans relative selection:bg-amber-900 selection:text-cyan-100">
-      <div className="flex-1 w-full max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative flex flex-col bg-espresso-950 overflow-hidden shadow-2xl shadow-black/40">
+    <div className="flex-1 min-h-0 w-full bg-espresso-950 overflow-hidden flex flex-col text-espresso-50 font-sans relative selection:bg-amber-900 selection:text-cyan-100">
+      <div className="flex-1 min-h-0 w-full max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative flex flex-col bg-espresso-950 overflow-hidden shadow-2xl shadow-black/40">
 
         
         {/* Dynamic BrewQuiz Background (Steps 1-3) */}
@@ -409,7 +409,7 @@ export default function App() {
                       return (
                         <button key={time} onClick={() => setPrefs({...prefs, timeOfDay: time as any})}
                           className={`shrink-0 flex flex-col items-center justify-center gap-2 max-w-[70px] flex-1 group transition-opacity ${isSel ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                          <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
+                          <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
                               <span className={`transition-transform ${isSel ? 'text-amber-500 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'text-espresso-100 group-hover:scale-110'}`}>{iconMap[time]}</span>
                           </div>
                           <span className={`text-[12px] uppercase tracking-wider text-center ${isSel ? 'text-amber-500 font-bold' : 'text-espresso-200 font-semibold'}`}>{t(`curator.t_${time.toLowerCase()}`)}</span>
@@ -428,7 +428,7 @@ export default function App() {
                       return (
                         <button key={weather} onClick={() => setPrefs({...prefs, weather: weather as any})}
                           className={`shrink-0 snap-center flex flex-col items-center justify-center gap-2 w-[70px] group transition-opacity ${isSel ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                          <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
+                          <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
                               <span className={`transition-transform ${isSel ? 'text-amber-500 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'text-espresso-100 group-hover:scale-110'}`}>{iconMap[weather]}</span>
                           </div>
                           <span className={`text-[12px] uppercase tracking-wider text-center ${isSel ? 'text-amber-500 font-bold' : 'text-espresso-200 font-semibold'}`}>{t(`curator.w_${weather.toLowerCase()}`)}</span>
@@ -447,7 +447,7 @@ export default function App() {
                       return (
                         <button key={cond} onClick={() => setPrefs({...prefs, condition: cond as any})}
                           className={`shrink-0 flex flex-col items-center justify-center gap-2 max-w-[70px] flex-1 group transition-opacity ${isSel ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                          <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
+                          <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
                               <span className={`transition-transform ${isSel ? 'text-amber-500 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'text-espresso-100 group-hover:scale-110'}`}>{iconMap[cond]}</span>
                           </div>
                           <span className={`text-[12px] uppercase tracking-wider text-center ${isSel ? 'text-amber-500 font-bold' : 'text-espresso-200 font-semibold'}`}>{t(`curator.c_${cond.toLowerCase()}`)}</span>
@@ -467,7 +467,7 @@ export default function App() {
                       return (
                         <button key={h} onClick={() => setPrefs({...prefs, healthStatus: h as any})}
                           className={`shrink-0 snap-center flex flex-col items-center justify-center gap-2 w-[125px] group transition-opacity ${isSel ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                          <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
+                          <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
                               <span className={`transition-transform ${isSel ? 'text-amber-500 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'text-espresso-100 group-hover:scale-110'}`}>{iconMap[h]}</span>
                           </div>
                           <span className={`text-[11px] sm:text-[12px] uppercase tracking-wider text-center px-1 break-words whitespace-normal leading-tight ${isSel ? 'text-amber-500 font-bold' : 'text-espresso-200 font-semibold'}`}>{t(`curator.${labelMap[h]}`)}</span>
@@ -484,7 +484,7 @@ export default function App() {
                       return (
                         <button key={item.v} onClick={() => setPrefs({...prefs, experienceLevel: item.v as any})}
                           className={`flex flex-col items-center justify-center gap-2 flex-1 group transition-opacity ${isSel ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                          <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
+                          <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
                               <span className={`transition-transform ${isSel ? 'text-amber-500 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'text-espresso-100 group-hover:scale-110'}`}>{item.i}</span>
                           </div>
                           <span className={`text-[12px] uppercase tracking-wider text-center px-1 break-keep leading-tight ${isSel ? 'text-amber-500 font-bold' : 'text-espresso-200 font-semibold'}`}>{t(`curator.${item.l}`)}</span>
@@ -507,7 +507,7 @@ export default function App() {
                       return (
                         <button key={item.v} onClick={() => setPrefs({...prefs, base: item.v as any})}
                           className={`flex flex-col items-center justify-center gap-3 w-[100px] group transition-opacity ${isSel ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                          <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
+                          <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
                               <span className={`transition-transform ${isSel ? 'text-amber-500 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'text-espresso-100 group-hover:scale-110'}`}>{item.i}</span>
                           </div>
                           <span className={`text-[12px] uppercase tracking-widest text-center whitespace-pre-line ${isSel ? 'text-amber-500 font-bold' : 'text-espresso-200 font-semibold'}`}>{t(`curator.${item.l}`).replace('/', '\n')}</span>
@@ -525,7 +525,7 @@ export default function App() {
                       return (
                         <button key={item.v} onClick={() => setPrefs({...prefs, milkPreference: item.v as any})}
                           className={`flex flex-col items-center justify-center gap-2 flex-1 group transition-opacity ${isSel ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                          <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
+                          <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
                               <span className={`transition-transform ${isSel ? 'text-amber-500 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'text-espresso-100 group-hover:scale-110'}`}>{item.i}</span>
                           </div>
                           <span className={`text-[12px] uppercase tracking-wider text-center px-1 break-keep leading-tight ${isSel ? 'text-amber-500 font-bold' : 'text-espresso-200 font-semibold'}`}>{t(`curator.${item.l}`)}</span>
@@ -575,7 +575,7 @@ export default function App() {
                       return (
                         <button key={item.v} onClick={() => setPrefs({...prefs, roastLevel: item.v as any})}
                           className={`flex flex-col items-center justify-center gap-2 flex-1 group transition-opacity ${isSel ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                          <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
+                          <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
                               <span className={`transition-transform ${isSel ? 'text-amber-500 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'text-espresso-100 group-hover:scale-110'}`}>{item.i}</span>
                           </div>
                           <span className={`text-[12px] uppercase tracking-wider text-center px-1 break-keep leading-tight ${isSel ? 'text-amber-500 font-bold' : 'text-espresso-200 font-semibold'}`}>{t(`curator.${item.l}`)}</span>
@@ -593,7 +593,7 @@ export default function App() {
                       return (
                         <button key={item.v} onClick={() => setPrefs({...prefs, caffeine: item.v as any})}
                           className={`flex flex-col items-center justify-center gap-3 w-[100px] group transition-opacity ${isSel ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                          <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
+                          <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
                               <span className={`transition-transform ${isSel ? 'text-amber-500 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'text-espresso-100 group-hover:scale-110'}`}>{item.i}</span>
                           </div>
                           <span className={`text-[12px] uppercase tracking-widest text-center ${isSel ? 'text-amber-500 font-bold' : 'text-espresso-200 font-semibold'}`}>{t(`curator.${item.l}`)}</span>
@@ -629,7 +629,7 @@ export default function App() {
                             setPrefs({...prefs, flavorNotes: newNotes});
                           }}
                           className={`shrink-0 snap-center flex flex-col items-center justify-center gap-2 w-[70px] group transition-opacity ${isSel ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                          <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
+                          <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
                               <span className={`transition-transform ${isSel ? 'text-amber-500 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'text-espresso-100 group-hover:scale-110'}`}>{f.i}</span>
                           </div>
                           <span className={`text-[12px] uppercase tracking-wider text-center ${isSel ? 'text-amber-500 font-bold' : 'text-espresso-200 font-semibold'}`}>{t(`curator.${f.l}`)}</span>
@@ -647,7 +647,7 @@ export default function App() {
                       return (
                         <button key={e.v} onClick={() => setPrefs({...prefs, equipment: e.v as any})}
                           className={`shrink-0 snap-center flex flex-col items-center justify-center gap-2 w-[74px] group transition-opacity ${isSel ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                          <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
+                          <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
                               <span className={`transition-transform ${isSel ? 'text-amber-500 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'text-espresso-100 group-hover:scale-110'}`}>{e.i}</span>
                           </div>
                           <span className={`text-[12px] uppercase tracking-wider text-center leading-tight ${isSel ? 'text-amber-500 font-bold' : 'text-espresso-200 font-semibold'}`}>{t(`curator.${e.l}`)}</span>
@@ -672,7 +672,7 @@ export default function App() {
                       return (
                         <button key={item.v} onClick={() => setPrefs({...prefs, music: item.v as any})}
                           className={`shrink-0 snap-center flex flex-col items-center justify-center gap-2 w-[70px] group transition-opacity ${isSel ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                          <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
+                          <div className={`w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
                               <span className={`transition-transform ${isSel ? 'text-amber-500 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'text-espresso-100 group-hover:scale-110'}`}>{item.i}</span>
                           </div>
                           <span className={`text-[12px] uppercase tracking-wider text-center ${isSel ? 'text-amber-500 font-bold' : 'text-espresso-200 font-semibold'}`}>{item.l === 'm_any' ? t(`curator.${item.l}`) : item.v.toUpperCase()}</span>
@@ -690,7 +690,7 @@ export default function App() {
                       return (
                         <button key={item.v} onClick={() => setPrefs({...prefs, budget: item.v as any})}
                           className={`flex flex-col items-center justify-center gap-3 w-[100px] group transition-opacity ${isSel ? 'opacity-100' : 'opacity-60 hover:opacity-100'}`}>
-                          <div className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
+                          <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center transition-all duration-300 ${isSel ? 'bg-amber-500/10 border-[1.5px] border-amber-500 shadow-[0_0_15px_rgba(34,211,238,0.3)]' : 'bg-transparent border-[1.5px] border-transparent'}`}>
                               <span className={`transition-transform ${isSel ? 'text-amber-500 scale-110 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'text-espresso-100 group-hover:scale-110'}`}>{item.i}</span>
                           </div>
                           <span className={`text-[12px] uppercase tracking-widest text-center break-keep leading-tight ${isSel ? 'text-amber-500 font-bold' : 'text-espresso-200 font-semibold'}`}>{t(`curator.${item.l}`)}</span>
