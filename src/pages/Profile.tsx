@@ -1909,14 +1909,6 @@ export default function Profile() {
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-espresso-950 px-4">
                                 <span className="text-amber-500/80 font-bold text-[11px] tracking-widest uppercase flex items-center gap-1.5"><Store size={12} /> Business Center</span>
                             </div>
-                            
-                            {/* Ad Performance Dashboard */}
-                            <HostAdDashboard filterScope="ACTIVE" />
-
-                            {/* Expired Ads */}
-                            <div className="mt-4">
-                                <HostAdDashboard filterScope="EXPIRED" hideStats={true} />
-                            </div>
 
                             {/* Manage Existing Shop */}
                             <div className="bg-espresso-900 rounded-2xl border border-espresso-700/50 overflow-hidden mt-4 shadow-sm group">
