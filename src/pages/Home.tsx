@@ -115,7 +115,7 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
 
     if (!todayPairings || !Array.isArray(todayPairings) || todayPairings.length === 0) {
         return (
-            <section className="pt-6 pb-2 border-t border-espresso-800 bg-gradient-to-b from-espresso-950 to-[#160d08] w-full lg:w-1/2 xl:w-1/3 lg:px-2 flex flex-col">
+            <section className="pt-6 pb-2 border-t border-espresso-800 bg-gradient-to-b from-espresso-950 to-[#160d08] w-full flex flex-col">
                 <div className="px-4 flex items-center justify-between mb-4">
                     <div>
                         <h3 className="text-[17px] font-bold flex items-center gap-2 text-espresso-50">
@@ -135,7 +135,7 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
     const activeItem = activeDessert !== null ? todayPairings[activeDessert] : null;
 
     return (
-        <section className="pt-6 pb-2 border-t border-espresso-800 bg-gradient-to-b from-espresso-950 to-[#160d08] w-full lg:w-1/2 xl:w-1/3 lg:px-2 flex flex-col">
+        <section className="pt-6 pb-2 border-t border-espresso-800 bg-gradient-to-b from-espresso-950 to-[#160d08] w-full flex flex-col">
             <div className="px-4 flex items-center justify-between mb-4">
                 <div>
                     <h3 className="text-[17px] font-bold flex items-center gap-2 text-espresso-50">
@@ -608,7 +608,7 @@ export default function HomeDashboard() {
       </header>
 
       <PullToRefresh onRefresh={async () => { await fetchHomeData(false); }} className="flex-1 overflow-y-auto pb-24">
-          <div className="w-full max-w-2xl lg:max-w-7xl mx-auto flex flex-col lg:flex-row lg:flex-wrap lg:-mx-2">
+          <div className="w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto flex flex-col pt-4">
           {layoutConfigs.filter(l => l.isVisible).sort((a,b) => a.order - b.order).map(config => {
 
 
@@ -815,7 +815,7 @@ export default function HomeDashboard() {
       
       if (config.id === 'native_ad' && homeNativeAd && homeNativeAd.fallback !== 'ADMOB') {
           return (
-              <section key={config.id} className="py-2 w-full lg:w-1/2 xl:w-1/3 lg:px-2 flex flex-col">
+              <section key={config.id} className="py-2 w-full flex flex-col">
                   <div className="px-6 mb-2">
                       <div className="flex items-center gap-2 mb-1">
                           <span className="text-[10px] font-bold text-amber-500 uppercase tracking-wider border border-amber-500/30 px-1.5 py-0.5 rounded-sm bg-amber-500/10">Sponsored</span>
@@ -832,7 +832,7 @@ export default function HomeDashboard() {
       }
 
       if (config.id === 'hot_feeds') return personalizedData && (
-          <section key={config.id} className="py-2 mt-1 w-full lg:w-1/2 xl:w-1/3 lg:px-2 flex flex-col">
+          <section key={config.id} className="py-2 mt-1 w-full flex flex-col">
              <div className="px-6 flex items-center justify-between mb-3">
                <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
                  <Flame className="text-amber-500 w-4 h-4" /> {t('home.title_hot_feeds', '인기 커피톡')}
@@ -1006,7 +1006,7 @@ export default function HomeDashboard() {
       );
 
             if (config.id === 'my_clubs') return isLoggedIn && personalizedData && personalizedData.myClubFeeds && personalizedData.myClubFeeds.length > 0 && (
-              <section key={config.id} className="py-2 mt-1 w-full lg:w-1/2 xl:w-1/3 lg:px-2 flex flex-col">
+              <section key={config.id} className="py-2 mt-1 w-full flex flex-col">
                  <div className="px-6 flex items-center justify-between mb-3">
                    <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
                      <Users className="text-emerald-500 w-4 h-4" /> 
@@ -1053,7 +1053,7 @@ export default function HomeDashboard() {
           // Remove fragments for mapping
 
           if (config.id === 'shorts') return (
-        <section key={config.id} className="py-2 w-full lg:w-1/2 xl:w-1/3 lg:px-2 flex flex-col">
+        <section key={config.id} className="py-2 w-full flex flex-col">
           <div className="px-4 flex items-center justify-between mb-4 mt-2">
             <h3 className="text-[22px] font-serif tracking-tight text-white flex items-center gap-2">
               <Video className="text-amber-500 w-5 h-5" /> {t('home.title_shorts', '1분 커피 탐험')}
@@ -1104,7 +1104,7 @@ export default function HomeDashboard() {
   );
 
           if (config.id === 'trending') return (
-        <section key={config.id} className="py-2 mt-1 w-full lg:w-1/2 xl:w-1/3 lg:px-2 flex flex-col">
+        <section key={config.id} className="py-2 mt-1 w-full flex flex-col">
           <div className="px-6 flex items-center justify-between mb-3">
             <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
               <MapPin className="text-amber-500 w-4 h-4" /> {t('home.title_trending_cafes', '요즘 뜨는 성지')}
@@ -1153,7 +1153,7 @@ export default function HomeDashboard() {
           if (config.id === 'coffee_pairing') return <CoffeePairingSection key={config.id} todayPairings={personalizedData?.todayPairings} userPairings={personalizedData?.userPairings} />;
 
           if (config.id === 'recommended_clubs') return (
-        <section key={config.id} className="pt-2 pb-4 w-full lg:w-1/2 xl:w-1/3 lg:px-2 flex flex-col">
+        <section key={config.id} className="pt-2 pb-4 w-full flex flex-col">
           <div className="px-4 flex items-center justify-between mb-3">
             <h3 className="text-[16px] font-bold flex items-center gap-1.5">
               <Users className="text-amber-500 w-4 h-4" /> {t('home.title_recommended_clubs', '우리 동네 추천 크루')}
