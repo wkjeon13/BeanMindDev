@@ -83,7 +83,7 @@ export default function RegisterShop() {
         primaryCoffeeType: 'GENERAL',
         hasDecaf: false, hasOatMilk: false,
         hasParking: false, hasWifi: false, hasPetFriendly: false, hasPowerOutlets: false,
-        businessNumber: '', ownerName: '', settlementAccount: '',
+
         lat: 37.5665, lng: 126.9780 // Default to Seoul City Hall
     });
 
@@ -443,23 +443,7 @@ export default function RegisterShop() {
                                         <input type="url" placeholder={t('register_shop.ph_website')} className="w-full bg-espresso-950 border border-coffee-100 h-14 px-4 rounded-xl focus:ring-2 focus:ring-coffee-700 outline-none text-[15px] font-bold text-espresso-50" value={shopData.websiteUrl} onChange={e => setShopData({ ...shopData, websiteUrl: e.target.value })} />
                                     </div>
 
-                                    {/* Business Profile Section */}
-                                    <div className="mt-4 border border-coffee-100 rounded-xl overflow-hidden bg-espresso-900 px-4 py-4 space-y-4">
-                                        <h3 className="font-bold text-[14px] text-espresso-100 border-b border-coffee-100 pb-2">{t('register_shop.biz_info_title', '기본 비즈니스 정보 (프리미엄 정산용)')}</h3>
-                                        <div>
-                                            <label className="block text-[12px] font-bold text-coffee-600 mb-1">{t('register_shop.label_owner_name', '대표자 성명')}</label>
-                                            <input type="text" placeholder={t('register_shop.ph_owner_name')} className="w-full bg-espresso-950 border border-coffee-100 h-12 px-3 rounded-lg focus:ring-2 focus:ring-coffee-700 outline-none text-[14px] font-bold text-espresso-50" value={shopData.ownerName} onChange={e => setShopData({ ...shopData, ownerName: e.target.value })} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[12px] font-bold text-coffee-600 mb-1">{t('register_shop.label_biz_number', '사업자등록번호')}</label>
-                                            <input type="text" placeholder={t('register_shop.ph_biz_number')} className="w-full bg-espresso-950 border border-coffee-100 h-12 px-3 rounded-lg focus:ring-2 focus:ring-coffee-700 outline-none text-[14px] font-bold text-espresso-50" value={shopData.businessNumber} onChange={e => setShopData({ ...shopData, businessNumber: e.target.value })} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[12px] font-bold text-coffee-600 mb-1">{t('register_shop.label_account', '정산 대금 수령 계좌')}</label>
-                                            <input type="text" placeholder={t('register_shop.ph_account')} className="w-full bg-espresso-950 border border-coffee-100 h-12 px-3 rounded-lg focus:ring-2 focus:ring-coffee-700 outline-none text-[14px] font-bold text-espresso-50" value={shopData.settlementAccount} onChange={e => setShopData({ ...shopData, settlementAccount: e.target.value })} />
-                                            <p className="text-[11px] text-coffee-400 mt-1">{t('register_shop.account_notice', '※ 향후 커피쿠폰 판매 대금 정산 시 사용됩니다.')}</p>
-                                        </div>
-                                    </div>
+
 
                                 </div>
                             </motion.div>
@@ -765,12 +749,7 @@ export default function RegisterShop() {
                                         <p className="text-[13px] text-espresso-200"><span className="font-bold text-espresso-300 inline-block w-16">{t('register_shop.rv_website', '웹사이트')}</span> {shopData.websiteUrl || '-'}</p>
                                     </div>
 
-                                    <div className="bg-espresso-900 p-4 rounded-xl border border-coffee-100 shadow-sm space-y-2">
-                                        <h3 className="font-bold text-espresso-50 border-b border-coffee-100 pb-2 mb-2">{t('register_shop.review_biz_info', '비즈니스 정보')}</h3>
-                                        <p className="text-[13px] text-espresso-200"><span className="font-bold text-espresso-300 inline-block w-24">{t('register_shop.rv_owner', '대표자')}</span> {shopData.ownerName || '-'}</p>
-                                        <p className="text-[13px] text-espresso-200"><span className="font-bold text-espresso-300 inline-block w-24">{t('register_shop.rv_biz_num', '사업자번호')}</span> {shopData.businessNumber || '-'}</p>
-                                        <p className="text-[13px] text-espresso-200"><span className="font-bold text-espresso-300 inline-block w-24">{t('register_shop.rv_account', '정산 계좌')}</span> {shopData.settlementAccount || '-'}</p>
-                                    </div>
+
 
                                     <div className="bg-espresso-900 p-4 rounded-xl border border-coffee-100 shadow-sm space-y-2">
                                         <h3 className="font-bold text-espresso-50 border-b border-coffee-100 pb-2 mb-2">{t('register_shop.review_intro', '소개')}</h3>

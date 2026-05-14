@@ -62,7 +62,6 @@ export default function ManageShop() {
         hasDecaf: false, hasOatMilk: false,
         hasParking: false, hasWifi: false, hasPetFriendly: false, hasPowerOutlets: false,
         lat: 37.5665, lng: 126.9780,
-        businessNumber: '', ownerName: '', settlementAccount: '',
         beanOrigin: '', beanRoastLevel: '', beanNotes: ''
     });
     const [mediaFiles, setMediaFiles] = useState<{ url: string, file?: File }[]>([]);
@@ -155,9 +154,6 @@ export default function ManageShop() {
             hasPowerOutlets: Boolean(shop.hasPowerOutlets),
             lat: shop.lat || 37.5665,
             lng: shop.lng || 126.9780,
-            businessNumber: shop.businessNumber || '',
-            ownerName: shop.ownerName || '',
-            settlementAccount: shop.settlementAccount || '',
             beanOrigin: shop.beanOrigin || '',
             beanRoastLevel: shop.beanRoastLevel || '',
             beanNotes: shop.beanNotes || ''
@@ -682,23 +678,7 @@ export default function ManageShop() {
                                         <textarea value={editData.longDesc} onChange={e => setEditData({ ...editData, longDesc: e.target.value })} className="w-full bg-espresso-900 border border-espresso-600 p-4 rounded-xl focus:border-coffee-700 focus:ring-2 focus:ring-coffee-700/20 outline-none text-[15px] font-medium text-espresso-50 min-h-[120px] resize-none shadow-sm transition-all" />
                                     </div>
 
-                                    {/* Business Profile Section */}
-                                    <div className="mt-4 border border-coffee-100 rounded-xl overflow-hidden bg-espresso-900 px-4 py-4 space-y-4">
-                                        <h3 className="font-bold text-[14px] text-espresso-100 border-b border-coffee-100 pb-2">{t('register_shop.biz_info_title', '기본 비즈니스 정보 (프리미엄 정산용)')}</h3>
-                                        <div>
-                                            <label className="block text-[12px] font-bold text-coffee-600 mb-1">{t('register_shop.label_owner_name', '대표자 성명')}</label>
-                                            <input type="text" placeholder={t('manage_shop.ph_owner_name', '예: 홍길동')} className="w-full bg-espresso-950 border border-coffee-100 h-12 px-3 rounded-lg focus:ring-2 focus:ring-coffee-700 outline-none text-[14px] font-bold text-espresso-50" value={editData.ownerName} onChange={e => setEditData({ ...editData, ownerName: e.target.value })} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[12px] font-bold text-coffee-600 mb-1">{t('register_shop.label_biz_number', '사업자등록번호')}</label>
-                                            <input type="text" placeholder={t('manage_shop.ph_biz_number', '예: 123-45-67890')} className="w-full bg-espresso-950 border border-coffee-100 h-12 px-3 rounded-lg focus:ring-2 focus:ring-coffee-700 outline-none text-[14px] font-bold text-espresso-50" value={editData.businessNumber} onChange={e => setEditData({ ...editData, businessNumber: e.target.value })} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-[12px] font-bold text-coffee-600 mb-1">{t('register_shop.label_account', '정산 대금 수령 계좌')}</label>
-                                            <input type="text" placeholder={t('manage_shop.ph_account', '예: 국민은행 123456-78-901234')} className="w-full bg-espresso-950 border border-coffee-100 h-12 px-3 rounded-lg focus:ring-2 focus:ring-coffee-700 outline-none text-[14px] font-bold text-espresso-50" value={editData.settlementAccount} onChange={e => setEditData({ ...editData, settlementAccount: e.target.value })} />
-                                            <p className="text-[11px] text-coffee-400 mt-1">{t('register_shop.account_notice', '※ 향후 커피쿠폰 판매 대금 정산 시 사용됩니다.')}</p>
-                                        </div>
-                                    </div>
+
 
                                     <div className="pt-2">
                                         <label className="block text-[13px] font-bold text-coffee-600 mb-1.5 ml-1">{t('register_shop.label_coffee_type', '매장 주력 커피 유형')}</label>
