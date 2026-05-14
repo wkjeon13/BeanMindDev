@@ -281,7 +281,7 @@ export default function ClubList() {
 
     const renderClubCard = (club: any, index: number) => {
         const myClubData = myClubsMap.get(club.id);
-        const injectAd = index > 0 && (index + 1) % 5 === 0 && clubAd;
+        const injectAd = index > 0 && (index + 1) % 5 === 0 && clubAd && clubAd.fallback !== 'ADMOB';
         const actualPendingCount = club.pendingApplicantsCount ?? myClubData?.pendingApplicantsCount ?? 0;
         const isRecruiting = club.isRecruiting ?? true;
         const deadlineStr = club.recruitDeadline ? new Date(club.recruitDeadline).toLocaleDateString() : '';
@@ -451,7 +451,7 @@ export default function ClubList() {
             </header>
 
             <PullToRefresh onRefresh={async () => { await fetchClubs(true); }} className="flex-1 px-4 py-4 space-y-3 pb-24">
-                {!isLoading && clubPremiumAd && (
+                {!isLoading && clubPremiumAd && clubPremiumAd.fallback !== 'ADMOB' && (
                     <div className="mb-4">
                         <FeedAdCard adData={clubPremiumAd.ad || clubPremiumAd} />
                     </div>
