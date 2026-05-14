@@ -115,18 +115,18 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
 
     if (!todayPairings || !Array.isArray(todayPairings) || todayPairings.length === 0) {
         return (
-            <section className="pt-6 pb-2 border-t border-espresso-800 bg-gradient-to-b from-espresso-950 to-[#160d08]">
+            <section className="pt-6 pb-2 border-t border-espresso-800 bg-gradient-to-b from-espresso-950 to-[#160d08] w-full md:w-1/2 lg:w-1/3 md:px-2 flex flex-col">
                 <div className="px-4 flex items-center justify-between mb-4">
                     <div>
                         <h3 className="text-[17px] font-bold flex items-center gap-2 text-espresso-50">
                             <Sparkles className="text-amber-500 w-4 h-4" /> 
-                            {t('home.title_pairing', '?�늘???�벽???�어�?)}
+                            {t('home.title_pairing', '오늘의 완벽한 페어링')}
                         </h3>
                     </div>
                 </div>
                 <div className="px-4 py-8 text-center text-espresso-400 text-[13px] bg-espresso-900/50 mx-4 rounded-2xl border border-espresso-800 border-dashed">
-                    ?�재 지??�� 추천???�어�??�이?��? ?�습?�다.<br/>
-                    (?�로고침???�거??관리자 ?�이지�??�인?�주?�요)
+                    현재 지역에 추천할 페어링 데이터가 없습니다.<br/>
+                    (새로고침을 하거나 관리자 페이지를 확인해주세요)
                 </div>
             </section>
         );
@@ -135,14 +135,14 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
     const activeItem = activeDessert !== null ? todayPairings[activeDessert] : null;
 
     return (
-        <section className="pt-6 pb-2 border-t border-espresso-800 bg-gradient-to-b from-espresso-950 to-[#160d08]">
+        <section className="pt-6 pb-2 border-t border-espresso-800 bg-gradient-to-b from-espresso-950 to-[#160d08] w-full md:w-1/2 lg:w-1/3 md:px-2 flex flex-col">
             <div className="px-4 flex items-center justify-between mb-4">
                 <div>
                     <h3 className="text-[17px] font-bold flex items-center gap-2 text-espresso-50">
                         <Sparkles className="text-amber-500 w-4 h-4" /> 
-                        {t('home.title_pairing', '?�늘???�벽???�어�?)}
+                        {t('home.title_pairing', '오늘의 완벽한 페어링')}
                     </h3>
-                    <p className="text-[12px] text-espresso-400 mt-1">{t('home.desc_pairing', '지�?먹고 ?��? ?��??��? 골라보세??')}</p>
+                    <p className="text-[12px] text-espresso-400 mt-1">{t('home.desc_pairing', '지금 먹고 싶은 디저트를 골라보세요!')}</p>
                 </div>
             </div>
 
@@ -151,7 +151,7 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
                 {todayPairings.map((item, idx) => {
                     const iconStr = (item && item.icon) ? String(item.icon) : '';
                     const isImageUrl = iconStr.startsWith('/') || iconStr.startsWith('http');
-                    const itemName = (item && item.name) ? item.name : '?��???;
+                    const itemName = (item && item.name) ? item.name : '디저트';
                     return (
                         <button 
                             key={idx}
@@ -166,7 +166,7 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
                                 </>
                             ) : (
                                 <>
-                                    <span className="text-[32px] mb-1 drop-shadow-sm">{iconStr || '?��'}</span>
+                                    <span className="text-[32px] mb-1 drop-shadow-sm">{iconStr || '🍰'}</span>
                                     <span className={`text-[12px] font-black tracking-tight transition-colors ${activeDessert === idx ? 'text-amber-400' : 'text-espresso-200'}`}>{itemName}</span>
                                 </>
                             )}
@@ -189,9 +189,9 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
                                 <Coffee size={24} />
                             </div>
                             <div>
-                                <div className="text-[11px] font-bold text-amber-500 mb-1">{t('home.pairing_recommendation', { name: activeItem.name || '?��??? })}</div>
+                                <div className="text-[11px] font-bold text-amber-500 mb-1">{t('home.pairing_recommendation', { name: activeItem.name || '디저트' })}</div>
                                 <div className="text-[15px] font-black text-espresso-50 mb-1">{activeItem.coffee || '추천 커피'}</div>
-                                <div className="text-[12px] text-espresso-300 line-clamp-2 leading-snug">{activeItem.desc || '?�명???�습?�다.'}</div>
+                                <div className="text-[12px] text-espresso-300 line-clamp-2 leading-snug">{activeItem.desc || '설명이 없습니다.'}</div>
                             </div>
                         </div>
                     </motion.div>
@@ -200,7 +200,7 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
 
             {/* Community Gallery */}
             <div className="px-4 flex items-center justify-between mb-3 mt-2">
-                <h4 className="text-[14px] font-bold text-espresso-200">{t('home.title_user_pairing', '?��??�의 ?�어�?추천')}</h4>
+                <h4 className="text-[14px] font-bold text-espresso-200">{t('home.title_user_pairing', '유저들의 페어링 추천')}</h4>
             </div>
             <div className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
                 {userPairings.map((post) => (
@@ -209,7 +209,7 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
                         <div className="absolute inset-0 bg-gradient-to-t from-[#120a05]/90 via-[#120a05]/30 to-transparent flex flex-col justify-end p-3 pointer-events-none">
                             <span className="text-[12px] font-bold text-espresso-50 leading-tight mb-1 line-clamp-2">{post.content}</span>
                             <div className="flex justify-between items-center w-full">
-                                <span className="text-[10px] text-espresso-300">{post.author?.nickname || '커피?�버'}</span>
+                                <span className="text-[10px] text-espresso-300">{post.author?.nickname || '커피러버'}</span>
                                 <div className="flex items-center gap-1 text-[10px] text-amber-400 font-bold"><Heart size={10} fill="currentColor"/> {post._count?.likes || 0}</div>
                             </div>
                         </div>
@@ -556,12 +556,12 @@ export default function HomeDashboard() {
         });
         
         if (!res.ok) {
-           alert("?�정 ?�?�에 ?�패?�습?�다. ?�시 로그?�해주세??");
+           alert("설정 저장에 실패했습니다. 다시 로그인해주세요.");
            return; // Abort if save failed!
         }
       } catch (error) {
         console.error("Failed to save layout", error);
-        alert("?�정 ?�?�에 ?�패?�습?�다. ?�트?�크�??�인?�주?�요.");
+        alert("설정 저장에 실패했습니다. 네트워크를 확인해주세요.");
         return;
       }
     }
@@ -572,7 +572,7 @@ export default function HomeDashboard() {
     if (globalHomeCache) globalHomeCache.layoutConfigs = newLayout;
   };
 
-  const greetingName = currentUser?.nickname || t('home.guest', '방문??);
+  const greetingName = currentUser?.nickname || t('home.guest', '방문자');
 
   const hiddenSectionIds: string[] = [];
   if (personalizedData) {
@@ -607,8 +607,9 @@ export default function HomeDashboard() {
         </div>
       </header>
 
-      <PullToRefresh onRefresh={async () => { await fetchHomeData(false); }} className="flex-1 overflow-y-auto pb-24 w-full md:max-w-5xl lg:max-w-7xl mx-auto flex flex-col md:flex-row md:flex-wrap md:content-start md:px-4">
-        {layoutConfigs.filter(l => l.isVisible).sort((a,b) => a.order - b.order).map(config => {
+      <PullToRefresh onRefresh={async () => { await fetchHomeData(false); }} className="flex-1 overflow-y-auto pb-24">
+          <div className="w-full md:max-w-5xl lg:max-w-7xl mx-auto flex flex-col md:flex-row md:flex-wrap md:-mx-2">
+          {layoutConfigs.filter(l => l.isVisible).sort((a,b) => a.order - b.order).map(config => {
 
 
   if (config.id === 'hero') {
@@ -633,7 +634,7 @@ export default function HomeDashboard() {
           const displayBtn = isEn && banner.buttonTextEn ? banner.buttonTextEn : banner.buttonText;
 
           return (
-            <section key={config.id} className="w-full">
+            <section key={config.id} className="w-full md:px-2">
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -691,7 +692,7 @@ export default function HomeDashboard() {
 
       // Fallback Hero
       return (
-            <section key={config.id} className="w-full">
+            <section key={config.id} className="w-full md:px-2">
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -724,23 +725,23 @@ export default function HomeDashboard() {
                       {personalizedData?.latestPrescription ? (
                           <>
                               <span className="block text-[12px] text-espresso-200 font-light mb-2 tracking-widest uppercase">
-                                {t('home.hero_title_1', '{{name}}??', { name: greetingName })}
+                                {t('home.hero_title_1', '{{name}}님,', { name: greetingName })}
                               </span>
                               <span className="block text-[22px] font-serif leading-[1.1] tracking-tight text-white/95">
-                                {t('home.lbl_previous_suggestion', '지?�번 추천받으??)}
+                                {t('home.lbl_previous_suggestion', '지난번 추천받으신')}
                               </span>
                               <span className="block text-[22px] font-serif leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white mt-1 truncate max-w-full">
                                 {personalizedData.latestPrescription.beanName}
                               </span>
-                              <span className="block text-[11px] font-light text-espresso-200 mt-2 leading-relaxed max-w-[80%]">{t('home.lbl_ask_experience', '?�떠?�나?? ?�신???�한 ?�로?????�을 ?�안?�니??')}</span>
+                              <span className="block text-[11px] font-light text-espresso-200 mt-2 leading-relaxed max-w-[80%]">{t('home.lbl_ask_experience', '어떠셨나요? 당신을 위한 새로운 한 잔을 제안합니다.')}</span>
                           </>
                       ) : (
                           <>
                               <span className="block text-[12px] text-espresso-200 font-light mb-2 tracking-widest uppercase">
-                                {t('home.hero_title_1', '{{name}}??', { name: greetingName })}
+                                {t('home.hero_title_1', '{{name}}님,', { name: greetingName })}
                               </span>
                               <span className="block text-[24px] font-serif font-medium leading-[1.1] tracking-tight text-white/95">
-                                ?�늘??
+                                오늘의
                               </span>
                               <span className="block text-[24px] font-serif font-medium leading-[1.1] tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-white mt-1">
                                 커피 취향
@@ -766,10 +767,10 @@ export default function HomeDashboard() {
 
         {/* --- PERSONALIZED SECTIONS --- */}
                       if (config.id === 'following') return isLoggedIn && personalizedData && personalizedData.followingFeeds && personalizedData.followingFeeds.length > 0 && (
-              <section key={config.id} className="w-full md:w-1/2 lg:w-1/3 md:px-2 py-2 mt-1">
+              <section key={config.id} className="py-2 mt-1">
                  <div className="px-6 flex items-center justify-between mb-3">
                    <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
-                     <Users className="text-blue-500 w-4 h-4" /> {t('home.title_following_news', '???�웃 & ?�골 ?�식')}
+                     <Users className="text-blue-500 w-4 h-4" /> {t('home.title_following_news', '내 이웃 & 단골 소식')}
                    </h3>
                  </div>
                  <div className="flex gap-4 overflow-x-auto px-6 pb-6 snap-x hide-scrollbar">
@@ -814,7 +815,7 @@ export default function HomeDashboard() {
       
       if (config.id === 'native_ad' && homeNativeAd && homeNativeAd.fallback !== 'ADMOB') {
           return (
-              <section key={config.id} className="w-full md:w-1/2 lg:w-1/3 md:px-2 py-2">
+              <section key={config.id} className="py-2 w-full md:w-1/2 lg:w-1/3 md:px-2 flex flex-col">
                   <div className="px-6 mb-2">
                       <div className="flex items-center gap-2 mb-1">
                           <span className="text-[10px] font-bold text-amber-500 uppercase tracking-wider border border-amber-500/30 px-1.5 py-0.5 rounded-sm bg-amber-500/10">Sponsored</span>
@@ -831,18 +832,18 @@ export default function HomeDashboard() {
       }
 
       if (config.id === 'hot_feeds') return personalizedData && (
-          <section key={config.id} className="w-full md:w-1/2 lg:w-1/3 md:px-2 py-2 mt-1">
+          <section key={config.id} className="py-2 mt-1 w-full md:w-1/2 lg:w-1/3 md:px-2 flex flex-col">
              <div className="px-6 flex items-center justify-between mb-3">
                <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
-                 <Flame className="text-amber-500 w-4 h-4" /> {t('home.title_hot_feeds', '?�기 커피??)}
+                 <Flame className="text-amber-500 w-4 h-4" /> {t('home.title_hot_feeds', '인기 커피톡')}
                </h3>
-               <button onClick={() => navigate('/community', { state: { filter: 'hot_3m' } })} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '?�보�?)}</button>
+               <button onClick={() => navigate('/community', { state: { filter: 'hot_3m' } })} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '더보기')}</button>
              </div>
              <div className="flex gap-3 overflow-x-auto px-4 pb-6 snap-x hide-scrollbar">
                 {(!personalizedData.hotCoffeeTalkFeeds || personalizedData.hotCoffeeTalkFeeds.length === 0) ? (
                     <div className="w-full flex flex-col items-center justify-center py-8 text-[13px] text-espresso-400 bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
                         <Flame size={24} className="mb-2 opacity-50" />
-                        최근 1?�간 ?�기?�는 ?�드가 ?�습?�다.
+                        최근 1달간 인기있는 피드가 없습니다.
                     </div>
                 ) : personalizedData.hotCoffeeTalkFeeds.map((post: any) => (
                   <div 
@@ -881,17 +882,17 @@ export default function HomeDashboard() {
       );
 
       if (config.id === 'new_feeds') return personalizedData && (
-          <section key={config.id} className="w-full md:w-1/2 lg:w-1/3 md:px-2 py-2 mb-2">
+          <section key={config.id} className="py-2 mb-2">
              <div className="px-6 flex items-center justify-between mb-3">
                <h3 className="text-[18px] font-serif tracking-tight text-white flex items-center gap-2">
-                 <Zap className="text-blue-400 w-4 h-4" /> {t('home.title_new_feeds', '최신 ?�드')}
+                 <Zap className="text-blue-400 w-4 h-4" /> {t('home.title_new_feeds', '최신 피드')}
                </h3>
              </div>
              <div className="px-4 space-y-3">
                 {(!personalizedData.newestCoffeeTalkFeeds || personalizedData.newestCoffeeTalkFeeds.length === 0) ? (
                     <div className="w-full flex flex-col items-center justify-center py-6 text-[13px] text-espresso-400 bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
                         <Zap size={24} className="mb-2 opacity-50" />
-                        ?�직 ?�록???�드가 ?�습?�다.
+                        아직 등록된 피드가 없습니다.
                     </div>
                 ) : personalizedData.newestCoffeeTalkFeeds.map((post: any) => (
                   <div 
@@ -920,10 +921,10 @@ export default function HomeDashboard() {
       );
 
       if (config.id === 'taste_match') return isLoggedIn && personalizedData && personalizedData.tasteMatchedFeeds && personalizedData.tasteMatchedFeeds.length > 0 && (
-              <section key={config.id} className="w-full md:w-1/2 lg:w-1/3 md:px-2 py-2 mt-1">
+              <section key={config.id} className="py-2 mt-1">
                  <div className="px-6 flex items-center justify-between mb-3">
                    <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
-                     <Sparkles className="text-amber-500 w-4 h-4" /> {t('home.title_taste_match', '{{name}}??취향 ?��??�드', { name: greetingName })}
+                     <Sparkles className="text-amber-500 w-4 h-4" /> {t('home.title_taste_match', '{{name}}님 취향 저격 피드', { name: greetingName })}
                    </h3>
                  </div>
                  <div className="flex gap-3 overflow-x-auto px-4 pb-6 snap-x hide-scrollbar">
@@ -959,18 +960,18 @@ export default function HomeDashboard() {
             );
 
       if (config.id === 'following') return isLoggedIn && personalizedData && (
-          <section key={config.id} className="w-full md:w-1/2 lg:w-1/3 md:px-2 py-2 mt-1">
+          <section key={config.id} className="py-2 mt-1">
              <div className="px-6 flex items-center justify-between mb-3">
                <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
-                 <Heart className="text-pink-500 w-4 h-4" /> {t('home.title_following', '?�로???�식')}
+                 <Heart className="text-pink-500 w-4 h-4" /> {t('home.title_following', '팔로잉 소식')}
                </h3>
-               <button onClick={() => navigate('/community', { state: { filter: 'following_story' } })} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '?�보�?)}</button>
+               <button onClick={() => navigate('/community', { state: { filter: 'following_story' } })} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '더보기')}</button>
              </div>
              <div className="flex gap-3 overflow-x-auto px-4 pb-6 snap-x hide-scrollbar">
                 {(!personalizedData.followingFeeds || personalizedData.followingFeeds.length === 0) ? (
                     <div className="w-full flex flex-col items-center justify-center py-8 text-[13px] text-espresso-400 bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
                         <Heart size={24} className="mb-2 opacity-50" />
-                        ?�로?�한 ?�용?�의 ?�식???�습?�다.
+                        팔로우한 사용자의 소식이 없습니다.
                     </div>
                 ) : personalizedData.followingFeeds.map((post: any) => (
                   <div 
@@ -1005,13 +1006,13 @@ export default function HomeDashboard() {
       );
 
             if (config.id === 'my_clubs') return isLoggedIn && personalizedData && personalizedData.myClubFeeds && personalizedData.myClubFeeds.length > 0 && (
-              <section key={config.id} className="w-full md:w-1/2 lg:w-1/3 md:px-2 py-2 mt-1">
+              <section key={config.id} className="py-2 mt-1 w-full md:w-1/2 lg:w-1/3 md:px-2 flex flex-col">
                  <div className="px-6 flex items-center justify-between mb-3">
                    <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
                      <Users className="text-emerald-500 w-4 h-4" /> 
-                     ?�의 ?�루 최신 ?�식
+                     나의 크루 최신 소식
                    </h3>
-                   <button onClick={() => navigate('/clubs')} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '?�보�?)}</button>
+                   <button onClick={() => navigate('/clubs')} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '더보기')}</button>
                  </div>
                  
                  <div className="flex gap-4 overflow-x-auto px-6 pb-6 snap-x hide-scrollbar">
@@ -1039,7 +1040,7 @@ export default function HomeDashboard() {
                                )}
                                {post.club?.isRecruiting && (
                                    <span className="text-[10px] font-bold text-white bg-emerald-500 px-2 py-0.5 rounded-full shadow-sm">
-                                       모집�?
+                                       모집중
                                    </span>
                                )}
                            </div>
@@ -1052,10 +1053,10 @@ export default function HomeDashboard() {
           // Remove fragments for mapping
 
           if (config.id === 'shorts') return (
-        <section key={config.id} className="w-full md:w-1/2 lg:w-1/3 md:px-2 py-2">
+        <section key={config.id} className="py-2 w-full md:w-1/2 lg:w-1/3 md:px-2 flex flex-col">
           <div className="px-4 flex items-center justify-between mb-4 mt-2">
             <h3 className="text-[22px] font-serif tracking-tight text-white flex items-center gap-2">
-              <Video className="text-amber-500 w-5 h-5" /> {t('home.title_shorts', '1�?커피 ?�험')}
+              <Video className="text-amber-500 w-5 h-5" /> {t('home.title_shorts', '1분 커피 탐험')}
             </h3>
           </div>
           <div className="grid grid-cols-2 gap-3 px-4 pb-4">
@@ -1065,7 +1066,7 @@ export default function HomeDashboard() {
               ))
             ) : shorts.length === 0 ? (
               <div className="col-span-2 aspect-[4/5] w-full flex items-center justify-center text-espresso-400 text-[13px] font-medium bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
-                  ?�직 ?�기?�는 ?�폼 ?�드가 ?�습?�다.
+                  아직 인기있는 숏폼 피드가 없습니다.
               </div>
             ) : shorts.slice(0, 4).map((post) => (
               <div 
@@ -1103,12 +1104,12 @@ export default function HomeDashboard() {
   );
 
           if (config.id === 'trending') return (
-        <section key={config.id} className="w-full md:w-1/2 lg:w-1/3 md:px-2 py-2 mt-1">
+        <section key={config.id} className="py-2 mt-1 w-full md:w-1/2 lg:w-1/3 md:px-2 flex flex-col">
           <div className="px-6 flex items-center justify-between mb-3">
             <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
-              <MapPin className="text-amber-500 w-4 h-4" /> {t('home.title_trending_cafes', '?�즘 ?�는 ?��?')}
+              <MapPin className="text-amber-500 w-4 h-4" /> {t('home.title_trending_cafes', '요즘 뜨는 성지')}
             </h3>
-            <button onClick={() => navigate('/community', { state: { filter: 'pilgrimage_talk' } })} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '?�보�?)}</button>
+            <button onClick={() => navigate('/community', { state: { filter: 'pilgrimage_talk' } })} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '더보기')}</button>
           </div>
           <div className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x hide-scrollbar">
             {isLoading ? (
@@ -1118,7 +1119,7 @@ export default function HomeDashboard() {
             ) : pilgrimageFeeds.length === 0 ? (
               <div className="w-full aspect-square flex flex-col items-center justify-center text-espresso-400 bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
                   <MapPin size={24} className="mb-2 opacity-50" />
-                  <span className="text-[13px] font-medium">??지??�� ?�는 ?��?가 ?�습?�다.</span>
+                  <span className="text-[13px] font-medium">이 지역의 뜨는 성지가 없습니다.</span>
               </div>
             ) : pilgrimageFeeds.map((store) => (
               <div 
@@ -1152,12 +1153,12 @@ export default function HomeDashboard() {
           if (config.id === 'coffee_pairing') return <CoffeePairingSection key={config.id} todayPairings={personalizedData?.todayPairings} userPairings={personalizedData?.userPairings} />;
 
           if (config.id === 'recommended_clubs') return (
-        <section key={config.id} className="w-full md:w-1/2 lg:w-1/3 md:px-2 pt-2 pb-4">
+        <section key={config.id} className="pt-2 pb-4 w-full md:w-1/2 lg:w-1/3 md:px-2 flex flex-col">
           <div className="px-4 flex items-center justify-between mb-3">
             <h3 className="text-[16px] font-bold flex items-center gap-1.5">
-              <Users className="text-amber-500 w-4 h-4" /> {t('home.title_recommended_clubs', '?�리 ?�네 추천 ?�루')}
+              <Users className="text-amber-500 w-4 h-4" /> {t('home.title_recommended_clubs', '우리 동네 추천 크루')}
             </h3>
-            <button onClick={() => navigate('/clubs')} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '?�보�?)}</button>
+            <button onClick={() => navigate('/clubs')} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '더보기')}</button>
           </div>
           <div className="grid grid-cols-2 gap-3 px-4 pb-4">
             {isLoading ? (
@@ -1167,7 +1168,7 @@ export default function HomeDashboard() {
             ) : activeClubs.length === 0 ? (
               <div className="col-span-2 w-full h-[120px] flex flex-col items-center justify-center text-espresso-400 bg-espresso-900/20 rounded-2xl border border-espresso-800/50">
                   <Users size={24} className="mb-2 opacity-50" />
-                  <span className="text-[13px] font-medium text-center">반경 20km ?�에 ?�발???�루가 ?�습?�다.<br/><span className="text-[11px]">직접 모임???�어보시??�??�떨까요?</span></span>
+                  <span className="text-[13px] font-medium text-center">반경 20km 내에 활발한 크루가 없습니다.<br/><span className="text-[11px]">직접 모임을 열어보시는 건 어떨까요?</span></span>
               </div>
             ) : activeClubs.map((club) => (
               <div 
@@ -1179,7 +1180,7 @@ export default function HomeDashboard() {
                   <img src={getFirstImage(club.coverImageUrl) || 'https://images.unsplash.com/photo-1521017430205-0229078e4dcc'} alt="club cover" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   {club.isRecruiting && (
                     <div className="absolute top-2 left-2 bg-amber-500 text-espresso-950 text-[10px] font-bold px-1.5 py-0.5 rounded-sm shadow-sm">
-                      {t('home.badge_recruiting', '모집�?)}
+                      {t('home.badge_recruiting', '모집중')}
                     </div>
                   )}
                 </div>
@@ -1190,7 +1191,7 @@ export default function HomeDashboard() {
                   </p>
                   <div className="flex items-center justify-between text-[10px] font-medium text-espresso-300">
                     <span className="flex items-center gap-1 truncate max-w-[80px]">
-                      <MapPin size={10} className="shrink-0" /> {club.locationName || t('home.lbl_nationwide', '?�국')}
+                      <MapPin size={10} className="shrink-0" /> {club.locationName || t('home.lbl_nationwide', '전국')}
                     </span>
                     <span className="flex items-center gap-1 shrink-0">
                       <Users size={10} className="text-amber-500" /> {club.memberCount}/{club.maxMembers}
@@ -1204,7 +1205,7 @@ export default function HomeDashboard() {
   );
   return null;
 })}
-
+          </div>
       </PullToRefresh>
 
       <AnimatePresence>
@@ -1230,11 +1231,11 @@ export default function HomeDashboard() {
               </div>
               
               <h3 className="text-xl font-bold text-espresso-50 text-center mb-3">
-                {t('curator.resume_popup_title', 'AI 분석 진행 �?)}
+                {t('curator.resume_popup_title', 'AI 분석 진행 중')}
               </h3>
               
               <p className="text-sm text-espresso-200 text-center mb-8 leading-relaxed break-keep">
-                {t('curator.resume_popup_desc', '?�재 AI 취향 추천 분석??진행 중입?�다. ?�어??진행?�시겠습?�까, ?�니�??�중???�시 ?�인?�시겠습?�까?')}
+                {t('curator.resume_popup_desc', '현재 AI 취향 추천 분석이 진행 중입니다. 이어서 진행하시겠습니까, 아니면 나중에 다시 확인하시겠습니까?')}
               </p>
               
               <div className="flex flex-col gap-3">
@@ -1245,7 +1246,7 @@ export default function HomeDashboard() {
                   }}
                   className="w-full py-4 bg-amber-500 text-espresso-950 font-bold rounded-xl text-[15px] hover:bg-amber-400 active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)]"
                 >
-                  {t('curator.resume_popup_continue', 'AI 추천 받기 진행 ?�황보기')}
+                  {t('curator.resume_popup_continue', 'AI 추천 받기 진행 상황보기')}
                 </button>
                 <button 
                   onClick={() => {
@@ -1254,7 +1255,7 @@ export default function HomeDashboard() {
                   }}
                   className="w-full py-3.5 bg-espresso-800 text-espresso-200 font-medium rounded-xl text-[14px] hover:bg-espresso-700 active:scale-[0.98] transition-all"
                 >
-                  {t('curator.resume_popup_later', '?�중???�인?�기')}
+                  {t('curator.resume_popup_later', '나중에 확인하기')}
                 </button>
               </div>
             </motion.div>
@@ -1264,4 +1265,3 @@ export default function HomeDashboard() {
     </div>
   );
 }
-
