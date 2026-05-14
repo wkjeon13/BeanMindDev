@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, Users, Plus, Lock, Globe, Search, RefreshCw, Image as ImageIcon, MapPin, X } from 'lucide-react';
 import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
@@ -488,12 +488,12 @@ export default function ClubList() {
                 )}
             </PullToRefresh>
 
-            <div className="fixed bottom-20 inset-x-0 mx-auto w-full max-w-md z-50 flex justify-end px-4 pointer-events-none">
+            <div className="fixed bottom-20 right-4 md:right-8 lg:right-10 z-50 flex justify-end pointer-events-none">
                 <button 
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="pointer-events-auto w-14 h-14 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center text-espresso-950 shadow-lg shadow-amber-500/30 hover:scale-105 active:scale-95 transition-transform"
+                    className="pointer-events-auto w-14 h-14 md:w-16 md:h-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center text-espresso-950 shadow-lg shadow-amber-500/30 hover:scale-105 active:scale-95 transition-transform"
                 >
-                    <Plus size={28} />
+                    <Plus className="w-7 h-7 md:w-8 md:h-8" />
                 </button>
             </div>
 
