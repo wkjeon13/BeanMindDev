@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import HostAdDashboard from '../components/HostAdDashboard';
 import PrescriptionTicket from '../components/PrescriptionTicket';
 import { COFFEE_BEANS, BRANDS } from '../data/coffeeData';
-import MockPaymentModal from '../components/points/MockPaymentModal';
+import IAPPaymentModal from '../components/points/IAPPaymentModal';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { MagazineAd } from '../components/ads/MagazineAd';
 import { useAdStore } from '../store/adStore';
@@ -1089,15 +1089,15 @@ export default function Profile() {
         }
     };
 
-    const handleChargePoints = async (amount: number) => {
+    const handleChargePoints = async (amount: number, transactionId?: string) => {
         const token = localStorage.getItem('token');
         if (!token) return;
         setIsLoading(true);
         try {
-            const res = await fetch(`${API_BASE}/api/points/charge`, {
+            const res = await fetch(`${API_BASE}/api/points/verify-iap`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ amount })
+                body: JSON.stringify({ amount, transactionId })
             });
             if (res.ok) {
                 const data = await res.json();
@@ -1126,7 +1126,7 @@ export default function Profile() {
 
     return (
         <div id="profile-scroll-container" className="h-full w-full bg-espresso-950 overflow-y-auto pb-24 font-sans selection:bg-espresso-700 selection:text-espresso-50">
-            <MockPaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} onSuccess={handleChargePoints} />
+            <IAPPaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} onSuccess={handleChargePoints} userId={currentUser?.id || ''} />
             <div className="max-w-md md:max-w-2xl mx-auto relative flex flex-col min-h-full">
 
                 {/* Header Options */}

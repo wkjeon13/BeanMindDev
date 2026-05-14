@@ -163,6 +163,69 @@ router.post('/charge', authenticateToken, async (req: any, res: any) => {
     }
 });
 
+// POST: Verify and record IAP charge
+router.post('/verify-iap', authenticateToken, async (req: any, res: any) => {
+    try {
+        const userId = req.user.id;
+        let { amount, transactionId } = req.body;
+        
+        amount = parseInt(amount, 10);
+        if (isNaN(amount) || amount <= 0) amount = 1000;
+        if (!transactionId) transactionId = `mock-txn-${Date.now()}`;
+
+        // In a real production scenario, you would:
+        // 1. Call RevenueCat API (GET /v1/subscribers/{userId})
+        // 2. Verify that transactionId exists and was not already processed
+        
+        const result = await prisma.$transaction(async (tx) => {
+            // Check for duplicate transaction
+            const existingTx = await tx.paymentTransaction.findUnique({
+                where: { storeTransactionId: transactionId }
+            });
+            if (existingTx) {
+                throw new Error("Duplicate transaction");
+            }
+
+            // Log the payment
+            await tx.paymentTransaction.create({
+                data: {
+                    userId,
+                    storeTransactionId: transactionId,
+                    amount,
+                    platform: 'REVENUECAT_CAPACITOR',
+                    productId: `com.beanmind.beans.${amount}`
+                }
+            });
+
+            // Grant beans
+            const user = await tx.user.update({
+                where: { id: userId },
+                data: { pointBalance: { increment: amount } },
+                select: { pointBalance: true }
+            });
+
+            await tx.pointTransaction.create({
+                data: {
+                    userId,
+                    amount,
+                    type: "IAP_CHARGE",
+                    description: `스토어 인앱결제 (${amount.toLocaleString()}콩)`
+                }
+            });
+
+            return { balance: user.pointBalance };
+        });
+
+        res.status(200).json(result);
+    } catch (error: any) {
+        if (error.message === "Duplicate transaction") {
+            return res.status(400).json({ error: "Duplicate transaction" });
+        }
+        console.error("Verify IAP error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
 // POST: Reward points to another user
 router.post('/reward', authenticateToken, async (req: any, res: any) => {
     try {

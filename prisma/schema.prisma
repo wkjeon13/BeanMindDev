@@ -75,6 +75,7 @@ model User {
   tastingNotes        TastingNote[]
   following           UserFollow[]       @relation("Following")
   followers           UserFollow[]       @relation("Followers")
+  paymentTransactions PaymentTransaction[]
 }
 
 model Prescription {
@@ -958,4 +959,15 @@ enum InquiryStatus {
   MORE_INFO_NEEDED
   APPROVED
   REJECTED
+}
+
+model PaymentTransaction {
+  id                 String   @id @default(uuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  storeTransactionId String   @unique
+  amount             Int
+  platform           String
+  productId          String
+  createdAt          DateTime @default(now())
 }
