@@ -156,8 +156,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       {/* Global Popup Ad Injection */}
       <GlobalAdBanner placement="ETC_POPUP" />
 
-      <div className={`flex-1 min-h-0 w-full relative overflow-hidden flex flex-col ${hideBottomNav ? '' : 'pb-20 md:pb-0 md:pl-[72px]'}`}>
-        {children}
+      <div className={`flex flex-1 min-h-0 w-full relative overflow-hidden ${hideBottomNav ? '' : 'pb-20 md:pb-0'}`}>
+        {!hideBottomNav && <div className="hidden md:block w-[72px] shrink-0" />}
+        <div className="flex-1 relative h-full min-w-0 flex flex-col">
+          {children}
+        </div>
       </div>
       <BottomNav />
     </div>

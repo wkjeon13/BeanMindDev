@@ -25,9 +25,9 @@ export const AdMobFallback: React.FC<AdMobFallbackProps> = ({
     }, []);
 
     return (
-        <div className={`w-full overflow-hidden flex justify-center relative ${className}`}>
+        <div className={`w-full overflow-hidden flex justify-center relative min-h-[60px] bg-espresso-900/50 rounded-2xl border border-dashed border-espresso-700 items-center text-espresso-400 text-xs ${className}`}>
             {/* Visual Placeholder for Testing / Fallback visualization removed as requested */}
-            <ins
+            <span>Ad Space</span><ins
                 ref={adRef}
                 className="adsbygoogle z-10 relative"
                 style={{ display: 'block', width: '100%' }}

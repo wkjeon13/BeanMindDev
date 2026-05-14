@@ -318,7 +318,7 @@ export default function ClubList() {
                     </h3>
                 </div>
                 <p className="text-[13px] text-espresso-300 line-clamp-1 mb-2">{club.isDeleted ? '모임장에 의해 폐쇄된 소모임입니다.' : club.description}</p>
-                <div className="flex items-center gap-1.5 text-[11px] font-medium mb-1 flex-wrap">
+                <div className="flex items-center gap-1.5 text-[11px] font-medium mb-1 flex-nowrap overflow-x-auto hide-scrollbar pb-1">
                     {club.isDeleted ? (
                         <span className="px-2 py-0.5 bg-red-500/20 text-red-500 border border-red-500/30 rounded-full w-fit flex flex-row items-center gap-1 font-bold">
                             ❌ 폐쇄됨
