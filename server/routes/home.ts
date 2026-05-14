@@ -312,6 +312,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
         const recentNormalPosts = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
+                clubId: null,
                 postType: 'NORMAL',
                 isShorts: false,
                 countryCode: reqCountryCode,
@@ -336,6 +337,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
         const newestCoffeeTalkFeeds = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
+                clubId: null,
                 postType: 'NORMAL',
                 isShorts: false,
                 countryCode: reqCountryCode
