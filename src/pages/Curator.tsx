@@ -333,7 +333,7 @@ export default function App() {
 
   return (
     <div className="flex-1 w-full bg-espresso-950 overflow-hidden flex flex-col text-espresso-50 font-sans relative selection:bg-amber-900 selection:text-cyan-100">
-      <div className="flex-1 w-full max-w-md mx-auto relative flex flex-col bg-espresso-950 overflow-hidden shadow-2xl shadow-black/40">
+      <div className="flex-1 w-full max-w-md md:max-w-2xl lg:max-w-3xl mx-auto relative flex flex-col bg-espresso-950 overflow-hidden shadow-2xl shadow-black/40">
 
         
         {/* Dynamic BrewQuiz Background (Steps 1-3) */}
@@ -383,13 +383,13 @@ export default function App() {
                   dangerouslySetInnerHTML={{ __html: t('curator.intro_title') }}
                 />
                 <p 
-                  className="text-base text-espresso-200 max-w-xs mx-auto mt-6 mb-8 leading-relaxed break-keep text-center"
+                  className="text-base text-espresso-200 max-w-xs md:max-w-md mx-auto mt-6 mb-8 leading-relaxed break-keep text-center"
                   dangerouslySetInnerHTML={{ __html: t('curator.intro_desc') }}
                 />
                 
-                <GlobalAdBanner placement="HOME_HERO" className="mb-6 max-w-xs mx-auto w-full" />
+                <GlobalAdBanner placement="HOME_HERO" className="mb-6 max-w-xs md:max-w-md mx-auto w-full" />
                 
-                <div className="w-full max-w-xs">
+                <div className="w-full max-w-xs md:max-w-sm">
                   <button onClick={startSurvey} className="bg-gradient-to-r from-amber-500 to-blue-500 text-espresso-50 w-full text-lg font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] py-5 rounded-2xl active:scale-95 transition-transform uppercase tracking-widest">
                     {t('curator.intro_start') || "START"}
                   </button>
@@ -399,7 +399,7 @@ export default function App() {
 
             {/* Step 1: Context */}
             {step === 1 && (
-              <div className="p-4 space-y-6 animate-in fade-in duration-500 pb-20 w-full max-w-sm mx-auto">
+              <div className="p-4 space-y-6 animate-in fade-in duration-500 pb-20 w-full max-w-sm md:max-w-xl lg:max-w-2xl mx-auto">
                 <section className="w-full">
                   <h3 className="text-[13px] text-espresso-100 font-extrabold uppercase tracking-[0.2em] pl-4 mb-2 drop-shadow-md">TIME</h3>
                   <div className="w-full flex items-center justify-between bg-espresso-900/[0.04] backdrop-blur-xl border border-espresso-700/50 rounded-[2.5rem] py-3 px-3 shadow-2xl">
@@ -498,7 +498,7 @@ export default function App() {
 
             {/* Step 2: Basic */}
             {step === 2 && (
-              <div className="p-4 space-y-6 animate-in fade-in duration-500 pb-20 w-full max-w-sm mx-auto">
+              <div className="p-4 space-y-6 animate-in fade-in duration-500 pb-20 w-full max-w-sm md:max-w-xl lg:max-w-2xl mx-auto">
                 <section className="w-full">
                   <h3 className="text-[13px] text-espresso-100 font-extrabold uppercase tracking-[0.2em] pl-4 mb-2 drop-shadow-md">STYLE</h3>
                   <div className="w-full flex items-center justify-center gap-8 bg-espresso-900/[0.04] backdrop-blur-xl border border-espresso-700/50 rounded-[2.5rem] py-4 px-6 shadow-2xl">
@@ -607,7 +607,7 @@ export default function App() {
 
             {/* Step 3: Deep Dive */}
             {step === 3 && (
-              <div className="p-4 space-y-6 animate-in fade-in duration-500 pb-20 w-full max-w-sm mx-auto">
+              <div className="p-4 space-y-6 animate-in fade-in duration-500 pb-20 w-full max-w-sm md:max-w-xl lg:max-w-2xl mx-auto">
                 <section className="w-full">
                   <div className="flex justify-between items-end mb-2 pl-4 pr-2">
                      <h3 className="text-[13px] text-espresso-100 font-extrabold uppercase tracking-[0.2em] drop-shadow-md">FLAVOR (MAX 3)</h3>
@@ -744,7 +744,7 @@ export default function App() {
                      </button>
                    </div>
                 ) : recommendation ? (
-                  <div className="px-2 pt-safe pb-32 space-y-8">
+                  <div className="px-2 md:px-8 lg:px-12 pt-safe pb-32 space-y-8">
                      
                      <PrescriptionTicket
                          recommendation={recommendation}
@@ -944,13 +944,13 @@ export default function App() {
                         startMatch(i18n.language);
                     }
                 } : nextStep} 
-                className="w-full max-w-[260px] py-[18px] bg-amber-500 text-espresso-50 font-extrabold uppercase tracking-widest text-[14px] rounded-[1.5rem] shadow-[0_0_30px_rgba(34,211,238,0.3)] active:scale-95 transition-transform mb-4"
+                className="w-full max-w-[260px] md:max-w-sm py-[18px] bg-amber-500 text-espresso-50 font-extrabold uppercase tracking-widest text-[14px] rounded-[1.5rem] shadow-[0_0_30px_rgba(34,211,238,0.3)] active:scale-95 transition-transform mb-4"
               >
                 {step === 3 ? t('curator.btn_finish') : "NEXT QUESTION"}
               </button>
 
               {/* Bottom edge navigation */}
-              <div className="w-full max-w-[280px] mb-2 flex justify-between items-center">
+              <div className="w-full max-w-[280px] md:max-w-md mb-2 flex justify-between items-center">
                 <button 
                   onClick={prevStep} 
                   className={`text-[12px] uppercase tracking-wider font-bold active:scale-95 px-4 py-2 transition-colors ${step === 1 ? 'opacity-0 pointer-events-none' : 'text-espresso-300 hover:text-espresso-50'}`}
