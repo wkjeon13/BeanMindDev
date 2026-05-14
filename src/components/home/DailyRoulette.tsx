@@ -130,7 +130,7 @@ const DailyRoulette = () => {
                             <h4 className="text-[14px] font-medium text-espresso-200 mb-3 tracking-wide">
                                 {t('home.roulette_subtitle', '행운의 커피 컵을 골라보세요.')}
                             </h4>
-                            <div className="flex justify-center gap-4 flex-wrap">
+                            <div className="flex justify-center gap-4 md:gap-6 flex-wrap">
                                 {Array.from({ length: status.cupCount || 3 }, (_, i) => i).map((i) => (
                                     <motion.div 
                                         key={i}
@@ -145,11 +145,11 @@ const DailyRoulette = () => {
                                               } 
                                             : {}
                                         }
-                                        className={`w-[60px] h-[82px] cursor-pointer relative flex flex-col items-center justify-end ${selectedCup === i ? 'scale-110 z-10' : 'opacity-90 hover:opacity-100 transition-opacity'}`}
+                                        className={`w-[90px] md:w-[100px] h-[82px] cursor-pointer relative flex flex-col items-center justify-end ${selectedCup === i ? 'scale-110 z-10' : 'opacity-90 hover:opacity-100 transition-opacity'}`}
                                     >
                                         <div className={`w-full h-full rounded-lg flex items-center justify-center relative transition-all duration-300 shadow-inner ${selectedCup === i ? 'bg-gradient-to-b from-amber-400 to-amber-600 border border-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.5)]' : 'bg-espresso-800 border border-espresso-700 hover:border-amber-500/50 hover:bg-espresso-700/80'}`}>
                                             <div className="absolute top-0 w-full h-1 border-b border-white/5 rounded-t-lg bg-gradient-to-b from-white/10 to-transparent" />
-                                            <Coffee className={`${selectedCup === i ? 'text-black' : 'text-amber-500/80'} z-10 mt-1 drop-shadow-md`} size={28} strokeWidth={1.5} />
+                                            <Coffee className={`${selectedCup === i ? 'text-black' : 'text-amber-500/80'} z-10 mt-1 drop-shadow-md md:w-10 md:h-10`} size={28} strokeWidth={1.5} />
                                         </div>
                                         
                                         {selectedCup === i && <span className="absolute -top-3 text-[7px] tracking-[0.2em] font-black uppercase text-black bg-amber-400 rounded-sm px-1 py-0.5 z-20 shadow-md">Pick</span>}
@@ -159,9 +159,9 @@ const DailyRoulette = () => {
                         </>
                 ) : (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="flex flex-col items-center">
-                        <div className="flex justify-center gap-4 mb-4 mt-1 flex-wrap">
+                        <div className="flex justify-center gap-4 md:gap-6 mb-4 mt-1 flex-wrap">
                              {Array.from({ length: status.cupCount || 3 }, (_, i) => i).map((i) => (
-                                <div key={i} className={`w-[75px] flex flex-col items-center justify-end relative ${selectedCup === i ? 'scale-110 z-10' : 'opacity-40 scale-90'}`}>
+                                <div key={i} className={`w-[90px] md:w-[100px] flex flex-col items-center justify-end relative ${selectedCup === i ? 'scale-110 z-10' : 'opacity-40 scale-90'}`}>
                                     {selectedCup === i && (
                                         <motion.div 
                                             initial={{ opacity: 0, y: 5 }}

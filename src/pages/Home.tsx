@@ -778,9 +778,9 @@ export default function HomeDashboard() {
                       <div 
                         key={post.id}
                         onClick={() => navigate('/community', { state: { activePost: post.id } })}
-                        className="w-[160px] flex flex-col shrink-0 snap-center cursor-pointer group"
+                        className="w-[160px] md:w-[calc(25%-12px)] flex flex-col shrink-0 snap-center cursor-pointer group"
                       >
-                        <div className="w-full h-[160px] rounded-2xl bg-espresso-800 overflow-hidden relative shadow-md border border-espresso-800 group-hover:border-blue-500/50 transition-colors">
+                        <div className="w-full aspect-square rounded-2xl bg-espresso-800 overflow-hidden relative shadow-md border border-espresso-800 group-hover:border-blue-500/50 transition-colors">
                           <div className="w-full h-full pointer-events-none">
                             {getFirstImage(post.image) ? (
                                 <MediaRenderer 
@@ -1020,7 +1020,7 @@ export default function HomeDashboard() {
                      <div 
                        key={post.id}
                        onClick={() => navigate(`/clubs/${post.club?.id}`)}
-                       className="w-[calc(100vw-48px)] max-w-[340px] h-[180px] shrink-0 snap-center cursor-pointer group rounded-3xl overflow-hidden relative shadow-lg border border-espresso-800 hover:border-emerald-500/50 transition-colors"
+                       className="w-[calc(100vw-48px)] max-w-[340px] md:w-[calc(50%-0.5rem)] md:max-w-none h-[180px] shrink-0 snap-center cursor-pointer group rounded-3xl overflow-hidden relative shadow-lg border border-espresso-800 hover:border-emerald-500/50 transition-colors"
                      >
                        <div className="absolute inset-0 pointer-events-none bg-espresso-800">
                            <MediaRenderer 
