@@ -1411,7 +1411,7 @@ export default function CoffeeTalk() {
 
       {/* Main Feed Content */}
       <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto scroll-smooth ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24 pt-4'}`}>
-        <div className={`mx-auto ${activeFilter === 'shorts' ? 'w-full max-w-[500px] h-full sm:border-x sm:border-espresso-800' : 'max-w-md md:max-w-2xl sm:p-4'}`}>
+        <div className={`mx-auto ${activeFilter === 'shorts' ? 'w-full max-w-[500px] md:max-w-2xl lg:max-w-4xl h-full sm:border-x sm:border-espresso-800' : 'max-w-md md:max-w-2xl sm:p-4'}`}>
           {activeFilter === 'near_live' && <HotspotMap />}
           {isLoading && <p className="text-center text-espresso-200 mt-10">{t('coffee_talk.loading_feed', '피드를 불러오는 중입니다...')}</p>}
           {!isLoading && filteredPosts.length === 0 && (
