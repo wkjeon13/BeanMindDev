@@ -184,14 +184,14 @@ const CoffeePairingSection = ({ todayPairings = [], userPairings = [] }: { today
                         exit={{ opacity: 0, height: 0 }}
                         className="px-4 mb-6 overflow-hidden"
                     >
-                        <div className="bg-gradient-to-br from-[#2a1a10] to-[#1a100a] border border-amber-500/30 rounded-2xl p-4 shadow-lg flex items-center gap-4">
-                            <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 border border-amber-500/20 text-amber-500 shadow-inner">
-                                <Coffee size={24} />
+                        <div className="bg-gradient-to-br from-[#2a1a10] to-[#1a100a] border border-amber-500/30 rounded-2xl p-6 md:p-8 shadow-lg flex items-center gap-5">
+                            <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0 border border-amber-500/20 text-amber-500 shadow-inner">
+                                <Coffee size={28} className="md:w-8 md:h-8" />
                             </div>
                             <div>
-                                <div className="text-[11px] font-bold text-amber-500 mb-1">{t('home.pairing_recommendation', { name: activeItem.name || '디저트' })}</div>
-                                <div className="text-[15px] font-black text-espresso-50 mb-1">{activeItem.coffee || '추천 커피'}</div>
-                                <div className="text-[12px] text-espresso-300 line-clamp-2 leading-snug">{activeItem.desc || '설명이 없습니다.'}</div>
+                                <div className="text-[12px] md:text-[14px] font-bold text-amber-500 mb-2">{t('home.pairing_recommendation', { name: activeItem.name || '디저트' })}</div>
+                                <div className="text-[16px] md:text-[20px] font-black text-espresso-50 mb-1.5">{activeItem.coffee || '추천 커피'}</div>
+                                <div className="text-[13px] md:text-[15px] text-espresso-300 line-clamp-2 leading-relaxed">{activeItem.desc || '설명이 없습니다.'}</div>
                             </div>
                         </div>
                     </motion.div>
@@ -898,20 +898,20 @@ export default function HomeDashboard() {
                   <div 
                     key={post.id}
                     onClick={() => navigate('/community', { state: { activePost: post.id } })}
-                    className="w-full flex items-center gap-3 bg-espresso-900 rounded-2xl p-3 cursor-pointer border border-espresso-800 hover:border-blue-500/50 transition-colors shadow-sm"
+                    className="w-full flex items-center gap-4 bg-espresso-900 rounded-2xl p-4 cursor-pointer border border-espresso-800 hover:border-blue-500/50 transition-colors shadow-sm"
                   >
-                    <div className="w-[80px] h-[80px] rounded-xl overflow-hidden bg-espresso-800 shrink-0">
+                    <div className="w-[120px] h-[120px] rounded-xl overflow-hidden bg-espresso-800 shrink-0">
                         {getFirstImage(post.image) ? (
                             <MediaRenderer src={getFirstImage(post.image)} className="w-full h-full object-cover" hideControls={true} />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center text-espresso-600"><MessageSquare size={16} /></div>
+                            <div className="w-full h-full flex items-center justify-center text-espresso-600"><MessageSquare size={24} /></div>
                         )}
                     </div>
-                    <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-medium text-espresso-50 line-clamp-3 leading-snug mb-1">{post.content}</p>
-                        <div className="flex items-center gap-1.5">
-                            <img src={post.author?.profileImageUrl ? (post.author.profileImageUrl.startsWith('http') ? post.author.profileImageUrl : `${API_BASE}${post.author.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} className="w-3.5 h-3.5 rounded-full object-cover" alt="" />
-                            <span className="text-[10px] text-espresso-400 truncate">{post.author?.nickname}</span>
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                        <p className="text-[14px] md:text-[16px] font-medium text-espresso-50 line-clamp-3 md:line-clamp-4 leading-relaxed mb-2">{post.content}</p>
+                        <div className="flex items-center gap-2">
+                            <img src={post.author?.profileImageUrl ? (post.author.profileImageUrl.startsWith('http') ? post.author.profileImageUrl : `${API_BASE}${post.author.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} className="w-5 h-5 rounded-full object-cover" alt="" />
+                            <span className="text-[12px] text-espresso-400 truncate">{post.author?.nickname}</span>
                         </div>
                     </div>
                   </div>
@@ -1176,17 +1176,17 @@ export default function HomeDashboard() {
                 onClick={() => navigate(`/clubs/${club.id}`)}
                 className="w-full flex flex-col cursor-pointer group relative bg-espresso-900 rounded-2xl border border-espresso-700/50 hover:border-amber-500 transition-colors overflow-hidden shadow-md"
               >
-                <div className="w-full h-[90px] bg-espresso-800 overflow-hidden relative">
+                <div className="w-full h-[140px] bg-espresso-800 overflow-hidden relative">
                   <img src={getFirstImage(club.coverImageUrl) || 'https://images.unsplash.com/photo-1521017430205-0229078e4dcc'} alt="club cover" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   {club.isRecruiting && (
-                    <div className="absolute top-2 left-2 bg-amber-500 text-espresso-950 text-[10px] font-bold px-1.5 py-0.5 rounded-sm shadow-sm">
+                    <div className="absolute top-3 left-3 bg-amber-500 text-espresso-950 text-[11px] font-bold px-2 py-1 rounded-sm shadow-sm">
                       {t('home.badge_recruiting', '모집중')}
                     </div>
                   )}
                 </div>
-                <div className="p-3">
-                  <h4 className="font-bold text-[13px] text-espresso-50 truncate mb-1">{club.name}</h4>
-                  <p className="text-[11px] text-espresso-400 line-clamp-2 leading-tight mb-2">
+                <div className="p-4">
+                  <h4 className="font-bold text-[14px] md:text-[15px] text-espresso-50 truncate mb-1">{club.name}</h4>
+                  <p className="text-[12px] md:text-[13px] text-espresso-400 line-clamp-2 leading-relaxed mb-3">
                     {club.description}
                   </p>
                   <div className="flex items-center justify-between text-[10px] font-medium text-espresso-300">
