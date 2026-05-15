@@ -1022,7 +1022,7 @@ export default function ClubDetail() {
                                     <div className="flex items-start justify-between mb-3">
                                         <div className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => { if (post.author?.id || post.authorId) setSelectedUserIdForProfile(post.author?.id || post.authorId); }}>
                                             <div className="w-10 h-10 rounded-full overflow-hidden bg-espresso-800 border border-espresso-700 shrink-0">
-                                                <img src={post.author?.profileImageUrl || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} className="w-full h-full object-cover" />
+                                                <img src={post.author?.profileImageUrl ? (post.author.profileImageUrl.startsWith('http') ? post.author.profileImageUrl : `${API_BASE}${post.author.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} className="w-full h-full object-cover" />
                                             </div>
                                             <div>
                                                 <div className="flex items-center gap-1.5 flex-wrap">
@@ -1371,7 +1371,7 @@ export default function ClubDetail() {
                                                         <div key={m.id} className="bg-espresso-950 p-4 rounded-2xl border border-espresso-800 flex flex-col">
                                                             <div className="flex items-center justify-between mb-2">
                                                                 <div className="flex items-center gap-3">
-                                                                    <img src={m.user.profileImageUrl || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100'} className="w-10 h-10 rounded-full object-cover border border-espresso-700" alt="profile" />
+                                                                    <img src={m.user.profileImageUrl ? (m.user.profileImageUrl.startsWith('http') ? m.user.profileImageUrl : `${API_BASE}${m.user.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100'} className="w-10 h-10 rounded-full object-cover border border-espresso-700" alt="profile" />
                                                                     <div className="flex flex-col">
                                                                         <span className="font-bold text-sm text-white">{m.user.nickname}</span>
                                                                         <span className="text-[10px] text-espresso-400 font-medium">{new Date(m.joinedAt).toLocaleDateString()} {t('club_detail.lbl_applied')}</span>
@@ -1409,7 +1409,7 @@ export default function ClubDetail() {
                                                         <div className="flex items-center justify-between">
                                                             <div className="flex items-center gap-3">
                                                                 <div className="relative">
-                                                                    <img src={m.user.profileImageUrl || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100'} className="w-10 h-10 rounded-full object-cover border border-espresso-700" alt="profile" />
+                                                                    <img src={m.user.profileImageUrl ? (m.user.profileImageUrl.startsWith('http') ? m.user.profileImageUrl : `${API_BASE}${m.user.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100'} className="w-10 h-10 rounded-full object-cover border border-espresso-700" alt="profile" />
                                                                     {m.role === 'OWNER' && <div className="absolute -top-1 -right-1 bg-amber-500 p-0.5 rounded-full"><Settings size={10} className="text-black" /></div>}
                                                                 </div>
                                                                 <div className="flex flex-col">

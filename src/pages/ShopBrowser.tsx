@@ -1338,7 +1338,7 @@ export default function ShopBrowser() {
                         focusedShopId={focusedShopId}
                         isRefreshing={isRefreshing}
                         mapAds={mapAds}
-                        bottomPadding={isCourseMode ? '12rem' : (focusedShopId && combinedShops.find(s => s.id === focusedShopId) ? '12rem' : '5rem')}
+                        bottomPadding={isCourseMode ? '10.5rem' : (focusedShopId && combinedShops.find(s => s.id === focusedShopId) ? '10.5rem' : '3.5rem')}
                         onShopClick={(shop) => { 
                             if (isCourseMode) {
                                 setSelectedShop(shop);
@@ -1369,7 +1369,7 @@ export default function ShopBrowser() {
                                     ? 'bg-amber-500 text-espresso-950 shadow-amber-500/30' 
                                     : 'bg-espresso-900 text-amber-500/50 border border-espresso-700/80 hover:text-amber-500/80'
                             }`}
-                            style={{ bottom: `calc(${focusedShopId && combinedShops.find(s => s.id === focusedShopId) ? '12rem' : '5rem'} + 3.5rem)` }}
+                            style={{ bottom: `calc(${focusedShopId && combinedShops.find(s => s.id === focusedShopId) ? '10.5rem' : '3.5rem'} + 3.5rem)` }}
                         >
                             <Sparkles size={22} className={isAiAutoExtractEnabled ? "animate-pulse" : ""} strokeWidth={2} />
                         </button>

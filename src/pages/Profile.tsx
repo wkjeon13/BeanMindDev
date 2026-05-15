@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { User, LogIn, Store, ShieldCheck, ChevronRight, ChevronUp, ChevronDown, Mail, Lock, Shield, Users, Globe, Send, Inbox, Coffee, Database, MapPin, Share2, Trash2 } from 'lucide-react';
+import { User, LogIn, Store, ShieldCheck, ChevronRight, ChevronUp, ChevronDown, Mail, Lock, Shield, Users, Globe, Send, Inbox, Coffee, Database, MapPin, Share2, Trash2, KeyRound } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useGoogleLogin, GoogleLogin } from '@react-oauth/google';
 import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
@@ -39,6 +39,19 @@ export default function Profile() {
     const [authError, setAuthError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [pointBalance, setPointBalance] = useState(0);
+
+    // Clear sensitive form state when modal closes or view changes
+    React.useEffect(() => {
+        if (!isLoginModalOpen) {
+            setAuthView('login');
+            setEmail('');
+            setNickname('');
+            setAuthError('');
+        }
+        setPassword('');
+        setPasswordConfirm('');
+        setVerificationCode('');
+    }, [isLoginModalOpen, authView]);
 
     const [currentUser, setCurrentUser] = useState(() => JSON.parse(localStorage.getItem('user') || '{}'));
 
@@ -567,11 +580,14 @@ export default function Profile() {
             return;
         }
         setIsLoading(true);
+        
+        const normalizedEmail = email.trim().toLowerCase();
+        
         try {
             const response = await fetch(`${API_BASE}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
+                body: JSON.stringify({ email: normalizedEmail, password })
             });
             const data = await response.json();
 
@@ -1028,10 +1044,17 @@ export default function Profile() {
     const handleResetPwRequest = async () => {
         setAuthError('');
         if (!email) { setAuthError(t('profile.err_email_req')); return; }
+        
+        // Ensure email is lowercase and trimmed (iOS keyboard often auto-capitalizes first letter)
+        const normalizedEmail = email.trim().toLowerCase();
+        
+        // Clear any old verification code before sending a new one
+        setVerificationCode('');
+        
         setIsLoading(true);
         try {
             const res = await fetch(`${API_BASE}/api/auth/reset-password-request`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email })
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: normalizedEmail })
             });
             const data = await res.json();
             if (res.ok) {
@@ -1046,9 +1069,12 @@ export default function Profile() {
         if (!verificationCode || !password || !passwordConfirm) { setAuthError(t('profile.err_code_pw_req')); return; }
         if (password !== passwordConfirm) { setAuthError(t('profile.err_pw_mismatch')); return; }
         setIsLoading(true);
+        
+        const normalizedEmail = email.trim().toLowerCase();
+        
         try {
             const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code: verificationCode, newPassword: password })
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: normalizedEmail, code: verificationCode, newPassword: password })
             });
             const data = await res.json();
             if (res.ok) {
@@ -2105,15 +2131,18 @@ export default function Profile() {
 
                                     <div className="space-y-3 mb-6">
                                         <div className="bg-espresso-950 p-2 rounded-2xl border border-espresso-700/50/50">
-                                            <input
-                                                type="text"
-                                                value={verificationCode}
-                                                onChange={e => setVerificationCode(e.target.value)}
-                                                onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
-                                                placeholder={t('profile.ph_verify_code')}
-                                                className="w-full bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none font-bold"
-                                                maxLength={6}
-                                            />
+                                            <div className="relative">
+                                                <KeyRound size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
+                                                <input
+                                                    type="text"
+                                                    value={verificationCode}
+                                                    onChange={e => setVerificationCode(e.target.value)}
+                                                    onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)}
+                                                    placeholder={t('profile.ph_verify_code')}
+                                                    className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none font-bold tracking-[0.2em] placeholder:tracking-normal"
+                                                    maxLength={6}
+                                                />
+                                            </div>
                                         </div>
 
                                         {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
@@ -2358,7 +2387,7 @@ export default function Profile() {
                                     <div className="space-y-4 mb-6">
                                         <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700/50/50">
                                             <div className="relative">
-                                                <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
+                                                <KeyRound size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
                                                 <input type="text" value={verificationCode} onChange={e => setVerificationCode(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_verify_code')} maxLength={6} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold tracking-[0.2em] placeholder:tracking-normal placeholder:font-normal placeholder:text-espresso-300" />
                                             </div>
                                             <div>

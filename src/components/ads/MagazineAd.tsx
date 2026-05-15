@@ -11,14 +11,7 @@ export const MagazineAd: React.FC<MagazineAdProps> = ({ adData }) => {
     const { i18n } = useTranslation();
     const isEn = i18n.language === 'en';
     if (!adData || adData.fallback === 'ADMOB') {
-        return (
-            <div className="my-12 px-6">
-                <div className="border-t-2 border-b-2 border-espresso-800 py-8">
-                    <p className="text-center text-xs font-serif text-espresso-400 mb-6 uppercase tracking-widest">Advertisement</p>
-                    <AdMobFallback format="rectangle" />
-                </div>
-            </div>
-        );
+        return null;
     }
 
     const displayImage = adData.imageUrl || adData.content || 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=800';

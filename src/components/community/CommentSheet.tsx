@@ -845,7 +845,7 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                         [...comments].sort((a: any, b: any) => Number(b.isPinned || false) - Number(a.isPinned || false)).map(comment => (
                             <div key={comment.id} onDoubleClick={() => handleReaction(comment.id, '❤️', false, undefined)} className={`flex gap-3 transition-colors duration-300 select-none ${comment.isPinned ? 'bg-amber-500/5 -mx-3 px-3 py-3 rounded-2xl border border-amber-500/20' : ''} ${replyingTo?.parentId === comment.id ? 'bg-amber-900/10 -mx-3 px-3 py-3 rounded-2xl' : ''}`}>
                                 <div className="w-9 h-9 rounded-full overflow-hidden bg-[#160d08] shrink-0 border border-espresso-700/50 mt-0.5 shadow-sm">
-                                    <img src={comment.author.profileImageUrl || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} alt="avatar" className="w-full h-full object-cover" />
+                                    <img src={comment.author.profileImageUrl ? (comment.author.profileImageUrl.startsWith('http') ? comment.author.profileImageUrl : `${API_BASE}${comment.author.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} alt="avatar" className="w-full h-full object-cover" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-start justify-between gap-3">
@@ -933,7 +933,7 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                                                         <div className="absolute left-[-25px] top-[14px] w-[17px] h-[1px] bg-espresso-700/40 z-0" />
                                                         
                                                         <div className="w-7 h-7 rounded-full overflow-hidden bg-[#160d08] shrink-0 border border-espresso-700/50 mt-0.5 shadow-sm relative z-10">
-                                                            <img src={reply.author.profileImageUrl || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} alt="avatar" className="w-full h-full object-cover" />
+                                                            <img src={reply.author.profileImageUrl ? (reply.author.profileImageUrl.startsWith('http') ? reply.author.profileImageUrl : `${API_BASE}${reply.author.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} alt="avatar" className="w-full h-full object-cover" />
                                                         </div>
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-start justify-between gap-2">
@@ -1044,9 +1044,10 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                     >
                         <button 
                             onClick={(e) => { e.stopPropagation(); setFullImageState(null); }}
-                            className="absolute top-6 right-6 p-3 bg-espresso-900/10 text-espresso-50 rounded-full hover:bg-espresso-900/20 transition-colors z-[310]"
+                            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setFullImageState(null); }}
+                            className="absolute top-6 right-6 p-4 bg-black/50 text-white rounded-full hover:bg-black/70 transition-colors z-[9999]"
                         >
-                            <X size={24} />
+                            <X size={28} />
                         </button>
                         
                         {/* Left/Right Controls for Desktop & Large Tablets */}

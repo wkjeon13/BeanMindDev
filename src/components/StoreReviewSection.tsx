@@ -636,7 +636,7 @@ export default function StoreReviewSection({ storeId, reviews = [], onReviewAdde
                                 <div className="flex justify-between items-start mb-1.5">
                                     <div className="flex items-center gap-2.5">
                                         <img
-                                            src={review.user?.profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${review.user?.nickname || 'Guest'}`}
+                                            src={review.user?.profileImageUrl ? (review.user.profileImageUrl.startsWith('http') ? review.user.profileImageUrl : `${API_BASE}${review.user.profileImageUrl}`) : `https://api.dicebear.com/7.x/avataaars/svg?seed=${review.user?.nickname || 'Guest'}`}
                                             alt="profile"
                                             className="w-8 h-8 rounded-full border border-espresso-700 bg-espresso-950"
                                         />
@@ -712,7 +712,7 @@ export default function StoreReviewSection({ storeId, reviews = [], onReviewAdde
                                                 className="w-16 h-16 shrink-0 rounded-lg overflow-hidden border border-coffee-100 flex items-center justify-center active:scale-95 transition-transform"
                                                 style={{ WebkitTapHighlightColor: 'transparent' }}
                                             >
-                                                <img src={img} alt={t('store_review.img_alt_review', '리뷰 첨부 이미지')} className="w-full h-full object-cover" />
+                                                <img src={img.startsWith('http') || img.startsWith('blob:') || img.startsWith('data:') ? img : `${API_BASE}${img}`} alt={t('store_review.img_alt_review', '리뷰 첨부 이미지')} className="w-full h-full object-cover" />
                                             </button>
                                         ))}
                                     </div>
@@ -788,10 +788,11 @@ export default function StoreReviewSection({ storeId, reviews = [], onReviewAdde
                         }}
                     >
                         <button 
-                            className="absolute top-6 right-4 p-3 bg-espresso-900/10 text-espresso-50 rounded-full active:scale-95 transition-transform z-[310]"
+                            className="absolute top-6 right-4 p-4 bg-black/50 text-white rounded-full active:scale-95 transition-transform z-[9999]"
                             onClick={(e) => { e.stopPropagation(); setSelectedReviewGallery(null); }}
+                            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setSelectedReviewGallery(null); }}
                         >
-                            <X size={24} />
+                            <X size={28} />
                         </button>
                         
                         {/* Page Indicator */}
@@ -821,7 +822,7 @@ export default function StoreReviewSection({ storeId, reviews = [], onReviewAdde
                                 >
                                     <TransformComponent wrapperClass="!w-full !h-full !flex items-center justify-center cursor-zoom-in" contentClass="!w-full !h-full !flex items-center justify-center">
                                         <img 
-                                            src={selectedReviewGallery.urls[selectedReviewGallery.index]} 
+                                            src={selectedReviewGallery.urls[selectedReviewGallery.index].startsWith('http') || selectedReviewGallery.urls[selectedReviewGallery.index].startsWith('blob:') || selectedReviewGallery.urls[selectedReviewGallery.index].startsWith('data:') ? selectedReviewGallery.urls[selectedReviewGallery.index] : `${API_BASE}${selectedReviewGallery.urls[selectedReviewGallery.index]}`} 
                                             alt={t('store_review.img_alt_original', '리뷰 이미지 원본 {{index}}', {index: selectedReviewGallery.index + 1})} 
                                             className="max-w-full max-h-[85vh] object-contain rounded-md shadow-2xl cursor-zoom-in"
                                         />
