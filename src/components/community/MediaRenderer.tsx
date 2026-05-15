@@ -108,11 +108,11 @@ export default function MediaRenderer({ src, className = '', autoPlay = true, on
     }
 
     return (
-      <div className={`relative ${className.replace(/object-\w+/g, '')} group`} onClick={onClick ? onClick : handleVideoClick}>
+      <div className={`relative ${className.replace(/(?:[a-zA-Z0-9:-]+)?object-\w+/g, '')} group`} onClick={onClick ? onClick : handleVideoClick}>
           <video 
               ref={videoRef}
               crossOrigin="anonymous"
-              className={`w-full h-full bg-espresso-950 ${className?.match(/object-\w+/)?.[0] || 'object-cover'} transition-opacity duration-500 ${isReady ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full h-full bg-espresso-950 ${className?.match(/(?:[a-zA-Z0-9:-]+)?object-\w+/g)?.join(' ') || 'object-cover'} transition-opacity duration-500 ${isReady ? 'opacity-100' : 'opacity-0'}`}
               loop
               playsInline
               muted={isMuted}
