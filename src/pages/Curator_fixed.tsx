@@ -1,6 +1,6 @@
 import { Coffee, Droplet, Pill, Beaker, ChevronRight, ChevronLeft, MapPin, Zap, ExternalLink, RefreshCw, Wind, Droplets, Flame, Search, Info, Save, Sunrise, Sun, Sunset, Moon, CloudRain, Cloud, Snowflake, ThermometerSun, ThermometerSnowflake, BatteryWarning, Brain, Sparkles, CheckCircle2, HeartPulse, Leaf, Activity, Stethoscope, Trophy, Flower2, Citrus, Cherry, Apple, CloudFog, Sprout, Music, Headphones, Mic2, Guitar, Radio, Tv, Speaker, Volume2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { UserPreferences, CoffeeBean, Brand } from '../types';
 import { COFFEE_BEANS, BRANDS } from '../data/coffeeData';
 import SharedCoffeeMap from '../components/SharedCoffeeMap';
@@ -34,6 +34,7 @@ const safeGetSession = () => { try { return !!localStorage.getItem('token'); } c
 export default function App() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const isLoggedIn = safeGetSession();
   const [step, setStep] = useState<number>(() => {
     try {
@@ -87,6 +88,14 @@ export default function App() {
     localStorage.setItem('coffee_loc', JSON.stringify(userLocation));
     localStorage.setItem('coffee_ad', JSON.stringify(curationAd));
   }, [step, prefs, recommendation, subRecommendations, aiExplanation, nearbyShops, userLocation, curationAd]);
+
+  // Handle startFresh navigation state
+  useEffect(() => {
+    if (location.state?.startFresh) {
+      setStep(0);
+      setDirection(-1);
+    }
+  }, [location.state]);
 
   // Auto-scroll to top when step changes
   useEffect(() => {

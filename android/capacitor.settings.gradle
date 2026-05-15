@@ -19,3 +19,6 @@ project(':capacitor-push-notifications').projectDir = new File('../node_modules/
 
 include ':capawesome-capacitor-google-sign-in'
 project(':capawesome-capacitor-google-sign-in').projectDir = new File('../node_modules/@capawesome/capacitor-google-sign-in/android')
+
+include ':revenuecat-purchases-capacitor'
+project(':revenuecat-purchases-capacitor').projectDir = new File('../node_modules/@revenuecat/purchases-capacitor/android')

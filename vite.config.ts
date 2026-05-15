@@ -39,7 +39,7 @@ export default defineConfig(({ mode }) => {
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: {
-        ignored: ['**/public/uploads/**', '**/data/**', '**/systemSettings.json']
+        ignored: ['**/public/uploads/**', '**/data/**', '**/systemSettings.json', '**/logs/**']
       },
       host: true,
       allowedHosts: true,

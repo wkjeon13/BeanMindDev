@@ -33,6 +33,14 @@ const isComplexPassword = (password: string) => {
     return regex.test(password);
 };
 
+// Middleware to automatically normalize email to lowercase
+router.use((req, res, next) => {
+    if (req.body && req.body.email && typeof req.body.email === 'string') {
+        req.body.email = req.body.email.trim().toLowerCase();
+    }
+    next();
+});
+
 // Register User
 router.post('/register', authLimiter, async (req, res) => {
     try {

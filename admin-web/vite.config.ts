@@ -21,7 +21,7 @@ export default defineConfig({
       allow: ['..']
     },
     watch: {
-      ignored: ['**/data/**', '**/systemSettings.json']
+      ignored: ['**/data/**', '**/systemSettings.json', '**/logs/**']
     },
     proxy: {
       '/api': {
