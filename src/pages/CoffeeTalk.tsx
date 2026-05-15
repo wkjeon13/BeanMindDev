@@ -1887,7 +1887,7 @@ export default function CoffeeTalk() {
               )}
 
               {/* Interactions & Content */}
-              <div className={activeFilter === 'shorts' ? "absolute bottom-0 left-0 right-0 z-[50] p-4 pt-32 pb-[110px] flex flex-col justify-end pointer-events-none bg-gradient-to-t from-black/80 via-black/20 to-transparent" : "relative z-20 p-4 pt-3 flex flex-col justify-end mt-auto"}>
+              <div className={activeFilter === 'shorts' ? "absolute bottom-0 left-0 right-0 z-[50] p-4 pt-32 landscape:pt-4 pb-[110px] landscape:pb-4 flex flex-col justify-end pointer-events-none bg-gradient-to-t from-black/80 via-black/20 to-transparent" : "relative z-20 p-4 pt-3 flex flex-col justify-end mt-auto"}>
                 {/* Shorts / Pilgrimage Meta Tags Area */}
                 {(post.isPilgrimageLedger || activeFilter === 'shorts') && (post.cafeName || post.taggedBean || post.shortsCategory || post.equipmentTag) && (
                   <div className={`flex flex-col gap-2 mb-3 ${post.isPilgrimageLedger ? 'pb-2 w-full border-b border-white/5' : ''}`}>
@@ -2032,7 +2032,7 @@ export default function CoffeeTalk() {
                   }}
                   className={`${activeFilter === 'shorts' ? 'pointer-events-auto' : ''} ${post.content && post.content.length > 80 && !expandedPosts.has(post.id) ? "cursor-pointer active:opacity-70 transition-opacity" : ""}`}
                 >
-                  <p className={`text-[14px] leading-[1.6] text-espresso-50 whitespace-pre-wrap break-words ${!expandedPosts.has(post.id) ? 'line-clamp-3' : ''}`}>
+                  <p className={`text-[14px] leading-[1.6] text-espresso-50 whitespace-pre-wrap break-words ${!expandedPosts.has(post.id) ? 'line-clamp-3 landscape:line-clamp-1' : ''}`}>
                     {renderWithLinks(post.content)}
                   </p>
                   {!expandedPosts.has(post.id) && post.content && post.content.length > 80 && (
