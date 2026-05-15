@@ -60,7 +60,7 @@ export default function MediaCarousel({ mediaUrls, initialIndex = 0, onClose }: 
                         >
                             <MediaRenderer 
                                 src={`${mediaUrls[currentIndex]}${mediaUrls[currentIndex].includes('?') ? '&' : '?'}carousel=true`} 
-                                className="max-w-full max-h-[85vh] w-auto h-auto object-contain rounded-lg shadow-2xl"
+                                className="w-full h-[75vh] md:h-[85vh] object-contain rounded-lg shadow-2xl"
                                 autoPlay={true}
                             />
                         </TransformComponent>
