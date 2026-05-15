@@ -37,6 +37,13 @@ export default function App() {
   const [prescriptionTitle, setPrescriptionTitle] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Handle startFresh navigation state
+  useEffect(() => {
+    if (location.state?.startFresh) {
+      reset();
+    }
+  }, [location.state, reset]);
+
   // Auto-scroll to top when step changes
   useEffect(() => {
     if (scrollRef.current) {
