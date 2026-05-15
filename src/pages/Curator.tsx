@@ -99,6 +99,12 @@ export default function App() {
 
   useEffect(() => {
     const checkSync = async () => {
+      // If we are starting fresh, do not restore old history or pending syncs
+      if (location.state?.startFresh) {
+          syncHandled.current = true;
+          return;
+      }
+
       const needsSync = localStorage.getItem('bm_sync_presc');
       const token = localStorage.getItem('token');
       const userRole = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}').role; } catch { return 'USER'; } })();
