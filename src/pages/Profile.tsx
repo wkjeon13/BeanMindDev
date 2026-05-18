@@ -1176,7 +1176,7 @@ export default function Profile() {
                                 }).catch(err => console.error('Failed to sync language preference:', err));
                             }
                         }}
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-espresso-800/50 hover:bg-espresso-800 transition-colors border border-espresso-600/50"
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-espresso-800/50 hover:bg-espresso-800 transition-colors border border-espresso-700"
                     >
                         <Globe size={16} className="text-amber-500" />
                         <span className="text-xs font-bold text-espresso-100 uppercase tracking-wider">
@@ -1232,7 +1232,7 @@ export default function Profile() {
                                             <h2 className="text-xl font-bold text-espresso-50 tracking-tight truncate">{t('profile.lbl_hello_user', { nickname: currentUser?.nickname || '유저' })}</h2>
                                             <p className="text-sm text-espresso-200 mt-0.5 mb-2 truncate">{currentUser?.email || 'user@beanmind.com'}</p>
                                             <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                                                <Link to="/profile/points" className="inline-flex items-center gap-1.5 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20 active:bg-amber-500/20 transition-colors whitespace-nowrap shrink-0">
+                                                <Link to="/profile/points" className="inline-flex items-center gap-1.5 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/50 active:bg-amber-500/20 transition-colors whitespace-nowrap shrink-0">
                                                     <span className="text-amber-500 text-[13px]">☕</span>
                                                     <span className="text-amber-400 font-bold text-[13px]">{pointBalance.toLocaleString()} {t('profile.unit_bean', '콩')}</span>
                                                 </Link>
@@ -1401,8 +1401,8 @@ export default function Profile() {
 
                     {/* Taste Matrix (Radar Chart) */}
                     {isAuthenticated && tasteMatrix && (
-                        <section className="bg-[#1e1e21] rounded-2xl border border-amber-500/20 overflow-hidden relative shadow-lg">
-                            <div className="px-5 py-4 flex items-center justify-between border-b border-white/5">
+                        <section className="bg-[#1e1e21] rounded-2xl border border-amber-500/50 overflow-hidden relative shadow-lg">
+                            <div className="px-5 py-4 flex items-center justify-between border-b border-espresso-700">
                                 <div className="flex items-center gap-2">
                                     <span className="text-amber-500 font-serif font-bold text-lg pt-0.5" style={{lineHeight: 1}}>✨</span>
                                     <span className="font-bold text-[15px] text-amber-500 tracking-tight">{t('profile.title_taste_matrix', '마이 취향 매트릭스')}</span>
@@ -1578,7 +1578,7 @@ export default function Profile() {
                                                 }
                                             }}
                                             disabled={isLoading}
-                                            className="mt-6 w-full py-3 bg-[#1e1e21] border border-amber-500/20 text-amber-500 font-bold text-[14px] rounded-xl active:scale-95 transition-all hover:bg-amber-500/10"
+                                            className="mt-6 w-full py-3 bg-[#1e1e21] border border-amber-500/50 text-amber-500 font-bold text-[14px] rounded-xl active:scale-95 transition-all hover:bg-amber-500/10"
                                         >
                                             {isLoading ? t('profile.btn_saving', '저장 중...') : t('profile.btn_save_taste', '적용 및 취향 저장하기')}
                                         </button>
@@ -1631,7 +1631,7 @@ export default function Profile() {
                                 </div>
                             ) : (
                                 <div className="px-6 pb-8 relative z-10 flex flex-col items-center justify-center text-center opacity-60">
-                                    <div className="w-16 h-16 rounded-full border border-dashed border-coffee-500/30 flex items-center justify-center mb-3">
+                                    <div className="w-16 h-16 rounded-full border border-dashed border-coffee-500/50 flex items-center justify-center mb-3">
                                         <Coffee className="text-coffee-400" size={24} />
                                     </div>
                                     <p className="text-sm text-coffee-200 font-medium">{t('profile.msg_no_prescriptions')}</p>
@@ -1901,7 +1901,7 @@ export default function Profile() {
                     )}
 
                     {/* User History Menu */}
-                    <section className="bg-espresso-900 rounded-2xl border border-espresso-700 overflow-hidden divide-y divide-coffee-800/30">
+                    <section className="bg-espresso-900 rounded-2xl border border-espresso-700 overflow-hidden divide-y divide-espresso-700">
                         <button onClick={() => isAuthenticated ? navigate('/profile/activity') : setIsLoginModalOpen(true)} className="w-full px-5 py-4 flex items-center justify-between active:bg-espresso-950 transition-colors">
                             <span className="font-bold text-[15px] text-espresso-50">{t('profile.menu_activity', '내 활동 내역')}</span>
                             <ChevronRight size={18} className="text-espresso-300" />
