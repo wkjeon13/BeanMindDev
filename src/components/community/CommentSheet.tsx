@@ -118,7 +118,7 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
             const u = JSON.parse(userStr);
             currentUserId = u.id || '';
             currentUserRole = u.role || '';
-            currentUserProfileImageUrl = u.profileImageUrl || '';
+            currentUserProfileImageUrl = u.profileImageUrl ? (u.profileImageUrl.startsWith('http') ? u.profileImageUrl : `${API_BASE}${u.profileImageUrl}`) : '';
         }
     } catch (e) {}
 
