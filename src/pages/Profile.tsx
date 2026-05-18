@@ -1292,7 +1292,7 @@ export default function Profile() {
                                 </div>
 
                                 {/* Divider */}
-                                {currentUser?.loginType !== 'GOOGLE' && <div className="border-t border-espresso-800/50 mx-4"></div>}
+                                {currentUser?.loginType !== 'GOOGLE' && <div className="border-t border-espresso-700 mx-4"></div>}
 
                                 {/* Password Editor */}
                                 {currentUser?.loginType !== 'GOOGLE' && (
@@ -1321,7 +1321,7 @@ export default function Profile() {
 
                                 {/* Public Profile Editor */}
                                 {currentUser && (
-                                    <div className="p-4 flex flex-col gap-3 border-t border-espresso-800/50">
+                                    <div className="p-4 flex flex-col gap-3 border-t border-espresso-700">
                                         <div className="flex items-center justify-between">
                                             <span className="text-[14px] font-bold text-espresso-100 flex items-center gap-2"><User size={16} /> {t('profile.lbl_public_bio')}</span>
                                             {!isEditingBio && (
@@ -1380,7 +1380,7 @@ export default function Profile() {
                                             )}
                                         </AnimatePresence>
                                         
-                                        <div className="flex items-center justify-between mt-2 pt-4 border-t border-espresso-800/20">
+                                        <div className="flex items-center justify-between mt-2 pt-4 border-t border-espresso-700">
                                             <div className="flex flex-col">
                                                 <span className="text-[13px] font-bold text-espresso-100">{t('profile.lbl_enable_public_profile')}</span>
                                                 <span className="text-[11px] text-espresso-400 mt-1">{t('profile.desc_enable_public_profile')}</span>
