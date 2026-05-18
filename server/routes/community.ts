@@ -336,13 +336,12 @@ router.get('/posts', async (req, res) => {
             }
         });
 
-        const toDateStr = (d: Date | string) => new Date(d).toISOString().split('T')[0];
-        const todayStr = toDateStr(new Date());
+        const now = new Date();
 
         const processedPosts = posts.filter((post: any) => {
-            if (post.isPinned) {
-                if (post.pinnedStartDate && toDateStr(post.pinnedStartDate) > todayStr) return false;
-                if (post.pinnedEndDate && toDateStr(post.pinnedEndDate) < todayStr) return false;
+            if (post.postType === 'ANNOUNCEMENT' || post.postType === 'EVENT' || post.isSystemPopup || post.isPinned) {
+                if (post.pinnedStartDate && new Date(post.pinnedStartDate) > now) return false;
+                if (post.pinnedEndDate && new Date(post.pinnedEndDate) < now) return false;
             }
             return true;
         });

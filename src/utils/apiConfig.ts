@@ -8,13 +8,18 @@ if (!isNative) {
     apiBase = ''; // Force relative paths on Web to completely avoid CORS/SSL mismatch across different IPs
 } else if (isNative) {
     // Extract the public IP or domain from VITE_API_BASE_URL
-    // Example: https://39.118.249.241.nip.io:3002 -> http://39.118.249.241.nip.io:3001
     try {
         if (apiBase) {
             const url = new URL(apiBase);
-            // Remove .nip.io if it exists to avoid Cellular DNS rebinding blocks
-            let cleanHostname = url.hostname.replace('.nip.io', '');
-            apiBase = `http://${cleanHostname}:3001`;
+            // If it's a local IP or nip.io domain, force HTTP to avoid SSL errors on mobile
+            if (url.hostname.includes('192.168.') || url.hostname.includes('10.0.') || url.hostname.includes('127.0.0.1') || url.hostname.includes('.nip.io')) {
+                let cleanHostname = url.hostname.replace('.nip.io', '');
+                apiBase = `http://${cleanHostname}:3001`;
+            } else {
+                // For public domains (e.g. www.BeanMindCurator.com), keep the exact protocol and port from VITE_API_BASE_URL
+                // Because iOS ATS blocks HTTP for public domains, and real SSL works fine.
+                apiBase = url.toString().replace(/\/$/, ''); // remove trailing slash
+            }
         } else {
             apiBase = `http://192.168.0.29:3001`;
         }
