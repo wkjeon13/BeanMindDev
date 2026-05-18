@@ -606,7 +606,7 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                             onFocus={(e) => {
                                 setTimeout(() => {
                                     e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                }, 300);
+                                }, 500);
                             }}
                         />
                          <button type="submit" disabled={!newComment.trim() || isSubmitting} className="text-amber-500 disabled:opacity-50"><Send size={14}/></button>
@@ -639,7 +639,7 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                             onFocus={(e) => {
                                 setTimeout(() => {
                                     e.target.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                                }, 300);
+                                }, 500);
                             }}
                         />
                         <button type="button" onClick={() => fileInputRef.current?.click()} className="shrink-0 text-amber-500/80 hover:text-amber-400 p-1 transition-colors">
@@ -684,7 +684,7 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
         <>
             <div className={isEmbedded ? "w-full flex flex-col bg-transparent mt-1 relative" : (isInline ? "mt-3 w-full rounded-2xl overflow-hidden border border-espresso-700/50 flex flex-col bg-[#160d08]" : "fixed inset-0 z-[250] flex flex-col pointer-events-auto bg-[#120a05] overflow-hidden")}>
                 
-            <div className={`relative w-full flex flex-col flex-1 ${isEmbedded ? '' : (isInline ? 'bg-[#160d08] max-h-[50vh]' : 'bg-gradient-to-b from-[#1c120c] to-[#120a05] h-[100dvh] w-full shadow-2xl pb-[max(env(safe-area-inset-bottom),16px)] animation-slide-up overflow-hidden')}`}>
+            <div className={`relative w-full flex flex-col flex-1 ${isEmbedded ? '' : (isInline ? 'bg-[#160d08] max-h-[50vh]' : 'bg-gradient-to-b from-[#1c120c] to-[#120a05] h-full w-full shadow-2xl pb-[max(env(safe-area-inset-bottom),16px)] animation-slide-up overflow-hidden')}`}>
                 
                 {/* Header */}
                 {!isEmbedded && (
