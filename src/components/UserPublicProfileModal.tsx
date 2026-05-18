@@ -53,7 +53,8 @@ export const UserPublicProfileModal: React.FC<UserPublicProfileModalProps> = ({ 
             <div className="relative z-10 w-full sm:w-[500px] h-full bg-[#111110] shadow-[auto_0_30px_60px_-15px_rgba(0,0,0,0.8)] border-l border-espresso-800/30 overflow-y-auto overflow-x-hidden transform transition-transform duration-300">
                 <button
                     onClick={onClose}
-                    className="absolute top-6 left-6 p-2 rounded-full bg-black/40 text-espresso-300 hover:text-white backdrop-blur-md z-50 transition-colors"
+                    className="absolute p-2 rounded-full bg-black/40 text-espresso-300 hover:text-white backdrop-blur-md z-50 transition-colors"
+                    style={{ top: 'calc(max(env(safe-area-inset-top, 24px), 24px) + 8px)', left: '16px' }}
                 >
                     <ChevronLeft size={24} />
                 </button>
