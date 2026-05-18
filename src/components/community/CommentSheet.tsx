@@ -596,7 +596,19 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                         <img src={currentUserProfileImageUrl || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'} className="w-full h-full object-cover" />
                     </div>
                     <form onSubmit={handleSubmit} className="flex-1 flex items-center bg-espresso-900/60 border border-espresso-700/50 rounded-full px-3 py-1.5">
-                         <input type="text" value={newComment} onChange={e=>setNewComment(e.target.value)} placeholder={placeholderText} className="flex-1 bg-transparent text-espresso-50 text-[13px] focus:outline-none placeholder:text-espresso-500" />
+                         <input 
+                            ref={inputRef as any} 
+                            type="text" 
+                            value={newComment} 
+                            onChange={e=>setNewComment(e.target.value)} 
+                            placeholder={placeholderText} 
+                            className="flex-1 bg-transparent text-espresso-50 text-[13px] focus:outline-none placeholder:text-espresso-500"
+                            onFocus={(e) => {
+                                setTimeout(() => {
+                                    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }, 300);
+                            }}
+                        />
                          <button type="submit" disabled={!newComment.trim() || isSubmitting} className="text-amber-500 disabled:opacity-50"><Send size={14}/></button>
                     </form>
                 </div>
@@ -624,6 +636,11 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                             placeholder="Add a comment..."
                             className="flex-1 min-w-0 bg-transparent text-espresso-50 text-[14px] px-2 focus:outline-none placeholder:text-espresso-500"
                             disabled={isSubmitting}
+                            onFocus={(e) => {
+                                setTimeout(() => {
+                                    e.target.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                                }, 300);
+                            }}
                         />
                         <button type="button" onClick={() => fileInputRef.current?.click()} className="shrink-0 text-amber-500/80 hover:text-amber-400 p-1 transition-colors">
                             <ImageIcon size={18} />
