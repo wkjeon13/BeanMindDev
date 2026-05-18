@@ -396,7 +396,14 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
             // Re-fetch current position securely
             let position;
             try {
-                position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+                try {
+                    // Try high accuracy with timeout
+                    position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 5000 });
+                } catch (highAccErr) {
+                    console.warn("High accuracy GPS failed, falling back to low accuracy", highAccErr);
+                    // Fallback to low accuracy
+                    position = await Geolocation.getCurrentPosition({ enableHighAccuracy: false, timeout: 10000 });
+                }
             } catch (gpsError) {
                 console.error("GPS Error:", gpsError);
                 throw new Error(t("shop_detail.error_gps"));
