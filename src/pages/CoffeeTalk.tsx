@@ -1640,7 +1640,7 @@ export default function CoffeeTalk() {
                           className="absolute inset-0 z-0 overflow-hidden bg-[#0a0a0c] cursor-pointer"
                           onClick={(e) => { e.stopPropagation(); setActiveCarouselUrls(urls); }}
                       >
-                          {urls.length > 0 && <MediaRenderer src={urls[0]} className={`w-full h-full transition-transform duration-700 group-hover:scale-105 outline-none ${activeFilter === 'shorts' ? 'object-contain' : 'object-cover'}`} autoPlay={true} />}
+                          {urls.length > 0 && <MediaRenderer src={urls[0]} className={`w-full h-full transition-transform duration-700 group-hover:scale-105 outline-none object-cover`} autoPlay={true} />}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none"></div>
                           <div className="hidden">
                               <span className="font-serif text-[60px] sm:text-[75px] font-black tracking-[0.3em] text-white rotate-[-12deg] leading-[0.8] text-center drop-shadow-2xl grayscale ml-4">PILGRIMAGE<br/>CERTIFIED</span>
@@ -1809,7 +1809,7 @@ export default function CoffeeTalk() {
                             <>
                                 <MediaRenderer 
                                     src={urls[0]} 
-                                    className={`absolute inset-0 w-full h-full cursor-pointer block ${activeFilter === 'shorts' ? 'object-cover landscape:object-contain bg-black' : 'object-cover'}`} 
+                                    className={`absolute inset-0 w-full h-full cursor-pointer block ${activeFilter === 'shorts' ? 'object-cover bg-black' : 'object-cover'}`} 
                                     autoPlay={true} 
                                     onClick={() => setActiveCarouselUrls(urls)} 
                                 />
