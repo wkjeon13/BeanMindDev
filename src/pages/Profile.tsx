@@ -1189,9 +1189,9 @@ export default function Profile() {
                 <div className="flex-1 px-6 space-y-6 flex flex-col">
 
                     {/* User Profile & Account Settings Container */}
-                    <section className="bg-espresso-900 rounded-[2rem] shadow-sm border border-espresso-700/50 flex flex-col overflow-hidden">
+                    <section className="bg-espresso-900 rounded-[2rem] shadow-sm border border-espresso-700 flex flex-col overflow-hidden">
                         {/* User Profile / Login Card */}
-                        <div className={`p-6 flex items-center justify-between ${isAuthenticated ? 'border-b border-espresso-800/50' : ''}`}>
+                        <div className={`p-6 flex items-center justify-between ${isAuthenticated ? 'border-b border-espresso-700' : ''}`}>
                             {isAuthenticated ? (
                                 <div className="flex-1 flex flex-col sm:flex-row items-center justify-between gap-4">
                                     <div className="flex items-center gap-4 flex-1 min-w-0 w-full">
@@ -1456,7 +1456,7 @@ export default function Profile() {
 
                     {/* Taste Profile Editor */}
                     {isAuthenticated && (
-                        <section className="bg-espresso-900 rounded-2xl border border-espresso-700/50 overflow-hidden">
+                        <section className="bg-espresso-900 rounded-2xl border border-espresso-700 overflow-hidden">
                             <button 
                                 onClick={() => setIsTasteProfileOpen(!isTasteProfileOpen)} 
                                 className="w-full px-5 py-4 flex items-center justify-between active:bg-espresso-950 transition-colors"
@@ -1508,7 +1508,7 @@ export default function Profile() {
                                         </div>
 
                                         {/* 향(Aroma) 선호도 다중 선택 구역 */}
-                                        <div className="pt-6 pb-6 mt-4 border-t border-b border-espresso-800">
+                                        <div className="pt-6 pb-6 mt-4 border-t border-b border-espresso-700">
                                             <div className="flex justify-between items-center mb-3 text-sm">
                                                 <span className="font-bold text-espresso-50 flex items-center gap-2">
                                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500"><path d="M11 6c-2 0-3 1-3 3s1 3 3 3 3-1 3-3-1-3-3-3z"></path><path d="M12 21v-4"></path><path d="M9 13.5l-3 5.5"></path><path d="M15 13.5l3 5.5"></path></svg>
@@ -1591,7 +1591,7 @@ export default function Profile() {
 
                     {/* COFFEE PASSPORT (My Prescriptions) */}
                     {isAuthenticated && (
-                        <section className="bg-coffee-900 rounded-[2rem] border border-coffee-800/80 overflow-hidden relative shadow-2xl">
+                        <section className="bg-coffee-900 rounded-[2rem] border border-coffee-700 overflow-hidden relative shadow-2xl">
                             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=1000&auto=format&fit=crop')] opacity-10 mix-blend-overlay pointer-events-none"></div>
                             
                             <div className="px-6 py-5 relative z-10 flex justify-between items-center">
@@ -1601,7 +1601,7 @@ export default function Profile() {
                                     </h3>
                                     <p className="text-xs text-coffee-300 mt-1">{t('profile.title_prescription_history')}</p>
                                 </div>
-                                <div className="bg-coffee-800/50 px-3 py-1 rounded-full border border-coffee-700/50">
+                                <div className="bg-coffee-800/50 px-3 py-1 rounded-full border border-coffee-700">
                                     <span className="text-coffee-200 font-mono text-sm font-bold">{prescriptions.length}</span>
                                 </div>
                             </div>
@@ -1645,7 +1645,7 @@ export default function Profile() {
 
                     {/* PILGRIMAGE PASSPORT */}
                     {isAuthenticated && (
-                        <section className="bg-espresso-900 rounded-[2rem] border border-espresso-700/50 overflow-hidden relative shadow-2xl mt-6">
+                        <section className="bg-espresso-900 rounded-[2rem] border border-espresso-700 overflow-hidden relative shadow-2xl mt-6">
                             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1507133750070-4ed0b28e62d4?q=80&w=1000&auto=format&fit=crop')] opacity-10 mix-blend-overlay pointer-events-none"></div>
                             
                             <div 
@@ -1669,7 +1669,7 @@ export default function Profile() {
                                         <button 
                                             onClick={passportCheckins.length > 0 ? () => navigate('/map?passport=true') : undefined} 
                                             disabled={passportCheckins.length === 0}
-                                            className={`p-1.5 rounded-full shadow-sm transition-colors border ${passportCheckins.length > 0 ? 'bg-espresso-800/80 hover:bg-espresso-700 text-amber-500 border-amber-700/50' : 'bg-espresso-900 text-espresso-700 border-espresso-800 cursor-not-allowed'}`} 
+                                            className={`p-1.5 rounded-full shadow-sm transition-colors border ${passportCheckins.length > 0 ? 'bg-espresso-800/80 hover:bg-espresso-700 text-amber-500 border-amber-700/50' : 'bg-espresso-900 text-espresso-700 border-espresso-700 cursor-not-allowed'}`} 
                                             title="View Route map"
                                         >
                                             <MapPin size={16} />
@@ -1677,7 +1677,7 @@ export default function Profile() {
                                         <button 
                                             onClick={passportCheckins.length > 0 ? handleSharePassport : undefined} 
                                             disabled={passportCheckins.length === 0}
-                                            className={`p-1.5 rounded-full shadow-sm transition-colors border ${passportCheckins.length > 0 ? 'bg-espresso-800/80 hover:bg-espresso-700 text-espresso-50 border-espresso-700' : 'bg-espresso-900 text-espresso-700 border-espresso-800 cursor-not-allowed'}`}
+                                            className={`p-1.5 rounded-full shadow-sm transition-colors border ${passportCheckins.length > 0 ? 'bg-espresso-800/80 hover:bg-espresso-700 text-espresso-50 border-espresso-700' : 'bg-espresso-900 text-espresso-700 border-espresso-700 cursor-not-allowed'}`}
                                         >
                                             <Share2 size={16} />
                                         </button>
@@ -1697,7 +1697,7 @@ export default function Profile() {
                                     >
                             
                             {/* Progress Bar UI */}
-                            <div className="px-6 pb-4 relative z-10 bg-espresso-950/40 border-b border-espresso-800/50">
+                            <div className="px-6 pb-4 relative z-10 bg-espresso-950/40 border-b border-espresso-700">
                                 <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-wider mb-2">
                                     <span className="text-espresso-300">{t('profile.lbl_progression', 'Progression')}</span>
                                     {currentBadge.next ? (
@@ -1706,7 +1706,7 @@ export default function Profile() {
                                         <span className="text-amber-500/90">{t('profile.lbl_max_level', 'MAX LEVEL ACHIEVED')}</span>
                                     )}
                                 </div>
-                                <div className="w-full bg-espresso-950 rounded-full h-2.5 overflow-hidden border border-espresso-800">
+                                <div className="w-full bg-espresso-950 rounded-full h-2.5 overflow-hidden border border-espresso-700">
                                     <div 
                                         className="bg-gradient-to-r from-amber-600 to-amber-400 h-2.5 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)] transition-all duration-1000" 
                                         style={{ width: `${currentBadge.progress}%` }}
@@ -1777,7 +1777,7 @@ export default function Profile() {
                                 </div>
                             ) : (
                                 <div className="px-6 py-10 relative z-10 flex flex-col items-center justify-center text-center bg-espresso-950/20">
-                                    <div className="w-16 h-16 rounded-full border-2 border-dashed border-espresso-700/80 flex items-center justify-center mb-4 bg-espresso-900">
+                                    <div className="w-16 h-16 rounded-full border-2 border-dashed border-espresso-700 flex items-center justify-center mb-4 bg-espresso-900">
                                         <MapPin className="text-espresso-400" size={24} />
                                     </div>
                                     <p className="text-sm text-espresso-100 font-bold mb-1">{t('profile.msg_empty_passport')}</p>
@@ -1800,7 +1800,7 @@ export default function Profile() {
 
                     {/* PILGRIMAGE COURSES */}
                     {isAuthenticated && (
-                        <section className="bg-[#121215] rounded-[2rem] border border-espresso-800/60 overflow-hidden relative shadow-2xl mt-6">
+                        <section className="bg-[#121215] rounded-[2rem] border border-espresso-700 overflow-hidden relative shadow-2xl mt-6">
                             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none"></div>
                             
                             <div className="px-6 py-5 relative z-10">
@@ -1835,7 +1835,7 @@ export default function Profile() {
                                         return (
                                             <div 
                                                 key={course.id || idx}
-                                                className="shrink-0 w-56 h-64 snap-center bg-espresso-950 rounded-[1.5rem] flex flex-col shadow-xl cursor-pointer active:scale-95 transition-transform border border-espresso-800 relative overflow-hidden group"
+                                                className="shrink-0 w-56 h-64 snap-center bg-espresso-950 rounded-[1.5rem] flex flex-col shadow-xl cursor-pointer active:scale-95 transition-transform border border-espresso-700 relative overflow-hidden group"
                                                 onClick={() => navigate(`/course/${course.id}`)}
                                             >
                                                 <div className="h-32 w-full relative overflow-hidden">
@@ -1866,7 +1866,7 @@ export default function Profile() {
                                                         </button>
                                                         <button 
                                                             onClick={(e) => handleShareCourse(e, course)}
-                                                            className="p-2 w-8 h-8 flex items-center justify-center bg-espresso-950/80 hover:bg-espresso-800 rounded-full text-amber-500 backdrop-blur-sm border border-espresso-700/50 shadow-lg transition-transform active:scale-95"
+                                                            className="p-2 w-8 h-8 flex items-center justify-center bg-espresso-950/80 hover:bg-espresso-800 rounded-full text-amber-500 backdrop-blur-sm border border-espresso-700 shadow-lg transition-transform active:scale-95"
                                                         >
                                                             <Share2 size={14} />
                                                         </button>
@@ -1879,7 +1879,7 @@ export default function Profile() {
                                                             <p className="text-[11px] text-espresso-300 line-clamp-2">{course.description}</p>
                                                         )}
                                                     </div>
-                                                    <div className="flex items-center justify-between text-[11px] text-amber-500 font-bold border-t border-espresso-800/50 pt-2">
+                                                    <div className="flex items-center justify-between text-[11px] text-amber-500 font-bold border-t border-espresso-700 pt-2">
                                                         <span>{t('profile.lbl_places', { count: validItemCount, defaultValue: '{{count}} Places' })}</span>
                                                         <ChevronRight size={14} className="opacity-70 group-hover:opacity-100 transition-opacity" />
                                                     </div>
@@ -1901,7 +1901,7 @@ export default function Profile() {
                     )}
 
                     {/* User History Menu */}
-                    <section className="bg-espresso-900 rounded-2xl border border-espresso-700/50 overflow-hidden divide-y divide-coffee-800/30">
+                    <section className="bg-espresso-900 rounded-2xl border border-espresso-700 overflow-hidden divide-y divide-coffee-800/30">
                         <button onClick={() => isAuthenticated ? navigate('/profile/activity') : setIsLoginModalOpen(true)} className="w-full px-5 py-4 flex items-center justify-between active:bg-espresso-950 transition-colors">
                             <span className="font-bold text-[15px] text-espresso-50">{t('profile.menu_activity', '내 활동 내역')}</span>
                             <ChevronRight size={18} className="text-espresso-300" />
@@ -1931,13 +1931,13 @@ export default function Profile() {
 
                     {/* STORE & ADS MANAGEMENT (Host Only) */}
                     {isAuthenticated && currentUser?.role === 'OWNER' && (
-                        <div className="space-y-4 mt-12 pt-8 pb-4 border-t border-espresso-800 relative">
+                        <div className="space-y-4 mt-12 pt-8 pb-4 border-t border-espresso-700 relative">
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-espresso-950 px-4">
                                 <span className="text-amber-500/80 font-bold text-[11px] tracking-widest uppercase flex items-center gap-1.5"><Store size={12} /> Business Center</span>
                             </div>
 
                             {/* Manage Existing Shop */}
-                            <div className="bg-espresso-900 rounded-2xl border border-espresso-700/50 overflow-hidden mt-4 shadow-sm group">
+                            <div className="bg-espresso-900 rounded-2xl border border-espresso-700 overflow-hidden mt-4 shadow-sm group">
                                 <button onClick={() => navigate('/profile/manage-shop')} className="w-full px-5 py-4 flex items-center justify-between active:bg-espresso-950 transition-colors">
                                     <span className="font-bold text-[15px] text-espresso-50 group-hover:text-amber-400 transition-colors">{t('profile.menu_manage_shop')}</span>
                                     <ChevronRight size={18} className="text-espresso-300 group-hover:text-amber-400 transition-colors" />
@@ -1951,7 +1951,7 @@ export default function Profile() {
                                     className="w-full bg-espresso-950 border-2 border-espresso-700 rounded-[2rem] p-5 flex flex-col gap-2 items-start active:scale-[0.98] transition-all hover:bg-espresso-900 group"
                                 >
                                     <div className="flex justify-between w-full">
-                                        <div className="bg-espresso-900 p-2.5 rounded-xl text-espresso-200 shadow-sm border border-espresso-700/50 group-hover:scale-105 transition-transform">
+                                        <div className="bg-espresso-900 p-2.5 rounded-xl text-espresso-200 shadow-sm border border-espresso-700 group-hover:scale-105 transition-transform">
                                             <Store size={22} />
                                         </div>
                                         <div className="text-espresso-300 bg-espresso-900/50 px-2 py-1 rounded text-[10px] font-bold tracking-widest uppercase">
@@ -2008,7 +2008,7 @@ export default function Profile() {
                             {authView === 'login' && (
                                 <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                                     <div className="text-center mb-8">
-                                        <div className="w-16 h-16 bg-espresso-950 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-espresso-700/50">
+                                        <div className="w-16 h-16 bg-espresso-950 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-espresso-700">
                                             <ShieldCheck size={28} />
                                         </div>
                                         <h3 className="text-2xl font-serif font-bold text-espresso-50 tracking-tight">{t('profile.modal_welcome')}</h3>
@@ -2032,13 +2032,13 @@ export default function Profile() {
                                             </button>
                                         </div>
                                         <div className="relative py-4 flex items-center">
-                                            <div className="flex-grow border-t border-espresso-700/50"></div>
+                                            <div className="flex-grow border-t border-espresso-700"></div>
                                             <span className="shrink-0 mx-4 text-espresso-300 text-xs font-bold uppercase">{t('profile.or_email')}</span>
-                                            <div className="flex-grow border-t border-espresso-700/50"></div>
+                                            <div className="flex-grow border-t border-espresso-700"></div>
                                         </div>
 
                                         {/* Email Form */}
-                                        <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700/50/50">
+                                        <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700">
                                             <div className="relative">
                                                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
                                                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_email')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
@@ -2084,7 +2084,7 @@ export default function Profile() {
                                     </div>
 
                                     <div className="space-y-4 mb-6">
-                                        <div className="bg-espresso-950 p-2 rounded-2xl border border-espresso-700/50/50">
+                                        <div className="bg-espresso-950 p-2 rounded-2xl border border-espresso-700">
                                             <div className="relative">
                                                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
                                                 <input
@@ -2117,7 +2117,7 @@ export default function Profile() {
                             {authView === 'verify' && (
                                 <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                                     <div className="text-center mb-8">
-                                        <div className="w-16 h-16 bg-espresso-950 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-espresso-700/50">
+                                        <div className="w-16 h-16 bg-espresso-950 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-espresso-700">
                                             <Mail size={28} />
                                         </div>
                                         <h3 className="text-2xl font-serif font-bold text-espresso-50 tracking-tight">{t('profile.verify_title')}</h3>
@@ -2130,7 +2130,7 @@ export default function Profile() {
                                     </div>
 
                                     <div className="space-y-3 mb-6">
-                                        <div className="bg-espresso-950 p-2 rounded-2xl border border-espresso-700/50/50">
+                                        <div className="bg-espresso-950 p-2 rounded-2xl border border-espresso-700">
                                             <div className="relative">
                                                 <KeyRound size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
                                                 <input
@@ -2157,7 +2157,7 @@ export default function Profile() {
 
                                         <div className="flex justify-center flex-wrap gap-4 mt-6 text-[13px] font-medium text-espresso-200">
                                             <span className="text-espresso-300">{t('profile.resend_q')}</span>
-                                            <button onClick={handleResendCode} className="font-bold text-espresso-50 border-b border-coffee-900 pb-0.5">{t('profile.btn_resend')}</button>
+                                            <button onClick={handleResendCode} className="font-bold text-espresso-50 border-b border-coffee-700 pb-0.5">{t('profile.btn_resend')}</button>
                                         </div>
                                     </div>
                                     <button onClick={() => { setAuthError(''); setAuthView('login'); }} className="absolute top-4 left-4 p-2 text-espresso-300 hover:text-espresso-50">
@@ -2174,7 +2174,7 @@ export default function Profile() {
                                     </div>
                                     <div className="space-y-4 mb-6">
                                         {/* Role Selection */}
-                                        <div className="flex bg-espresso-950 border border-espresso-700/50/50 rounded-2xl p-1 mb-2 shadow-inner">
+                                        <div className="flex bg-espresso-950 border border-espresso-700 rounded-2xl p-1 mb-2 shadow-inner">
                                             <button
                                                 onClick={() => setRole('USER')}
                                                 className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'USER' ? 'bg-espresso-900 text-espresso-50 shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
@@ -2189,7 +2189,7 @@ export default function Profile() {
                                             </button>
                                         </div>
 
-                                        <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700/50/50">
+                                        <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700">
                                             <div className="relative">
                                                 <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
                                                 <input type="text" value={nickname} onChange={e => setNickname(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_nickname')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
@@ -2213,7 +2213,7 @@ export default function Profile() {
                                             </div>
                                         </div>
 
-                                        <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700/50/50">
+                                        <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700">
                                             <select value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="w-full bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 outline-none text-[15px] font-medium text-espresso-100">
                                                 <option value="" disabled>{t('profile.ph_age')}</option>
                                                 <option value="10대 이하">{t('profile.age_10s')}</option>
@@ -2262,7 +2262,7 @@ export default function Profile() {
                                     </div>
                                     <div className="space-y-4 mb-6">
                                         {/* Role Selection */}
-                                        <div className="flex bg-espresso-950 border border-espresso-700/50/50 rounded-2xl p-1 mb-2 shadow-inner">
+                                        <div className="flex bg-espresso-950 border border-espresso-700 rounded-2xl p-1 mb-2 shadow-inner">
                                             <button
                                                 onClick={() => setRole('USER')}
                                                 className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'USER' ? 'bg-espresso-900 text-espresso-50 shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
@@ -2277,7 +2277,7 @@ export default function Profile() {
                                             </button>
                                         </div>
 
-                                        <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700/50/50">
+                                        <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700">
                                             <select value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="w-full bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 outline-none text-[15px] font-medium text-espresso-100">
                                                 <option value="" disabled>{t('profile.ph_age')}</option>
                                                 <option value="10대 이하">{t('profile.age_10s')}</option>
@@ -2325,7 +2325,7 @@ export default function Profile() {
                                         <p className="text-sm text-espresso-200 mt-2 break-keep">{t('profile.find_id_desc')}</p>
                                     </div>
                                     <div className="space-y-4 mb-6">
-                                        <div className="bg-espresso-950 p-2 rounded-2xl border border-espresso-700/50/50">
+                                        <div className="bg-espresso-950 p-2 rounded-2xl border border-espresso-700">
                                             <div className="relative">
                                                 <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
                                                 <input type="text" value={nickname} onChange={e => setNickname(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_nickname')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
@@ -2355,7 +2355,7 @@ export default function Profile() {
                                         </p>
                                     </div>
                                     <div className="space-y-4 mb-6">
-                                        <div className="bg-espresso-950 p-2 rounded-2xl border border-espresso-700/50/50">
+                                        <div className="bg-espresso-950 p-2 rounded-2xl border border-espresso-700">
                                             <div className="relative">
                                                 <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
                                                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_email')} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold text-espresso-50 placeholder:font-normal placeholder:text-espresso-300" />
@@ -2385,7 +2385,7 @@ export default function Profile() {
                                         </p>
                                     </div>
                                     <div className="space-y-4 mb-6">
-                                        <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700/50/50">
+                                        <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700">
                                             <div className="relative">
                                                 <KeyRound size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-300" />
                                                 <input type="text" value={verificationCode} onChange={e => setVerificationCode(e.target.value)} onFocus={(e) => setTimeout(() => e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300)} placeholder={t('profile.ph_verify_code')} maxLength={6} className="w-full pl-12 bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 focus:ring-2 focus:ring-amber-600/60 focus:border-amber-600/60 outline-none text-[15px] font-bold tracking-[0.2em] placeholder:tracking-normal placeholder:font-normal placeholder:text-espresso-300" />
@@ -2483,7 +2483,7 @@ export default function Profile() {
                             initial={{ scale: 0.95, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            className="bg-espresso-900 border border-espresso-700/80 w-full max-w-sm rounded-[2rem] p-6 shadow-2xl flex flex-col"
+                            className="bg-espresso-900 border border-espresso-700 w-full max-w-sm rounded-[2rem] p-6 shadow-2xl flex flex-col"
                             onClick={e => e.stopPropagation()}
                         >
                             <h3 className="text-xl font-serif font-black text-amber-500 mb-2">{t('profile.title_share_coffeetalk')}</h3>
@@ -2495,7 +2495,7 @@ export default function Profile() {
                                 value={shareMessage}
                                 onChange={(e) => setShareMessage(e.target.value)}
                                 placeholder={t('profile.share_msg_default')}
-                                className="w-full bg-espresso-950 border border-espresso-800 rounded-2xl p-4 text-[13px] text-espresso-50 placeholder:text-espresso-400 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 min-h-[120px] resize-none mb-6 shadow-inner"
+                                className="w-full bg-espresso-950 border border-espresso-700 rounded-2xl p-4 text-[13px] text-espresso-50 placeholder:text-espresso-400 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 min-h-[120px] resize-none mb-6 shadow-inner"
                                 disabled={isLoading}
                             />
                             
@@ -2534,7 +2534,7 @@ export default function Profile() {
                             initial={{ scale: 0.95, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            className="bg-espresso-900 border border-espresso-700/80 w-full max-w-sm rounded-[2rem] p-6 shadow-2xl flex flex-col max-h-[85vh] overflow-y-auto"
+                            className="bg-espresso-900 border border-espresso-700 w-full max-w-sm rounded-[2rem] p-6 shadow-2xl flex flex-col max-h-[85vh] overflow-y-auto"
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="flex justify-between items-center mb-4">
@@ -2546,7 +2546,7 @@ export default function Profile() {
                                 value={memoInput}
                                 onChange={(e) => setMemoInput(e.target.value)}
                                 placeholder={t('profile.ph_visit_memo', '이 매장 방문에 대한 짧은 메모를 남겨보세요.')}
-                                className="w-full bg-espresso-950 border border-espresso-800 rounded-2xl p-4 text-[13px] text-espresso-50 placeholder:text-espresso-400 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 min-h-[120px] resize-none mb-4 shadow-inner"
+                                className="w-full bg-espresso-950 border border-espresso-700 rounded-2xl p-4 text-[13px] text-espresso-50 placeholder:text-espresso-400 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 min-h-[120px] resize-none mb-4 shadow-inner"
                                 disabled={isLoading}
                             />
 
@@ -2563,7 +2563,7 @@ export default function Profile() {
                                 {memoImagePreviews.length > 0 && (
                                     <div className="flex gap-2 mb-3 overflow-x-auto pb-2 snap-x hide-scrollbar">
                                         {memoImagePreviews.map((preview, idx) => (
-                                            <div key={idx} className="relative flex-shrink-0 w-28 h-28 border border-espresso-800/80 rounded-xl overflow-hidden snap-center group">
+                                            <div key={idx} className="relative flex-shrink-0 w-28 h-28 border border-espresso-700 rounded-xl overflow-hidden snap-center group">
                                                 <img src={preview} alt="Memo preview" className="w-full h-full object-cover" />
                                                 <button 
                                                     onClick={() => {
@@ -2584,14 +2584,14 @@ export default function Profile() {
                                 {memoImagePreviews.length < 5 && (
                                     <button 
                                         onClick={() => memoFileInputRef.current?.click()}
-                                        className="w-full py-4 border-2 border-dashed border-espresso-700/80 rounded-xl text-espresso-400 font-bold hover:bg-espresso-800 hover:text-espresso-300 transition-colors text-sm flex items-center justify-center gap-2"
+                                        className="w-full py-4 border-2 border-dashed border-espresso-700 rounded-xl text-espresso-400 font-bold hover:bg-espresso-800 hover:text-espresso-300 transition-colors text-sm flex items-center justify-center gap-2"
                                     >
                                         <Store size={18} /> {t('profile.btn_attach_photo', '사진 첨부하기 (옵션)')} {memoImagePreviews.length > 0 ? `(${memoImagePreviews.length}/5)` : ''}
                                     </button>
                                 )}
                             </div>
                             
-                            <div className="flex gap-3 mt-auto pt-2 border-t border-espresso-800/50">
+                            <div className="flex gap-3 mt-auto pt-2 border-t border-espresso-700">
                                 { (selectedCheckinForMemo.memo || selectedCheckinForMemo.memoImageUrl) && (
                                     <button
                                         onClick={() => { setMemoInput(''); setMemoImagePreviews([]); setMemoImageFiles([]); }}
