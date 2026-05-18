@@ -1887,7 +1887,7 @@ export default function CoffeeTalk() {
               )}
 
               {/* Interactions & Content */}
-              <div className={activeFilter === 'shorts' ? "absolute bottom-0 left-0 right-0 z-[50] p-4 pt-32 landscape:pt-4 pb-[110px] landscape:pb-4 flex flex-col justify-end pointer-events-none bg-gradient-to-t from-black/80 via-black/20 to-transparent" : "relative z-20 p-4 pt-3 flex flex-col justify-end mt-auto"}>
+              <div className={activeFilter === 'shorts' ? "absolute bottom-0 left-0 right-0 z-[50] pl-4 pr-[80px] pt-32 landscape:pt-4 pb-[110px] landscape:pb-4 flex flex-col justify-end pointer-events-none bg-gradient-to-t from-black/80 via-black/20 to-transparent" : "relative z-20 p-4 pt-3 flex flex-col justify-end mt-auto"}>
                 {/* Shorts / Pilgrimage Meta Tags Area */}
                 {(post.isPilgrimageLedger || activeFilter === 'shorts') && (post.cafeName || post.taggedBean || post.shortsCategory || post.equipmentTag) && (
                   <div className={`flex flex-col gap-2 mb-3 ${post.isPilgrimageLedger ? 'pb-2 w-full border-b border-white/5' : ''}`}>
