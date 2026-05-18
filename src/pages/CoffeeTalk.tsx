@@ -1411,7 +1411,7 @@ export default function CoffeeTalk() {
 
       {/* Main Feed Content */}
       <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto scroll-smooth ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24'}`}>
-        <div className={`mx-auto ${activeFilter === 'shorts' ? 'w-full max-w-md md:max-w-2xl h-full sm:border-x sm:border-espresso-800' : 'max-w-md md:max-w-2xl sm:px-4 sm:pb-4'}`}>
+        <div className={`mx-auto ${activeFilter === 'shorts' ? 'w-full max-w-md md:max-w-2xl h-full' : 'max-w-md md:max-w-2xl sm:px-4 sm:pb-4'}`}>
           {activeFilter === 'near_live' && <HotspotMap />}
           {isLoading && <p className="text-center text-espresso-200 mt-10">{t('coffee_talk.loading_feed', '피드를 불러오는 중입니다...')}</p>}
           {!isLoading && filteredPosts.length === 0 && (
@@ -1629,7 +1629,7 @@ export default function CoffeeTalk() {
                       </div>
                   </article>
               ) : (
-                  <article id={`post-${post.id}`} className={`${activeFilter === 'shorts' ? 'snap-start snap-always h-full w-full mx-0 border-0 rounded-none mb-0 flex flex-col pt-0 shrink-0 bg-black relative' : post.isPilgrimageLedger ? 'min-h-[500px] border-amber-500/20 shadow-2xl flex flex-col group rounded-none sm:rounded-3xl mx-0 border-y sm:border border-x-0 mb-0' : (post.isPinned ? 'bg-gradient-to-b from-[#251b0f] to-[#1a1205] border-amber-500/40 rounded-none sm:rounded-3xl mx-0 border-y sm:border border-x-0 mb-0' : 'bg-espresso-900 border-espresso-600 rounded-none sm:rounded-3xl mx-0 border-y sm:border border-x-0 mb-0')} overflow-hidden relative hover:border-amber-500/50 transition-colors`}>
+                  <article id={`post-${post.id}`} className={`${activeFilter === 'shorts' ? 'snap-start snap-always h-full w-full mx-0 border-0 sm:border-x sm:border-espresso-800 rounded-none mb-0 flex flex-col pt-0 shrink-0 bg-black relative' : post.isPilgrimageLedger ? 'min-h-[500px] border-amber-500/20 shadow-2xl flex flex-col group rounded-none sm:rounded-3xl mx-0 border-y sm:border border-x-0 mb-0' : (post.isPinned ? 'bg-gradient-to-b from-[#251b0f] to-[#1a1205] border-amber-500/40 rounded-none sm:rounded-3xl mx-0 border-y sm:border border-x-0 mb-0' : 'bg-espresso-900 border-espresso-600 rounded-none sm:rounded-3xl mx-0 border-y sm:border border-x-0 mb-0')} overflow-hidden relative hover:border-amber-500/50 transition-colors`}>
               
               {/* --- MAGAZINE BACKGROUND FOR PILGRIMAGE --- */}
               {post.isPilgrimageLedger && post.image && (() => {
