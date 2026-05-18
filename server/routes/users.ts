@@ -1313,7 +1313,7 @@ router.put('/collections/:collectionId/reorder', authenticateToken, async (req: 
 });
 
 // PUT: Update collection properties
-router.put('/collections/:collectionId', authenticateToken, async (req: any, res: any) => {
+router.put('/collections/:collectionId', authenticateToken, upload.single('coverImage'), async (req: any, res: any) => {
     try {
         const userId = req.user.id;
         const { collectionId } = req.params;
@@ -1323,13 +1323,19 @@ router.put('/collections/:collectionId', authenticateToken, async (req: any, res
         if (!collection) return res.status(404).json({ error: ERROR_CODES.STORE_NOT_FOUND });
         if (collection.userId !== userId) return res.status(403).json({ error: ERROR_CODES.UNAUTHORIZED });
 
+        let coverImageUrl = undefined;
+        if (req.file) {
+            coverImageUrl = `/uploads/users/${req.file.filename}`;
+        }
+
         const updatedCollection = await (prisma as any).collection.update({
             where: { id: collectionId },
             data: {
                 name: name !== undefined ? name : collection.name,
                 description: description !== undefined ? description : collection.description,
-                isPublic: isPublic !== undefined ? isPublic : collection.isPublic,
-                isPilgrimageCourse: isPilgrimageCourse !== undefined ? isPilgrimageCourse : collection.isPilgrimageCourse
+                isPublic: isPublic !== undefined ? (isPublic === 'true' || isPublic === true) : collection.isPublic,
+                isPilgrimageCourse: isPilgrimageCourse !== undefined ? (isPilgrimageCourse === 'true' || isPilgrimageCourse === true) : collection.isPilgrimageCourse,
+                ...(coverImageUrl && { coverImageUrl })
             }
         });
         res.status(200).json(updatedCollection);

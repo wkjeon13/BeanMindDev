@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { User, LogIn, Store, ShieldCheck, ChevronRight, ChevronUp, ChevronDown, Mail, Lock, Shield, Users, Globe, Send, Inbox, Coffee, Database, MapPin, Share2, Trash2, KeyRound } from 'lucide-react';
+import { User, LogIn, Store, ShieldCheck, ChevronRight, ChevronUp, ChevronDown, Mail, Lock, Shield, Users, Globe, Send, Inbox, Coffee, Database, MapPin, Share2, Trash2, KeyRound, Image as ImageIcon } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useGoogleLogin, GoogleLogin } from '@react-oauth/google';
 import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
@@ -60,6 +60,8 @@ export default function Profile() {
     const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
     const [passportCheckins, setPassportCheckins] = useState<any[]>([]);
     const [myCourses, setMyCourses] = useState<any[]>([]);
+    const [uploadingCourseId, setUploadingCourseId] = useState<string | null>(null);
+    const courseImageInputRef = React.useRef<HTMLInputElement>(null);
     const [tasteMatrix, setTasteMatrix] = useState<any>(null);
     const [isPassportExpanded, setIsPassportExpanded] = useState(true);
     
@@ -87,6 +89,37 @@ export default function Profile() {
                 reader.onloadend = () => setMemoImagePreviews(prev => [...prev, reader.result as string]);
                 reader.readAsDataURL(file);
             });
+        }
+    };
+
+    const handleCourseImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || !e.target.files[0] || !uploadingCourseId) return;
+        const file = e.target.files[0];
+        
+        setIsLoading(true);
+        try {
+            const formData = new FormData();
+            formData.append('coverImage', file);
+            
+            const res = await fetch(`${API_BASE}/api/users/collections/${uploadingCourseId}`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                body: formData
+            });
+            
+            if (res.ok) {
+                const updatedCourse = await res.json();
+                setMyCourses(prev => prev.map(c => c.id === updatedCourse.id ? updatedCourse : c));
+            } else {
+                alert(t('profile.alert_upload_fail', '이미지 업로드에 실패했습니다.'));
+            }
+        } catch (error) {
+            console.error(error);
+            alert(t('profile.alert_error', '오류가 발생했습니다.'));
+        } finally {
+            setIsLoading(false);
+            setUploadingCourseId(null);
+            if (courseImageInputRef.current) courseImageInputRef.current.value = '';
         }
     };
 
@@ -1828,8 +1861,8 @@ export default function Profile() {
                             {myCourses.length > 0 ? (
                                 <div className="px-6 pb-6 overflow-x-auto hide-scrollbar flex gap-4 snap-x snap-mandatory relative z-10">
                                     {myCourses.map((course, idx) => {
-                                        // Pick first store's image as cover
-                                        const coverImage = course.items?.[0]?.store?.mainImageUrl || 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=600&auto=format&fit=crop';
+                                        const rawImageUrl = course.coverImageUrl || course.items?.[0]?.store?.mainImageUrl || 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=600&auto=format&fit=crop';
+                                        const coverImage = rawImageUrl.startsWith('http') ? rawImageUrl : `${API_BASE}${rawImageUrl}`;
                                         const validItemCount = course.placesCount ?? (course._count?.items || 0);
                                         
                                         return (
@@ -1858,6 +1891,16 @@ export default function Profile() {
                                                     )}
                                                     {/* Actions */}
                                                     <div className="absolute bottom-3 right-3 flex gap-2 z-10">
+                                                        <button 
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setUploadingCourseId(course.id);
+                                                                if (courseImageInputRef.current) courseImageInputRef.current.click();
+                                                            }}
+                                                            className="p-2 w-8 h-8 flex items-center justify-center bg-espresso-950/80 hover:bg-amber-900/80 rounded-full text-amber-500 backdrop-blur-sm border border-amber-900/50 shadow-lg transition-transform active:scale-95"
+                                                        >
+                                                            <ImageIcon size={14} />
+                                                        </button>
                                                         <button 
                                                             onClick={(e) => handleDeleteCourse(e, course.id)}
                                                             className="p-2 w-8 h-8 flex items-center justify-center bg-espresso-950/80 hover:bg-red-900/80 rounded-full text-red-500 backdrop-blur-sm border border-red-900/50 shadow-lg transition-transform active:scale-95"
@@ -2613,6 +2656,14 @@ export default function Profile() {
                     </motion.div>
                 )}
             </AnimatePresence>
+            
+            <input 
+                type="file" 
+                ref={courseImageInputRef} 
+                onChange={handleCourseImageChange} 
+                className="hidden" 
+                accept="image/*" 
+            />
         </div>
     );
 }
