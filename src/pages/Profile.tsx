@@ -1201,7 +1201,7 @@ export default function Profile() {
                                                 onClick={() => document.getElementById('profileImageInput')?.click()}
                                             >
                                                 {currentUser?.profileImageUrl ? (
-                                                    <img src={currentUser.profileImageUrl} alt="profile" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/images/default-avatar.png'; }} />
+                                                    <img src={currentUser.profileImageUrl.startsWith('http') ? currentUser.profileImageUrl : `${API_BASE}${currentUser.profileImageUrl}`} alt="profile" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/images/default-avatar.png'; }} />
                                                 ) : (
                                                     <img src="/images/default-avatar.png" alt="profile" className="w-full h-full object-cover" />
                                                 )}

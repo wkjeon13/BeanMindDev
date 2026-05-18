@@ -291,7 +291,7 @@ export default function CoffeeTalk() {
               author: {
                 id: d.author?.id,
                 name: d.author.role === 'OWNER' && d.author.stores && d.author.stores.length > 0 ? d.author.stores[0].name : d.author.nickname,
-                avatar: d.author.profileImageUrl || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
+                avatar: d.author.profileImageUrl ? (d.author.profileImageUrl.startsWith('http') ? d.author.profileImageUrl : `${API_BASE}${d.author.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
                 badges: d.author.role === 'OWNER' ? [t('coffee_talk.badge_official', '공식 매장')] : [t('coffee_talk.badge_lover', '커피 애호가')],
                 role: d.author.role
               },
@@ -345,7 +345,7 @@ export default function CoffeeTalk() {
                           author: {
                               id: d.author?.id,
                               name: d.author.role === 'OWNER' && d.author.stores && d.author.stores.length > 0 ? d.author.stores[0].name : d.author.nickname,
-                              avatar: d.author.profileImageUrl || 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
+                              avatar: d.author.profileImageUrl ? (d.author.profileImageUrl.startsWith('http') ? d.author.profileImageUrl : `${API_BASE}${d.author.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
                               badges: d.author.role === 'OWNER' ? [t('coffee_talk.badge_official', '공식 매장')] : [t('coffee_talk.badge_lover', '커피 애호가')],
                               role: d.author.role
                           },

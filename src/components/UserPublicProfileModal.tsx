@@ -70,7 +70,7 @@ export const UserPublicProfileModal: React.FC<UserPublicProfileModalProps> = ({ 
                             <div className="relative w-32 h-32 mb-6">
                                 <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-500/20 to-transparent blur-xl"></div>
                                 <img 
-                                    src={user.profileImageUrl || `https://ui-avatars.com/api/?name=${user.nickname}&background=3f3f3f&color=fff`} 
+                                    src={user.profileImageUrl ? (user.profileImageUrl.startsWith('http') ? user.profileImageUrl : `${API_BASE}${user.profileImageUrl}`) : `https://ui-avatars.com/api/?name=${user.nickname}&background=3f3f3f&color=fff`} 
                                     alt={user.nickname}
                                     className="w-full h-full rounded-full object-cover border-2 border-espresso-800 shadow-2xl relative z-10"
                                 />

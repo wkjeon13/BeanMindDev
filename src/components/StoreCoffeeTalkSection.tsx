@@ -95,7 +95,7 @@ export default function StoreCoffeeTalkSection({ storeId, onCloseModal }: StoreC
                             <div className="p-3 flex flex-col flex-1">
                                 <div className="flex items-center gap-1.5 mb-1.5">
                                     <img 
-                                        src={post.author?.profileImageUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author?.nickname}`} 
+                                        src={post.author?.profileImageUrl ? (post.author.profileImageUrl.startsWith('http') ? post.author.profileImageUrl : `${API_BASE}${post.author.profileImageUrl}`) : `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author?.nickname}`} 
                                         alt="Author" 
                                         className="w-4 h-4 rounded-full border border-espresso-700"
                                     />
