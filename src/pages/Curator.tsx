@@ -402,10 +402,32 @@ export default function App() {
                 
                 <GlobalAdBanner placement="HOME_HERO" className="mb-6 max-w-xs md:max-w-md mx-auto w-full" />
                 
-                <div className="w-full max-w-xs md:max-w-sm">
+                <div className="w-full max-w-xs md:max-w-sm flex flex-col gap-3">
                   <button onClick={startSurvey} className="bg-gradient-to-r from-amber-500 to-blue-500 text-espresso-50 w-full text-lg font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] py-5 rounded-2xl active:scale-95 transition-transform uppercase tracking-widest">
                     {t('curator.intro_start') || "START"}
                   </button>
+                  
+                  {localStorage.getItem('bm_sync_presc') && (
+                      <button 
+                          onClick={() => {
+                              try {
+                                  const parsed = JSON.parse(localStorage.getItem('bm_sync_presc') || '{}');
+                                  if (parsed.recommendation) {
+                                      useCuratorStore.setState({
+                                          recommendation: parsed.recommendation,
+                                          subRecommendations: parsed.subRecommendations || [],
+                                          aiExplanation: parsed.aiExplanation || "",
+                                          nearbyShops: parsed.nearbyShops || [],
+                                          step: 4
+                                      });
+                                  }
+                              } catch(e) {}
+                          }}
+                          className="w-full py-4 bg-espresso-800 text-amber-500 font-bold rounded-2xl text-[15px] border border-espresso-700 hover:bg-espresso-700 active:scale-95 transition-all shadow-md"
+                      >
+                          진행 중인 분석 이어서 보기
+                      </button>
+                  )}
                 </div>
               </div>
             )}
