@@ -233,63 +233,39 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
       measure("6. 국가 역지오코딩(Reverse Geocode) 완료 (최대 1.5초 타임아웃 방어)");
       const targetLanguage = language.startsWith('en') ? 'English' : 'Korean';
 
-      measure("6-1. 클라이언트 기반 휴리스틱 매칭 (0.1초 컷)");
-      const scoredBeans = COFFEE_BEANS.map(bean => {
-        let score = 0;
-        const prefs = state.prefs;
-        score += (5 - Math.abs(prefs.tasteAcidity - bean.acidity)) * 1.5;
-        score += (5 - Math.abs(prefs.tasteSweetness - bean.sweetness)) * 1.5;
-        score += (5 - Math.abs(prefs.tasteBitterness - bean.bitterness)) * 1.5;
-        score += (5 - Math.abs(prefs.tasteBody - bean.body)) * 1.5;
-        const commonNotes = bean.flavorNotes.filter((note: string) => prefs.flavorNotes.includes(note as never));
-        score += commonNotes.length * 2;
-        if (prefs.season === 'Summer' && bean.acidity >= 4) score += 1;
-        if (prefs.season === 'Winter' && bean.body >= 4) score += 1;
-        const combinedWeather = `${state.prefs.weather}`.toLowerCase();
-        if (combinedWeather.includes('hot') || combinedWeather.includes('sunny')) {
-          if (bean.acidity >= 4) score += 2;
-        }
-        if (combinedWeather.includes('rain') || combinedWeather.includes('cold') || combinedWeather.includes('snow')) {
-          if (bean.body >= 4) score += 2;
-        }
-        if (prefs.timeOfDay === 'Morning' && bean.roastLevel === 'Medium') score += 1;
-        if (prefs.timeOfDay === 'Night' && bean.roastLevel === 'Light') score += 1;
-        if (prefs.condition === 'Tired' && bean.body >= 4) score += 2;
-        if (prefs.condition === 'Refreshing' && bean.acidity >= 4) score += 2;
-        if (prefs.healthStatus === 'CaffeineSensitive' && prefs.caffeine !== 'Decaf') {
-          score -= 10;
-        }
-        if (prefs.healthStatus === 'StomachSensitive' && bean.acidity >= 3) {
-          score -= 5;
-        }
-        if (prefs.healthStatus === 'Diabetes') {
-          if (bean.sweetness >= 4) score += 3;
-          if (bean.processing === 'Washed') score += 2;
-        }
-        if (prefs.healthStatus === 'HighCholesterol') {
-          if (prefs.base === 'Espresso') score -= 5; 
-          if (prefs.equipment === 'Hand Drip' || prefs.equipment === 'French Press' === false) score += 3;
-        }
-        if (userFavCafe === '스타벅스' && bean.roastLevel === 'Dark') score += 2;
-        if (userFavCafe === '스타벅스' && bean.body >= 4) score += 1;
-        if (userFavCafe === '블루보틀' && bean.roastLevel === 'Light') score += 2;
-        if (userFavCafe === '블루보틀' && bean.acidity >= 4) score += 1;
-        
-        const isYoung = userAgeGroup === '10대 이하' || userAgeGroup === '20대' || userAgeGroup === '30대';
-        if (isYoung && bean.acidity >= 4) score += 1; 
-        if (!isYoung && bean.body >= 4) score += 1; 
-
-        return { bean, score };
-      }).sort((a, b) => b.score - a.score);
-
-      const bestBean = scoredBeans[0].bean;
-      const bestBrand = BRANDS.find(b => b.beans.includes(bestBean.id as never)) || BRANDS[0];
-      const matchRec = { bean: bestBean, brand: bestBrand };
+      measure("6-1. AI 동적 원두 생성 시작 (Gemini API 호출)");
+      let matchRec: any = null;
+      let subRecs: any[] = [];
       
-      const subRecs = scoredBeans.slice(1, 3).map(sb => ({
-        bean: sb.bean,
-        brand: BRANDS.find(b => b.beans.includes(sb.bean.id as never)) || BRANDS[0]
-      }));
+      try {
+          const aiRecRes = await fetch(`${API_BASE}/api/ai-features/curator-recommend`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', ...(token ? { 'Authorization': `Bearer ${token}` } : {}) },
+              body: JSON.stringify({
+                  prefs: state.prefs,
+                  userAgeGroup,
+                  userGender,
+                  language
+              })
+          });
+          if (!aiRecRes.ok) throw new Error("AI Recommendation failed");
+          const aiRecData = await aiRecRes.json();
+          matchRec = aiRecData;
+          
+          // Generate dummy sub recommendations to preserve UI (since we only generate 1 perfect match)
+          subRecs = [
+              { bean: { ...aiRecData.bean, name: aiRecData.bean.name + " (Alternative Roasting)", acidity: Math.max(1, aiRecData.bean.acidity - 1) }, brand: aiRecData.brand },
+              { bean: { ...aiRecData.bean, name: aiRecData.bean.name + " (Sweet Focus)", sweetness: Math.min(5, aiRecData.bean.sweetness + 1) }, brand: aiRecData.brand }
+          ];
+      } catch (err) {
+          console.error("AI Recommendation API Error, falling back to heuristic:", err);
+          // Fallback to the first local bean if API fails
+          matchRec = { bean: COFFEE_BEANS[0], brand: BRANDS[0] };
+          subRecs = [{ bean: COFFEE_BEANS[1], brand: BRANDS[1] }];
+      }
+      
+      const bestBean = matchRec.bean;
+      const bestBrand = matchRec.brand;
 
       // JSON 파싱 대기 없이 즉각 화면 전환!
       set({

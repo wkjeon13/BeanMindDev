@@ -153,6 +153,64 @@ router.post('/map-shops', optionalAuthenticateToken, async (req: any, res: any) 
     }
 });
 
+// Generate Dynamic Coffee Recommendation JSON
+router.post('/curator-recommend', optionalAuthenticateToken, async (req: any, res: any) => {
+    try {
+        const { prefs, userAgeGroup, userGender, language } = req.body;
+        
+        const prompt = `You are a world-class coffee sommelier and Q-Grader.
+        A user has provided the following preferences and context:
+        Preferences: ${JSON.stringify(prefs)}
+        Demographics: Age: ${userAgeGroup || 'Unknown'}, Gender: ${userGender || 'Unknown'}
+        
+        Your task is to dynamically generate the absolute perfect coffee bean recommendation that matches their taste profile (Acidity: ${prefs?.tasteAcidity}, Sweetness: ${prefs?.tasteSweetness}, Bitterness: ${prefs?.tasteBitterness}, Body: ${prefs?.tasteBody}), health constraints (if any), and environmental context (Weather, Time, Mood).
+        You may invent a highly realistic specialty coffee profile or recommend a famous real-world coffee. 
+        
+        Respond ONLY with a valid JSON object matching the following structure exactly (DO NOT wrap in markdown blocks, just raw JSON):
+        {
+          "bean": {
+            "id": "ai-generated-bean",
+            "name": "[Creative but realistic bean name, e.g., 'Ethiopia Guji Anaerobic Natural']",
+            "origin": "[Country]",
+            "region": "[Region]",
+            "processing": "[Processing Method]",
+            "roastLevel": "[Light, Medium, or Dark]",
+            "acidity": [Number 1-5],
+            "body": [Number 1-5],
+            "sweetness": [Number 1-5],
+            "bitterness": [Number 1-5],
+            "flavorNotes": ["[Flavor 1]", "[Flavor 2]", "[Flavor 3]"],
+            "description": "[A short 1-sentence description of the coffee in ${language?.startsWith('en') ? 'English' : 'Korean'}]",
+            "brewingGuide": "[A short brewing tip in ${language?.startsWith('en') ? 'English' : 'Korean'}]",
+            "foodPairing": []
+          },
+          "brand": {
+            "id": "ai-generated-brand",
+            "name": "[A famous global or premium coffee brand that fits this roast, e.g., 'Blue Bottle Coffee', 'Fritz Coffee', 'Starbucks Reserve']",
+            "description": "[Short description of the brand in ${language?.startsWith('en') ? 'English' : 'Korean'}]",
+            "website": ""
+          }
+        }`;
+
+        const aiResponse = await ai.models.generateContent({
+            model: "gemini-2.5-flash",
+            contents: prompt,
+            config: { temperature: 0.7 }
+        });
+
+        let text = aiResponse.text || "{}";
+        text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) text = jsonMatch[0];
+
+        const parsed = JSON.parse(text);
+        res.status(200).json(parsed);
+    } catch (error) {
+        console.error("AI Curator Recommend Error:", error);
+        res.status(500).json({ error: "Failed to generate AI recommendation." });
+    }
+});
+
 // AI Tasting Note Analysis
 router.post('/tasting-note/analyze', authenticateToken, async (req: any, res: any) => {
     try {
