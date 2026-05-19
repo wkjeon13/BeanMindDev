@@ -411,17 +411,26 @@ export default function App() {
                       <button 
                           onClick={() => {
                               try {
-                                  const parsed = JSON.parse(localStorage.getItem('bm_sync_presc') || '{}');
+                                  const raw = localStorage.getItem('bm_sync_presc');
+                                  if (!raw) return;
+                                  const parsed = JSON.parse(raw);
                                   if (parsed.recommendation) {
                                       useCuratorStore.setState({
                                           recommendation: parsed.recommendation,
                                           subRecommendations: parsed.subRecommendations || [],
                                           aiExplanation: parsed.aiExplanation || "",
-                                          nearbyShops: parsed.nearbyShops || [],
-                                          step: 4
+                                          nearbyShops: parsed.nearbyShops || []
                                       });
+                                      setStep(4);
+                                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                                  } else {
+                                      localStorage.removeItem('bm_sync_presc');
+                                      window.location.reload();
                                   }
-                              } catch(e) {}
+                              } catch(e) {
+                                  localStorage.removeItem('bm_sync_presc');
+                                  window.location.reload();
+                              }
                           }}
                           className="w-full py-4 bg-espresso-800 text-amber-500 font-bold rounded-2xl text-[15px] border border-espresso-700 hover:bg-espresso-700 active:scale-95 transition-all shadow-md"
                       >
