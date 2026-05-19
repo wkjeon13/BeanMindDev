@@ -1808,7 +1808,7 @@ export default function CoffeeTalk() {
 
               {/* Post Media (Hidden in Pilgrimage because it's the background!) */}
               {post.image && !post.isPilgrimageLedger && (
-                  <div className={`relative z-10 ${activeFilter === 'shorts' ? 'absolute inset-0 w-full h-full rounded-none' : 'aspect-[5/3] sm:aspect-[15/8] md:aspect-[20/9] w-[calc(100%-1.5rem)] mx-auto rounded-2xl'} overflow-hidden bg-espresso-900 group shadow-inner`}>
+                  <div className={`relative z-10 ${activeFilter === 'shorts' ? 'absolute inset-0 w-full h-full' : 'aspect-[5/3] sm:aspect-[15/8] md:aspect-[20/9] w-[calc(100%-1.5rem)] mx-auto'} bg-espresso-900 group shadow-inner ${activeFilter === 'shorts' ? '' : 'rounded-2xl'} transform-gpu`}>
                     {(() => {
                         let urls: string[] = [];
                         try {
@@ -1836,7 +1836,7 @@ export default function CoffeeTalk() {
                             <>
                                 <MediaRenderer 
                                     src={firstImageStr} 
-                                    className={`w-full h-full cursor-pointer object-cover ${activeFilter === 'shorts' ? 'bg-black' : ''}`} 
+                                    className={`w-full h-full cursor-pointer object-cover transform-gpu backface-hidden ${activeFilter === 'shorts' ? 'bg-black' : 'rounded-2xl'}`} 
                                     autoPlay={true} 
                                     onClick={() => setActiveCarouselUrls(urls)} 
                                 />
