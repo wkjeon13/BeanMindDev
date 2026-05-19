@@ -115,7 +115,10 @@ export default function TastingNoteWizard() {
     };
 
     return (
-        <div className="min-h-[100dvh] bg-black text-white p-4 pb-[50vh] md:pb-8">
+        <div 
+            className="min-h-[100dvh] bg-black text-white p-4 pb-[50vh] md:pb-8"
+            style={{ paddingTop: 'max(env(safe-area-inset-top, 20px), 20px)' }}
+        >
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
                 <button onClick={() => navigate(-1)} className="p-2 bg-zinc-900 rounded-full hover:bg-zinc-800 transition">
