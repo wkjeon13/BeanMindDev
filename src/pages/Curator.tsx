@@ -51,19 +51,12 @@ export default function App() {
     }
     
     // Mark session as active for the Home resume popup logic
-    if (step > 0 && step < 4) {
-      sessionStorage.setItem('curator_active', 'true');
-      sessionStorage.removeItem('curator_popup_dismissed');
-    } else if (step === 4) {
-      // If it's step 4, it's only active if it's currently analyzing
-      if (isLoading || aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다...") {
+    // Users requested this popup ONLY appear when the actual AI backend analysis is running (Step 4)
+    if (step === 4 && (isLoading || aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다...")) {
         sessionStorage.setItem('curator_active', 'true');
         sessionStorage.removeItem('curator_popup_dismissed');
-      } else {
-        sessionStorage.removeItem('curator_active');
-      }
     } else {
-      sessionStorage.removeItem('curator_active');
+        sessionStorage.removeItem('curator_active');
     }
   }, [step, isLoading, aiExplanation]);
 
