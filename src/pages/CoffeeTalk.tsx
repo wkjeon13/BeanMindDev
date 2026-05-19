@@ -1597,15 +1597,26 @@ export default function CoffeeTalk() {
                               <div className="relative mt-4 aspect-[4/3] sm:aspect-[16/9] w-[calc(100%+2rem)] -mx-4 group shadow-inner">
                                   {(() => {
                                       const imageToUse = ((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && post.imageEn) ? post.imageEn : post.image;
-                                      let urls = [imageToUse];
+                                      let urls: string[] = [];
                                       try {
-                                          const parsed = JSON.parse(imageToUse);
-                                          if (Array.isArray(parsed)) urls = parsed;
-                                      } catch(e) {}
+                                          if (typeof imageToUse === 'string') {
+                                              const parsed = JSON.parse(imageToUse);
+                                              if (Array.isArray(parsed)) urls = parsed;
+                                              else urls = [imageToUse];
+                                          } else if (Array.isArray(imageToUse)) {
+                                              urls = imageToUse;
+                                          } else {
+                                              urls = [String(imageToUse)];
+                                          }
+                                      } catch(e) {
+                                          urls = [imageToUse];
+                                      }
+                                      if (!urls || urls.length === 0 || !urls[0]) return null;
+                                      const firstImageStr = typeof urls[0] === 'string' ? urls[0] : String(urls[0]);
                                       
                                       return (
                                           <div className="w-full h-full cursor-pointer" onClick={(e) => { e.stopPropagation(); setActiveCarouselUrls(urls); }}>
-                                              <MediaRenderer src={urls[0]} className="w-full h-full object-cover" autoPlay={true} />
+                                              <MediaRenderer src={firstImageStr} className="w-full h-full object-cover" autoPlay={true} />
                                           </div>
                                       )
                                   })()}
@@ -1799,16 +1810,32 @@ export default function CoffeeTalk() {
               {post.image && !post.isPilgrimageLedger && (
                   <div className={`relative z-10 ${activeFilter === 'shorts' ? 'absolute inset-0 w-full h-full rounded-none' : 'aspect-[5/3] sm:aspect-[15/8] md:aspect-[20/9] w-[calc(100%-1.5rem)] mx-auto rounded-2xl'} overflow-hidden bg-espresso-900 group shadow-inner`}>
                     {(() => {
-                        let urls = [post.image];
+                        let urls: string[] = [];
                         try {
-                            const parsed = JSON.parse(post.image);
-                            if (Array.isArray(parsed)) urls = parsed;
-                        } catch(e) {}
+                            if (typeof post.image === 'string') {
+                                const parsed = JSON.parse(post.image);
+                                if (Array.isArray(parsed)) {
+                                    urls = parsed;
+                                } else {
+                                    urls = [post.image];
+                                }
+                            } else if (Array.isArray(post.image)) {
+                                urls = post.image;
+                            } else {
+                                urls = [String(post.image)];
+                            }
+                        } catch(e) {
+                            urls = [post.image];
+                        }
+                        
+                        // Sanity check to prevent undefined or array objects from crashing MediaRenderer
+                        if (!urls || urls.length === 0 || !urls[0]) return null;
+                        const firstImageStr = typeof urls[0] === 'string' ? urls[0] : String(urls[0]);
                         
                         return (
                             <>
                                 <MediaRenderer 
-                                    src={urls[0]} 
+                                    src={firstImageStr} 
                                     className={`w-full h-full cursor-pointer object-cover ${activeFilter === 'shorts' ? 'bg-black' : ''}`} 
                                     autoPlay={true} 
                                     onClick={() => setActiveCarouselUrls(urls)} 
