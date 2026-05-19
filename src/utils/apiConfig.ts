@@ -21,10 +21,10 @@ if (!isNative) {
                 apiBase = url.toString().replace(/\/$/, ''); // remove trailing slash
             }
         } else {
-            apiBase = `http://192.168.0.29:3001`;
+            apiBase = `http://192.168.0.33:3001`;
         }
     } catch (e) {
-        apiBase = `http://192.168.0.29:3001`;
+        apiBase = `http://192.168.0.33:3001`;
     }
 }
 export const API_BASE = apiBase;
