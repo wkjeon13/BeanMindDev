@@ -1234,7 +1234,7 @@ export default function Profile() {
                                                 onClick={() => document.getElementById('profileImageInput')?.click()}
                                             >
                                                 {currentUser?.profileImageUrl ? (
-                                                    <img src={currentUser.profileImageUrl.startsWith('http') ? currentUser.profileImageUrl : `${API_BASE}${currentUser.profileImageUrl}`} alt="profile" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/images/default-avatar.png'; }} />
+                                                    <img src={currentUser.profileImageUrl.includes('/uploads/') ? `${API_BASE}${currentUser.profileImageUrl.substring(currentUser.profileImageUrl.indexOf('/uploads/'))}` : (currentUser.profileImageUrl.startsWith('http') ? currentUser.profileImageUrl : `${API_BASE}${currentUser.profileImageUrl}`)} alt="profile" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/images/default-avatar.png'; }} />
                                                 ) : (
                                                     <img src="/images/default-avatar.png" alt="profile" className="w-full h-full object-cover" />
                                                 )}
@@ -1861,8 +1861,13 @@ export default function Profile() {
                             {myCourses.length > 0 ? (
                                 <div className="px-6 pb-6 overflow-x-auto hide-scrollbar flex gap-4 snap-x snap-mandatory relative z-10">
                                     {myCourses.map((course, idx) => {
-                                        const rawImageUrl = course.coverImageUrl || course.items?.[0]?.store?.mainImageUrl || 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=600&auto=format&fit=crop';
-                                        const coverImage = rawImageUrl.startsWith('http') ? rawImageUrl : `${API_BASE}${rawImageUrl}`;
+                                        let rawImageUrl = course.coverImageUrl || course.items?.[0]?.store?.mainImageUrl || 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=600&auto=format&fit=crop';
+                                        if (rawImageUrl.includes('/uploads/')) {
+                                            rawImageUrl = `${API_BASE}${rawImageUrl.substring(rawImageUrl.indexOf('/uploads/'))}`;
+                                        } else if (!rawImageUrl.startsWith('http')) {
+                                            rawImageUrl = `${API_BASE}${rawImageUrl}`;
+                                        }
+                                        const coverImage = rawImageUrl;
                                         const validItemCount = course.placesCount ?? (course._count?.items || 0);
                                         
                                         return (
