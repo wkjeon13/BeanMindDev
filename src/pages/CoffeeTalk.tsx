@@ -1615,7 +1615,7 @@ export default function CoffeeTalk() {
                                       const firstImageStr = typeof urls[0] === 'string' ? urls[0] : String(urls[0]);
                                       
                                       return (
-                                          <div className="w-full h-full cursor-pointer" onClick={(e) => { e.stopPropagation(); setActiveCarouselUrls(urls); }}>
+                                          <div className="absolute inset-0 w-full h-full cursor-pointer" onClick={(e) => { e.stopPropagation(); setActiveCarouselUrls(urls); }}>
                                               <MediaRenderer src={firstImageStr} className="w-full h-full object-cover" autoPlay={true} />
                                           </div>
                                       )
@@ -1836,7 +1836,7 @@ export default function CoffeeTalk() {
                             <>
                                 <MediaRenderer 
                                     src={firstImageStr} 
-                                    className={`w-full h-full cursor-pointer object-cover transform-gpu backface-hidden ${activeFilter === 'shorts' ? 'bg-black' : 'rounded-2xl'}`} 
+                                    className={`absolute inset-0 w-full h-full cursor-pointer object-cover transform-gpu backface-hidden ${activeFilter === 'shorts' ? 'bg-black' : 'rounded-2xl'}`} 
                                     autoPlay={true} 
                                     onClick={() => setActiveCarouselUrls(urls)} 
                                 />
