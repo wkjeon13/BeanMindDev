@@ -1809,7 +1809,7 @@ export default function CoffeeTalk() {
                             <>
                                 <MediaRenderer 
                                     src={urls[0]} 
-                                    className={`absolute inset-0 w-full h-full cursor-pointer block ${activeFilter === 'shorts' ? 'object-cover bg-black' : 'object-cover'}`} 
+                                    className={`w-full h-full cursor-pointer object-cover ${activeFilter === 'shorts' ? 'bg-black' : ''}`} 
                                     autoPlay={true} 
                                     onClick={() => setActiveCarouselUrls(urls)} 
                                 />
