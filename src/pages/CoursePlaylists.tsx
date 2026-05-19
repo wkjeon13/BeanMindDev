@@ -5,6 +5,14 @@ import { ChevronLeft, Share, Map, Coffee, Copy, Lock, PlusCircle, Trash2, Chevro
 import { API_BASE } from '../utils/apiConfig';
 import { useTranslation } from 'react-i18next';
 
+// Helper to sanitize stale local IPs from DB or localStorage
+const getSafeImageUrl = (url: string | null | undefined, fallback: string = '') => {
+    if (!url) return fallback;
+    if (url.includes('/uploads/')) return `${API_BASE}${url.substring(url.indexOf('/uploads/'))}`;
+    if (url.startsWith('http') || url.startsWith('data:') || url.startsWith('blob:')) return url;
+    return url.startsWith('/') ? `${API_BASE}${url}` : `${API_BASE}/${url}`;
+};
+
 export default function CoursePlaylists() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -155,6 +163,11 @@ export default function CoursePlaylists() {
     const isOwner = currentUser?.id === course.userId;
     const validItems = course.items?.filter((item: any) => item.store) || [];
 
+    const headerImageUrl = getSafeImageUrl(
+        course.coverImageUrl || course.items?.[0]?.store?.mainImageUrl,
+        'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=1000&auto=format&fit=crop'
+    );
+
     return (
         <div className="flex flex-col h-full bg-[#121215] relative overflow-hidden">
             
@@ -175,11 +188,7 @@ export default function CoursePlaylists() {
                 {/* Header Art */}
                 <div className="relative h-[200px] shrink-0 z-10 rounded-b-3xl overflow-hidden shadow-2xl">
                     <div className="absolute inset-0 bg-espresso-900 pointer-events-none">
-                        {course.items?.[0]?.store?.mainImageUrl ? (
-                            <img src={course.items[0].store.mainImageUrl} alt="Cover" className="w-full h-full object-cover opacity-60 mix-blend-luminosity" />
-                        ) : (
-                            <img src="https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=1000&auto=format&fit=crop" alt="Cover" className="w-full h-full object-cover opacity-30" />
-                        )}
+                        <img src={headerImageUrl} alt="Cover" className="w-full h-full object-cover opacity-60 mix-blend-luminosity" />
                         <div className="absolute inset-0 bg-gradient-to-t from-[#121215] via-[#121215]/80 to-transparent"></div>
                     </div>
 
@@ -244,7 +253,10 @@ export default function CoursePlaylists() {
                     {validItems.map((item: any, idx: number) => {
                         const store = item.store;
 
-                        const heroImage = store.mainImageUrl || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=40&w=200';
+                        const heroImage = getSafeImageUrl(
+                            store.mainImageUrl, 
+                            'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=40&w=200'
+                        );
 
                         return (
                             <div key={item.id} className="relative pl-6">
