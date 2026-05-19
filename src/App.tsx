@@ -30,14 +30,35 @@ const BottomNav = () => {
   const safeGetSession = () => { try { return !!localStorage.getItem('token'); } catch { return false; } };
   const [isLoggedIn, setIsLoggedIn] = React.useState(safeGetSession());
 
+  const [isKeyboardVisible, setIsKeyboardVisible] = React.useState(false);
+
   React.useEffect(() => {
     const handleAuthChange = () => setIsLoggedIn(safeGetSession());
     window.addEventListener('authStateChanged', handleAuthChange);
-    return () => window.removeEventListener('authStateChanged', handleAuthChange);
+
+    const handleFocusIn = (e: Event) => {
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+            const type = (target as HTMLInputElement).type;
+            if (type !== 'checkbox' && type !== 'radio' && type !== 'submit' && type !== 'button' && type !== 'file') {
+                setIsKeyboardVisible(true);
+            }
+        }
+    };
+    const handleFocusOut = () => setIsKeyboardVisible(false);
+
+    window.addEventListener('focusin', handleFocusIn);
+    window.addEventListener('focusout', handleFocusOut);
+
+    return () => {
+        window.removeEventListener('authStateChanged', handleAuthChange);
+        window.removeEventListener('focusin', handleFocusIn);
+        window.removeEventListener('focusout', handleFocusOut);
+    };
   }, []);
 
-  // Hide bottom nav on specific pages
-  if (currentPath.startsWith('/register') || currentPath.startsWith('/admin')) return null;
+  // Hide bottom nav on specific pages or when keyboard is open
+  if (currentPath.startsWith('/register') || currentPath.startsWith('/admin') || isKeyboardVisible) return null;
 
   const handleNavClick = (e: React.MouseEvent, targetPath: string) => {
     // If clicking the current tab, trigger scroll to top
