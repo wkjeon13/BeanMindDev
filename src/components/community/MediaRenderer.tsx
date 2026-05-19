@@ -176,5 +176,5 @@ export default function MediaRenderer({ src, className = '', autoPlay = true, on
     );
   }
 
-  return <img src={displaySrc} alt="media" className={`w-full h-full ${!className.includes('object-') ? 'object-cover' : ''} ${className}`} onClick={onClick} />;
+  return <img src={displaySrc} alt="media" loading="lazy" decoding="async" className={`w-full h-full ${!className.includes('object-') ? 'object-cover' : ''} ${className}`} onClick={onClick} />;
 }
