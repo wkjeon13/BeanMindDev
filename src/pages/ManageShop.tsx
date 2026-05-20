@@ -409,7 +409,7 @@ export default function ManageShop() {
     };
 
     return (
-        <div className="h-full w-full bg-espresso-950 flex flex-col font-sans relative">
+        <div className="h-full w-full bg-espresso-950 flex flex-col font-sans relative overflow-x-hidden">
             <header className="px-6 py-4 pt-safe flex items-center bg-espresso-900 border-b border-coffee-100 shrink-0 sticky top-0 z-10">
                 <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-espresso-100 hover:bg-espresso-800 rounded-full transition-colors active:scale-95">
                     <ChevronLeft size={28} />
@@ -539,7 +539,7 @@ export default function ManageShop() {
                 {editingShop && (
                     <>
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditingShop(null)} className="fixed inset-0 bg-coffee-900/40 backdrop-blur-sm z-[90]" />
-                        <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: "spring", stiffness: 300, damping: 30 }} className="fixed bottom-0 left-0 w-full bg-espresso-900 rounded-t-[2rem] z-[95] p-6 pb-[calc(5rem+env(safe-area-inset-bottom))] max-h-[92vh] flex flex-col hide-scrollbar">
+                        <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: "spring", stiffness: 300, damping: 30 }} className="fixed bottom-0 left-0 w-full bg-espresso-900 rounded-t-[2rem] z-[95] p-6 pb-[calc(5rem+env(safe-area-inset-bottom))] max-h-[92vh] flex flex-col hide-scrollbar overflow-x-hidden">
                             <div className="w-12 h-1.5 bg-espresso-700 rounded-full mx-auto mb-6 shrink-0" />
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-xl font-serif font-bold text-espresso-50 truncate pr-4">{editingShop.name} {t('manage_shop.modal_edit_title', '수정')}</h3>
@@ -782,7 +782,7 @@ export default function ManageShop() {
                                                     className="w-20 h-20 shrink-0 bg-espresso-900 rounded-lg border border-espresso-700 overflow-hidden cursor-pointer flex flex-col items-center justify-center relative"
                                                     onClick={() => menuItemImageRefs.current[idx]?.click()}
                                                 >
-                                                    {item.imageUrl ? <img src={item.imageUrl} className="w-full h-full object-cover" alt="" /> : <React.Fragment><Camera size={18} className="text-coffee-400 mb-1" /><span className="text-[10px] text-coffee-400">사진 등록</span></React.Fragment>}
+                                                    {item.imageUrl ? <img src={item.imageUrl.startsWith('data:') || item.imageUrl.startsWith('http') ? item.imageUrl : `${API_BASE}${item.imageUrl}`} className="w-full h-full object-cover" alt="" /> : <React.Fragment><Camera size={18} className="text-coffee-400 mb-1" /><span className="text-[10px] text-coffee-400">사진 등록</span></React.Fragment>}
                                                     <input 
                                                         type="file" 
                                                         className="hidden" 
@@ -839,7 +839,7 @@ export default function ManageShop() {
                                                 )}
                                                 {coffeeMenuImages.map((media, idx) => (
                                                     <div key={idx} className="relative w-24 h-24 shrink-0 snap-center rounded-2xl overflow-hidden border-2 border-espresso-700">
-                                                        <img src={media.url} alt={`Menu ${idx}`} className="w-full h-full object-cover" />
+                                                        <img src={media.url.startsWith('data:') || media.url.startsWith('http') ? media.url : `${API_BASE}${media.url}`} alt={`Menu ${idx}`} className="w-full h-full object-cover" />
                                                         <button onClick={() => removeMenuFile(idx, setCoffeeMenuImages)} className="absolute top-1.5 right-1.5 w-6 h-6 bg-espresso-950/50 text-espresso-50 rounded-full flex items-center justify-center backdrop-blur-sm shadow-sm active:scale-90">
                                                             <Trash2 size={12} />
                                                         </button>
@@ -864,7 +864,7 @@ export default function ManageShop() {
                                                 )}
                                                 {popularMenuImages.map((media, idx) => (
                                                     <div key={idx} className="relative w-24 h-24 shrink-0 snap-center rounded-2xl overflow-hidden border-2 border-espresso-700">
-                                                        <img src={media.url} alt={`Popular ${idx}`} className="w-full h-full object-cover" />
+                                                        <img src={media.url.startsWith('data:') || media.url.startsWith('http') ? media.url : `${API_BASE}${media.url}`} alt={`Popular ${idx}`} className="w-full h-full object-cover" />
                                                         <button onClick={() => removeMenuFile(idx, setPopularMenuImages)} className="absolute top-1.5 right-1.5 w-6 h-6 bg-espresso-950/50 text-espresso-50 rounded-full flex items-center justify-center backdrop-blur-sm shadow-sm active:scale-90">
                                                             <Trash2 size={12} />
                                                         </button>
@@ -936,7 +936,7 @@ export default function ManageShop() {
                                                     <div className={`w-24 h-24 rounded-2xl overflow-hidden border-2 relative border-espresso-700`}>
                                                         {media.file?.type.startsWith('video/') || media.url.match(/\.(mp4|mov|webm)$/i) ? (
                                                             <div className="w-full h-full bg-espresso-950 flex items-center justify-center relative">
-                                                                <video src={media.url} className="w-full h-full object-cover opacity-50" />
+                                                                <video src={media.url.startsWith('data:') || media.url.startsWith('http') ? media.url : `${API_BASE}${media.url}`} className="w-full h-full object-cover opacity-50" />
                                                                 <div className="absolute inset-0 flex items-center justify-center">
                                                                     <div className="w-8 h-8 rounded-full bg-espresso-900/20 backdrop-blur-sm flex items-center justify-center">
                                                                         <div className="w-0 h-0 border-t-[5px] border-t-transparent border-l-[8px] border-l-white border-b-[5px] border-b-transparent ml-1" />
@@ -945,7 +945,7 @@ export default function ManageShop() {
                                                             </div>
                                                         ) : (
                                                             <img
-                                                                src={media.url.startsWith('/mock-bucket') ? 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=200' : media.url}
+                                                                src={media.url.startsWith('/mock-bucket') ? 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=200' : (media.url.startsWith('data:') || media.url.startsWith('http') ? media.url : `${API_BASE}${media.url}`)}
                                                                 alt={`preview ${idx}`}
                                                                 className="w-full h-full object-cover"
                                                                 onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&q=80&w=200'; }}
@@ -1134,7 +1134,7 @@ export default function ManageShop() {
                                         )}
                                         {storyImages.map((img, idx) => (
                                             <div key={idx} className="w-20 h-20 shrink-0 relative rounded-xl overflow-hidden border border-espresso-700">
-                                                <img src={img.url} alt="Story preview" className="w-full h-full object-cover" />
+                                                <img src={img.url.startsWith('data:') || img.url.startsWith('http') ? img.url : `${API_BASE}${img.url}`} alt="Story preview" className="w-full h-full object-cover" />
                                                 <button onClick={() => setStoryImages(prev => prev.filter((_, i) => i !== idx))} className="absolute top-1 right-1 w-5 h-5 bg-espresso-950/60 text-espresso-50 rounded-full flex items-center justify-center backdrop-blur-sm">
                                                     <X size={12} />
                                                 </button>
