@@ -223,8 +223,8 @@ const ActivityHistory: React.FC = () => {
                 </header>
 
                 {/* Filter Tabs */}
-                <div className="bg-espresso-900 border-t border-espresso-800/50">
-                    <div className="flex px-4 py-3 flex-nowrap gap-2 overflow-x-auto hide-scrollbar">
+                <div className="bg-espresso-900 border-t border-espresso-800/50 w-full">
+                    <div className="flex px-4 py-3 flex-nowrap gap-2 overflow-x-auto hide-scrollbar w-full">
                         {tabs.map(tab => (
                             <button
                                 key={tab.id}
