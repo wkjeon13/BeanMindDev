@@ -1120,7 +1120,7 @@ export default function ManageShop() {
                                         placeholder={t('manage_shop.ph_story_content', '예: 오늘 스페셜티 원두 갓 로스팅했습니다! / 이번 주 일요일은 단축 영업합니다.')}
                                         value={storyContent}
                                         onChange={e => setStoryContent(e.target.value)}
-                                        className="w-full h-32 bg-espresso-950 border border-espresso-700 rounded-xl p-4 text-[15px] outline-none focus:ring-2 focus:ring-coffee-500 transition-all resize-none"
+                                        className="w-full h-32 bg-espresso-950 border border-espresso-700 rounded-xl p-4 text-[15px] text-espresso-50 outline-none focus:ring-2 focus:ring-coffee-500 transition-all resize-none"
                                     />
                                 </div>
 
