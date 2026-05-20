@@ -1536,6 +1536,10 @@
         "processing_desc_line1": "App Store / Play Store 와 안전하게",
         "processing_desc_line2": "통신하고 있습니다.",
         "success": "결제 완료!",
-        "success_desc": "{{amount}}콩이 성공적으로 충전되었습니다."
+        "success_desc": "{{amount}}콩이 성공적으로 충전되었습니다.",
+        "price_1000": "₩1,100",
+        "price_5000": "₩5,500",
+        "price_10000": "₩11,000",
+        "price_50000": "₩55,000"
     }
 }

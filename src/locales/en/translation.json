@@ -1503,6 +1503,10 @@
         "processing_desc_line1": "Communicating securely with",
         "processing_desc_line2": "App Store / Play Store.",
         "success": "Payment Complete!",
-        "success_desc": "{{amount}} beans successfully charged."
+        "success_desc": "{{amount}} beans successfully charged.",
+        "price_1000": "$0.99",
+        "price_5000": "$4.99",
+        "price_10000": "$9.99",
+        "price_50000": "$49.99"
     }
 }

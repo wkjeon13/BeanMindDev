@@ -29,10 +29,10 @@ export default function IAPPaymentModal({ isOpen, onClose, onSuccess, userId }: 
 
     // Default mapping for fallback if offerings fail to load properly in Dev environment
     const fallbackAmounts = [
-        { value: 1000, label: `1,000${t('iap.bean_unit', '콩')}`, price: '₩1,100' },
-        { value: 5000, label: `5,000${t('iap.bean_unit', '콩')}`, price: '₩5,500' },
-        { value: 10000, label: `10,000${t('iap.bean_unit', '콩')}`, price: '₩11,000' },
-        { value: 50000, label: `50,000${t('iap.bean_unit', '콩')}`, price: '₩55,000' },
+        { value: 1000, label: `1,000${t('iap.bean_unit', '콩')}`, price: t('iap.price_1000', '₩1,100') },
+        { value: 5000, label: `5,000${t('iap.bean_unit', '콩')}`, price: t('iap.price_5000', '₩5,500') },
+        { value: 10000, label: `10,000${t('iap.bean_unit', '콩')}`, price: t('iap.price_10000', '₩11,000') },
+        { value: 50000, label: `50,000${t('iap.bean_unit', '콩')}`, price: t('iap.price_50000', '₩55,000') },
     ];
 
     const handlePurchase = async (pkg: any) => {
