@@ -1700,7 +1700,7 @@ export default function Profile() {
                                     </div>
                                     <div className="flex gap-2">
                                         <button 
-                                            onClick={passportCheckins.length > 0 ? () => navigate('/map?passport=true') : undefined} 
+                                            onClick={passportCheckins.length > 0 ? (e) => { e.stopPropagation(); navigate('/map?passport=true'); } : undefined} 
                                             disabled={passportCheckins.length === 0}
                                             className={`p-1.5 rounded-full shadow-sm transition-colors border ${passportCheckins.length > 0 ? 'bg-espresso-800/80 hover:bg-espresso-700 text-amber-500 border-amber-700/50' : 'bg-espresso-900 text-espresso-700 border-espresso-700 cursor-not-allowed'}`} 
                                             title="View Route map"
@@ -1708,7 +1708,7 @@ export default function Profile() {
                                             <MapPin size={16} />
                                         </button>
                                         <button 
-                                            onClick={passportCheckins.length > 0 ? handleSharePassport : undefined} 
+                                            onClick={passportCheckins.length > 0 ? (e) => { e.stopPropagation(); handleSharePassport(); } : undefined} 
                                             disabled={passportCheckins.length === 0}
                                             className={`p-1.5 rounded-full shadow-sm transition-colors border ${passportCheckins.length > 0 ? 'bg-espresso-800/80 hover:bg-espresso-700 text-espresso-50 border-espresso-700' : 'bg-espresso-900 text-espresso-700 border-espresso-700 cursor-not-allowed'}`}
                                         >
