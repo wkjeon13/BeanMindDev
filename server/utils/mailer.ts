@@ -444,7 +444,8 @@ export const sendStoreNewsletterNotification = async (bccs: string[], storeName:
         
         if (imageUrls && imageUrls.length > 0) {
             imageUrls.forEach((url, index) => {
-                const cid = `image${index}@beanmind.com`;
+                const uniqueId = Math.random().toString(36).substring(2, 8);
+                const cid = `img_${index}_${Date.now()}_${uniqueId}@beanmind.com`;
                 imagesHtml += `<img src="cid:${cid}" style="max-width: 100%; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" alt="Store Announcement Image" /><br/>`;
                 
                 let localPath = url;
