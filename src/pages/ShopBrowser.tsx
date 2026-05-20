@@ -129,8 +129,67 @@ export default function ShopBrowser() {
         const urlParams = new URLSearchParams(location.search);
         const urlCourseId = urlParams.get('courseId');
         const urlShopId = urlParams.get('shopId');
+        const isPassport = urlParams.get('passport') === 'true';
         
-        if (urlCourseId) {
+        if (isPassport) {
+            setIsCourseMode(true);
+            setIsLoading(true);
+            
+            const fetchPassportShops = async () => {
+                try {
+                    const headers: any = {};
+                    const token = localStorage.getItem('token');
+                    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+                    const res = await fetch(`${API_BASE}/api/users/checkins`, { headers });
+                    if (res.ok) {
+                        const data = await res.json();
+                        const checkinShops = data.map((checkin: any) => checkin.store).filter(Boolean);
+                        
+                        setActiveCourseConfig({ name: '성지순례 여권 (My Passport)', description: '내가 방문 인증을 완료한 성지들입니다.' });
+                        setShops(checkinShops);
+                        
+                        if (checkinShops.length > 0) {
+                            if (urlShopId) {
+                                const targetShop = checkinShops.find((s: any) => s.id === urlShopId);
+                                if (targetShop && targetShop.lat && targetShop.lng) {
+                                    setMapCenter([targetShop.lat, targetShop.lng]);
+                                    sortAnchor.current = [targetShop.lat, targetShop.lng];
+                                    setSearchedShopId(targetShop.id);
+                                    setFocusedShopId(targetShop.id);
+                                }
+                            } else {
+                                let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+                                checkinShops.forEach((s: any) => {
+                                    if (s.lat && s.lng) {
+                                        if (s.lat < minLat) minLat = s.lat;
+                                        if (s.lat > maxLat) maxLat = s.lat;
+                                        if (s.lng < minLng) minLng = s.lng;
+                                        if (s.lng > maxLng) maxLng = s.lng;
+                                    }
+                                });
+                                
+                                setMapCenter([checkinShops[0].lat, checkinShops[0].lng]);
+                                sortAnchor.current = [checkinShops[0].lat, checkinShops[0].lng];
+                                
+                                if (minLat !== 90 && checkinShops.length > 1) {
+                                    setMapBoundsToFit({ minLat: minLat - 0.005, maxLat: maxLat + 0.005, minLng: minLng - 0.005, maxLng: maxLng + 0.005, ts: Date.now() });
+                                }
+                            }
+                        }
+                    } else {
+                        setIsCourseMode(false);
+                    }
+                } catch (e) {
+                    console.error("Failed to load passport checkins for map mode:", e);
+                    setIsCourseMode(false);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+            
+            fetchPassportShops();
+        } else if (urlCourseId) {
             setIsCourseMode(true);
             setIsLoading(true);
             
