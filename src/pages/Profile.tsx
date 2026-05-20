@@ -672,13 +672,10 @@ export default function Profile() {
         const platform = typeof (window as any).Capacitor !== 'undefined' ? (window as any).Capacitor.getPlatform() : 'web';
         const isNative = platform === 'ios' || platform === 'android';
         
-        // Use the Web Client ID from the environment variables (.env)
-        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
-        
-        if (!clientId) {
-            setAuthError('Google Client ID is missing in .env configuration.');
-            return;
-        }
+        // As per @capawesome/capacitor-google-sign-in docs, clientId MUST be the Web Client ID on ALL platforms.
+        // HARDCODED because .env is not synced via git to the Mac build machine for iOS builds!
+        // We must use the NEW Web Client ID from the current Firebase project (beanmind-61b70).
+        const clientId = '737925841182-o7jds5r2egkjbgl9c9h2gq4rrg8ms0ps.apps.googleusercontent.com';
 
         if (isNative) {
             try {
