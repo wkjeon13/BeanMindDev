@@ -315,8 +315,8 @@ export default function SharedCoffeeMap({
                             
                             if (overlaps.length > 1) {
                                 const groupIdx = overlaps.findIndex(s => s.id === shop.id);
-                                // Create a tiny circle offset for overlapping markers (~5 meters)
-                                const radius = 0.00005; 
+                                // Create a visible flower pattern offset for overlapping markers (~150 meters)
+                                const radius = 0.0015; 
                                 const angle = (Math.PI * 2 * groupIdx) / overlaps.length;
                                 coords = [lat + radius * Math.cos(angle), lng + radius * Math.sin(angle)];
                             } else {
