@@ -63,7 +63,7 @@
 		<string>_http._tcp</string>
 	</array>
 	<key>GIDClientID</key>
-	<string>930079967834-ibcg0ai2amufd7ddv4danvi7bd4loq5m.apps.googleusercontent.com</string>
+	<string>737925841182-ft7g1ktfv2lf0jrjio0bnt7uohmil8ug.apps.googleusercontent.com</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -71,7 +71,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.930079967834-ibcg0ai2amufd7ddv4danvi7bd4loq5m</string>
+				<string>com.googleusercontent.apps.737925841182-ft7g1ktfv2lf0jrjio0bnt7uohmil8ug</string>
 			</array>
 		</dict>
 	</array>
