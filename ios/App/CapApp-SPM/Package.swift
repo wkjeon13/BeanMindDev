@@ -17,7 +17,9 @@ let package = Package(
         .package(name: "CapacitorGeolocation", path: "..\..\..\node_modules\@capacitor\geolocation"),
         .package(name: "CapacitorKeyboard", path: "..\..\..\node_modules\@capacitor\keyboard"),
         .package(name: "CapacitorPushNotifications", path: "..\..\..\node_modules\@capacitor\push-notifications"),
-        .package(name: "CapawesomeCapacitorGoogleSignIn", path: "..\..\..\node_modules\@capawesome\capacitor-google-sign-in")
+        .package(name: "CapacitorShare", path: "..\..\..\node_modules\@capacitor\share"),
+        .package(name: "CapawesomeCapacitorGoogleSignIn", path: "..\..\..\node_modules\@capawesome\capacitor-google-sign-in"),
+        .package(name: "RevenuecatPurchasesCapacitor", path: "..\..\..\node_modules\@revenuecat\purchases-capacitor")
     ],
     targets: [
         .target(
@@ -30,7 +32,9 @@ let package = Package(
                 .product(name: "CapacitorGeolocation", package: "CapacitorGeolocation"),
                 .product(name: "CapacitorKeyboard", package: "CapacitorKeyboard"),
                 .product(name: "CapacitorPushNotifications", package: "CapacitorPushNotifications"),
-                .product(name: "CapawesomeCapacitorGoogleSignIn", package: "CapawesomeCapacitorGoogleSignIn")
+                .product(name: "CapacitorShare", package: "CapacitorShare"),
+                .product(name: "CapawesomeCapacitorGoogleSignIn", package: "CapawesomeCapacitorGoogleSignIn"),
+                .product(name: "RevenuecatPurchasesCapacitor", package: "RevenuecatPurchasesCapacitor")
             ]
         )
     ]

@@ -7,6 +7,7 @@ import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
 import { App as CapApp } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
 import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
+import { Share } from '@capacitor/share';
 import { useTranslation } from 'react-i18next';
 import HostAdDashboard from '../components/HostAdDashboard';
 import PrescriptionTicket from '../components/PrescriptionTicket';
@@ -337,13 +338,20 @@ export default function Profile() {
 
     const currentBadge = getBadgeTier(passportCheckins.length);
 
-    const handleSharePassport = () => {
+    const handleSharePassport = async () => {
         const text = t('profile.passport_share_template', { nickname: currentUser?.nickname || '유저', icon: currentBadge.icon, badge: currentBadge.name, count: passportCheckins.length });
-        if (navigator.share) {
-            navigator.share({ title: t('profile.passport_share_title'), text, url: window.location.href });
-        } else {
-            navigator.clipboard.writeText(text);
-            alert(t('profile.pass_share_copied'));
+        try {
+            await Share.share({ title: t('profile.passport_share_title'), text, url: window.location.href, dialogTitle: t('profile.passport_share_title') });
+        } catch (err) {
+            if (navigator.share) {
+                navigator.share({ title: t('profile.passport_share_title'), text, url: window.location.href }).catch(() => {
+                    navigator.clipboard.writeText(text);
+                    alert(t('profile.pass_share_copied'));
+                });
+            } else {
+                navigator.clipboard.writeText(text);
+                alert(t('profile.pass_share_copied'));
+            }
         }
     };
 
@@ -405,11 +413,18 @@ export default function Profile() {
         const shareUrl = `${window.location.origin}/map?courseId=${course.id}`;
         const text = t('profile.course_share_template', { name: course.name, desc: course.description ? `"${course.description}"\n` : '', count: course.items?.length || course._count?.items || 0 });
         
-        if (navigator.share) {
-            navigator.share({ title: course.name, text, url: shareUrl });
-        } else {
-            navigator.clipboard.writeText(`${text}\n${shareUrl}`);
-            alert('코스 링크가 클립보드에 복사되었습니다.');
+        try {
+            await Share.share({ title: course.name, text, url: shareUrl, dialogTitle: course.name });
+        } catch (err) {
+            if (navigator.share) {
+                navigator.share({ title: course.name, text, url: shareUrl }).catch(() => {
+                    navigator.clipboard.writeText(`${text}\n${shareUrl}`);
+                    alert('코스 링크가 클립보드에 복사되었습니다.');
+                });
+            } else {
+                navigator.clipboard.writeText(`${text}\n${shareUrl}`);
+                alert('코스 링크가 클립보드에 복사되었습니다.');
+            }
         }
     };
     
@@ -2506,9 +2521,13 @@ export default function Profile() {
                                 isRating={isLoading}
                                 date={new Date(selectedPrescription.createdAt).toLocaleDateString(i18n.language === 'en' ? 'en-US' : 'ko-KR', { year: 'numeric', month: 'short', day: 'numeric' })}
                                 onShareCoffeeTalk={() => handleShareCoffeeTalk(selectedPrescription)}
-                                onShare={() => {
-                                    if (navigator.share) {
-                                        navigator.share({ title: 'My Coffee Prescription', url: window.location.href });
+                                onShare={async () => {
+                                    try {
+                                        await Share.share({ title: 'My Coffee Prescription', url: window.location.href, dialogTitle: 'My Coffee Prescription' });
+                                    } catch (err) {
+                                        if (navigator.share) {
+                                            navigator.share({ title: 'My Coffee Prescription', url: window.location.href }).catch(() => {});
+                                        }
                                     }
                                 }}
                             />
