@@ -449,10 +449,11 @@ export const sendStoreNewsletterNotification = async (bccs: string[], storeName:
                 
                 let localPath = url;
                 if (url.startsWith('/')) {
-                   // Local uploaded file is stored in public/uploads/...
+                   // Local uploaded file is stored in /uploads/...
                    // Remove leading slash to prevent path.join from going to root drive on Windows
                    const relativeUrl = url.substring(1); 
-                   localPath = path.join(process.cwd(), 'public', relativeUrl); 
+                   // The 'uploads' folder is at the root of the project, not inside 'public'
+                   localPath = path.join(process.cwd(), relativeUrl); 
                    attachments.push({
                        filename: path.basename(url),
                        path: localPath,
