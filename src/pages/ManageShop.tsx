@@ -391,7 +391,11 @@ export default function ManageShop() {
             });
 
             if (response.ok) {
-                alert(t('manage_shop.alert_story_success', '소식이 성공적으로 단골 고객들에게 발행되었습니다!'));
+                if (sendEmail) {
+                    alert(t('manage_shop.alert_story_success_with_email', '소식이 앱에 등록되었으며, 단골 고객들에게 이메일도 발송되었습니다!'));
+                } else {
+                    alert(t('manage_shop.alert_story_success_no_email', '소식이 앱 내 피드에 성공적으로 등록되었습니다!'));
+                }
                 setStoryShop(null);
                 setStoryContent('');
                 setStoryImages([]);
