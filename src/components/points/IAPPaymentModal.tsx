@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2, Loader2, Coffee } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useIAP } from '../../hooks/useIAP';
 
 interface IAPPaymentModalProps {
@@ -11,6 +12,7 @@ interface IAPPaymentModalProps {
 }
 
 export default function IAPPaymentModal({ isOpen, onClose, onSuccess, userId }: IAPPaymentModalProps) {
+    const { t } = useTranslation();
     const { isConfigured, offerings, isLoading: iapLoading, error: iapError, purchasePackage } = useIAP(userId);
     const [step, setStep] = useState<'amount' | 'processing' | 'success'>('amount');
     const [selectedAmount, setSelectedAmount] = useState<number>(0);
@@ -27,10 +29,10 @@ export default function IAPPaymentModal({ isOpen, onClose, onSuccess, userId }: 
 
     // Default mapping for fallback if offerings fail to load properly in Dev environment
     const fallbackAmounts = [
-        { value: 1000, label: '1,000콩', price: '₩1,100' },
-        { value: 5000, label: '5,000콩', price: '₩5,500' },
-        { value: 10000, label: '10,000콩', price: '₩11,000' },
-        { value: 50000, label: '50,000콩', price: '₩55,000' },
+        { value: 1000, label: `1,000${t('iap.bean_unit', '콩')}`, price: '₩1,100' },
+        { value: 5000, label: `5,000${t('iap.bean_unit', '콩')}`, price: '₩5,500' },
+        { value: 10000, label: `10,000${t('iap.bean_unit', '콩')}`, price: '₩11,000' },
+        { value: 50000, label: `50,000${t('iap.bean_unit', '콩')}`, price: '₩55,000' },
     ];
 
     const handlePurchase = async (pkg: any) => {
@@ -72,12 +74,12 @@ export default function IAPPaymentModal({ isOpen, onClose, onSuccess, userId }: 
                 if (result.error === 'USER_CANCELLED') {
                     setStep('amount');
                 } else {
-                    setErrorMessage(`결제 실패: ${result.error}`);
+                    setErrorMessage(`${t('iap.error_failed', '결제 실패:')} ${result.error}`);
                     setStep('amount');
                 }
             }
         } catch (e: any) {
-            setErrorMessage(`결제 오류: ${e.message}`);
+            setErrorMessage(`${t('iap.error_occurred', '결제 오류:')} ${e.message}`);
             setStep('amount');
         } finally {
             setIsPurchasing(false);
@@ -102,7 +104,7 @@ export default function IAPPaymentModal({ isOpen, onClose, onSuccess, userId }: 
                     <div className="px-5 py-4 border-b border-espresso-800 flex justify-between items-center bg-espresso-950/50">
                         <h2 className="text-lg font-bold text-espresso-50 flex items-center gap-2">
                             <Coffee className="w-5 h-5 text-amber-500" />
-                            커피콩 충전
+                            {t('iap.title', '커피콩 충전')}
                         </h2>
                         {step !== 'processing' && (
                             <button onClick={resetAndClose} className="text-espresso-400 hover:text-espresso-200 transition-colors">
@@ -116,8 +118,8 @@ export default function IAPPaymentModal({ isOpen, onClose, onSuccess, userId }: 
                         {step === 'amount' && (
                             <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
                                 <p className="text-sm text-espresso-300 mb-4 px-1">
-                                    충전하실 상품을 선택해주세요.<br/>
-                                    <span className="text-xs text-amber-500/80">안전한 스토어 인앱 결제로 진행됩니다.</span>
+                                    {t('iap.select_product', '충전하실 상품을 선택해주세요.')}<br/>
+                                    <span className="text-xs text-amber-500/80">{t('iap.secure_payment_desc', '안전한 스토어 인앱 결제로 진행됩니다.')}</span>
                                 </p>
                                 
                                 {errorMessage && (
@@ -129,7 +131,7 @@ export default function IAPPaymentModal({ isOpen, onClose, onSuccess, userId }: 
                                 {iapLoading ? (
                                     <div className="py-8 flex flex-col items-center justify-center">
                                         <Loader2 className="w-8 h-8 text-espresso-400 animate-spin mb-2" />
-                                        <p className="text-xs text-espresso-400">스토어 상품 정보 불러오는 중...</p>
+                                        <p className="text-xs text-espresso-400">{t('iap.loading_products', '스토어 상품 정보 불러오는 중...')}</p>
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-2 gap-3 mb-6">
@@ -147,7 +149,7 @@ export default function IAPPaymentModal({ isOpen, onClose, onSuccess, userId }: 
                                                     disabled={isPurchasing}
                                                     className="p-4 rounded-xl border flex flex-col items-center justify-center transition-all bg-espresso-950 border-espresso-800 text-espresso-300 hover:border-amber-500 hover:text-amber-400 active:scale-95 disabled:opacity-50"
                                                 >
-                                                    <span className="font-bold text-lg mb-1">{beans.toLocaleString()}콩</span>
+                                                    <span className="font-bold text-lg mb-1">{beans.toLocaleString()}{t('iap.bean_unit', '콩')}</span>
                                                     <span className="text-xs font-medium text-espresso-400 bg-espresso-900 px-2 py-0.5 rounded-full mt-1">{price}</span>
                                                 </button>
                                             );
@@ -160,8 +162,11 @@ export default function IAPPaymentModal({ isOpen, onClose, onSuccess, userId }: 
                         {step === 'processing' && (
                             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-12 flex flex-col items-center justify-center">
                                 <Loader2 className="w-12 h-12 text-amber-500 animate-spin mb-4" />
-                                <h3 className="text-lg font-bold text-espresso-100 mb-2">결제 진행 중...</h3>
-                                <p className="text-sm text-espresso-400 text-center">App Store / Play Store 와 안전하게<br/>통신하고 있습니다.</p>
+                                <h3 className="text-lg font-bold text-espresso-100 mb-2">{t('iap.processing', '결제 진행 중...')}</h3>
+                                <p className="text-sm text-espresso-400 text-center">
+                                    {t('iap.processing_desc_line1', 'App Store / Play Store 와 안전하게')}<br/>
+                                    {t('iap.processing_desc_line2', '통신하고 있습니다.')}
+                                </p>
                             </motion.div>
                         )}
 
@@ -170,8 +175,10 @@ export default function IAPPaymentModal({ isOpen, onClose, onSuccess, userId }: 
                                 <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
                                     <CheckCircle2 className="w-10 h-10 text-green-500" />
                                 </div>
-                                <h3 className="text-xl font-bold text-white mb-2">결제 완료!</h3>
-                                <p className="text-sm text-espresso-300 text-center">{selectedAmount.toLocaleString()}콩이 성공적으로<br/>충전되었습니다.</p>
+                                <h3 className="text-xl font-bold text-white mb-2">{t('iap.success', '결제 완료!')}</h3>
+                                <p className="text-sm text-espresso-300 text-center">
+                                    {t('iap.success_desc', '{{amount}}콩이 성공적으로 충전되었습니다.', { amount: selectedAmount.toLocaleString() })}
+                                </p>
                             </motion.div>
                         )}
                     </div>
