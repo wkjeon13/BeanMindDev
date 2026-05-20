@@ -401,7 +401,7 @@ export default function Profile() {
         }
     };
 
-    const handleShareCourse = (e: React.MouseEvent, course: any) => {
+    const handleShareCourse = async (e: React.MouseEvent, course: any) => {
         e.preventDefault();
         e.stopPropagation();
         if (!course.isPublic) {
