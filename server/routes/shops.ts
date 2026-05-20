@@ -192,6 +192,13 @@ router.post('/register', authenticateToken, uploadLimiter, async (req: any, res:
                 await (prisma as any).menuItem.createMany({ data: processedItems });
             }
         }
+        // 6. Update user role to OWNER
+        if (owner?.role === 'USER') {
+            await prisma.user.update({
+                where: { id: ownerId },
+                data: { role: 'OWNER' }
+            });
+        }
 
         res.status(201).json({ message: 'Store registered successfully', storeId: newStore.id });
     } catch (error) {
