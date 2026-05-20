@@ -542,8 +542,8 @@ export default function ManageShop() {
                         <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: "spring", stiffness: 300, damping: 30 }} className="fixed bottom-0 left-0 w-full bg-espresso-900 rounded-t-[2rem] z-[95] p-6 pb-[calc(5rem+env(safe-area-inset-bottom))] max-h-[92vh] flex flex-col hide-scrollbar overflow-x-hidden">
                             <div className="w-12 h-1.5 bg-espresso-700 rounded-full mx-auto mb-6 shrink-0" />
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-serif font-bold text-espresso-50 truncate pr-4">{editingShop.name} {t('manage_shop.modal_edit_title', '수정')}</h3>
-                                <button onClick={() => setEditingShop(null)} className="p-2 -mr-2 bg-espresso-800 text-coffee-600 rounded-full"><X size={20} /></button>
+                                <h3 className="flex-1 min-w-0 text-xl font-serif font-bold text-espresso-50 truncate pr-4">{editingShop.name} {t('manage_shop.modal_edit_title', '수정')}</h3>
+                                <button onClick={() => setEditingShop(null)} className="p-2 -mr-2 shrink-0 bg-espresso-800 text-coffee-600 rounded-full hover:bg-espresso-700 transition-colors active:scale-95"><X size={20} /></button>
                             </div>
 
                             <div className="flex-1 overflow-y-auto space-y-5 pr-1 pb-6 w-full">
@@ -569,7 +569,7 @@ export default function ManageShop() {
 
                                                 {/* Map Geocoding Search Form */}
                                                 <form onSubmit={handleMapSearch} className="relative flex items-center gap-2">
-                                                    <div className="relative flex-1">
+                                                    <div className="relative flex-1 min-w-0">
                                                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-coffee-400" size={14} />
                                                         <input
                                                             type="text"
@@ -636,10 +636,10 @@ export default function ManageShop() {
                                                     </div>
                                                     
                                                     {!dayHour.isClosed ? (
-                                                        <div className="flex-1 flex items-center gap-2">
-                                                            <input type="time" value={dayHour.open} onChange={e => setDailyHours(prev => prev.map((h, i) => i === idx ? { ...h, open: e.target.value } : h))} className="flex-1 bg-espresso-900 border border-espresso-700 rounded h-8 px-2 outline-none text-[13px] font-medium text-espresso-50 focus:border-coffee-500" />
-                                                            <span className="text-espresso-400">-</span>
-                                                            <input type="time" value={dayHour.close} onChange={e => setDailyHours(prev => prev.map((h, i) => i === idx ? { ...h, close: e.target.value } : h))} className="flex-1 bg-espresso-900 border border-espresso-700 rounded h-8 px-2 outline-none text-[13px] font-medium text-espresso-50 focus:border-coffee-500" />
+                                                        <div className="flex-1 min-w-0 flex items-center gap-2">
+                                                            <input type="time" value={dayHour.open} onChange={e => setDailyHours(prev => prev.map((h, i) => i === idx ? { ...h, open: e.target.value } : h))} className="flex-1 min-w-0 bg-espresso-900 border border-espresso-700 rounded h-8 px-2 outline-none text-[13px] font-medium text-espresso-50 focus:border-coffee-500" />
+                                                            <span className="text-espresso-400 font-bold shrink-0">-</span>
+                                                            <input type="time" value={dayHour.close} onChange={e => setDailyHours(prev => prev.map((h, i) => i === idx ? { ...h, close: e.target.value } : h))} className="flex-1 min-w-0 bg-espresso-900 border border-espresso-700 rounded h-8 px-2 outline-none text-[13px] font-medium text-espresso-50 focus:border-coffee-500" />
                                                         </div>
                                                     ) : (
                                                         <div className="flex-1 flex items-center justify-center bg-espresso-900/50 rounded h-8 border border-espresso-800">
@@ -800,7 +800,7 @@ export default function ManageShop() {
                                                         }}
                                                     />
                                                 </div>
-                                                <div className="flex-1 space-y-2.5 pt-1">
+                                                <div className="flex-1 min-w-0 space-y-2.5 pt-1">
                                                     <input type="text" placeholder={t('register_shop.ph_item_name', '메뉴명 (예: 아메리카노)')} value={item.name} onChange={e => setMenuItems(prev => prev.map((m, i) => i === idx ? { ...m, name: e.target.value } : m))} className="w-full bg-transparent border-b border-espresso-700 focus:border-coffee-500 outline-none text-[14px] font-bold text-espresso-50 pb-1" />
                                                     <div className="flex gap-2">
                                                         <select value={item.category} onChange={e => setMenuItems(prev => prev.map((m, i) => i === idx ? { ...m, category: e.target.value } : m))} className="bg-espresso-900 border border-espresso-700 text-[11px] font-bold text-espresso-200 rounded px-1.5 h-8 outline-none">
@@ -812,7 +812,7 @@ export default function ManageShop() {
                                                             <option value="FOOD">Food</option>
                                                             <option value="ETC">Etc</option>
                                                         </select>
-                                                        <input type="text" placeholder={t('register_shop.ph_item_price', '가격 (예: 5,000원 또는 변동)')} value={item.price} onChange={e => setMenuItems(prev => prev.map((m, i) => i === idx ? { ...m, price: e.target.value } : m))} className="flex-1 bg-transparent border-b border-espresso-700 focus:border-coffee-500 outline-none text-[13px] font-medium text-espresso-200 pb-1 h-8" />
+                                                        <input type="text" placeholder={t('register_shop.ph_item_price', '가격 (예: 5,000원 또는 변동)')} value={item.price} onChange={e => setMenuItems(prev => prev.map((m, i) => i === idx ? { ...m, price: e.target.value } : m))} className="flex-1 min-w-0 bg-transparent border-b border-espresso-700 focus:border-coffee-500 outline-none text-[13px] font-medium text-espresso-200 pb-1 h-8" />
                                                     </div>
                                                 </div>
                                             </div>
