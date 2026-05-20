@@ -168,8 +168,11 @@ const ActivityHistory: React.FC = () => {
                 fetchSinglePost(item.targetId);
                 break;
             case 'follow':
-                // navigate to their profile, but we don't have a public profile viewer yet. For now do nothing or alert.
-                alert(t('activity.profile_prep', { authorName: item.extra?.authorName || '' }));
+                if (item.extra?.storeName) {
+                    fetchSingleShop(item.targetId);
+                } else {
+                    alert(t('activity.profile_prep', { authorName: item.extra?.authorName || '' }));
+                }
                 break;
             case 'review': 
                 fetchSingleShop(item.targetId);

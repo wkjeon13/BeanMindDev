@@ -1574,15 +1574,16 @@ router.get('/me/activity', authenticateToken, async (req: any, res: any) => {
             })));
         }
 
-        // 5. Fetch Follows (User started following someone)
+        // 5. Fetch Follows (User started following someone OR a store)
         if (typeFilter === 'all' || typeFilter === 'follow') {
-            const follows = await (prisma as any).userFollow.findMany({
+            // Fetch User Follows
+            const userFollows = await (prisma as any).userFollow.findMany({
                 take: 100,
                 where: { followerId: userId },
                 select: { id: true, createdAt: true, followingId: true, following: { select: { nickname: true, profileImageUrl: true } } },
                 orderBy: { createdAt: 'desc' }
             });
-            activities.push(...follows.map((f: any) => ({
+            activities.push(...userFollows.map((f: any) => ({
                 id: f.id,
                 type: 'follow',
                 createdAt: f.createdAt,
@@ -1590,6 +1591,23 @@ router.get('/me/activity', authenticateToken, async (req: any, res: any) => {
                 imageUrl: f.following?.profileImageUrl,
                 targetId: f.followingId,
                 extra: { authorName: f.following?.nickname }
+            })));
+
+            // Fetch Store Follows
+            const storeFollows = await (prisma as any).storeFollow.findMany({
+                take: 100,
+                where: { userId },
+                select: { id: true, createdAt: true, storeId: true, store: { select: { name: true, mainImageUrl: true } } },
+                orderBy: { createdAt: 'desc' }
+            });
+            activities.push(...storeFollows.map((f: any) => ({
+                id: `store-${f.id}`,
+                type: 'follow',
+                createdAt: f.createdAt,
+                content: `'${f.store?.name || '알 수 없는 매장'}' 단골로 등록했습니다.`,
+                imageUrl: f.store?.mainImageUrl,
+                targetId: f.storeId,
+                extra: { storeName: f.store?.name }
             })));
         }
 
