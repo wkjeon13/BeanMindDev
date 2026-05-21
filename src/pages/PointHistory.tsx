@@ -128,7 +128,7 @@ export default function PointHistory() {
             className="flex-1 bg-espresso-900 flex flex-col pt-safe-top min-h-screen"
         >
             {/* Header */}
-            <header className="sticky top-0 z-30 bg-espresso-900/80 backdrop-blur-xl border-b border-coffee-100 px-4 py-3 flex items-center justify-between">
+            <header className="sticky top-0 z-30 bg-espresso-900/95 backdrop-blur-xl border-b border-coffee-100 h-14 px-4 flex items-center justify-between">
                 <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-coffee-600 active:bg-espresso-950 rounded-full transition-colors">
                     <ChevronLeft size={24} />
                 </button>
@@ -222,7 +222,7 @@ export default function PointHistory() {
                 </div>
 
                 {/* Filters */}
-                <div className="sticky top-[60px] z-20 bg-espresso-900/95 backdrop-blur-md px-4 py-3 border-b border-zinc-100 mb-2">
+                <div className="sticky top-14 z-20 bg-espresso-900/95 backdrop-blur-md px-4 py-3 border-b border-zinc-100 mb-2">
                     <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
                         {[
                             { id: 'ALL', label: t('point_history.filter_all', '전체') },
