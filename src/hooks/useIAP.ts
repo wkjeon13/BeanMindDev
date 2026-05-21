@@ -5,8 +5,8 @@ import { Capacitor } from '@capacitor/core';
 // This API Key should ideally be in .env (e.g. VITE_RC_PUBLIC_KEY)
 // For Apple: public_apple_xxxxxxxxxxxx
 // For Google: goog_xxxxxxxxxxxx
-const RC_API_KEY_IOS = import.meta.env.VITE_RC_PUBLIC_KEY_IOS || 'public_apple_placeholder';
-const RC_API_KEY_ANDROID = import.meta.env.VITE_RC_PUBLIC_KEY_ANDROID || 'goog_placeholder';
+const RC_API_KEY_IOS = import.meta.env.VITE_RC_PUBLIC_KEY_IOS || 'appl_OYHLfHBeeuuaKXOzLoIzYBTXDzL';
+const RC_API_KEY_ANDROID = import.meta.env.VITE_RC_PUBLIC_KEY_ANDROID || 'goog_DFNcNbHRCEgZyulewvaeMCQIeXf';
 
 export function useIAP(userId?: string) {
     const [isConfigured, setIsConfigured] = useState(false);
