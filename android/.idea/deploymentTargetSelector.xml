@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="BeanMind">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-05-19T08:29:22.873971600Z">
+        <DropdownSelection timestamp="2026-05-20T06:16:22.476613Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\user\.android\avd\Medium_Tablet.avd" />

@@ -110,7 +110,7 @@ export default function PointHistory() {
         
         // This relies on descriptions to filter roughly. If we had an enum status in the DB it would be better.
         // For MVP, checking descriptions matching keywords:
-        const isCharge = tx.description.includes('충전');
+        const isCharge = tx.description.includes('충전') || tx.description.includes('인앱결제');
         const isReceived = tx.amount > 0 && tx.description.includes('보상');
         const isSent = tx.amount < 0 && tx.description.includes('보상');
 
