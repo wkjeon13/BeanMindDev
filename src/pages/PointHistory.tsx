@@ -222,7 +222,7 @@ export default function PointHistory() {
                 </div>
 
                 {/* Filters */}
-                <div className="sticky top-14 z-20 bg-espresso-900/95 backdrop-blur-md px-4 py-3 border-b border-zinc-100 mb-2">
+                <div className="sticky top-0 z-20 bg-espresso-900/95 backdrop-blur-md px-4 py-3 border-b border-zinc-100 mb-2">
                     <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
                         {[
                             { id: 'ALL', label: t('point_history.filter_all', '전체') },
