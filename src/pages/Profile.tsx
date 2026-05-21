@@ -701,15 +701,6 @@ export default function Profile() {
         }
 
         let currentOrigin = window.location.origin;
-        const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || currentOrigin;
-
-        // On native android, origin is typically http://localhost
-        // Google OAuth console requires the exact authorized URI and doesn't allow raw IPs.
-        // We use the nip.io domain from VITE_API_BASE_URL to act as a "Bounce Page".
-        // The bounce page will catch the redirect and trigger the capcurator:// deep link.
-        if (currentOrigin.includes('localhost') || currentOrigin.match(/\d+\.\d+\.\d+\.\d+/)) {
-            currentOrigin = apiBaseUrl;
-        }
 
         const redirectUri = encodeURIComponent(currentOrigin + '/profile');
         
