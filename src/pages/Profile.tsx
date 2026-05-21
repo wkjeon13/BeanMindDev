@@ -6,6 +6,7 @@ import { useGoogleLogin, GoogleLogin } from '@react-oauth/google';
 import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
 import { App as CapApp } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
+import { Capacitor } from '@capacitor/core';
 import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
 import { Share } from '@capacitor/share';
 import { useTranslation } from 'react-i18next';
@@ -669,8 +670,7 @@ export default function Profile() {
     };
 
     const handleGoogleLogin = async () => {
-        const platform = typeof (window as any).Capacitor !== 'undefined' ? (window as any).Capacitor.getPlatform() : 'web';
-        const isNative = platform === 'ios' || platform === 'android';
+        const isNative = Capacitor.isNativePlatform();
         
         // As per @capawesome/capacitor-google-sign-in docs, clientId MUST be the Web Client ID on ALL platforms.
         // HARDCODED because .env is not synced via git to the Mac build machine for iOS builds!
