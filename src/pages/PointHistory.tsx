@@ -125,7 +125,7 @@ export default function PointHistory() {
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex-1 bg-espresso-900 flex flex-col pt-safe-top min-h-screen"
+            className="flex-1 bg-espresso-900 flex flex-col pt-safe min-h-screen"
         >
             {/* Header */}
             <header className="sticky top-0 z-30 bg-espresso-900/95 backdrop-blur-xl border-b border-coffee-100 h-14 px-4 flex items-center justify-between">
@@ -136,7 +136,7 @@ export default function PointHistory() {
                 <div className="w-10" />
             </header>
 
-            <div className="flex-1 overflow-y-auto pb-safe-bottom">
+            <div className="flex-1 overflow-y-auto pb-safe">
                 {/* Balance Card */}
                 <div className="p-6">
                     <div className="bg-espresso-900 rounded-3xl p-6 shadow-sm border border-coffee-100 flex flex-col items-center justify-center relative overflow-hidden">
