@@ -40,15 +40,15 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
 
     const getFallbackTranslation = (text: string | undefined | null) => {
         if (!text) return text;
-        if (text === 'AI 큐레이터가 발굴한 스페셜티 추천 공간' || text === 'Specialty space recommended by AI Curator') return t('fallback_ai_subtitle');
-        if (text === 'AI가 발굴한 카페/명소입니다.' || text === 'AI discovered cafe/attraction.') return t('fallback_short_desc');
-        if (text === '스페셜티/시그니처 향미' || text === 'Specialty/Signature Flavor') return t('fallback_specialty');
-        if (text === '대표 메뉴 (상세 미정)' || text === 'Signature Menu (TBD)') return t('fallback_menu');
-        if (text === '추천 정보 없음' || text === 'No Recommendation Info') return t('fallback_pairing');
-        if (text === '임시 주소 (추후 업데이트 예정)' || text === 'Temporary address (to be updated)') return t('fallback_temp_addr');
-        if (text === '추후 제공 (AI 발굴 자동 핀)' || text === 'TBD (AI discovered auto pin)') return t('fallback_tbd_hours');
-        if (text === '추후 제공' || text === 'TBD') return t('fallback_tbd');
-        if (text.startsWith('빈마인드 AI 시스템이 사용자들의 커피 성향 탐색 과정에서') || text.startsWith('This is a specialty shop discovered via web search')) return t('fallback_origin_story');
+        if (text.includes('AI 큐레이터가 발굴한 스페셜티 추천 공간') || text.includes('Specialty space recommended by AI Curator')) return t('map.fallback_ai_subtitle');
+        if (text.includes('AI가 발굴한 카페/명소입니다.') || text.includes('AI discovered cafe/attraction.')) return t('map.fallback_short_desc');
+        if (text.includes('스페셜티/시그니처 향미') || text.includes('Specialty/Signature Flavor')) return t('map.fallback_specialty');
+        if (text.includes('대표 메뉴 (상세 미정)') || text.includes('Signature Menu (TBD)')) return t('map.fallback_menu');
+        if (text.includes('추천 정보 없음') || text.includes('No Recommendation Info')) return t('map.fallback_pairing');
+        if (text.includes('임시 주소 (추후 업데이트 예정)') || text.includes('Temporary address (to be updated)')) return t('map.fallback_temp_addr');
+        if (text.includes('추후 제공 (AI 발굴') || text.includes('TBD (AI discovered')) return t('map.fallback_tbd_hours');
+        if (text.includes('추후 제공') || text.includes('TBD')) return t('map.fallback_tbd');
+        if (text.startsWith('빈마인드 AI 시스템이 사용자들의 커피 성향 탐색 과정에서') || text.startsWith('This is a specialty shop discovered via web search')) return t('map.fallback_origin_story');
         return text;
     };
 
