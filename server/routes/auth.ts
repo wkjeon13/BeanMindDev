@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { OAuth2Client } from 'google-auth-library';
+import appleSignin from 'apple-signin-auth';
 import { encryptPII } from '../utils/encryption.js';
 import { sendVerificationEmail } from '../utils/mailer';
 import rateLimit from 'express-rate-limit';
@@ -404,6 +405,138 @@ router.post('/google/register', authLimiter, async (req, res) => {
         });
     } catch (error) {
         console.error("Google Auth Register error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// Apple Login
+router.post('/apple', authLimiter, async (req, res) => {
+    try {
+        const { token, name } = req.body;
+        if (!token) {
+            return res.status(400).json({ error: 'No token provided' });
+        }
+
+        let appleId = '';
+        let email = '';
+        try {
+            // Verify token with Apple's JWKS
+            const decoded = await appleSignin.verifyIdToken(token, {
+                audience: process.env.APPLE_CLIENT_ID || 'app.beanmind.ai', // Bundle ID of the app
+                ignoreExpiration: true // Optional, capacitor tokens might not have standard expiration handling depending on the device time
+            });
+            appleId = decoded.sub;
+            email = decoded.email || '';
+        } catch (err) {
+            console.error("Apple token verification failed:", err);
+            return res.status(401).json({ error: 'Invalid Apple token' });
+        }
+
+        // Check if user exists
+        let user = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { socialId: appleId },
+                    { email: email }
+                ]
+            }
+        });
+
+        if (user) {
+            // User exists, log them in
+            if (!user.socialId && user.email === email) {
+                // Link account if email matches but socialId isn't set (e.g. they registered via email originally)
+                user = await prisma.user.update({
+                    where: { id: user.id },
+                    data: { socialId: appleId, loginType: 'APPLE' }
+                });
+            }
+
+            const jwtToken = jwt.sign(
+                { id: user.id, email: user.email, role: user.role },
+                JWT_SECRET,
+                { expiresIn: '7d' }
+            );
+
+            return res.status(200).json({
+                message: 'Apple login successful!',
+                token: jwtToken,
+                user: {
+                    id: user.id,
+                    email: user.email,
+                    nickname: user.nickname,
+                    role: user.role,
+                    profileImageUrl: user.profileImageUrl,
+                    ageGroup: user.ageGroup,
+                    gender: user.gender,
+                    favoriteCafe: user.favoriteCafe,
+                    preferredLanguage: user.preferredLanguage
+                }
+            });
+        } else {
+            // New user, requires role and demographics
+            return res.status(202).json({
+                requiresRoleSelection: true,
+                tempUser: {
+                    email: email,
+                    name: name || '',
+                    appleId: appleId
+                }
+            });
+        }
+    } catch (error) {
+        console.error("Apple Auth error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+router.post('/apple/register', authLimiter, async (req, res) => {
+    try {
+        const { email, name, appleId, role, ageGroup, gender, favoriteCafe, countryCode, preferredLanguage } = req.body;
+
+        if (!appleId || !role) {
+            return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
+        }
+
+        const user = await prisma.user.create({
+            data: {
+                email: email || `${appleId}@apple.user.local`, // Apple might hide email
+                nickname: name || 'Apple User',
+                loginType: 'APPLE',
+                socialId: appleId,
+                isEmailVerified: true, // Apple verified
+                role: role === 'OWNER' ? 'OWNER' : 'USER',
+                ageGroup,
+                gender,
+                favoriteCafe,
+                countryCode: countryCode || 'KR',
+                preferredLanguage: preferredLanguage || 'ko'
+            }
+        });
+
+        const jwtToken = jwt.sign(
+            { id: user.id, email: user.email, role: user.role },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        res.status(201).json({
+            message: 'Apple register successful!',
+            token: jwtToken,
+            user: {
+                id: user.id,
+                email: user.email,
+                nickname: user.nickname,
+                role: user.role,
+                profileImageUrl: user.profileImageUrl,
+                ageGroup: user.ageGroup,
+                gender: user.gender,
+                favoriteCafe: user.favoriteCafe,
+                preferredLanguage: user.preferredLanguage
+            }
+        });
+    } catch (error) {
+        console.error("Apple Auth Register error:", error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
     }
 });

@@ -8,6 +8,7 @@ import { App as CapApp } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
 import { Capacitor } from '@capacitor/core';
 import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
+import { AppleSignIn } from '@capawesome/capacitor-apple-sign-in';
 import { Share } from '@capacitor/share';
 import { useTranslation } from 'react-i18next';
 import HostAdDashboard from '../components/HostAdDashboard';
@@ -25,7 +26,7 @@ export default function Profile() {
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     // JWT auth state
     const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem('token'));
-    const [authView, setAuthView] = useState<'login' | 'register' | 'google_register' | 'verify' | 'verify_request' | 'find_id' | 'find_pw' | 'reset_pw'>('login');
+    const [authView, setAuthView] = useState<'login' | 'register' | 'google_register' | 'apple_register' | 'verify' | 'verify_request' | 'find_id' | 'find_pw' | 'reset_pw'>('login');
 
     // Form States
     const [email, setEmail] = useState('');
@@ -455,6 +456,7 @@ export default function Profile() {
 
     // State for temporary Google User during Role Selection
     const [tempGoogleUser, setTempGoogleUser] = useState<any>(null);
+    const [tempAppleUser, setTempAppleUser] = useState<any>(null);
 
     React.useEffect(() => {
         // Deep link listener for returning from Google OAuth Custom Chrome Tab
@@ -781,6 +783,106 @@ export default function Profile() {
                 setIsLoginModalOpen(false);
             } else {
                 setAuthError(data.error || t('profile.err_reg_fail'));
+            }
+        } catch (err) {
+            setAuthError(t('profile.err_server'));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleAppleLogin = async () => {
+        const isNative = Capacitor.isNativePlatform();
+        if (!isNative) {
+            setAuthError(t('profile.err_apple_native_only', 'Apple Login is only supported on mobile apps.'));
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            const result = await AppleSignIn.signIn();
+            if (result.idToken) {
+                await handleAppleCredentialResponse({ credential: result.idToken, name: result.givenName ? `${result.givenName} ${result.familyName}`.trim() : undefined });
+            } else {
+                setAuthError(t('profile.err_apple_fail', 'Apple Login Failed.'));
+                setIsLoading(false);
+            }
+        } catch (err: any) {
+            console.error('Native Apple Sign-In failed', err);
+            const errorMessage = err?.message || 'Unknown error';
+            setAuthError(`Apple Login Failed: ${errorMessage}`);
+            setIsLoading(false);
+        }
+    };
+
+    const handleAppleCredentialResponse = async (credentialResponse: any) => {
+        setAuthError('');
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${API_BASE}/api/auth/apple`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: credentialResponse.credential, name: credentialResponse.name })
+            });
+            const data = await response.json();
+
+            if (response.status === 202 && data.requiresRoleSelection) {
+                setTempAppleUser(data.tempUser);
+                setAuthView('apple_register');
+            } else if (response.ok) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                if (data.user?.preferredLanguage) {
+                    i18n.changeLanguage(data.user.preferredLanguage);
+                }
+                window.dispatchEvent(new Event('authStateChanged'));
+                setIsAuthenticated(true);
+                setIsLoginModalOpen(false);
+            } else {
+                setAuthError(data.error || t('profile.err_apple_fail', 'Apple Login Failed.'));
+            }
+        } catch (err) {
+            setAuthError(t('profile.err_server'));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleAppleRegisterSubmit = async () => {
+        if (!tempAppleUser) return;
+        if (!ageGroup || !gender) {
+            setAuthError(t('profile.err_all_req'));
+            return;
+        }
+        setAuthError('');
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${API_BASE}/api/auth/apple/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: tempAppleUser.email,
+                    name: tempAppleUser.name,
+                    appleId: tempAppleUser.appleId,
+                    role,
+                    ageGroup,
+                    gender,
+                    favoriteCafe,
+                    countryCode: getDeviceCountryCode(),
+                    preferredLanguage: i18n.language
+                })
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                window.dispatchEvent(new Event('authStateChanged'));
+                setIsAuthenticated(true);
+                setIsLoginModalOpen(false);
+                setTempAppleUser(null);
+            } else {
+                setAuthError(data.error || t('profile.err_register_fail', 'Register Failed.'));
             }
         } catch (err) {
             setAuthError(t('profile.err_server'));
@@ -2071,10 +2173,11 @@ export default function Profile() {
 
                                     <div className="space-y-3 mb-6">
                                         {/* Social Placeholder Buttons */}
-                                        <div className="w-full flex justify-center py-2">
+                                        <div className="w-full flex flex-col gap-3 py-2">
                                             <button
                                                 onClick={() => handleGoogleLogin()}
-                                                className="w-full bg-espresso-900 text-espresso-50 h-14 rounded-2xl border border-transparent shadow-sm flex items-center justify-center gap-3 font-bold text-[15px] active:scale-95 transition-transform"
+                                                disabled={isLoading}
+                                                className="w-full bg-espresso-900 text-espresso-50 h-14 rounded-2xl border border-transparent shadow-sm flex items-center justify-center gap-3 font-bold text-[15px] active:scale-95 transition-transform disabled:opacity-50"
                                             >
                                                 <svg viewBox="0 0 24 24" className="w-5 h-5">
                                                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -2083,6 +2186,17 @@ export default function Profile() {
                                                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                                                 </svg>
                                                 {t('profile.google_start')}
+                                            </button>
+                                            
+                                            <button
+                                                onClick={() => handleAppleLogin()}
+                                                disabled={isLoading}
+                                                className="w-full bg-white text-black h-14 rounded-2xl border border-transparent shadow-sm flex items-center justify-center gap-3 font-bold text-[15px] active:scale-95 transition-transform disabled:opacity-50"
+                                            >
+                                                <svg viewBox="0 0 384 512" className="w-5 h-5" fill="black">
+                                                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+                                                </svg>
+                                                {t('profile.btn_apple_login', 'Continue with Apple')}
                                             </button>
                                         </div>
                                         <div className="relative py-4 flex items-center">
@@ -2360,6 +2474,70 @@ export default function Profile() {
 
                                         <button
                                             onClick={handleGoogleRegisterSubmit}
+                                            disabled={isLoading}
+                                            className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B5952F] drop-shadow-md shadow-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#09090B] h-14 rounded-2xl font-bold text-[15px] flex items-center justify-center gap-2 mt-4 active:scale-95 transition-transform shadow-lg shadow-coffee-900/20 disabled:opacity-70"
+                                        >
+                                            {isLoading ? t('profile.status_processing') : t('profile.btn_reg_complete')}
+                                        </button>
+                                    </div>
+                                    <button onClick={() => { setAuthError(''); setAuthView('login'); }} className="absolute top-4 left-4 p-2 text-espresso-300 hover:text-espresso-50">
+                                        &larr; {t('profile.go_back')}
+                                    </button>
+                                </div>
+                            )}
+
+                            {authView === 'apple_register' && (
+                                <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                                    <div className="text-center mb-8">
+                                        <h3 className="text-xl font-serif font-bold text-espresso-50 tracking-tight">{t('profile.extra_info_title')}</h3>
+                                        <p className="text-sm text-espresso-200 mt-2">{t('profile.extra_info_desc')}</p>
+                                    </div>
+                                    <div className="space-y-4 mb-6">
+                                        {/* Role Selection */}
+                                        <div className="flex bg-espresso-950 border border-espresso-700 rounded-2xl p-1 mb-2 shadow-inner">
+                                            <button
+                                                onClick={() => setRole('USER')}
+                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'USER' ? 'bg-espresso-900 text-espresso-50 shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
+                                            >
+                                                {t('profile.role_user')}
+                                            </button>
+                                            <button
+                                                onClick={() => setRole('OWNER')}
+                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'OWNER' ? 'bg-espresso-900 text-espresso-50 shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
+                                            >
+                                                {t('profile.role_owner')}
+                                            </button>
+                                        </div>
+
+                                        <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700">
+                                            <select value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="w-full bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 outline-none text-[15px] font-medium text-espresso-100">
+                                                <option value="" disabled>{t('profile.ph_age')}</option>
+                                                <option value="10대 이하">{t('profile.age_10s')}</option>
+                                                <option value="20대">{t('profile.age_20s')}</option>
+                                                <option value="30대">{t('profile.age_30s')}</option>
+                                                <option value="40대">{t('profile.age_40s')}</option>
+                                                <option value="50대">{t('profile.age_50s')}</option>
+                                                <option value="60대 이상">{t('profile.age_60s')}</option>
+                                            </select>
+                                            <select value={gender} onChange={e => setGender(e.target.value)} className="w-full bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 outline-none text-[15px] font-medium text-espresso-100">
+                                                <option value="" disabled>{t('profile.ph_gender')}</option>
+                                                <option value="남성">{t('profile.gender_m')}</option>
+                                                <option value="여성">{t('profile.gender_f')}</option>
+                                                <option value="선택 안함">{t('profile.gender_n')}</option>
+                                            </select>
+                                            <select value={favoriteCafe} onChange={e => setFavoriteCafe(e.target.value)} className="w-full bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 outline-none text-[15px] font-medium text-espresso-100">
+                                                <option value="" disabled>{t('profile.ph_fav_cafe')}</option>
+                                                <option value="스타벅스">{t('profile.cafe_starbucks')}</option>
+                                                <option value="블루보틀">{t('profile.cafe_bluebottle')}</option>
+                                                <option value="폴바셋">{t('profile.cafe_paulbassett')}</option>
+                                                <option value="동네 로스터리">{t('profile.cafe_roastery')}</option>
+                                            </select>
+                                        </div>
+
+                                        {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
+
+                                        <button
+                                            onClick={handleAppleRegisterSubmit}
                                             disabled={isLoading}
                                             className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B5952F] drop-shadow-md shadow-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#09090B] h-14 rounded-2xl font-bold text-[15px] flex items-center justify-center gap-2 mt-4 active:scale-95 transition-transform shadow-lg shadow-coffee-900/20 disabled:opacity-70"
                                         >
