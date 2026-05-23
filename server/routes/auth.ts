@@ -422,7 +422,7 @@ router.post('/apple', authLimiter, async (req, res) => {
         try {
             // Verify token with Apple's JWKS
             const decoded = await appleSignin.verifyIdToken(token, {
-                audience: process.env.APPLE_CLIENT_ID || 'app.beanmind.ai', // Bundle ID of the app
+                audience: process.env.APPLE_CLIENT_ID || 'com.beanmind.curator',
                 ignoreExpiration: true // Optional, capacitor tokens might not have standard expiration handling depending on the device time
             });
             appleId = decoded.sub;
