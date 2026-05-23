@@ -455,7 +455,11 @@ export default function SharedCoffeeMap({
 
                                             
                                             <div className="flex items-center gap-1 mt-1 text-[12px] text-zinc-600 w-full min-w-0 font-sans">
-                                                <span className="truncate block max-w-[120px]">{shop.shortDesc || shop.signatureBean || "Specialty Coffee"}</span>
+                                                <span className="truncate block max-w-[120px]">
+                                                    {shop.shortDesc === 'AI가 발굴한 카페/명소입니다.' 
+                                                        ? t('map.fallback_short_desc', 'AI가 발굴한 카페/명소입니다.') 
+                                                        : (shop.shortDesc || shop.signatureBean || "Specialty Coffee")}
+                                                </span>
                                                 <span className="shrink-0 text-zinc-300">|</span>
                                                 <span className="shrink-0 text-zinc-600">
                                                     {(shop.reviewCount ?? 0) > 0 ? (

@@ -1010,7 +1010,7 @@ export default function HomeDashboard() {
                  <div className="px-6 flex items-center justify-between mb-3">
                    <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
                      <Users className="text-emerald-500 w-4 h-4" /> 
-                     나의 크루 최신 소식
+                     {t('home.title_crew_news', '나의 크루 최신 소식')}
                    </h3>
                    <button onClick={() => navigate('/clubs')} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '더보기')}</button>
                  </div>

@@ -64,6 +64,8 @@
         "title_pairing": "Today's Perfect Pairing",
         "desc_pairing": "Pick a dessert you are craving!",
         "title_user_pairing": "User Pairing Recommendations",
+        "title_crew_news": "My Crew's Latest News",
+        "title_following_news": "My Neighbors & Regulars News",
         "lbl_todays": "Today's",
         "lbl_coffee_taste": "Coffee Taste",
         "flash_drop_badge": "Flash Drop : Guerrilla Special",
@@ -500,7 +502,16 @@
         "lbl_perfect_pairing": "Perfect Pairing",
         "msg_found_shops": "{{count}} shops found nearby",
         "enable_ai_auto": "Enable AI Auto Extract",
-        "disable_ai_auto": "Disable AI Auto Extract"
+        "disable_ai_auto": "Disable AI Auto Extract",
+        "fallback_specialty": "Specialty/Signature Flavor",
+        "fallback_menu": "Signature Menu (TBD)",
+        "fallback_pairing": "No Recommendation Info",
+        "fallback_short_desc": "AI discovered cafe/attraction.",
+        "fallback_ai_subtitle": "Specialty space recommended by AI Curator",
+        "fallback_temp_addr": "Temporary address (to be updated)",
+        "fallback_tbd_hours": "TBD (AI discovered auto pin)",
+        "fallback_tbd": "TBD",
+        "fallback_origin_story": "This is a specialty shop discovered via web search by the Beanmind AI system while exploring users' coffee preferences. It is an auto-generated pin not yet directly registered by the owner. Clicking the [Website] button will take you to real Google Maps reviews."
     },
     "settings": {
         "report_block": "Report / Block User"
@@ -864,7 +875,13 @@
         "filter_charge": "Charge",
         "filter_reward_received": "Received",
         "filter_reward_sent": "Sent",
-        "no_history": "No history found."
+        "no_history": "No history found.",
+        "desc_iap": "In-app purchase ({{amount}} Beans)",
+        "desc_charge_done": "Charged {{amount}} Beans",
+        "desc_reward_sent_fee": "Reward to {{name}} ({{reason}}) [Fee: {{fee}} Beans]",
+        "desc_reward_sent": "Reward to {{name}} ({{reason}})",
+        "desc_reward_received_fee": "Reward from {{name}} ({{reason}}) [Fee: {{fee}}% deducted]",
+        "desc_reward_received": "Reward from {{name}} ({{reason}})"
     },
     "bookmarked_posts": {
         "alert_copy_link": "Community link copied to clipboard.",

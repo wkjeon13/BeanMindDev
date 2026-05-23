@@ -1598,13 +1598,13 @@ export default function ShopBrowser() {
                                                                     {shop.signatureBean && (
                                                                         <div className="flex items-start gap-2 min-w-0">
                                                                             <Bean size={14} className="text-amber-500 shrink-0 mt-[1.5px]" strokeWidth={2.5} />
-                                                                            <span className="leading-snug">{shop.signatureBean}</span>
+                                                                            <span className="leading-snug">{shop.signatureBean === '스페셜티/시그니처 향미' ? t('map.fallback_specialty', '스페셜티/시그니처 향미') : shop.signatureBean}</span>
                                                                         </div>
                                                                     )}
                                                                     {shop.signatureMenu && (
                                                                         <div className="flex items-start gap-2 min-w-0">
                                                                             <Coffee size={14} className="text-amber-500 shrink-0 mt-[1.5px]" strokeWidth={2.5} />
-                                                                            <span className="leading-snug">{shop.signatureMenu}</span>
+                                                                            <span className="leading-snug">{shop.signatureMenu === '대표 메뉴 (상세 미정)' ? t('map.fallback_menu', '대표 메뉴 (상세 미정)') : shop.signatureMenu}</span>
                                                                         </div>
                                                                     )}
                                                                 </div>
@@ -1612,7 +1612,7 @@ export default function ShopBrowser() {
                                                             {shop.dessertPairing && (
                                                                 <div className="flex items-start gap-2 text-[11.5px] text-espresso-200 min-w-0 mt-0.5">
                                                                     <CakeSlice size={14} className="text-amber-500 shrink-0 mt-[1.5px]" strokeWidth={2.5} />
-                                                                    <span className="leading-snug">{shop.dessertPairing}</span>
+                                                                    <span className="leading-snug">{shop.dessertPairing === '추천 정보 없음' ? t('map.fallback_pairing', '추천 정보 없음') : shop.dessertPairing}</span>
                                                                 </div>
                                                             )}
                                                         </div>

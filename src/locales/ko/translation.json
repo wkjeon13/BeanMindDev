@@ -88,6 +88,8 @@
         "title_pairing": "오늘의 완벽한 페어링",
         "desc_pairing": "지금 먹고 싶은 디저트를 골라보세요!",
         "title_user_pairing": "유저들의 페어링 추천",
+        "title_crew_news": "나의 크루 최신 소식",
+        "title_following_news": "내 이웃 & 단골 소식",
         "lbl_todays": "오늘의",
         "lbl_coffee_taste": "커피 취향",
         "flash_drop_badge": "Flash Drop : 게릴라 특가",
@@ -533,7 +535,16 @@
         "lbl_perfect_pairing": "퍼펙트 페어링",
         "msg_found_shops": "주변 매장 {{count}}곳 발견됨",
         "enable_ai_auto": "AI 자동 추출 켜기",
-        "disable_ai_auto": "AI 자동 추출 끄기"
+        "disable_ai_auto": "AI 자동 추출 끄기",
+        "fallback_specialty": "스페셜티/시그니처 향미",
+        "fallback_menu": "대표 메뉴 (상세 미정)",
+        "fallback_pairing": "추천 정보 없음",
+        "fallback_short_desc": "AI가 발굴한 카페/명소입니다.",
+        "fallback_ai_subtitle": "AI 큐레이터가 발굴한 스페셜티 추천 공간",
+        "fallback_temp_addr": "임시 주소 (추후 업데이트 예정)",
+        "fallback_tbd_hours": "추후 제공 (AI 발굴 자동 핀)",
+        "fallback_tbd": "추후 제공",
+        "fallback_origin_story": "빈마인드 AI 시스템이 사용자들의 커피 성향 탐색 과정에서 웹 서치를 통해 발굴해낸 스페셜티 매장입니다. 아직 점주가 직접 등록하지 않은 자동 생성 핀이며, 모달의 [Website] 버튼을 누르시면 실제 구글 지도 생생한 리뷰로 연결됩니다."
     },
     "settings": {
         "report_block": "신고 및 차단 (Report / Block)"
@@ -897,7 +908,13 @@
         "filter_charge": "충전",
         "filter_reward_received": "받은 보상",
         "filter_reward_sent": "보낸 보상",
-        "no_history": "조회된 내역이 없습니다."
+        "no_history": "조회된 내역이 없습니다.",
+        "desc_iap": "스토어 인앱결제 ({{amount}}콩)",
+        "desc_charge_done": "커피콩 {{amount}}알 충전 완료",
+        "desc_reward_sent_fee": "보상 🎁: {{name}}님에게 ({{reason}}) [수수료 {{fee}}콩 포함]",
+        "desc_reward_sent": "보상 🎁: {{name}}님에게 ({{reason}})",
+        "desc_reward_received_fee": "보상 🎁: {{name}}님으로부터 ({{reason}}) [수수료 {{fee}}% 공제]",
+        "desc_reward_received": "보상 🎁: {{name}}님으로부터 ({{reason}})"
     },
     "bookmarked_posts": {
         "alert_copy_link": "커뮤니티 링크가 클립보드에 복사되었습니다.",

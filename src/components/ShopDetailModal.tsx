@@ -38,6 +38,20 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
         setFullShopData(null);
     }, [propShop?.id]);
 
+    const getFallbackTranslation = (text: string | undefined | null) => {
+        if (!text) return text;
+        if (text === 'AI 큐레이터가 발굴한 스페셜티 추천 공간' || text === 'Specialty space recommended by AI Curator') return t('fallback_ai_subtitle');
+        if (text === 'AI가 발굴한 카페/명소입니다.' || text === 'AI discovered cafe/attraction.') return t('fallback_short_desc');
+        if (text === '스페셜티/시그니처 향미' || text === 'Specialty/Signature Flavor') return t('fallback_specialty');
+        if (text === '대표 메뉴 (상세 미정)' || text === 'Signature Menu (TBD)') return t('fallback_menu');
+        if (text === '추천 정보 없음' || text === 'No Recommendation Info') return t('fallback_pairing');
+        if (text === '임시 주소 (추후 업데이트 예정)' || text === 'Temporary address (to be updated)') return t('fallback_temp_addr');
+        if (text === '추후 제공 (AI 발굴 자동 핀)' || text === 'TBD (AI discovered auto pin)') return t('fallback_tbd_hours');
+        if (text === '추후 제공' || text === 'TBD') return t('fallback_tbd');
+        if (text.startsWith('빈마인드 AI 시스템이 사용자들의 커피 성향 탐색 과정에서') || text.startsWith('This is a specialty shop discovered via web search')) return t('fallback_origin_story');
+        return text;
+    };
+
     const [activeTab, setActiveTab] = useState<'info' | 'reviews'>('info');
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
     const [viewerContext, setViewerContext] = useState<'gallery' | 'beverage' | 'dessert' | null>(null);
@@ -548,7 +562,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                             {shop.matchRate != null && shop.matchRate > 0 && <span className="px-2 py-1 bg-[#111114]/80 text-[#FFD570] border border-white/10 text-[10px] font-bold uppercase tracking-widest rounded-sm backdrop-blur-sm pointer-events-auto">{shop.matchRate}% Match</span>}
                                         </div>
                                         <h2 className="text-[32px] sm:text-[36px] font-bold font-sans text-white tracking-tight leading-[1.1] mb-2 pointer-events-auto">{shop.name}</h2>
-                                        {shop.shortDesc && <p className="text-espresso-200 font-medium text-[14px] leading-snug line-clamp-2 pointer-events-auto">{shop.shortDesc}</p>}
+                                        {shop.shortDesc && <p className="text-espresso-200 font-medium text-[14px] leading-snug line-clamp-2 pointer-events-auto">{getFallbackTranslation(shop.shortDesc)}</p>}
                                     </div>
                                 </div>
 
@@ -579,7 +593,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="col-span-2 bg-white/5 border border-white/5 rounded-[1.25rem] p-4 flex items-start gap-3">
                                             <MapPin size={18} className="text-amber-500 shrink-0 mt-0.5" />
-                                            <p className="text-white text-[13px] font-medium leading-relaxed break-keep">{shop.address}</p>
+                                            <p className="text-white text-[13px] font-medium leading-relaxed break-keep">{getFallbackTranslation(shop.address)}</p>
                                         </div>
                                         {shop.hours && (
                                         <div className={hasRealWebsite && validUrl ? "col-span-1 bg-white/5 border border-white/5 rounded-[1.25rem] p-4 flex flex-col justify-center gap-3" : "col-span-2 bg-white/5 border border-white/5 rounded-[1.25rem] p-4 flex flex-col justify-center gap-3"}>
@@ -597,7 +611,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                                             </div>
                                                         </div>
                                                     ) : (
-                                                        <p className="text-white text-[13px] font-medium line-clamp-1 flex-1" title={shop.hours}>{shop.hours}</p>
+                                                        <p className="text-white text-[13px] font-medium line-clamp-1 flex-1" title={shop.hours}>{getFallbackTranslation(shop.hours)}</p>
                                                     )}
                                                 </div>
                                                 {parsedHours && (
@@ -668,8 +682,8 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                             <div className="flex overflow-x-auto hide-scrollbar gap-4 -mx-6 px-6 pb-4 snap-x snap-mandatory">
                                                 {shop.signatureBean && (
                                                     <div className="flex-none w-[260px] snap-center bg-white/5 border border-white/5 rounded-2xl p-5 flex flex-col justify-between">
-                                                        <span className="block text-[11px] font-bold text-amber-500 uppercase tracking-widest mb-3">Signature Bean</span>
-                                                        <p className="text-white font-serif font-black text-[22px] leading-tight break-keep">{shop.signatureBean}</p>
+                                                        <span className="block text-[11px] font-bold text-amber-500 uppercase tracking-widest mb-3">{t('shop_detail.lbl_signature_bean', 'Signature Bean')}</span>
+                                                        <p className="text-white font-serif font-black text-[22px] leading-tight break-keep">{getFallbackTranslation(shop.signatureBean)}</p>
                                                     </div>
                                                 )}
                                                 {shop.beanOrigin && (
@@ -751,14 +765,14 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                             <div className="flex overflow-x-auto hide-scrollbar gap-4 -mx-6 px-6 pb-2 snap-x snap-mandatory">
                                                 {shop.signatureMenu && (
                                                     <div className="flex-none w-[220px] snap-center bg-[#1a1a1e] border border-white/5 rounded-2xl p-5 flex flex-col justify-between">
-                                                        <span className="block text-[11px] font-bold text-amber-500 uppercase tracking-widest mb-3">Signature Menu</span>
-                                                        <p className="text-white font-serif font-black text-[20px] leading-snug break-keep">{shop.signatureMenu}</p>
+                                                        <span className="block text-[11px] font-bold text-amber-500 uppercase tracking-widest mb-3">{t('shop_detail.lbl_signature_menu', 'Signature Menu')}</span>
+                                                        <p className="text-white font-serif font-black text-[20px] leading-snug break-keep">{getFallbackTranslation(shop.signatureMenu)}</p>
                                                     </div>
                                                 )}
                                                 {shop.dessertPairing && (
                                                     <div className="flex-none w-[220px] snap-center bg-[#1a1a1e] border border-white/5 rounded-2xl p-5 flex flex-col justify-between">
-                                                        <span className="block text-[11px] font-bold text-amber-500 uppercase tracking-widest mb-3">Perfect Pairing</span>
-                                                        <p className="text-white font-medium text-[15px] leading-relaxed break-keep">{shop.dessertPairing}</p>
+                                                        <span className="block text-[11px] font-bold text-amber-500 uppercase tracking-widest mb-3">{t('shop_detail.lbl_perfect_pairing', 'Perfect Pairing')}</span>
+                                                        <p className="text-white font-medium text-[15px] leading-relaxed break-keep">{getFallbackTranslation(shop.dessertPairing)}</p>
                                                     </div>
                                                 )}
                                                 {shop.equipment && (
@@ -970,7 +984,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500/30 to-transparent"></div>
                                                 <h4 className="font-serif font-black text-espresso-50 mb-4 inline-block text-[18px]">Origin Story</h4>
                                                 <p className="text-espresso-200 text-[14px] leading-loose break-keep font-medium">
-                                                    {shop.longDesc}
+                                                    {getFallbackTranslation(shop.longDesc)}
                                                 </p>
                                             </div>
                                         </div>

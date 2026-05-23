@@ -37,6 +37,46 @@ export default function PointHistory() {
     const [isSavingTiers, setIsSavingTiers] = useState(false);
     const [showTierSettings, setShowTierSettings] = useState(false);
 
+    const translateDescription = (desc: string) => {
+        if (desc === 'AI 커피 처방전 발급') return t('point_history.desc_prescription', 'AI 커피 처방전 발급');
+        if (desc === '카페 리뷰 작성 보상') return t('point_history.desc_shop_review', '카페 리뷰 작성 보상');
+        if (desc === '7-Day Check-in Jackpot' || desc === '7일 출석체크 당첨') return t('point_history.desc_7day_jackpot', '7-Day Check-in Jackpot');
+        if (desc === 'Daily Check-in' || desc === '출석체크') return t('point_history.desc_daily_checkin', 'Daily Check-in');
+        
+        if (desc.startsWith('[성지순례 업적]')) {
+            const match = desc.match(/\[성지순례 업적\] ([\d]+)회 누적 달성 보상/);
+            if (match) return t('point_history.desc_pilgrimage_reward', '[성지순례 업적] {{count}}회 누적 달성 보상', { count: match[1] });
+        }
+        
+        if (desc.includes('스토어 인앱결제')) {
+            const match = desc.match(/스토어 인앱결제 \(([\d,]+)콩\)/);
+            if (match) return t('point_history.desc_iap', '스토어 인앱결제 ({{amount}}콩)', { amount: match[1] });
+        }
+        if (desc.includes('충전 완료')) {
+            const match = desc.match(/커피콩 ([\d,]+)알 충전 완료/);
+            if (match) return t('point_history.desc_charge_done', '커피콩 {{amount}}알 충전 완료', { amount: match[1] });
+        }
+        if (desc.startsWith('보상 🎁:')) {
+            if (desc.includes('님에게')) {
+                const match = desc.match(/보상 🎁: (.*?)님에게 \((.*?)\)(?: \[수수료 (.*?)콩 포함\])?/);
+                if (match) {
+                    const [_, name, reason, fee] = match;
+                    if (fee) return t('point_history.desc_reward_sent_fee', '보상 🎁: {{name}}님에게 ({{reason}}) [수수료 {{fee}}콩 포함]', { name, reason, fee });
+                    return t('point_history.desc_reward_sent', '보상 🎁: {{name}}님에게 ({{reason}})', { name, reason });
+                }
+            }
+            if (desc.includes('님으로부터')) {
+                const match = desc.match(/보상 🎁: (.*?)님으로부터 \((.*?)\)(?: \[수수료 (.*?)% 공제\])?/);
+                if (match) {
+                    const [_, name, reason, fee] = match;
+                    if (fee) return t('point_history.desc_reward_received_fee', '보상 🎁: {{name}}님으로부터 ({{reason}}) [수수료 {{fee}}% 공제]', { name, reason, fee });
+                    return t('point_history.desc_reward_received', '보상 🎁: {{name}}님으로부터 ({{reason}})', { name, reason });
+                }
+            }
+        }
+        return desc;
+    };
+
     useEffect(() => {
         const fetchHistory = async () => {
             const token = localStorage.getItem('token');
@@ -277,7 +317,7 @@ export default function PointHistory() {
                                                 {formatLocalTime(tx.createdAt, 'yyyy. MM. dd. HH:mm:ss')}
                                             </div>
                                             <div className="font-medium text-espresso-50 text-[14px] truncate leading-snug">
-                                                {tx.description}
+                                                {translateDescription(tx.description)}
                                             </div>
                                         </div>
                                         
