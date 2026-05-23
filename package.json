@@ -12,7 +12,8 @@
     "build:all": "concurrently \"npm run build\" \"npm run build --prefix admin-web\"",
     "preview": "vite preview",
     "clean": "node -e \"var fs=require('fs'); fs.rmSync('dist', {recursive:true, force:true});\"",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@capacitor/android": "^8.2.0",
@@ -87,6 +88,7 @@
     "@vitejs/plugin-basic-ssl": "^2.1.4",
     "autoprefixer": "^10.4.21",
     "concurrently": "^9.2.1",
+    "patch-package": "^8.0.1",
     "prisma": "^5.22.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
