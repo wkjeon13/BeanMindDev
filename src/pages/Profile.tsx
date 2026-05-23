@@ -1371,7 +1371,9 @@ export default function Profile() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <h2 className="text-xl font-bold text-espresso-50 tracking-tight truncate">{t('profile.lbl_hello_user', { nickname: currentUser?.nickname || '유저' })}</h2>
-                                            <p className="text-sm text-espresso-200 mt-0.5 mb-2 truncate">{currentUser?.email || 'user@beanmind.com'}</p>
+                                            <p className="text-sm text-espresso-200 mt-0.5 mb-2 truncate">
+                                                {currentUser?.email?.endsWith('@apple.user.local') ? t('profile.apple_account', 'Apple Account') : (currentUser?.email || 'user@beanmind.com')}
+                                            </p>
                                             <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                                                 <Link to="/profile/points" className="inline-flex items-center gap-1.5 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/50 active:bg-amber-500/20 transition-colors whitespace-nowrap shrink-0">
                                                     <span className="text-amber-500 text-[13px]">☕</span>
@@ -2345,13 +2347,13 @@ export default function Profile() {
                                         <div className="flex bg-espresso-950 border border-espresso-700 rounded-2xl p-1 mb-2 shadow-inner">
                                             <button
                                                 onClick={() => setRole('USER')}
-                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'USER' ? 'bg-espresso-900 text-espresso-50 shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
+                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'USER' ? 'bg-amber-600 text-white shadow-md' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/30'}`}
                                             >
                                                 {t('profile.role_user')}
                                             </button>
                                             <button
                                                 onClick={() => setRole('OWNER')}
-                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'OWNER' ? 'bg-espresso-900 text-espresso-50 shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
+                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'OWNER' ? 'bg-amber-600 text-white shadow-md' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/30'}`}
                                             >
                                                 {t('profile.role_owner')}
                                             </button>
@@ -2433,13 +2435,13 @@ export default function Profile() {
                                         <div className="flex bg-espresso-950 border border-espresso-700 rounded-2xl p-1 mb-2 shadow-inner">
                                             <button
                                                 onClick={() => setRole('USER')}
-                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'USER' ? 'bg-espresso-900 text-espresso-50 shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
+                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'USER' ? 'bg-amber-600 text-white shadow-md' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/30'}`}
                                             >
                                                 {t('profile.role_user')}
                                             </button>
                                             <button
                                                 onClick={() => setRole('OWNER')}
-                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'OWNER' ? 'bg-espresso-900 text-espresso-50 shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
+                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'OWNER' ? 'bg-amber-600 text-white shadow-md' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/30'}`}
                                             >
                                                 {t('profile.role_owner')}
                                             </button>
@@ -2497,13 +2499,13 @@ export default function Profile() {
                                         <div className="flex bg-espresso-950 border border-espresso-700 rounded-2xl p-1 mb-2 shadow-inner">
                                             <button
                                                 onClick={() => setRole('USER')}
-                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'USER' ? 'bg-espresso-900 text-espresso-50 shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
+                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'USER' ? 'bg-amber-600 text-white shadow-md' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/30'}`}
                                             >
                                                 {t('profile.role_user')}
                                             </button>
                                             <button
                                                 onClick={() => setRole('OWNER')}
-                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'OWNER' ? 'bg-espresso-900 text-espresso-50 shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
+                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'OWNER' ? 'bg-amber-600 text-white shadow-md' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/30'}`}
                                             >
                                                 {t('profile.role_owner')}
                                             </button>

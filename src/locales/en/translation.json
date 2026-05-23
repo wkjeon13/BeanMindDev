@@ -226,6 +226,7 @@
         "err_google_fail": "Failed to log in with Google.",
         "err_apple_fail": "Failed to log in with Apple.",
         "err_apple_native_only": "Apple Login is only supported on mobile apps.",
+        "apple_account": "Apple Account",
         "btn_apple_login": "Continue with Apple",
         "err_register_fail": "Registration failed.",
         "err_server": "Failed to connect to the server",

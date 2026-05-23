@@ -250,6 +250,7 @@
         "err_google_fail": "구글 로그인에 실패했습니다.",
         "err_apple_fail": "애플 로그인에 실패했습니다.",
         "err_apple_native_only": "애플 로그인은 모바일 앱에서만 지원됩니다.",
+        "apple_account": "Apple 계정",
         "btn_apple_login": "Apple로 계속하기",
         "err_register_fail": "회원가입에 실패했습니다.",
         "err_server": "서버 연결 실패",
