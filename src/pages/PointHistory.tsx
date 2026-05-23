@@ -125,15 +125,17 @@ export default function PointHistory() {
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex-1 bg-espresso-900 flex flex-col pt-safe min-h-screen"
+            className="flex-1 bg-espresso-900 flex flex-col min-h-screen"
         >
             {/* Header */}
-            <header className="sticky top-0 z-30 bg-espresso-900/95 backdrop-blur-xl border-b border-coffee-100 h-14 px-4 flex items-center justify-between">
-                <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-coffee-600 active:bg-espresso-950 rounded-full transition-colors">
-                    <ChevronLeft size={24} />
-                </button>
-                <h1 className="font-serif text-lg font-bold text-espresso-50 tracking-tight">{t('point_history.title', '커피콩 내역')}</h1>
-                <div className="w-10" />
+            <header className="sticky top-0 z-30 bg-espresso-900/95 backdrop-blur-xl border-b border-coffee-100 pt-safe">
+                <div className="h-14 px-4 flex items-center justify-between">
+                    <button onClick={() => navigate(-1)} className="p-2 -ml-2 text-coffee-600 active:bg-espresso-950 rounded-full transition-colors">
+                        <ChevronLeft size={24} />
+                    </button>
+                    <h1 className="font-serif text-lg font-bold text-espresso-50 tracking-tight">{t('point_history.title', '커피콩 내역')}</h1>
+                    <div className="w-10" />
+                </div>
             </header>
 
             <div className="flex-1 overflow-y-auto pb-safe">
