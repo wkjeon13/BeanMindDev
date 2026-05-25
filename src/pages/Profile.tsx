@@ -2836,7 +2836,7 @@ export default function Profile() {
 
                                         <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700">
                                             <select value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="w-full bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 outline-none text-[15px] font-medium text-espresso-100 mb-2">
-                                                <option value="" disabled>{t('profile.ph_age_group')}</option>
+                                                <option value="" disabled>{t('profile.ph_age')}</option>
                                                 <option value="10s">{t('profile.age_10s')}</option>
                                                 <option value="20s">{t('profile.age_20s')}</option>
                                                 <option value="30s">{t('profile.age_30s')}</option>

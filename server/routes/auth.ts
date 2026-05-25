@@ -979,7 +979,7 @@ router.get('/naver/callback', async (req, res) => {
             const tempUser = {
                 naverId: id,
                 email: email || '',
-                name: name || nickname || '',
+                name: nickname || name || '',
                 profileImageUrl: profile_image || '',
                 gender: parsedGender,
                 ageGroup: parsedAgeGroup
