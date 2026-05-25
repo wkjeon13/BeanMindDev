@@ -8,7 +8,8 @@ const config: CapacitorConfig = {
     // URL was disabled to prevent Android WebView SSL (ERR_CERT_AUTHORITY_INVALID) white screen.
     // url: 'https://192.168.0.29.nip.io:3002',
     cleartext: true,
-    androidScheme: 'http'
+    androidScheme: 'http',
+    allowNavigation: ['192.168.0.*', '10.0.2.2', '*.nip.io']
   },
   android: {
     allowMixedContent: true
