@@ -32,9 +32,13 @@ export default function TastingNoteWizard() {
         }
     };
 
+    const handleSkipPhoto = () => {
+        setStep(2);
+    };
+
     const handleAnalyze = async () => {
         if (!coffeeName || !rawNote) {
-            alert('커피 이름과 감상 평을 입력해주세요.');
+            alert(t('tasting_note.err_empty_input', '커피 이름과 감상 평을 입력해주세요.'));
             return;
         }
 
@@ -49,7 +53,11 @@ export default function TastingNoteWizard() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ coffeeName, brand, rawNote })
+                body: JSON.stringify({ 
+                    coffeeName: coffeeName, 
+                    brand: brand, 
+                    rawNote: rawNote 
+                })
             });
 
             if (res.ok) {
@@ -57,17 +65,17 @@ export default function TastingNoteWizard() {
                 setAiResult(data);
                 setStep(4);
             } else if (res.status === 401 || res.status === 403) {
-                alert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
+                alert(t('tasting_note.err_session_expired', '로그인 세션이 만료되었습니다. 다시 로그인해주세요.'));
                 localStorage.removeItem('token');
                 localStorage.removeItem('user');
                 window.dispatchEvent(new Event('authStateChanged'));
-                navigate('/register'); // or root depending on app flow
+                navigate('/register');
             } else {
                 alert('AI 분석에 실패했습니다.');
                 setStep(2);
             }
         } catch (error) {
-            alert('오류가 발생했습니다.');
+            alert(t('tasting_note.err_general', '오류가 발생했습니다.'));
             setStep(2);
         } finally {
             setIsAnalyzing(false);
@@ -84,8 +92,8 @@ export default function TastingNoteWizard() {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    coffeeName,
-                    brand,
+                    coffeeName: coffeeName,
+                    brand: brand,
                     rawUserNote: rawNote,
                     aiTranslatedNote: aiResult.aiTranslatedNote,
                     acidity: aiResult.acidity,
@@ -98,19 +106,15 @@ export default function TastingNoteWizard() {
             });
 
             if (res.ok) {
-                alert('테이스팅 노트가 저장되었습니다!');
+                alert(t('tasting_note.msg_saved', '테이스팅 노트가 저장되었습니다!'));
                 navigate('/profile');
-            } else if (res.status === 401 || res.status === 403) {
-                alert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.dispatchEvent(new Event('authStateChanged'));
-                navigate('/');
+            } else if (res.status === 401) {
+                alert(t('tasting_note.err_session_expired', '로그인 세션이 만료되었습니다. 다시 로그인해주세요.'));
             } else {
-                alert('저장에 실패했습니다.');
+                alert(t('tasting_note.err_save_failed', '저장에 실패했습니다.'));
             }
         } catch (error) {
-            alert('오류가 발생했습니다.');
+            alert(t('tasting_note.err_general', '오류가 발생했습니다.'));
         }
     };
 
@@ -125,10 +129,10 @@ export default function TastingNoteWizard() {
                     <X className="w-5 h-5 text-gray-400" />
                 </button>
                 <div className="flex flex-col items-center">
-                    <h1 className="text-xl font-bold bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">
-                        AI 테이스팅 노트
-                    </h1>
-                    <div className="text-xs text-gray-500 font-medium tracking-widest mt-1">
+                    <span className="text-amber-500 font-bold text-lg tracking-wider">
+                        {t('tasting_note.title', 'AI 테이스팅 노트')}
+                    </span>
+                    <div className="text-xs text-gray-500 font-medium tracking-widest mt-1 uppercase">
                         STEP {step} OF 4
                     </div>
                 </div>
@@ -142,24 +146,24 @@ export default function TastingNoteWizard() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="flex flex-col items-center justify-center h-[70vh]"
+                        className="flex flex-col items-center justify-center p-6 mt-8"
                     >
                         <div className="w-24 h-24 bg-gradient-to-br from-amber-400/20 to-yellow-600/20 rounded-full flex items-center justify-center mb-6">
                             <Camera className="w-10 h-10 text-amber-400" />
                         </div>
-                        <h2 className="text-2xl font-bold mb-3 text-center">방금 마신 커피,<br/>어떻게 기억하고 싶나요?</h2>
-                        <p className="text-gray-400 text-center mb-8 max-w-xs">
-                            커피의 사진을 찍거나 갤러리에서 선택해주세요. 사진 없이 기록할 수도 있습니다.
+                        <h2 className="text-2xl font-bold mb-3 text-center whitespace-pre-line">{t('tasting_note.subtitle', '방금 마신 커피,\n어떻게 기억하고 싶나요?')}</h2>
+                        <p className="text-gray-400 text-center mb-10 text-sm leading-relaxed px-4">
+                            {t('tasting_note.desc_photo', '커피의 사진을 찍거나 갤러리에서 선택해주세요. 사진 없이 기록할 수도 있습니다.')}
                         </p>
                         
                         <div className="flex gap-4 w-full max-w-sm">
                             <label className="flex-1 py-4 px-4 bg-amber-500 text-black font-bold rounded-2xl cursor-pointer text-center hover:bg-amber-400 transition flex items-center justify-center gap-2">
                                 <Upload className="w-5 h-5" />
-                                <span>사진 업로드</span>
+                                <span>{t('tasting_note.btn_upload_photo', '사진 업로드')}</span>
                                 <input type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
                             </label>
-                            <button onClick={() => setStep(2)} className="flex-1 py-4 px-4 bg-zinc-800 text-white font-medium rounded-2xl hover:bg-zinc-700 transition">
-                                사진 없이 넘기기
+                            <button onClick={handleSkipPhoto} className="flex-1 py-4 px-4 bg-zinc-800 text-white font-medium rounded-2xl hover:bg-zinc-700 transition">
+                                {t('tasting_note.btn_skip_photo', '사진 없이 넘기기')}
                             </button>
                         </div>
                     </motion.div>
@@ -173,38 +177,37 @@ export default function TastingNoteWizard() {
                         exit={{ opacity: 0, y: -20 }}
                         className="flex flex-col max-w-md mx-auto"
                     >
-                        <h2 className="text-2xl font-bold mb-6">커피에 대해 편하게 적어주세요</h2>
+                        <h2 className="text-2xl font-bold mb-6">{t('tasting_note.subtitle_write', '커피에 대해 편하게 적어주세요')}</h2>
                         
-                        <div className="space-y-4 mb-8">
+                        <div className="space-y-5 mb-8">
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">원두 또는 메뉴 이름*</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-2">{t('tasting_note.lbl_bean_menu', '원두 또는 메뉴 이름*')}</label>
                                 <input 
                                     type="text" 
                                     className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50"
-                                    placeholder="ex) 에티오피아 예가체프 G1"
+                                    placeholder={t('tasting_note.ph_bean_menu', 'ex) 에티오피아 예가체프 G1')}
                                     value={coffeeName}
                                     onChange={e => setCoffeeName(e.target.value)}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">카페 또는 브랜드 (선택)</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-2">{t('tasting_note.lbl_cafe_brand', '카페 또는 브랜드 (선택)')}</label>
                                 <input 
                                     type="text" 
                                     className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50"
-                                    placeholder="ex) 블루보틀 성수"
+                                    placeholder={t('tasting_note.ph_cafe_brand', 'ex) 블루보틀 성수')}
                                     value={brand}
                                     onChange={e => setBrand(e.target.value)}
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-2">자유로운 감상 평*</label>
+                                <label className="block text-sm font-medium text-gray-400 mb-2">{t('tasting_note.lbl_review', '자유로운 감상 평*')}</label>
                                 <textarea 
                                     className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50 min-h-[120px] resize-none"
-                                    placeholder="ex) 처음엔 레몬처럼 찌르는 신맛이 났는데 마시다보니 초콜릿 달달한 맛이 남아서 좋았어. 바디감이 무겁지 않아서 식후에 딱임!"
+                                    placeholder={t('tasting_note.ph_review', 'ex) 처음엔 레몬처럼 찌르는 신맛이 났는데 마시다보니 초콜릿 달달한 맛이 남아서 좋았어. 바디감이 무겁지 않아서 식후에 딱임!')}
                                     value={rawNote}
                                     onChange={e => setRawNote(e.target.value)}
                                     onFocus={(e) => {
-                                        // Scroll the element into view slightly above the bottom with a delay
                                         setTimeout(() => {
                                             e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                                         }, 300);
@@ -218,7 +221,7 @@ export default function TastingNoteWizard() {
                             className="w-full py-4 bg-gradient-to-r from-amber-500 to-yellow-600 text-black font-bold rounded-2xl hover:opacity-90 transition flex items-center justify-center gap-2"
                         >
                             <Wand2 className="w-5 h-5" />
-                            <span>AI 분석 시작하기</span>
+                            <span>{t('tasting_note.btn_analyze', 'AI 분석 시작하기')}</span>
                         </button>
                     </motion.div>
                 )}
@@ -235,8 +238,8 @@ export default function TastingNoteWizard() {
                             <div className="absolute inset-0 bg-amber-500/20 blur-xl rounded-full animate-pulse" />
                             <Wand2 className="w-16 h-16 text-amber-400 animate-bounce relative z-10" />
                         </div>
-                        <h2 className="text-2xl font-bold mb-2">리뷰를 커핑 노트로 변환 중...</h2>
-                        <p className="text-gray-400">당신의 표현을 전문적인 큐그레이더의 언어로 다듬고 있습니다.</p>
+                        <h2 className="text-2xl font-bold mb-2">{t('tasting_note.analyzing_title', '리뷰를 커핑 노트로 변환 중...')}</h2>
+                        <p className="text-gray-400">{t('tasting_note.analyzing_desc', '당신의 표현을 전문적인 큐그레이더의 언어로 다듬고 있습니다.')}</p>
                     </motion.div>
                 )}
 
@@ -249,8 +252,8 @@ export default function TastingNoteWizard() {
                     >
                         <div className="bg-zinc-900/80 border border-amber-500/30 rounded-3xl p-6 mb-6 backdrop-blur-sm">
                             <div className="flex items-center gap-3 justify-center mb-6">
-                                <CheckCircle className="w-6 h-6 text-emerald-400" />
-                                <h2 className="text-xl font-bold text-white">분석 완료</h2>
+                                <Sparkles className="w-6 h-6 text-amber-500" />
+                                <h2 className="text-xl font-bold text-white">{t('tasting_note.analysis_complete', '분석 완료')}</h2>
                             </div>
                             
                             <div className="mb-6">
@@ -264,10 +267,10 @@ export default function TastingNoteWizard() {
                                 <h3 className="text-amber-400 font-semibold text-sm mb-3 uppercase tracking-wider">Taste Profile</h3>
                                 <div className="grid grid-cols-2 gap-4">
                                     {[
-                                        { label: '산미', value: aiResult.acidity },
-                                        { label: '단맛', value: aiResult.sweetness },
-                                        { label: '쓴맛', value: aiResult.bitterness },
-                                        { label: '바디감', value: aiResult.body },
+                                        { label: t('profile.stat_acidity', '산미'), value: aiResult.acidity },
+                                        { label: t('profile.stat_sweetness', '단맛'), value: aiResult.sweetness },
+                                        { label: t('profile.stat_bitterness', '쓴맛'), value: aiResult.bitterness },
+                                        { label: t('profile.stat_body', '바디감'), value: aiResult.body },
                                     ].map(item => (
                                         <div key={item.label} className="bg-black/50 p-3 rounded-xl border border-white/5">
                                             <div className="text-sm text-gray-400 mb-1">{item.label}</div>
@@ -302,7 +305,7 @@ export default function TastingNoteWizard() {
                             onClick={handleSave}
                             className="w-full py-4 bg-amber-500 text-black font-bold rounded-2xl hover:bg-amber-400 transition"
                         >
-                            로스팅 다이어리에 추가하기
+                            {t('tasting_note.btn_save_diary', '로스팅 다이어리에 추가하기')}
                         </button>
                     </motion.div>
                 )}

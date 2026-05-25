@@ -173,8 +173,23 @@ export default function Profile() {
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [tastePref, setTastePref] = useState({ acidity: 3, sweetness: 3, body: 3, bitterness: 3, aroma: '' });
     
-    // Aroma tags constants
     const AROMA_TAGS = ['플로럴', '프루티/베리', '시트러스', '와이니', '초콜릿', '카라멜', '너티/견과류', '허브/스파이스', '스위트/꿀', '기타/특수'];
+
+    const getAromaLabel = (tag: string) => {
+        switch(tag) {
+            case '플로럴': return t('profile.aroma_floral', '플로럴');
+            case '프루티/베리': return t('profile.aroma_fruity', '프루티/베리');
+            case '시트러스': return t('profile.aroma_citrus', '시트러스');
+            case '와이니': return t('profile.aroma_winey', '와이니');
+            case '초콜릿': return t('profile.aroma_chocolate', '초콜릿');
+            case '카라멜': return t('profile.aroma_caramel', '카라멜');
+            case '너티/견과류': return t('profile.aroma_nutty', '너티/견과류');
+            case '허브/스파이스': return t('profile.aroma_herb', '허브/스파이스');
+            case '스위트/꿀': return t('profile.aroma_sweet', '스위트/꿀');
+            case '기타/특수': return t('profile.aroma_other', '기타/특수');
+            default: return tag;
+        }
+    };
 
     // Profile Edit States
     const [isEditingNickname, setIsEditingNickname] = useState(false);
@@ -1888,9 +1903,9 @@ export default function Profile() {
                                             <div className="flex justify-between items-center mb-3 text-sm">
                                                 <span className="font-bold text-espresso-50 flex items-center gap-2">
                                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500"><path d="M11 6c-2 0-3 1-3 3s1 3 3 3 3-1 3-3-1-3-3-3z"></path><path d="M12 21v-4"></path><path d="M9 13.5l-3 5.5"></path><path d="M15 13.5l3 5.5"></path></svg>
-                                                    선호하는 향 노트 (Aroma)
+                                                    {t('profile.lbl_aroma_notes', '선호하는 향 노트 (Aroma)')}
                                                 </span>
-                                                <span className="text-amber-500 font-bold border-b border-amber-500/30 pb-0.5">최대 3개</span>
+                                                <span className="text-amber-500 font-bold border-b border-amber-500/30 pb-0.5">{t('profile.lbl_max_3', '최대 3개')}</span>
                                             </div>
                                             <div className="flex flex-wrap gap-2">
                                                 {AROMA_TAGS.map(tag => {
@@ -1906,7 +1921,7 @@ export default function Profile() {
                                                                     newTags = newTags.filter(t => t !== tag);
                                                                 } else {
                                                                     if (newTags.length >= 3) {
-                                                                        alert("최대 3개까지만 선택 가능합니다.");
+                                                                        alert(t('profile.msg_aroma_max', '최대 3개까지만 선택 가능합니다.'));
                                                                         return;
                                                                     }
                                                                     newTags.push(tag);
@@ -1916,7 +1931,7 @@ export default function Profile() {
                                                             className={`px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${isSelected ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' : 'bg-espresso-800 text-espresso-300 border-espresso-700 hover:border-espresso-600'}`}
                                                         >
                                                             {isSelected && <span className="mr-1">✓</span>}
-                                                            {tag}
+                                                            {getAromaLabel(tag)}
                                                         </button>
                                                     );
                                                 })}
