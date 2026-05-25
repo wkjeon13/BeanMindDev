@@ -67,6 +67,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>capcurator</string>
 				<string>com.googleusercontent.apps.737925841182-ft7g1ktfv2lf0jrjio0bnt7uohmil8ug</string>
 			</array>
 		</dict>

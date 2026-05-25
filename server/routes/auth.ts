@@ -409,6 +409,94 @@ router.post('/google/register', authLimiter, async (req, res) => {
     }
 });
 
+// Apple Login Callback (Deep Link Trampoline for Android WebView bypass)
+router.post('/apple/callback', async (req, res) => {
+    try {
+        const { id_token, user: userJsonString, state } = req.body;
+        
+        if (!id_token) {
+            return res.status(400).send("No Apple token provided in callback.");
+        }
+
+        // We don't verify the token here, we just proxy it back to the app via Deep Link.
+        // The frontend AppUrlOpen listener will catch this, extract the token,
+        // and then call the existing POST /api/auth/apple endpoint to actually log the user in!
+        
+        let redirectUrl = `capcurator://apple-login?token=${id_token}`;
+        if (userJsonString) {
+            redirectUrl += `&user=${encodeURIComponent(userJsonString)}`;
+        }
+        
+        // Return an HTML script that redirects the user's browser back to the native app
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                <title>Apple Login Callback</title>
+                <style>
+                    body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f8f8f8; }
+                    .message { text-align: center; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+                </style>
+            </head>
+            <body>
+                <div class="message">
+                    <h3>인증 완료</h3>
+                    <p>앱으로 돌아가는 중입니다...</p>
+                </div>
+                <script>
+                    setTimeout(() => {
+                        window.location.href = "${redirectUrl}";
+                    }, 500);
+                </script>
+            </body>
+            </html>
+        `;
+        return res.send(html);
+    } catch (error) {
+        console.error("Apple callback error:", error);
+        return res.status(500).send("Internal Server Error during Apple Callback");
+    }
+});
+
+// Handle GET requests (Apple sometimes redirects via GET when there's an error like invalid_client)
+router.get('/apple/callback', async (req, res) => {
+    const error = req.query.error;
+    console.error("Apple GET callback error:", error);
+    
+    // We can redirect back to the app with the error
+    let redirectUrl = `capcurator://apple-login?error=${error || 'unknown_apple_error'}`;
+    
+    const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Apple Login Error</title>
+            <style>
+                body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f8f8f8; }
+                .message { text-align: center; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); color: red; }
+            </style>
+        </head>
+        <body>
+            <div class="message">
+                <h3>애플 로그인 설정 오류</h3>
+                <p>Apple Server Error: ${error}</p>
+                <p>앱으로 돌아가는 중입니다...</p>
+            </div>
+            <script>
+                setTimeout(() => {
+                    window.location.href = "${redirectUrl}";
+                }, 2000);
+            </script>
+        </body>
+        </html>
+    `;
+    return res.send(html);
+});
+
 // Apple Login
 router.post('/apple', authLimiter, async (req, res) => {
     try {
@@ -422,7 +510,10 @@ router.post('/apple', authLimiter, async (req, res) => {
         try {
             // Verify token with Apple's JWKS
             const decoded = await appleSignin.verifyIdToken(token, {
-                audience: process.env.APPLE_CLIENT_ID || 'com.beanmind.curator',
+                audience: [
+                    process.env.APPLE_CLIENT_ID || 'com.beanmind.curator', // iOS App ID
+                    process.env.VITE_APPLE_CLIENT_ID || 'com.beanmind.curator.web' // Android/Web Services ID
+                ],
                 ignoreExpiration: true // Optional, capacitor tokens might not have standard expiration handling depending on the device time
             });
             appleId = decoded.sub;
@@ -748,6 +839,223 @@ router.post('/reset-password', authLimiter, async (req, res) => {
         res.status(200).json({ message: 'Password reset successfully. You can now log in.' });
     } catch (error) {
         console.error("Reset PW error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// ==========================================
+// NAVER LOGIN ROUTES
+// ==========================================
+
+// Handle the redirect from Naver OAuth
+router.get('/naver/callback', async (req, res) => {
+    try {
+        const { code, state, error, error_description } = req.query;
+
+        if (error) {
+            console.error("Naver OAuth error:", error, error_description);
+            const redirectUrl = `capcurator://naver-login?error=${error_description || 'naver_oauth_error'}`;
+            return res.send(`
+                <!DOCTYPE html>
+                <html><head><title>Naver Login Error</title></head>
+                <body><script>window.location.href = "${redirectUrl}";</script></body></html>
+            `);
+        }
+
+        if (!code) {
+            return res.status(400).send("No code provided by Naver.");
+        }
+
+        const clientId = process.env.NAVER_CLIENT_ID;
+        const clientSecret = process.env.NAVER_CLIENT_SECRET;
+
+        if (!clientId || !clientSecret) {
+            console.error("Missing Naver credentials in .env");
+            return res.status(500).send("Server configuration error for Naver.");
+        }
+
+        // 1. Get Access Token
+        const tokenResponse = await fetch(`https://nid.naver.com/oauth2.0/token?grant_type=authorization_code&client_id=${clientId}&client_secret=${clientSecret}&code=${code}&state=${state}`);
+        const tokenData = await tokenResponse.json();
+
+        if (tokenData.error) {
+            console.error("Naver token error:", tokenData);
+            return res.status(400).send("Failed to retrieve token from Naver.");
+        }
+
+        const accessToken = tokenData.access_token;
+
+        // 2. Get User Profile
+        const profileResponse = await fetch('https://openapi.naver.com/v1/nid/me', {
+            headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+        const profileData = await profileResponse.json();
+
+        if (profileData.resultcode !== '00') {
+            console.error("Naver profile error:", profileData);
+            return res.status(400).send("Failed to retrieve user profile from Naver.");
+        }
+
+        const { id, email, name, nickname, profile_image, gender, birthday, birthyear, age } = profileData.response;
+        console.log("NAVER PROFILE DATA:", profileData.response);
+
+        // Parse birthdate (e.g., birthday: "10-01", birthyear: "1990" -> 1990-10-01)
+        const parsedAgeGroup = age ? age.split('-')[0] + 's' : undefined; // "20-29" -> "20s"
+        const parsedGender = gender === 'M' ? 'MALE' : (gender === 'F' ? 'FEMALE' : undefined);
+
+        // Check if user exists
+        let user = await prisma.user.findFirst({
+            where: {
+                OR: [
+                    { socialId: id },
+                    { email: email }
+                ]
+            }
+        });
+
+        const isWeb = state && state.startsWith('web_');
+        let webOrigin = 'https://www.beanmindcurator.com';
+        if (isWeb) {
+            try {
+                const parts = state.split('_');
+                if (parts.length >= 3) {
+                    let b64 = parts[1];
+                    while (b64.length % 4 !== 0) b64 += '=';
+                    webOrigin = Buffer.from(b64, 'base64').toString('utf8');
+                }
+            } catch (e) {
+                console.error("Failed to decode origin from state", e);
+            }
+        }
+
+        if (user) {
+            // User exists, log them in
+            if (user.socialId && user.socialId !== id && user.loginType !== 'NAVER') {
+                const redirectUrl = `capcurator://naver-login?error=email_in_use_by_${user.loginType.toLowerCase()}`;
+                if (isWeb) {
+                    return res.send(`
+                        <!DOCTYPE html>
+                        <html><head><title>Naver Login Error</title></head>
+                        <body><script>window.location.href = "${webOrigin}/profile#naver_error=email_in_use_by_${user.loginType.toLowerCase()}";</script></body></html>
+                    `);
+                } else {
+                    return res.send(`
+                        <!DOCTYPE html>
+                        <html><head><title>Naver Login Error</title></head>
+                        <body><script>window.location.href = "${redirectUrl}";</script></body></html>
+                    `);
+                }
+            }
+
+            if (!user.socialId && user.email === email) {
+                user = await prisma.user.update({
+                    where: { id: user.id },
+                    data: { socialId: id, loginType: 'NAVER', isEmailVerified: true }
+                });
+            }
+
+            const jwtToken = jwt.sign(
+                { id: user.id, email: user.email, role: user.role },
+                JWT_SECRET,
+                { expiresIn: '7d' }
+            );
+
+            if (isWeb) {
+                return res.send(`
+                    <!DOCTYPE html>
+                    <html><head><title>Naver Login Success</title></head>
+                    <body><script>window.location.href = "${webOrigin}/profile#jwt_token=${jwtToken}";</script></body></html>
+                `);
+            } else {
+                const redirectUrl = `capcurator://naver-login?token=${jwtToken}`;
+                return res.send(`
+                    <!DOCTYPE html>
+                    <html><head><title>Naver Login Success</title></head>
+                    <body><script>window.location.href = "${redirectUrl}";</script></body></html>
+                `);
+            }
+        } else {
+            // User does not exist, send info for registration
+            const tempUser = {
+                naverId: id,
+                email: email || '',
+                name: name || nickname || '',
+                profileImageUrl: profile_image || '',
+                gender: parsedGender,
+                ageGroup: parsedAgeGroup
+            };
+
+            const userJsonString = JSON.stringify(tempUser);
+            if (isWeb) {
+                return res.send(`
+                    <!DOCTYPE html>
+                    <html><head><title>Naver Login Registration</title></head>
+                    <body><script>window.location.href = "${webOrigin}/profile#naver_user=${encodeURIComponent(userJsonString)}";</script></body></html>
+                `);
+            } else {
+                const redirectUrl = `capcurator://naver-login?user=${encodeURIComponent(userJsonString)}`;
+                return res.send(`
+                    <!DOCTYPE html>
+                    <html><head><title>Naver Login Registration</title></head>
+                    <body><script>window.location.href = "${redirectUrl}";</script></body></html>
+                `);
+            }
+        }
+    } catch (error) {
+        console.error("Naver callback error:", error);
+        return res.status(500).send("Internal Server Error during Naver Callback");
+    }
+});
+
+// Naver Register
+router.post('/naver/register', authLimiter, async (req, res) => {
+    try {
+        const { email, name, naverId, profileImageUrl, gender, ageGroup, role, favoriteCafe, countryCode, preferredLanguage } = req.body;
+
+        if (!naverId || !role) {
+            return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
+        }
+
+        const user = await prisma.user.create({
+            data: {
+                email: email || `${naverId}@naver.user.local`,
+                nickname: name || 'Naver User',
+                loginType: 'NAVER',
+                socialId: naverId,
+                profileImageUrl: profileImageUrl,
+                isEmailVerified: true,
+                role: role === 'OWNER' ? 'OWNER' : 'USER',
+                ageGroup,
+                gender,
+                favoriteCafe,
+                countryCode: countryCode || 'KR',
+                preferredLanguage: preferredLanguage || 'ko'
+            }
+        });
+
+        const jwtToken = jwt.sign(
+            { id: user.id, email: user.email, role: user.role },
+            JWT_SECRET,
+            { expiresIn: '7d' }
+        );
+
+        res.status(201).json({
+            message: 'Naver register successful!',
+            token: jwtToken,
+            user: {
+                id: user.id,
+                email: user.email,
+                nickname: user.nickname,
+                role: user.role,
+                profileImageUrl: user.profileImageUrl,
+                ageGroup: user.ageGroup,
+                gender: user.gender,
+                favoriteCafe: user.favoriteCafe,
+                preferredLanguage: user.preferredLanguage
+            }
+        });
+    } catch (error) {
+        console.error("Naver Auth Register error:", error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
     }
 });

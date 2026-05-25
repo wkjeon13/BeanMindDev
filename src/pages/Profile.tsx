@@ -26,7 +26,7 @@ export default function Profile() {
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     // JWT auth state
     const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem('token'));
-    const [authView, setAuthView] = useState<'login' | 'register' | 'google_register' | 'apple_register' | 'verify' | 'verify_request' | 'find_id' | 'find_pw' | 'reset_pw'>('login');
+    const [authView, setAuthView] = useState<'login' | 'register' | 'google_register' | 'apple_register' | 'naver_register' | 'verify' | 'verify_request' | 'find_id' | 'find_pw' | 'reset_pw'>('login');
 
     // Form States
     const [email, setEmail] = useState('');
@@ -46,15 +46,24 @@ export default function Profile() {
     // Clear sensitive form state when modal closes or view changes
     React.useEffect(() => {
         if (!isLoginModalOpen) {
-            setAuthView('login');
-            setEmail('');
-            setNickname('');
-            setAuthError('');
+            const timer = setTimeout(() => {
+                setAuthView('login');
+                setEmail('');
+                setNickname('');
+                setAuthError('');
+                setPassword('');
+                setPasswordConfirm('');
+                setVerificationCode('');
+            }, 300);
+            return () => clearTimeout(timer);
         }
+    }, [isLoginModalOpen]);
+
+    React.useEffect(() => {
         setPassword('');
         setPasswordConfirm('');
         setVerificationCode('');
-    }, [isLoginModalOpen, authView]);
+    }, [authView]);
 
     const [currentUser, setCurrentUser] = useState(() => JSON.parse(localStorage.getItem('user') || '{}'));
 
@@ -457,6 +466,7 @@ export default function Profile() {
     // State for temporary Google User during Role Selection
     const [tempGoogleUser, setTempGoogleUser] = useState<any>(null);
     const [tempAppleUser, setTempAppleUser] = useState<any>(null);
+    const [tempNaverUser, setTempNaverUser] = useState<any>(null);
 
     React.useEffect(() => {
         // Deep link listener for returning from Google OAuth Custom Chrome Tab
@@ -472,13 +482,143 @@ export default function Profile() {
                         handleGoogleCallback(accessToken);
                     }
                 }
+            } else if (event.url && event.url.includes('capcurator://apple-login')) {
+                // Handle Apple Login Deep Link Callback from Custom Chrome Tab
+                try {
+                    const urlObj = new URL(event.url);
+                    const error = urlObj.searchParams.get('error');
+                    
+                    if (error) {
+                        await Browser.close().catch(() => console.log('browser already closed'));
+                        setAuthError(`Apple Login Error: ${error}`);
+                        setIsLoading(false);
+                        return;
+                    }
+                    
+                    const token = urlObj.searchParams.get('token');
+                    const userStr = urlObj.searchParams.get('user');
+                    
+                    if (token) {
+                        await Browser.close().catch(() => console.log('browser already closed'));
+                        setIsLoginModalOpen(true);
+                        
+                        let name;
+                        if (userStr) {
+                            try {
+                                const userObj = JSON.parse(decodeURIComponent(userStr));
+                                if (userObj?.name) {
+                                    name = `${userObj.name.firstName || ''} ${userObj.name.lastName || ''}`.trim();
+                                }
+                            } catch (e) {
+                                console.error("Failed to parse apple user", e);
+                            }
+                        }
+                        
+                        handleAppleCredentialResponse({ credential: token, name: name || undefined });
+                    }
+                } catch (e) {
+                    console.error("Error processing apple deep link", e);
+                }
+            } else if (event.url && event.url.includes('capcurator://naver-login')) {
+                // Handle Naver Login Deep Link
+                try {
+                    const urlObj = new URL(event.url);
+                    const error = urlObj.searchParams.get('error');
+                    
+                    if (error) {
+                        await Browser.close().catch(() => console.log('browser already closed'));
+                        setAuthError(`Naver Login Error: ${error}`);
+                        setIsLoading(false);
+                        return;
+                    }
+                    
+                    const token = urlObj.searchParams.get('token');
+                    const userStr = urlObj.searchParams.get('user');
+                    
+                    if (token) {
+                        await Browser.close().catch(() => console.log('browser already closed'));
+                        setIsLoginModalOpen(true);
+                        
+                        // Token received, handle login
+                        try {
+                            const res = await fetch(`${API_BASE}/api/users/me`, {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            if (res.ok) {
+                                const userData = await res.json();
+                                localStorage.setItem('token', token);
+                                localStorage.setItem('user', JSON.stringify(userData));
+                                window.dispatchEvent(new Event('authStateChanged'));
+                                setIsAuthenticated(true);
+                                setIsLoginModalOpen(false);
+                            }
+                        } catch (e) {
+                            console.error("Failed to fetch user data for naver login", e);
+                        }
+                    } else if (userStr) {
+                        // Registration required
+                        await Browser.close().catch(() => console.log('browser already closed'));
+                        setIsLoginModalOpen(true);
+                        try {
+                            const userObj = JSON.parse(decodeURIComponent(userStr));
+                            setTempNaverUser(userObj);
+                            setAuthView('naver_register');
+                        } catch (e) {
+                            console.error("Failed to parse naver user", e);
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error processing naver deep link", e);
+                }
             }
         };
         CapApp.addListener('appUrlOpen', handleDeepLink);
 
         // Fallback or PC check: if returning directly to URL via standard browser redirect
         const hash = window.location.hash;
-        if (hash && hash.includes('access_token')) {
+        if (hash && hash.includes('jwt_token=')) {
+            const params = new URLSearchParams(hash.replace('#', '?'));
+            const jwtToken = params.get('jwt_token');
+            if (jwtToken) {
+                window.history.replaceState(null, '', window.location.pathname + window.location.search);
+                setIsLoginModalOpen(true);
+                
+                fetch(`${API_BASE}/api/users/me`, {
+                    headers: { 'Authorization': `Bearer ${jwtToken}` }
+                }).then(async res => {
+                    if (res.ok) {
+                        const userData = await res.json();
+                        localStorage.setItem('token', jwtToken);
+                        localStorage.setItem('user', JSON.stringify(userData));
+                        window.dispatchEvent(new Event('authStateChanged'));
+                        setIsAuthenticated(true);
+                        setIsLoginModalOpen(false);
+                    }
+                }).catch(e => console.error(e));
+            }
+        } else if (hash && hash.includes('naver_user=')) {
+            const params = new URLSearchParams(hash.replace('#', '?'));
+            const userStr = params.get('naver_user');
+            if (userStr) {
+                window.history.replaceState(null, '', window.location.pathname + window.location.search);
+                try {
+                    const userObj = JSON.parse(decodeURIComponent(userStr));
+                    setTempNaverUser(userObj);
+                    setIsLoginModalOpen(true);
+                    setAuthView('naver_register');
+                } catch (e) {
+                    console.error("Failed to parse naver user", e);
+                }
+            }
+        } else if (hash && hash.includes('naver_error=')) {
+            const params = new URLSearchParams(hash.replace('#', '?'));
+            const errorMsg = params.get('naver_error');
+            if (errorMsg) {
+                window.history.replaceState(null, '', window.location.pathname + window.location.search);
+                setIsLoginModalOpen(true);
+                setAuthError(`Naver Login Error: ${errorMsg}`);
+            }
+        } else if (hash && hash.includes('access_token')) {
             // If we are currently inside an external browser app instead of our Capacitor Native App:
             const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
             if (!isNative && hash.includes('state=native_google_login')) {
@@ -800,12 +940,29 @@ export default function Profile() {
 
         try {
             setIsLoading(true);
-            const result = await AppleSignIn.signIn();
-            if (result.idToken) {
-                await handleAppleCredentialResponse({ credential: result.idToken, name: result.givenName ? `${result.givenName} ${result.familyName}`.trim() : undefined });
-            } else {
-                setAuthError(t('profile.err_apple_fail', 'Apple Login Failed.'));
+            
+            const isAndroid = Capacitor.getPlatform() === 'android';
+            
+            if (isAndroid) {
+                // Use Capacitor Browser (Chrome Custom Tab) for Android to bypass Apple's WebView security blocks
+                // This ensures 2FA works correctly and Apple does not reject the identity verification.
+                const clientId = import.meta.env.VITE_APPLE_CLIENT_ID || 'com.beanmind.curator.web';
+                const redirectUri = import.meta.env.VITE_APPLE_REDIRECT_URL || 'https://www.beanmindcurator.com/api/auth/apple/callback';
+                const state = Math.random().toString(36).substring(2, 15);
+                const authUrl = `https://appleid.apple.com/auth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code%20id_token&scope=name%20email&response_mode=form_post&state=${state}`;
+                
+                await Browser.open({ url: authUrl });
                 setIsLoading(false);
+                return; // The DeepLink listener will handle the rest!
+            } else {
+                // iOS uses native AuthenticationServices
+                const result = await AppleSignIn.signIn();
+                if (result.idToken) {
+                    await handleAppleCredentialResponse({ credential: result.idToken, name: result.givenName ? `${result.givenName} ${result.familyName}`.trim() : undefined });
+                } else {
+                    setAuthError(t('profile.err_apple_fail', 'Apple Login Failed.'));
+                    setIsLoading(false);
+                }
             }
         } catch (err: any) {
             console.error('Native Apple Sign-In failed', err);
@@ -847,6 +1004,82 @@ export default function Profile() {
             setIsLoading(false);
         }
     };
+
+    const handleNaverLogin = async () => {
+        try {
+            setIsLoading(true);
+            const clientId = import.meta.env.VITE_NAVER_CLIENT_ID;
+            if (!clientId) {
+                setAuthError("Naver Client ID is missing in environment configuration.");
+                setIsLoading(false);
+                return;
+            }
+            const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+            const redirectUri = encodeURIComponent(import.meta.env.VITE_NAVER_REDIRECT_URL || 'https://www.beanmindcurator.com/api/auth/naver/callback');
+            const originB64 = btoa(window.location.origin).replace(/=/g, '');
+            const state = (isNative ? 'app_' : `web_${originB64}_`) + Math.random().toString(36).substring(2, 15);
+            const authUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`;
+            
+            if (isNative) {
+                await Browser.open({ url: authUrl });
+            } else {
+                window.location.href = authUrl;
+            }
+            setIsLoading(false);
+        } catch (err: any) {
+            console.error('Naver Login failed', err);
+            setAuthError(`Naver Login Failed: ${err?.message || 'Unknown error'}`);
+            setIsLoading(false);
+        }
+    };
+
+    const handleNaverRegisterSubmit = async () => {
+        if (!tempNaverUser) return;
+        if (!ageGroup || !gender) {
+            setAuthError(t('profile.err_all_req'));
+            return;
+        }
+        setAuthError('');
+        setIsLoading(true);
+        try {
+            const response = await fetch(`${API_BASE}/api/auth/naver/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: tempNaverUser.email,
+                    name: tempNaverUser.name,
+                    naverId: tempNaverUser.naverId,
+                    profileImageUrl: tempNaverUser.profileImageUrl,
+                    role,
+                    ageGroup: tempNaverUser.ageGroup || ageGroup,
+                    gender: tempNaverUser.gender || gender,
+                    favoriteCafe,
+                    countryCode: getDeviceCountryCode(),
+                    preferredLanguage: i18n.language
+                })
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                if (data.user?.preferredLanguage) {
+                    i18n.changeLanguage(data.user.preferredLanguage);
+                }
+                window.dispatchEvent(new Event('authStateChanged'));
+                setIsAuthenticated(true);
+                setIsLoginModalOpen(false);
+                setTempNaverUser(null);
+            } else {
+                setAuthError(data.error || t('profile.err_register_fail', 'Register Failed.'));
+            }
+        } catch (err) {
+            setAuthError(t('profile.err_server'));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
 
     const handleAppleRegisterSubmit = async () => {
         if (!tempAppleUser) return;
@@ -2200,6 +2433,17 @@ export default function Profile() {
                                                 </svg>
                                                 {t('profile.btn_apple_login', 'Continue with Apple')}
                                             </button>
+
+                                            <button
+                                                onClick={() => handleNaverLogin()}
+                                                disabled={isLoading}
+                                                className="w-full bg-[#03C75A] text-white h-14 rounded-2xl border border-transparent shadow-sm flex items-center justify-center gap-3 font-bold text-[15px] active:scale-95 transition-transform disabled:opacity-50"
+                                            >
+                                                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                                                    <path d="M16.273 12.845 7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727v12.845z"/>
+                                                </svg>
+                                                {t('profile.btn_naver_login', 'Continue with Naver')}
+                                            </button>
                                         </div>
                                         <div className="relative py-4 flex items-center">
                                             <div className="flex-grow border-t border-espresso-700"></div>
@@ -2542,6 +2786,70 @@ export default function Profile() {
                                             onClick={handleAppleRegisterSubmit}
                                             disabled={isLoading}
                                             className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B5952F] drop-shadow-md shadow-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#09090B] h-14 rounded-2xl font-bold text-[15px] flex items-center justify-center gap-2 mt-4 active:scale-95 transition-transform shadow-lg shadow-coffee-900/20 disabled:opacity-70"
+                                        >
+                                            {isLoading ? t('profile.status_processing') : t('profile.btn_reg_complete')}
+                                        </button>
+                                    </div>
+                                    <button onClick={() => { setAuthError(''); setAuthView('login'); }} className="absolute top-4 left-4 p-2 text-espresso-300 hover:text-espresso-50">
+                                        &larr; {t('profile.go_back')}
+                                    </button>
+                                </div>
+                            )}
+
+                            {authView === 'naver_register' && (
+                                <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                                    <div className="text-center mb-8">
+                                        <h3 className="text-xl font-serif font-bold text-espresso-50 tracking-tight">{t('profile.extra_info_title')}</h3>
+                                        <p className="text-sm text-espresso-200 mt-2">{t('profile.extra_info_desc')}</p>
+                                    </div>
+                                    <div className="space-y-4 mb-6">
+                                        {/* Role Selection */}
+                                        <div className="flex bg-espresso-950 border border-espresso-700 rounded-2xl p-1 mb-2 shadow-inner">
+                                            <button
+                                                onClick={() => setRole('USER')}
+                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'USER' ? 'bg-amber-600 text-white shadow-md' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/30'}`}
+                                            >
+                                                {t('profile.role_user')}
+                                            </button>
+                                            <button
+                                                onClick={() => setRole('OWNER')}
+                                                className={`flex-1 py-3 text-[14px] font-bold rounded-xl transition-all ${role === 'OWNER' ? 'bg-amber-600 text-white shadow-md' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/30'}`}
+                                            >
+                                                {t('profile.role_owner')}
+                                            </button>
+                                        </div>
+
+                                        <div className="bg-espresso-950 p-2 rounded-2xl space-y-2 border border-espresso-700">
+                                            <select value={ageGroup} onChange={e => setAgeGroup(e.target.value)} className="w-full bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 outline-none text-[15px] font-medium text-espresso-100 mb-2">
+                                                <option value="" disabled>{t('profile.ph_age_group')}</option>
+                                                <option value="10s">{t('profile.age_10s')}</option>
+                                                <option value="20s">{t('profile.age_20s')}</option>
+                                                <option value="30s">{t('profile.age_30s')}</option>
+                                                <option value="40s">{t('profile.age_40s')}</option>
+                                                <option value="50s">{t('profile.age_50s')}</option>
+                                                <option value="60s+">{t('profile.age_60s')}</option>
+                                            </select>
+                                            <select value={gender} onChange={e => setGender(e.target.value)} className="w-full bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 outline-none text-[15px] font-medium text-espresso-100 mb-2">
+                                                <option value="" disabled>{t('profile.ph_gender')}</option>
+                                                <option value="MALE">{t('profile.gender_m')}</option>
+                                                <option value="FEMALE">{t('profile.gender_f')}</option>
+                                                <option value="선택 안함">{t('profile.gender_n')}</option>
+                                            </select>
+                                            <select value={favoriteCafe} onChange={e => setFavoriteCafe(e.target.value)} className="w-full bg-espresso-900 border-espresso-600 text-espresso-50 placeholder:text-espresso-300 outline-none text-[15px] font-medium text-espresso-100">
+                                                <option value="" disabled>{t('profile.ph_fav_cafe')}</option>
+                                                <option value="스타벅스">{t('profile.cafe_starbucks')}</option>
+                                                <option value="블루보틀">{t('profile.cafe_bluebottle')}</option>
+                                                <option value="폴바셋">{t('profile.cafe_paulbassett')}</option>
+                                                <option value="동네 로스터리">{t('profile.cafe_roastery')}</option>
+                                            </select>
+                                        </div>
+
+                                        {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
+
+                                        <button
+                                            onClick={handleNaverRegisterSubmit}
+                                            disabled={isLoading}
+                                            className="w-full bg-[#03C75A] drop-shadow-md shadow-[#03C75A]/20 border border-[#03C75A]/50 text-white h-14 rounded-2xl font-bold text-[15px] flex items-center justify-center gap-2 mt-4 active:scale-95 transition-transform shadow-lg shadow-[#03C75A]/20 disabled:opacity-70"
                                         >
                                             {isLoading ? t('profile.status_processing') : t('profile.btn_reg_complete')}
                                         </button>
