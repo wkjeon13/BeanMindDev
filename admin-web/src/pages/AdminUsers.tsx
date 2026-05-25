@@ -280,7 +280,7 @@ export default function AdminUsers() {
                                         placeholder={t('admin_dashboard.user_ph_search')}
                                         value={userSearchInput}
                                         onChange={(e) => setUserSearchInput(e.target.value)}
-                                        className="w-full sm:w-64 bg-espresso-900 border border-espresso-700 h-10 pl-9 pr-4 rounded-xl text-sm focus:ring-2 focus:ring-coffee-700 outline-none"
+                                        className="w-full sm:w-64 bg-espresso-900 border border-espresso-700 h-10 pl-9 pr-4 rounded-xl text-white text-sm focus:ring-2 focus:ring-coffee-700 outline-none"
                                     />
                                 </div>
                             </div>

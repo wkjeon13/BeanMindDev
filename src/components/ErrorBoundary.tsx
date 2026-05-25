@@ -30,7 +30,7 @@ class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen bg-espresso-950 flex flex-col items-center justify-center p-6 text-center">
+        <div className="min-h-[100dvh] bg-espresso-950 flex flex-col items-center justify-center p-6 text-center">
           <div className="w-16 h-16 rounded-full bg-red-900/30 flex items-center justify-center mb-6">
             <svg xmlns="http://www.w3.org/.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"></circle>

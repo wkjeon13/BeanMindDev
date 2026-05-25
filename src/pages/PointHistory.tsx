@@ -165,7 +165,7 @@ export default function PointHistory() {
         <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex-1 bg-espresso-900 flex flex-col min-h-screen"
+            className="flex-1 bg-espresso-900 flex flex-col min-h-[100dvh]"
         >
             {/* Header */}
             <header className="sticky top-0 z-30 bg-espresso-900/95 backdrop-blur-xl border-b border-coffee-100 pt-safe">

@@ -60,7 +60,7 @@ export const UserPublicProfileModal: React.FC<UserPublicProfileModalProps> = ({ 
                 </button>
 
                 {isLoading ? (
-                    <div className="flex flex-col items-center justify-center p-12 h-screen">
+                    <div className="flex flex-col items-center justify-center p-12 h-[100dvh]">
                         <div className="w-8 h-8 border-4 border-amber-900 border-t-amber-500 rounded-full animate-spin mb-4" />
                         <p className="text-espresso-300 text-sm">로딩 중...</p>
                     </div>
@@ -233,7 +233,7 @@ export const UserPublicProfileModal: React.FC<UserPublicProfileModalProps> = ({ 
                         
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center justify-center p-12 h-screen text-center">
+                    <div className="flex flex-col items-center justify-center p-12 h-[100dvh] text-center">
                         <Search size={48} className="text-espresso-800 mb-4" />
                         <h3 className="text-xl font-bold text-white mb-2">Profile Not Found</h3>
                         <p className="text-espresso-300 text-sm">해당 프로필을 찾을 수 없거나 비공개 설정되어 있습니다.</p>

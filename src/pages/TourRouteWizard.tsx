@@ -90,7 +90,7 @@ export default function TourRouteWizard() {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white p-4">
+        <div className="min-h-[100dvh] bg-black text-white p-4">
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
                 <button onClick={() => navigate(-1)} className="p-2 bg-zinc-900 rounded-full hover:bg-zinc-800 transition">

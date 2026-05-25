@@ -249,7 +249,7 @@ export default function App() {
 
         <ErrorBoundary>
           <Suspense fallback={
-            <div className="min-h-screen bg-espresso-950 flex flex-col items-center justify-center">
+            <div className="min-h-[100dvh] bg-espresso-950 flex flex-col items-center justify-center">
               <div className="w-10 h-10 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin mb-4"></div>
               <p className="text-espresso-300 font-mono text-xs tracking-widest animate-pulse">LOADING...</p>
             </div>
