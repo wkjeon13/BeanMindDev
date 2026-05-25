@@ -8,60 +8,61 @@ datasource db {
 }
 
 model User {
-  id                  String             @id @default(uuid())
-  email               String             @unique
+  id                  String               @id @default(uuid())
+  email               String               @unique
   password            String?
   nickname            String
-  phone               String?            @db.Text
-  role                Role               @default(USER)
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-  isEmailVerified     Boolean            @default(false)
+  phone               String?              @db.Text
+  role                Role                 @default(USER)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  isEmailVerified     Boolean              @default(false)
   verificationCode    String?
   verificationExpires DateTime?
-  status              String             @default("ACTIVE")
-  loginType           String             @default("EMAIL")
-  socialId            String?            @unique
-  profileImageUrl     String?            @db.LongText
-  failedLoginAttempts Int                @default(0)
+  status              String               @default("ACTIVE")
+  loginType           String               @default("EMAIL")
+  socialId            String?              @unique
+  profileImageUrl     String?              @db.LongText
+  failedLoginAttempts Int                  @default(0)
   lockedUntil         DateTime?
-  aiPrescriptionLimit Int                @default(3)
-  aiUsageCount        Int                @default(0)
+  aiPrescriptionLimit Int                  @default(3)
+  aiUsageCount        Int                  @default(0)
   ageGroup            String?
   favoriteCafe        String?
   gender              String?
-  pointBalance        Int                @default(0)
-  bio                 String?            @db.Text
-  isPublicProfile     Boolean            @default(true)
+  pointBalance        Int                  @default(0)
+  bio                 String?              @db.Text
+  isPublicProfile     Boolean              @default(true)
   prefAcidity         Float?
   prefBitterness      Float?
   prefBody            Float?
   prefSweetness       Float?
-  fcmToken            String?            @db.Text
+  fcmToken            String?              @db.Text
   equippedBadge       String?
-  earnedBadges        String?            @db.Text
-  rewardTier1Name     String             @default("참여")
-  rewardTier1Amount   Int                @default(10)
-  rewardTier2Name     String             @default("감사")
-  rewardTier2Amount   Int                @default(50)
-  rewardTier3Name     String             @default("최고")
-  rewardTier3Amount   Int                @default(100)
-  bioMediaUrls        String?            @db.LongText
-  prefAroma           String?            @db.Text
-  countryCode         String             @default("KR")
-  preferredLanguage   String             @default("ko")
+  earnedBadges        String?              @db.Text
+  rewardTier1Name     String               @default("참여")
+  rewardTier1Amount   Int                  @default(10)
+  rewardTier2Name     String               @default("감사")
+  rewardTier2Amount   Int                  @default(50)
+  rewardTier3Name     String               @default("최고")
+  rewardTier3Amount   Int                  @default(100)
+  bioMediaUrls        String?              @db.LongText
+  prefAroma           String?              @db.Text
+  countryCode         String               @default("KR")
+  preferredLanguage   String               @default("ko")
   homeLayout          Json?
-  interests           String?            @db.Text
+  interests           String?              @db.Text
   adInquiries         AdInquiry[]
   advertiser          Advertiser?
   bookmarks           Bookmark[]
-  ownedClubs          Club[]             @relation("ClubOwner")
+  ownedClubs          Club[]               @relation("ClubOwner")
   clubBookmarks       ClubBookmark[]
   clubMemberships     ClubMember[]
   collections         Collection[]
   comments            Comment[]
   commentReactions    CommentReaction[]
   likes               Like[]
+  paymentTransactions PaymentTransaction[]
   pointTransactions   PointTransaction[]
   pollVotes           PollVote[]
   posts               Post[]
@@ -73,9 +74,8 @@ model User {
   follows             StoreFollow[]
   reviews             StoreReview[]
   tastingNotes        TastingNote[]
-  following           UserFollow[]       @relation("Following")
-  followers           UserFollow[]       @relation("Followers")
-  paymentTransactions PaymentTransaction[]
+  following           UserFollow[]         @relation("Following")
+  followers           UserFollow[]         @relation("Followers")
 }
 
 model Prescription {
@@ -333,9 +333,7 @@ model Post {
   authorId           String
   postType           PostType         @default(NORMAL)
   content            String           @db.Text
-  contentEn          String?          @db.Text
   image              String?          @db.LongText
-  imageEn            String?          @db.LongText
   cafeName           String?
   cafeLocation       String?
   cafeLat            Float?
@@ -364,6 +362,8 @@ model Post {
   shortsCategory     String?
   isHidden           Boolean          @default(false)
   countryCode        String           @default("KR")
+  contentEn          String?          @db.Text
+  imageEn            String?          @db.LongText
   collectionItems    CollectionItem[]
   comments           Comment[]
   likes              Like[]
@@ -704,9 +704,9 @@ model Collection {
   description        String?          @db.Text
   isPublic           Boolean          @default(true)
   isPilgrimageCourse Boolean          @default(false)
-  coverImageUrl      String?          @db.LongText
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
+  coverImageUrl      String?          @db.LongText
   user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   items              CollectionItem[]
   attachedPosts      Post[]           @relation("PostAttachedCourse")
@@ -782,18 +782,18 @@ model DailyCheckIn {
 model FlashDrop {
   id            String   @id @default(uuid())
   title         String
-  titleEn       String?
   description   String   @db.Text
-  descriptionEn String?  @db.Text
   imageUrl      String   @db.LongText
   linkUrl       String?
-  region        String   @default("GLOBAL")
   startTime     DateTime
   endTime       DateTime
   maxQuantity   Int      @default(0)
   claimedCount  Int      @default(0)
   status        String   @default("ACTIVE")
   createdAt     DateTime @default(now())
+  descriptionEn String?  @db.Text
+  region        String   @default("GLOBAL")
+  titleEn       String?
 }
 
 model TodayPairing {
@@ -831,14 +831,10 @@ model SystemSetting {
 model HeroBanner {
   id              String    @id @default(uuid())
   title           String?   @db.Text
-  titleEn         String?   @db.Text
   subtitle        String?   @db.Text
-  subtitleEn      String?   @db.Text
   description     String?   @db.Text
-  descriptionEn   String?   @db.Text
   backgroundImage String    @db.LongText
   buttonText      String?
-  buttonTextEn    String?
   buttonLink      String?
   textColor       String    @default("#FFFFFF")
   alignment       String    @default("bottom-left")
@@ -848,6 +844,23 @@ model HeroBanner {
   endDate         DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  buttonTextEn    String?
+  descriptionEn   String?   @db.Text
+  subtitleEn      String?   @db.Text
+  titleEn         String?   @db.Text
+}
+
+model PaymentTransaction {
+  id                 String   @id @default(uuid())
+  userId             String
+  storeTransactionId String   @unique
+  amount             Int
+  platform           String
+  productId          String
+  createdAt          DateTime @default(now())
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "PaymentTransaction_userId_fkey")
 }
 
 enum StorePlan {
@@ -960,15 +973,4 @@ enum InquiryStatus {
   MORE_INFO_NEEDED
   APPROVED
   REJECTED
-}
-
-model PaymentTransaction {
-  id                 String   @id @default(uuid())
-  userId             String
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  storeTransactionId String   @unique
-  amount             Int
-  platform           String
-  productId          String
-  createdAt          DateTime @default(now())
 }

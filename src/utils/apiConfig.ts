@@ -7,21 +7,22 @@ let apiBase = import.meta.env.VITE_API_BASE_URL || '';
 if (!isNative) {
     apiBase = ''; // Force relative paths on Web to completely avoid CORS/SSL mismatch across different IPs
 } else if (isNative) {
-    // Extract the public IP or domain
+    // Extract the public IP or domain safely without using the URL constructor,
+    // which is known to throw TypeErrors on some older Android WebViews causing it to fall into the catch block.
     try {
         if (apiBase) {
-            const url = new URL(apiBase);
-            if (url.hostname.includes('192.168.') || url.hostname.includes('10.0.') || url.hostname.includes('127.0.0.1') || url.hostname.includes('.nip.io')) {
-                let cleanHostname = url.hostname.replace('.nip.io', '');
-                apiBase = `http://${cleanHostname}:3001`;
+            if (apiBase.includes('192.168.') || apiBase.includes('10.0.') || apiBase.includes('127.0.0.1') || apiBase.includes('.nip.io')) {
+                // Remove nip.io if present, and force HTTP for local IPs
+                let cleanBase = apiBase.replace('https://', 'http://').replace('.nip.io', '');
+                apiBase = cleanBase.replace(/\/$/, ''); // remove trailing slash
             } else {
-                apiBase = url.toString().replace(/\/$/, ''); // remove trailing slash
+                apiBase = apiBase.replace(/\/$/, ''); // remove trailing slash
             }
         } else {
-            apiBase = `http://10.0.2.2:3001`;
+            apiBase = `http://192.168.0.29:3001`; // Safe fallback
         }
     } catch (e) {
-        apiBase = `http://10.0.2.2:3001`;
+        apiBase = `http://192.168.0.29:3001`;
     }
 }
 export const API_BASE = apiBase;
