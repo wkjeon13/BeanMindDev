@@ -19,13 +19,42 @@ export default function IAPPaymentModal({ isOpen, onClose, onSuccess, userId }: 
     const [isPurchasing, setIsPurchasing] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    // Helper to force viewport reflow/recalculation, which solves Android WebView resize/scroll bugs after IAP modal closes or system overlays close.
+    const forceReflow = () => {
+        try {
+            window.scrollTo(0, window.scrollY || 0);
+            window.dispatchEvent(new Event('resize'));
+            document.body.dispatchEvent(new Event('resize'));
+            
+            const originalHeight = document.body.style.height;
+            document.body.style.height = '99.9%';
+            // Accessing offsetHeight forces a reflow
+            void document.body.offsetHeight;
+            
+            setTimeout(() => {
+                document.body.style.height = originalHeight || '';
+                window.dispatchEvent(new Event('resize'));
+                document.body.dispatchEvent(new Event('resize'));
+            }, 100);
+        } catch (e) {
+            console.error('Failed to force reflow:', e);
+        }
+    };
+
     const resetAndClose = () => {
         setStep('amount');
         setSelectedAmount(0);
         setErrorMessage(null);
         setIsPurchasing(false);
         onClose();
+        setTimeout(forceReflow, 100);
     };
+
+    useEffect(() => {
+        if (!isOpen) {
+            setTimeout(forceReflow, 100);
+        }
+    }, [isOpen]);
 
     // Default mapping for fallback if offerings fail to load properly in Dev environment
     const fallbackAmounts = [
@@ -83,6 +112,8 @@ export default function IAPPaymentModal({ isOpen, onClose, onSuccess, userId }: 
             setStep('amount');
         } finally {
             setIsPurchasing(false);
+            // Force viewport restoration after native store dialog has been dismissed
+            setTimeout(forceReflow, 150);
         }
     };
 
