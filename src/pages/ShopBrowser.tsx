@@ -1088,10 +1088,13 @@ Respond ONLY with a valid JSON array of objects.
 Format EXACTLY like this example: 
 [{"name": "Anthracite Coffee", "lat": 37.545, "lng": 126.918}]`;
 
+            const latToSend = targetCenter ? targetCenter[0] : mapCenter[0];
+            const lngToSend = targetCenter ? targetCenter[1] : mapCenter[1];
+
             const mapsResponse = await fetch(`${API_BASE}/api/ai-features/map-shops`, {
                 method: 'POST',
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ promptStr })
+                body: JSON.stringify({ promptStr, currentLatitude: latToSend, currentLongitude: lngToSend })
             });
             
             if (!mapsResponse.ok) throw new Error("Backend Map API Failed");

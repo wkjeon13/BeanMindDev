@@ -107,6 +107,42 @@ router.post('/map-shops', optionalAuthenticateToken, async (req: any, res: any) 
     try {
         const { currentLatitude, currentLongitude, language, promptStr } = req.body;
         
+        const lat = parseFloat(currentLatitude);
+        const lng = parseFloat(currentLongitude);
+        
+        // South Korea bounds roughly: Lat 33.0 to 38.5, Lng 124.5 to 132.0
+        const isKorea = !isNaN(lat) && !isNaN(lng) && lat >= 33.0 && lat <= 38.5 && lng >= 124.5 && lng <= 132.0;
+
+        if (isKorea && process.env.KAKAO_REST_API_KEY) {
+            console.log(`[Kakao Hybrid] Intercepting AI map request for Korean coordinates (${lat}, ${lng})`);
+            try {
+                // query "스페셜티 커피" or just "카페"
+                const kakaoUrl = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent("카페")}&y=${lat}&x=${lng}&radius=10000&size=15&sort=accuracy`;
+                const kakaoRes = await fetch(kakaoUrl, {
+                    headers: {
+                        "Authorization": `KakaoAK ${process.env.KAKAO_REST_API_KEY.trim()}`
+                    }
+                });
+                if (kakaoRes.ok) {
+                    const data = await kakaoRes.json();
+                    const parsedData = (data.documents || []).map((d: any) => ({
+                        id: `kakao-${d.id}`,
+                        name: d.place_name,
+                        lat: parseFloat(d.y),
+                        lng: parseFloat(d.x),
+                        address: d.road_address_name || d.address_name,
+                        aiSummary: d.category_name, // fallback for description
+                        isGeneric: true
+                    }));
+                    return res.status(200).json({ shops: parsedData, chunks: [] });
+                } else {
+                    console.error("[Kakao Hybrid] Kakao API failed, falling back to Gemini", await kakaoRes.text());
+                }
+            } catch (kErr) {
+                console.error("[Kakao Hybrid] Fetch error", kErr);
+            }
+        }
+
         let mapPrompt = promptStr;
         if (!mapPrompt) {
             if (!currentLatitude || !currentLongitude) {
@@ -148,8 +184,7 @@ router.post('/map-shops', optionalAuthenticateToken, async (req: any, res: any) 
         res.status(200).json({ shops: parsedData, chunks });
     } catch (error) {
         console.error('AI Map Fetch Error:', error);
-        res.status(500).json({ error: 'Failed to fetch AI maps' });
-
+        res.status(500).json({ error: 'Failed to fetch AI map shops' });
     }
 });
 
