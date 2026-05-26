@@ -176,3 +176,8 @@
 .map-container-dark .leaflet-tile-pane {
     filter: brightness(220%) contrast(130%) sepia(20%) hue-rotate(-10deg);
 }
+
+/* Position Leaflet attribution precisely in the visible gap above the bottom nav bar */
+.leaflet-bottom {
+    bottom: 25px !important;
+}

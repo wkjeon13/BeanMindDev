@@ -310,7 +310,7 @@ export default function ClubDetail() {
         } catch (e) {
             alert('오류 발생');
         } finally {
-            setIsUploadingImage(false);
+            setIsJoining(false);
         }
     };
 

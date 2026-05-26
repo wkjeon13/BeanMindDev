@@ -880,6 +880,7 @@ export default function ShopBrowser() {
         }
 
         setIsSearching(true);
+        setAiShops([]); // CLEAR previous transient AI shops so they don't stack up infinitely
         activeCoffeeTalkTargetRef.current = null; // Release strict target lock
         setFocusedShopId(null); // Instantly sever the auto-pan ghost link to previous results
 
@@ -1080,8 +1081,12 @@ export default function ShopBrowser() {
             return;
         }
 
+        setIsAiLoading(true);
         try {
-            const promptStr = `List up to 30 specialty coffee shops ${queryContext}. Maximize the number of results up to 30.`;
+            const promptStr = `Find up to 30 highly rated local cafes, coffee roasteries, and atmospheric coffee shops in ${region}. You MUST maximize the number of results to strictly fill up 30 places.
+Respond ONLY with a valid JSON array of objects.
+Format EXACTLY like this example: 
+[{"name": "Anthracite Coffee", "lat": 37.545, "lng": 126.918}]`;
 
             const mapsResponse = await fetch(`${API_BASE}/api/ai-features/map-shops`, {
                 method: 'POST',
@@ -1219,7 +1224,7 @@ export default function ShopBrowser() {
     }
 
     if (curatorPickOnly && !isCourseMode) {
-        combinedShops = combinedShops.filter(s => (s.matchRate != null && s.matchRate >= 80) || s.isMem === true);
+        combinedShops = combinedShops.filter(s => (s.matchRate != null && s.matchRate >= 80) || s.isMem === true || s.isGeneric === true);
     }
 
     // Prevent background scrolling when detail modal or source filter is open map side
@@ -1265,6 +1270,7 @@ export default function ShopBrowser() {
     const handleMapClick = (lat: number, lng: number) => {
         setIsCourseMode(false);
         setIsSearching(true);
+        setAiShops([]); // CLEAR previous transient AI shops so they don't stack up infinitely
         setSearchQuery('');
         setMapCenter([lat, lng]);
         sortAnchor.current = [lat, lng];

@@ -2370,7 +2370,7 @@ export default function CoffeeTalk() {
           <button 
             onClick={() => setIsFabOpen(!isFabOpen)}
             className={`pointer-events-auto w-14 h-14 bg-gradient-to-tr from-amber-600 to-amber-400 text-espresso-50 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-105 active:scale-95 transition-all z-50 ${isFabOpen ? 'rotate-45' : ''}`}>
-            {isFabOpen ? <Plus size={28} /> : <Camera size={26} className="text-espresso-950" />}
+            {isFabOpen ? <Plus size={28} /> : <Plus size={28} className="text-espresso-950" />}
           </button>
       </div>
 

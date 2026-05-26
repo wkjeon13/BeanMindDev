@@ -57,8 +57,8 @@ const BottomNav = () => {
     };
   }, []);
 
-  // Hide bottom nav on specific pages or when keyboard is open
-  if (currentPath.startsWith('/register') || currentPath.startsWith('/admin') || isKeyboardVisible) return null;
+  // Hide bottom nav on specific pages
+  if (currentPath.startsWith('/register') || currentPath.startsWith('/admin')) return null;
 
   const handleNavClick = (e: React.MouseEvent, targetPath: string) => {
     // If clicking the current tab, trigger scroll to top

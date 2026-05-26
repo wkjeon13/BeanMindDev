@@ -384,7 +384,7 @@ export default function ClubList() {
                         <button onClick={() => navigate('/community')} className="p-1 sm:p-2 -ml-2 text-espresso-200 hover:text-espresso-50 hover:bg-espresso-800 rounded-full transition-colors">
                             <ChevronLeft size={24} />
                         </button>
-                        <h1 className="text-[16px] sm:text-[17px] font-extrabold tracking-tight text-espresso-50 whitespace-nowrap">
+                        <h1 className={`text-[16px] sm:text-[17px] font-extrabold tracking-tight text-espresso-50 whitespace-nowrap ${isSearchOpen ? 'hidden sm:block' : ''}`}>
                             {t('club_list.page_title')}
                         </h1>
                     </div>

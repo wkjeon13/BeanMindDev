@@ -201,6 +201,32 @@ function MapClickHandler({ onMapClick }: { onMapClick?: (lat: number, lng: numbe
                 timerRef.current = null;
             }, 600);
         },
+        touchstart(e) {
+            if (timerRef.current) clearTimeout(timerRef.current);
+            hasTriggeredRef.current = false;
+            
+            if (e.originalEvent && (e.originalEvent as TouchEvent).touches && (e.originalEvent as TouchEvent).touches.length > 1) return;
+            
+            timerRef.current = setTimeout(() => {
+                hasTriggeredRef.current = true;
+                // Vibrate on supported devices to indicate long press success
+                if (navigator.vibrate) navigator.vibrate(50);
+                if (onMapClick) onMapClick(e.latlng.lat, e.latlng.lng);
+                timerRef.current = null;
+            }, 600);
+        },
+        touchend() {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
+        },
+        touchcancel() {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
+        },
         mouseup() {
             if (timerRef.current) {
                 clearTimeout(timerRef.current);
@@ -208,6 +234,12 @@ function MapClickHandler({ onMapClick }: { onMapClick?: (lat: number, lng: numbe
             }
         },
         mousemove() {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
+        },
+        touchmove() {
             if (timerRef.current) {
                 clearTimeout(timerRef.current);
                 timerRef.current = null;
@@ -263,7 +295,7 @@ export default function SharedCoffeeMap({
                 touchZoom={true}
                 doubleClickZoom={true}
             >
-                <ZoomControl position="bottomright" />
+                <ZoomControl position="topright" />
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
