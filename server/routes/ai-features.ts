@@ -116,8 +116,8 @@ router.post('/map-shops', optionalAuthenticateToken, async (req: any, res: any) 
         if (isKorea && process.env.KAKAO_REST_API_KEY) {
             console.log(`[Kakao Hybrid] Intercepting AI map request for Korean coordinates (${lat}, ${lng})`);
             try {
-                // query "스페셜티 커피" or just "카페"
-                const kakaoUrl = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent("카페")}&y=${lat}&x=${lng}&radius=10000&size=15&sort=accuracy`;
+                // query "\uce74\ud398" (카페)
+                const kakaoUrl = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent("\uce74\ud398")}&y=${lat}&x=${lng}&radius=10000&size=15&sort=accuracy`;
                 const kakaoRes = await fetch(kakaoUrl, {
                     headers: {
                         "Authorization": `KakaoAK ${process.env.KAKAO_REST_API_KEY.trim()}`
