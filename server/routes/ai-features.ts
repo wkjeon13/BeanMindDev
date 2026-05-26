@@ -116,16 +116,33 @@ router.post('/map-shops', optionalAuthenticateToken, async (req: any, res: any) 
         if (isKorea && process.env.KAKAO_REST_API_KEY) {
             console.log(`[Kakao Hybrid] Intercepting AI map request for Korean coordinates (${lat}, ${lng})`);
             try {
-                // query "\uce74\ud398" (카페)
-                const kakaoUrl = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent("\uce74\ud398")}&y=${lat}&x=${lng}&radius=10000&size=15&sort=accuracy`;
-                const kakaoRes = await fetch(kakaoUrl, {
-                    headers: {
-                        "Authorization": `KakaoAK ${process.env.KAKAO_REST_API_KEY.trim()}`
+                // Fetch up to 3 pages (45 results max for Kakao keyword search) with radius 5000m
+                const apiKey = process.env.KAKAO_REST_API_KEY.trim();
+                const pages = [1, 2, 3];
+                const kakaoPromises = pages.map(page => 
+                    fetch(`https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent("\uce74\ud398")}&y=${lat}&x=${lng}&radius=5000&size=15&page=${page}&sort=accuracy`, {
+                        headers: { "Authorization": `KakaoAK ${apiKey}` }
+                    })
+                );
+                
+                const responses = await Promise.all(kakaoPromises);
+                const allDocuments: any[] = [];
+                for (const kakaoRes of responses) {
+                    if (kakaoRes.ok) {
+                        const data = await kakaoRes.json();
+                        allDocuments.push(...(data.documents || []));
                     }
-                });
-                if (kakaoRes.ok) {
-                    const data = await kakaoRes.json();
-                    const parsedData = (data.documents || []).map((d: any) => ({
+                }
+
+                // Remove duplicates by ID just in case Kakao returns duplicates across pages
+                const uniqueDocsMap = new Map();
+                for (const d of allDocuments) {
+                    uniqueDocsMap.set(d.id, d);
+                }
+                const uniqueDocuments = Array.from(uniqueDocsMap.values());
+
+                if (uniqueDocuments.length > 0) {
+                    const parsedData = uniqueDocuments.map((d: any) => ({
                         id: `kakao-${d.id}`,
                         name: d.place_name,
                         lat: parseFloat(d.y),
@@ -136,7 +153,7 @@ router.post('/map-shops', optionalAuthenticateToken, async (req: any, res: any) 
                     }));
                     return res.status(200).json({ shops: parsedData, chunks: [] });
                 } else {
-                    console.error("[Kakao Hybrid] Kakao API failed, falling back to Gemini", await kakaoRes.text());
+                    console.error("[Kakao Hybrid] Kakao API failed or returned 0 results, falling back to Gemini");
                 }
             } catch (kErr) {
                 console.error("[Kakao Hybrid] Fetch error", kErr);
