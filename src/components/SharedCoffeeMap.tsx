@@ -180,6 +180,66 @@ function MapControllerComponent({ center, setMapCenter, setMapBounds, boundsToFi
 function MapClickHandler({ onMapClick }: { onMapClick?: (lat: number, lng: number) => void }) {
     const timerRef = React.useRef<NodeJS.Timeout | null>(null);
     const hasTriggeredRef = React.useRef<boolean>(false);
+    const map = useMap();
+
+    // Use native DOM events for rock-solid iOS Safari touch support
+    useEffect(() => {
+        if (!map || !onMapClick) return;
+        const container = map.getContainer();
+        
+        let lastTouchPos: { x: number, y: number } | null = null;
+        
+        const handleTouchStart = (e: TouchEvent) => {
+            if (e.touches.length > 1) return; // ignore multi-touch (zoom, rotate)
+            
+            if (timerRef.current) clearTimeout(timerRef.current);
+            hasTriggeredRef.current = false;
+            
+            lastTouchPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+            
+            timerRef.current = setTimeout(() => {
+                hasTriggeredRef.current = true;
+                if (navigator.vibrate) navigator.vibrate(50);
+                
+                if (lastTouchPos) {
+                    // Convert clientX/Y to map LatLng
+                    const rect = container.getBoundingClientRect();
+                    const point = L.point(lastTouchPos.x - rect.left, lastTouchPos.y - rect.top);
+                    const latlng = map.containerPointToLatLng(point);
+                    onMapClick(latlng.lat, latlng.lng);
+                }
+                timerRef.current = null;
+            }, 600);
+        };
+        
+        const handleTouchMove = () => {
+            // Cancel long press if the user moves their finger (dragging the map)
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
+        };
+        
+        const handleTouchEnd = () => {
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
+        };
+        
+        container.addEventListener('touchstart', handleTouchStart, { passive: true });
+        container.addEventListener('touchmove', handleTouchMove, { passive: true });
+        container.addEventListener('touchend', handleTouchEnd, { passive: true });
+        container.addEventListener('touchcancel', handleTouchEnd, { passive: true });
+        
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current);
+            container.removeEventListener('touchstart', handleTouchStart);
+            container.removeEventListener('touchmove', handleTouchMove);
+            container.removeEventListener('touchend', handleTouchEnd);
+            container.removeEventListener('touchcancel', handleTouchEnd);
+        };
+    }, [map, onMapClick]);
 
     useMapEvents({
         contextmenu(e) {
@@ -190,6 +250,7 @@ function MapClickHandler({ onMapClick }: { onMapClick?: (lat: number, lng: numbe
             if (onMapClick) onMapClick(e.latlng.lat, e.latlng.lng);
         },
         mousedown(e) {
+            // Ignore right click to avoid double firing with contextmenu
             if (e.originalEvent && (e.originalEvent as MouseEvent).button === 2) return;
             
             if (timerRef.current) clearTimeout(timerRef.current);
@@ -201,32 +262,6 @@ function MapClickHandler({ onMapClick }: { onMapClick?: (lat: number, lng: numbe
                 timerRef.current = null;
             }, 600);
         },
-        touchstart(e) {
-            if (timerRef.current) clearTimeout(timerRef.current);
-            hasTriggeredRef.current = false;
-            
-            if (e.originalEvent && (e.originalEvent as TouchEvent).touches && (e.originalEvent as TouchEvent).touches.length > 1) return;
-            
-            timerRef.current = setTimeout(() => {
-                hasTriggeredRef.current = true;
-                // Vibrate on supported devices to indicate long press success
-                if (navigator.vibrate) navigator.vibrate(50);
-                if (onMapClick) onMapClick(e.latlng.lat, e.latlng.lng);
-                timerRef.current = null;
-            }, 600);
-        },
-        touchend() {
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
-        },
-        touchcancel() {
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
-        },
         mouseup() {
             if (timerRef.current) {
                 clearTimeout(timerRef.current);
@@ -234,12 +269,6 @@ function MapClickHandler({ onMapClick }: { onMapClick?: (lat: number, lng: numbe
             }
         },
         mousemove() {
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
-        },
-        touchmove() {
             if (timerRef.current) {
                 clearTimeout(timerRef.current);
                 timerRef.current = null;
