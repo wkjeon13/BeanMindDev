@@ -143,45 +143,52 @@ router.post('/map-shops', optionalAuthenticateToken, async (req: any, res: any) 
             }
         }
 
-        let mapPrompt = promptStr;
-        if (!mapPrompt) {
-            if (!currentLatitude || !currentLongitude) {
-                return res.status(400).json({ error: 'Missing coordinates' });
-            }
-            mapPrompt = `List up to 30 famous specialty coffee shops near the following location (Latitude: ${currentLatitude}, Longitude: ${currentLongitude}). Maximize the number of results up to 30.
-            Respond ONLY with a valid JSON array of objects.
-            Format EXACTLY like this example: 
-            [{"name": "Anthracite Coffee", "lat": 37.545, "lng": 126.918}]
-            Ensure the names are in ${language || 'Korean'} if possible.`;
+        // If not Korea (or Kakao failed), use Google Places API
+        if (!lat || !lng) {
+            return res.status(400).json({ error: 'Missing coordinates for global search' });
         }
 
-        const mapsResponse = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: mapPrompt,
-            config: { 
-                tools: [{ googleMaps: {} }],
-                maxOutputTokens: 8192,
-                temperature: 0.1 
+        console.log(`[Google Hybrid] Fetching from Google Places API for coordinates (${lat}, ${lng})`);
+        const googleUrl = 'https://places.googleapis.com/v1/places:searchNearby';
+        const googleRes = await fetch(googleUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Goog-Api-Key': process.env.GOOGLE_PLACES_API_KEY as string,
+                'X-Goog-FieldMask': 'places.displayName,places.location,places.formattedAddress,places.id,places.editorialSummary,places.primaryType'
             },
+            body: JSON.stringify({
+                includedTypes: ['coffee_shop', 'cafe'],
+                maxResultCount: 20,
+                locationRestriction: {
+                    circle: {
+                        center: { latitude: lat, longitude: lng },
+                        radius: 10000.0
+                    }
+                },
+                rankPreference: 'POPULARITY',
+                languageCode: language === 'Korean' ? 'ko' : 'en'
+            })
         });
 
-        const chunks = mapsResponse.candidates?.[0]?.groundingMetadata?.groundingChunks;
-        let text = mapsResponse.text || '[]';
-        
-        text = text.replace(/```json/gi, '').replace(/```/g, '').trim();
-        const jsonMatch = text.match(/\[[\s\S]*\]/);
-        if (jsonMatch) {
-            text = jsonMatch[0];
+        if (!googleRes.ok) {
+            const errorText = await googleRes.text();
+            console.error('[Google Hybrid] Places API failed', errorText);
+            return res.status(500).json({ error: 'Google Places API failed' });
         }
 
-        let parsedData: any[] = [];
-        try {
-            parsedData = JSON.parse(text);
-        } catch (e) {
-            console.error('AI Map parse error:', e, text);
-        }
+        const data = await googleRes.json();
+        const parsedData = (data.places || []).map((p: any) => ({
+            id: `google-${p.id}`,
+            name: p.displayName?.text || 'Unknown Cafe',
+            lat: p.location?.latitude || lat,
+            lng: p.location?.longitude || lng,
+            address: p.formattedAddress,
+            aiSummary: p.editorialSummary?.text || p.primaryType,
+            isGeneric: true
+        }));
 
-        res.status(200).json({ shops: parsedData, chunks });
+        res.status(200).json({ shops: parsedData, chunks: [] });
     } catch (error) {
         console.error('AI Map Fetch Error:', error);
         res.status(500).json({ error: 'Failed to fetch AI map shops' });

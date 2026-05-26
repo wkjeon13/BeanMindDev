@@ -3,51 +3,17 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, Store, Save, X, Camera, Trash2, Search, CheckCircle2, BarChart2, Activity, TrendingUp, Star, Target, Users, Sparkles, Megaphone, Image as ImageIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+
 import { API_BASE } from '../utils/apiConfig';
 
-// Fix for default marker icons in Leaflet + React
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
-function LocationPicker({ position, setPosition }: { position: L.LatLngExpression, setPosition: (pos: any) => void }) {
-    useMapEvents({
-        click(e) {
-            setPosition(e.latlng);
-        },
-    });
-    return position === null ? null : (
-        <Marker position={position}></Marker>
-    );
-}
-
-// Component to programmatically move the map upon search
-function MapController({ center }: { center: [number, number] | null }) {
-    const map = useMapEvents({});
-    useEffect(() => {
-        if (center) {
-            map.flyTo(center, 15, { animate: true, duration: 1.5 });
-        }
-    }, [center, map]);
-
-    // Fix for Leaflet grey map bug when rendered inside animating containers (framer-motion)
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            map.invalidateSize();
-        }, 400); // trigger after page transition completes
-        return () => clearTimeout(timer);
-    }, [map]);
-
-    return null;
-}
 
 export default function ManageShop() {
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+        libraries: ['places']
+    });
     const navigate = useNavigate();
     const { t } = useTranslation();
     const [shops, setShops] = useState<any[]>([]);
@@ -594,22 +560,23 @@ export default function ManageShop() {
                                                 </form>
                                             </div>
                                             <div className="h-48 w-full relative z-0">
-                                                <MapContainer
-                                                    center={mapCenter || [editData.lat, editData.lng]}
-                                                    zoom={15}
-                                                    scrollWheelZoom={false}
-                                                    className="w-full h-full"
-                                                >
-                                                    <MapController center={mapCenter} />
-                                                    <TileLayer
-                                                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                                    />
-                                                    <LocationPicker
-                                                        position={[editData.lat, editData.lng]}
-                                                        setPosition={(pos) => setEditData({ ...editData, lat: pos.lat, lng: pos.lng })}
-                                                    />
-                                                </MapContainer>
+                                                {isLoaded ? (
+                                                    <GoogleMap
+                                                        mapContainerStyle={{ width: '100%', height: '100%' }}
+                                                        center={{ lat: editData.lat, lng: editData.lng }}
+                                                        zoom={15}
+                                                        options={{ disableDefaultUI: true, zoomControl: true }}
+                                                        onClick={(e) => {
+                                                            if (e.latLng) {
+                                                                setEditData({ ...editData, lat: e.latLng.lat(), lng: e.latLng.lng() });
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Marker position={{ lat: editData.lat, lng: editData.lng }} />
+                                                    </GoogleMap>
+                                                ) : (
+                                                    <div className="w-full h-full bg-espresso-950/50 flex items-center justify-center text-coffee-400">Loading Map...</div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

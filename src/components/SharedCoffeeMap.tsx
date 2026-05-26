@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MapContainer, TileLayer, Marker, Popup, useMap, ZoomControl, Polyline, useMapEvents } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import { Heart, MapPin, Navigation, ExternalLink } from 'lucide-react';
+import { GoogleMap, useJsApiLoader, OverlayViewF, OverlayView, PolylineF } from '@react-google-maps/api';
+import { Heart, Navigation } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE } from '../utils/apiConfig';
+import { MapSponsorMarker } from './ads/MapSponsorMarker';
+
+const libraries: ("places")[] = ["places"];
 
 const getFullImageUrl = (url: string | null | undefined) => {
     if (!url) return '';
@@ -13,13 +14,57 @@ const getFullImageUrl = (url: string | null | undefined) => {
     if (url.startsWith('/') && !url.startsWith('//')) return `${API_BASE}${url}`;
     return url;
 };
+
+const StopPropagationWrapper = ({ children, onClick, className, onIntercept, style }: { children: React.ReactNode, onClick?: (e: any) => void, className?: string, onIntercept?: () => void, style?: React.CSSProperties }) => {
+    const ref = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        const el = ref.current;
+        if (!el) return;
+        
+        // Use Google Maps native method to prevent map clicks/gestures from propagating through this element
+        if (window.google && window.google.maps && window.google.maps.OverlayView) {
+            try {
+                window.google.maps.OverlayView.preventMapHitsAndGesturesFrom(el);
+            } catch (e) {
+                console.error("preventMapHitsAndGesturesFrom failed", e);
+            }
+        }
+
+        const stopAndClick = (e: Event) => {
+            e.stopPropagation();
+            if (onIntercept) onIntercept();
+            if (onClick) onClick(e);
+        };
+
+        const stop = (e: Event) => {
+            e.stopPropagation();
+            if (onIntercept) onIntercept();
+        };
+
+        el.addEventListener('click', stopAndClick);
+        el.addEventListener('mousedown', stop);
+        el.addEventListener('touchstart', stop, { passive: false });
+        el.addEventListener('pointerdown', stop);
+        el.addEventListener('touchend', stop, { passive: false });
+        el.addEventListener('dblclick', stop);
+        return () => {
+            el.removeEventListener('click', stopAndClick);
+            el.removeEventListener('mousedown', stop);
+            el.removeEventListener('touchstart', stop);
+            el.removeEventListener('pointerdown', stop);
+            el.removeEventListener('touchend', stop);
+            el.removeEventListener('dblclick', stop);
+        };
+    }, [onClick]);
+    return <div ref={ref} className={className} style={style}>{children}</div>;
+};
+
 export interface MapShop {
     id: string;
     name: string;
     lat: number;
     lng: number;
     
-    // For Explore Mode (Local DB stores)
     shortDesc?: string | null;
     signatureBean?: string | null;
     address?: string | null;
@@ -34,11 +79,8 @@ export interface MapShop {
     averageRating?: number;
     reviewCount?: number;
     
-    // For Prescription Mode (Google Maps results)
     uri?: string;
     distance?: number;
-    
-    // For Hybrid Mode Search
     isGeneric?: boolean;
 }
 
@@ -51,7 +93,6 @@ interface SharedCoffeeMapProps {
     setMapBounds?: (bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => void;
     boundsToFit?: { minLat: number; maxLat: number; minLng: number; maxLng: number, ts: number } | null;
     
-    // Explore Mode Props
     searchedShopId?: string | null;
     focusedShopId?: string | null;
     onShopClick?: (shop: MapShop) => void;
@@ -59,7 +100,6 @@ interface SharedCoffeeMapProps {
     onBookmarkToggle?: (shopId: string) => void;
     bookmarkedIds?: Set<string>;
     
-    // Controls
     onLocateMe?: () => void;
     isLocating?: boolean;
     isCourseMode?: boolean;
@@ -71,218 +111,211 @@ interface SharedCoffeeMapProps {
     mapAds?: any[];
 }
 
-import { MapSponsorMarker } from './ads/MapSponsorMarker';
+const mapContainerStyle = {
+    width: '100%',
+    height: '100%',
+    minHeight: '100%',
+    position: 'absolute' as const,
+    inset: 0
+};
 
-// Intercepts map drags and pinches to update parent state mapCenter
-function MapControllerComponent({ center, setMapCenter, setMapBounds, boundsToFit, userLocation, shops, mode, isCourseMode }: { center: [number, number] | null, setMapCenter?: (c: [number, number]) => void, setMapBounds?: (bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => void, boundsToFit?: { minLat: number; maxLat: number; minLng: number; maxLng: number, ts: number } | null, userLocation: [number, number] | null, shops: MapShop[], mode: 'explore' | 'prescription', isCourseMode?: boolean }) {
-    const map = useMap();
-    const prevBoundsTs = React.useRef(0);
-    const prevCenterStr = React.useRef('');
+const defaultMapOptions = {
+    disableDefaultUI: true,
+    zoomControl: true,
+    zoomControlOptions: {
+        position: 3 // TOP_RIGHT
+    },
+    clickableIcons: false,
+    backgroundColor: '#1e1b19', // espresso-950
+};
 
-    // In explore mode, we track drag to reload shops
+const defaultGetPixelPositionOffset = (w: number, h: number, isDbShop: boolean, isTargetRegion: boolean, shop: any) => {
+    const isUnclaimed = isDbShop && !shop.mainImageUrl && !shop.markerImageUrl && (!shop.media || shop.media.length === 0);
+    if (isUnclaimed || isTargetRegion) return { x: -(w / 2), y: -(h / 2) };
+    return { x: -(w / 2), y: -h };
+};
+
+const MemoizedMapMarker = React.memo(({ 
+    shop, lat, lng, isDbShop, isFocused, isSearched, isHighlighted, isPremium, isTargetRegion, zIndexOffset, courseIdx, ignoreMapClickRef, onShopClick, onPopupClick, bookmarkedIds, onBookmarkToggle, getFullImageUrl, t 
+}: any) => {
+    const focusTimeRef = useRef<number>(0);
     useEffect(() => {
-        if (!map || mode !== 'explore') return;
-
-        const onMoveEnd = () => {
-            if (setMapCenter) {
-                const newCenter = map.getCenter();
-                setMapCenter([newCenter.lat, newCenter.lng]);
-                // Prevent React re-renders from bouncing the map back
-                // by syncing the prevCenterStr ref immediately after user drag.
-                prevCenterStr.current = `${newCenter.lat},${newCenter.lng}`;
-            }
-            if (setMapBounds) {
-                const bounds = map.getBounds();
-                setMapBounds({
-                    minLat: bounds.getSouth(),
-                    maxLat: bounds.getNorth(),
-                    minLng: bounds.getWest(),
-                    maxLng: bounds.getEast()
-                });
-            }
-        };
-
-        map.on('moveend', onMoveEnd);
-        return () => {
-            map.off('moveend', onMoveEnd);
-        };
-    }, [map, setMapCenter, setMapBounds, mode]);
-
-    // Pan to center or fit bounds if they change externally
-    useEffect(() => {
-        if (!map || mode !== 'explore') return;
-        
-        const currentCenterStr = center ? `${center[0]},${center[1]}` : '';
-
-        if (boundsToFit && boundsToFit.ts !== prevBoundsTs.current) {
-            prevBoundsTs.current = boundsToFit.ts;
-            prevCenterStr.current = currentCenterStr; // Flag this center as consumed alongside the bounds
-            
-            // Safari Crash Prevention: Validate bounds
-            if (!isNaN(boundsToFit.minLat) && !isNaN(boundsToFit.maxLat) && !isNaN(boundsToFit.minLng) && !isNaN(boundsToFit.maxLng)) {
-                try {
-                    map.fitBounds([
-                        [boundsToFit.minLat, boundsToFit.minLng],
-                        [boundsToFit.maxLat, boundsToFit.maxLng]
-                    ], { padding: [20, 20] });
-                } catch (e) { console.warn("Leaflet fitBounds failed", e); }
-            }
-        } else if (center && currentCenterStr !== prevCenterStr.current) {
-            prevCenterStr.current = currentCenterStr;
-            
-            // Safari Crash Prevention: Validate center coordinates
-            if (Array.isArray(center) && center.length === 2 && !isNaN(center[0]) && !isNaN(center[1])) {
-                try {
-                    const currentMapCenter = map.getCenter();
-                    // Since center is a tuple from props, we format it as L.latLng for distance calculation
-                    const propLatLng = L.latLng(center[0], center[1]);
-                    const dist = map.distance(propLatLng, currentMapCenter);
-                    
-                    // Only fly if distance > 10 meters to prevent shaking loop from precision loss
-                    if (dist > 10) { 
-                        map.flyTo(center, map.getZoom(), { duration: 0.5 });
-                    }
-                } catch (e) { console.warn("Leaflet flyTo failed", e); }
-            }
+        if (isFocused) {
+            focusTimeRef.current = Date.now();
         }
-    }, [center, boundsToFit, map, mode]);
+    }, [isFocused]);
 
-    // Prescription mode automatically fits bounding box
-    useEffect(() => {
-        if (map && mode === 'prescription' && userLocation && shops.length > 0) {
-            const bounds = L.latLngBounds([userLocation]);
-            shops.forEach(s => bounds.extend([s.lat, s.lng]));
-            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
-        }
-    }, [map, mode, userLocation, shops]);
+    const getOffset = useCallback((w: number, h: number) => {
+        return defaultGetPixelPositionOffset(w, h, isDbShop, isTargetRegion, shop);
+    }, [isDbShop, isTargetRegion, shop]);
 
-    // Container size change triggers a Leaflet redraw to prevent grey tiles
-    useEffect(() => {
-        if (!map) return;
-        
-        const forceReflow = () => {
-            map.invalidateSize();
-            // Dispatching global resize safely
-            try { window.dispatchEvent(new Event('resize')); } catch(e){}
-        };
+    const courseBadge = courseIdx >= 0 ? (
+        <div className="absolute -top-3.5 -left-3.5 w-7 h-7 bg-amber-500 text-white rounded-full text-sm font-black flex items-center justify-center shadow-md z-50 border-2 border-white">
+            {courseIdx + 1}
+        </div>
+    ) : null;
 
-        forceReflow();
-        const timers = [100, 300, 500, 800, 1500, 2500].map(t => setTimeout(forceReflow, t));
-        
-        return () => {
-            timers.forEach(clearTimeout);
-        };
-    }, [map, isCourseMode]);
+    return (
+        <OverlayViewF
+            position={{ lat, lng }}
+            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+            getPixelPositionOffset={getOffset}
+            zIndex={zIndexOffset}
+        >
+            <StopPropagationWrapper 
+                className="relative cursor-pointer group"
+                style={{ pointerEvents: 'auto' }}
+                onIntercept={() => {
+                    ignoreMapClickRef.current = true;
+                    setTimeout(() => { ignoreMapClickRef.current = false; }, 500);
+                }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    e.nativeEvent?.stopImmediatePropagation?.();
+                    onShopClick?.(shop);
+                }}
+            >
+                {isDbShop ? (
+                    // DB Shop Marker Rendering
+                    (() => {
+                        const isUnclaimed = !shop.mainImageUrl && !shop.markerImageUrl && (!shop.media || shop.media.length === 0);
+                        if (isUnclaimed) {
+                            const size = isFocused ? 54 : 39;
+                            return (
+                                <div className={`transition-all duration-300 flex items-center justify-center rounded-full border-[2.5px] border-white text-white ${isHighlighted ? 'bg-red-500' : 'bg-gray-500'} ${isFocused ? 'shadow-[0_0_15px_rgba(239,68,68,0.6)]' : 'shadow-md'}`} style={{ width: size, height: size }}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width={isFocused ? 27 : 21} height={isFocused ? 27 : 21} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><line x1="6" x2="6" y1="2" y2="4"></line><line x1="10" x2="10" y1="2" y2="4"></line><line x1="14" x2="14" y1="2" y2="4"></line></svg>
+                                    {courseBadge}
+                                    {isSearched && !isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm">{t('shared_map.lbl_searched_shop', '검?�된 매장')}</div>}
+                                    {isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm z-10">{t('shared_map.lbl_selected_shop', '?�택??매장')}</div>}
+                                </div>
+                            );
+                        } else {
+                            const size = isFocused ? 64 : 48;
+                            const borderColor = isFocused ? 'border-amber-500' : (isSearched ? 'border-red-500' : (isPremium ? 'border-amber-500' : 'border-white'));
+                            
+                            let mainImageSrc = shop.markerImageUrl || shop.mainImageUrl;
+                            if (typeof mainImageSrc === 'string' && mainImageSrc.startsWith('[')) {
+                                try { mainImageSrc = JSON.parse(mainImageSrc)[0]; } catch(e){}
+                            }
+                            if (!mainImageSrc) mainImageSrc = 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800';
+                            const isVideo = typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'));
 
-    return null;
-}
+                            return (
+                                <div className={`transition-all duration-300 rounded-full border-[3px] ${borderColor} overflow-hidden bg-[#f3f0ea] shadow-md relative ${isFocused || isPremium ? 'shadow-[0_0_15px_rgba(251,191,36,0.6)]' : ''}`} style={{ width: size, height: size }}>
+                                    {isVideo ? (
+                                        <video src={getFullImageUrl(mainImageSrc as string)} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                                    ) : (
+                                        <img src={getFullImageUrl(mainImageSrc as string)} alt={shop.name} className="w-full h-full object-cover" />
+                                    )}
+                                    {courseBadge}
+                                    {isSearched && !isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm">{t('shared_map.lbl_searched_shop', '검?�된 매장')}</div>}
+                                    {isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-amber-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm z-10">{t('shared_map.lbl_selected_shop', '?�택??매장')}</div>}
+                                    {isPremium && !isHighlighted && <div className="absolute -top-[18px] -right-[8px] text-[24px] rotate-[15deg] drop-shadow-md">?��</div>}
+                                </div>
+                            );
+                        }
+                    })()
+                ) : (
+                    // Generic AI / Target Pin
+                    isTargetRegion ? (
+                        <div className="relative w-[30px] h-[30px] flex justify-center items-center">
+                            <div className="absolute w-full h-full rounded-full bg-red-500/50 animate-ping"></div>
+                            <div className="w-[16px] h-[16px] bg-red-500 border-[3px] border-white rounded-full shadow-md z-10"></div>
+                            <div className="absolute -top-[25px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm z-20">
+                                {t('shared_map.lbl_search_center', '검??중심')}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="relative flex justify-center items-center w-[28px] h-[41px] drop-shadow-md">
+                            {isHighlighted && <div className="absolute -top-[25px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm z-10">{t('shared_map.lbl_selected_loc', '?�택???�치')}</div>}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="28" height="41" fill={isHighlighted ? '#ef4444' : '#3b82f6'}>
+                                <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
+                            </svg>
+                        </div>
+                    )
+                )}
 
-function MapClickHandler({ onMapClick }: { onMapClick?: (lat: number, lng: number) => void }) {
-    const timerRef = React.useRef<NodeJS.Timeout | null>(null);
-    const hasTriggeredRef = React.useRef<boolean>(false);
-    const map = useMap();
-
-    // Use native DOM events for rock-solid iOS Safari touch support
-    useEffect(() => {
-        if (!map || !onMapClick) return;
-        const container = map.getContainer();
-        
-        let lastTouchPos: { x: number, y: number } | null = null;
-        
-        const handleTouchStart = (e: TouchEvent) => {
-            if (e.touches.length > 1) return; // ignore multi-touch (zoom, rotate)
-            
-            if (timerRef.current) clearTimeout(timerRef.current);
-            hasTriggeredRef.current = false;
-            
-            lastTouchPos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-            
-            timerRef.current = setTimeout(() => {
-                hasTriggeredRef.current = true;
-                if (navigator.vibrate) navigator.vibrate(50);
+                {/* Focused Shop Popup Overlay (similar to Leaflet Popup) */}
+                {!shop.isGeneric && (
+                    <StopPropagationWrapper 
+                        className={`absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 bg-white flex p-3 gap-3 items-center hover:bg-zinc-50 transition-all duration-200 w-auto min-w-[260px] max-w-[60vw] rounded-xl shadow-lg border border-zinc-200/60 font-sans z-50 cursor-pointer origin-bottom ${isFocused ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
+                        onIntercept={() => {
+                            ignoreMapClickRef.current = true;
+                            setTimeout(() => { ignoreMapClickRef.current = false; }, 500);
+                        }}
+                        onClick={(e) => { 
+                            e.stopPropagation(); 
+                            e.nativeEvent?.stopImmediatePropagation?.(); 
+                            // Ignore synthetic clicks that happen immediately after the popup is shown
+                            if (focusTimeRef.current && Date.now() - focusTimeRef.current < 500) return;
+                            (onPopupClick || onShopClick)?.(shop); 
+                        }}
+                    >
+                        <button 
+                            onClick={(e) => { e.stopPropagation(); onBookmarkToggle?.(shop.id); }} 
+                            className="absolute top-2.5 right-2.5 p-1 transition-transform active:scale-90 z-10"
+                        >
+                            <Heart size={18} fill={bookmarkedIds.has(shop.id) ? "currentColor" : "none"} className={bookmarkedIds.has(shop.id) ? 'text-rose-500' : 'text-zinc-400'} strokeWidth={bookmarkedIds.has(shop.id) ? 0 : 2} />
+                        </button>
+                        <div className="w-[56px] h-[56px] shrink-0 rounded-[10px] overflow-hidden bg-zinc-100 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)] border border-black/5">
+                            {(() => {
+                                let mainImageSrc = shop.markerImageUrl || shop.mainImageUrl;
+                                if (typeof mainImageSrc === 'string' && mainImageSrc.startsWith('[')) {
+                                    try { mainImageSrc = JSON.parse(mainImageSrc)[0]; } catch(e){}
+                                }
+                                if (!mainImageSrc) mainImageSrc = 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800';
+                                const isVideo = typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'));
+                                return isVideo ? (
+                                    <video src={getFullImageUrl(mainImageSrc as string)} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                                ) : (
+                                    <img src={getFullImageUrl(mainImageSrc as string)} alt={shop.name} className="w-full h-full object-cover" />
+                                );
+                            })()}
+                        </div>
+                        <div className="flex-1 min-w-0 flex flex-col justify-center pr-6 text-left">
+                            <h3 className="font-extrabold text-[15px] font-sans text-zinc-900 leading-tight truncate w-full mb-0.5">{shop.name}</h3>
+                            <div className="flex items-center gap-1 mt-1 text-[12px] text-zinc-600 w-full min-w-0 font-sans">
+                                <span className="truncate block max-w-[120px]">
+                                    {shop.shortDesc || shop.signatureBean || "Specialty Coffee"}
+                                </span>
+                                <span className="shrink-0 text-zinc-300">|</span>
+                                <span className="shrink-0 text-zinc-600">
+                                    {(shop.reviewCount ?? 0) > 0 ? (
+                                        <span className="font-semibold text-amber-500">{shop.averageRating?.toFixed(1) || '0.0'} <span className="text-zinc-400 font-normal">({(shop.reviewCount ?? 0) >= 1000 ? ((shop.reviewCount ?? 0)/1000).toFixed(1)+'k' : shop.reviewCount})</span></span>
+                                    ) : (
+                                        <span className="text-zinc-500 text-[11px]">{t('shared_map.lbl_no_review', '리뷰 ?�음')}</span>
+                                    )}
+                                </span>
+                            </div>
+                        </div>
+                    </StopPropagationWrapper>
+                )}
                 
-                if (lastTouchPos) {
-                    // Convert clientX/Y to map LatLng
-                    const rect = container.getBoundingClientRect();
-                    const point = L.point(lastTouchPos.x - rect.left, lastTouchPos.y - rect.top);
-                    const latlng = map.containerPointToLatLng(point);
-                    onMapClick(latlng.lat, latlng.lng);
-                }
-                timerRef.current = null;
-            }, 600);
-        };
-        
-        const handleTouchMove = () => {
-            // Cancel long press if the user moves their finger (dragging the map)
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
-        };
-        
-        const handleTouchEnd = () => {
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
-        };
-        
-        container.addEventListener('touchstart', handleTouchStart, { passive: true });
-        container.addEventListener('touchmove', handleTouchMove, { passive: true });
-        container.addEventListener('touchend', handleTouchEnd, { passive: true });
-        container.addEventListener('touchcancel', handleTouchEnd, { passive: true });
-        
-        return () => {
-            if (timerRef.current) clearTimeout(timerRef.current);
-            container.removeEventListener('touchstart', handleTouchStart);
-            container.removeEventListener('touchmove', handleTouchMove);
-            container.removeEventListener('touchend', handleTouchEnd);
-            container.removeEventListener('touchcancel', handleTouchEnd);
-        };
-    }, [map, onMapClick]);
-
-    useMapEvents({
-        contextmenu(e) {
-            if (hasTriggeredRef.current) {
-                hasTriggeredRef.current = false;
-                return;
-            }
-            if (onMapClick) onMapClick(e.latlng.lat, e.latlng.lng);
-        },
-        mousedown(e) {
-            // Ignore right click to avoid double firing with contextmenu
-            if (e.originalEvent && (e.originalEvent as MouseEvent).button === 2) return;
-            
-            if (timerRef.current) clearTimeout(timerRef.current);
-            hasTriggeredRef.current = false;
-            
-            timerRef.current = setTimeout(() => {
-                hasTriggeredRef.current = true;
-                if (onMapClick) onMapClick(e.latlng.lat, e.latlng.lng);
-                timerRef.current = null;
-            }, 600);
-        },
-        mouseup() {
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
-        },
-        mousemove() {
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
-        },
-        dragstart() {
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
-        }
-    });
-    return null;
-}
+                {/* Generic AI popup (Prescription mode) */}
+                {shop.isGeneric && (
+                    <div className={`absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-md p-2 px-3 text-center z-50 whitespace-nowrap transition-all duration-200 origin-bottom ${isFocused ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+                        <div className="font-bold text-[14px] text-espresso-950">{shop.name}</div>
+                    </div>
+                )}
+            </StopPropagationWrapper>
+        </OverlayViewF>
+    );
+}, (prevProps, nextProps) => {
+    return (
+        prevProps.shop.id === nextProps.shop.id &&
+        prevProps.isFocused === nextProps.isFocused &&
+        prevProps.isSearched === nextProps.isSearched &&
+        prevProps.isHighlighted === nextProps.isHighlighted &&
+        prevProps.lat === nextProps.lat &&
+        prevProps.lng === nextProps.lng &&
+        prevProps.isDbShop === nextProps.isDbShop &&
+        prevProps.isPremium === nextProps.isPremium &&
+        prevProps.isTargetRegion === nextProps.isTargetRegion &&
+        prevProps.zIndexOffset === nextProps.zIndexOffset &&
+        prevProps.courseIdx === nextProps.courseIdx &&
+        prevProps.bookmarkedIds.has(prevProps.shop.id) === nextProps.bookmarkedIds.has(nextProps.shop.id)
+    );
+});
 
 export default function SharedCoffeeMap({
     mode,
@@ -309,326 +342,245 @@ export default function SharedCoffeeMap({
 }: SharedCoffeeMapProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    
+    const { isLoaded, loadError } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+        libraries,
+        language: 'en'
+    });
 
-    // Map needs a valid center to render
+    const mapRef = useRef<google.maps.Map | null>(null);
+    const prevBoundsTs = useRef(0);
+    const prevCenterStr = useRef('');
+    const ignoreMapClickRef = useRef(false);
+
+    const onLoad = useCallback((map: google.maps.Map) => {
+        mapRef.current = map;
+    }, []);
+
+    const onUnmount = useCallback(() => {
+        mapRef.current = null;
+    }, []);
+
+    const pressTimer = useRef<NodeJS.Timeout | null>(null);
+
+    const onMapClickRef = useRef(onMapClick);
+    useEffect(() => {
+        onMapClickRef.current = onMapClick;
+    }, [onMapClick]);
+
+    const handleMapMouseDown = useCallback((e: google.maps.MapMouseEvent) => {
+        if (ignoreMapClickRef.current) return;
+        pressTimer.current = setTimeout(() => {
+            if (e.latLng && onMapClickRef.current) {
+                onMapClickRef.current(e.latLng.lat(), e.latLng.lng());
+            }
+        }, 600); // 600ms for long press
+    }, []);
+
+    const handleMapMouseUpOrDrag = useCallback(() => {
+        if (pressTimer.current) {
+            clearTimeout(pressTimer.current);
+            pressTimer.current = null;
+        }
+    }, []);
+
+    // Handle Drag / Move
+    const handleIdle = useCallback(() => {
+        if (!mapRef.current || mode !== 'explore') return;
+        
+        const newCenter = mapRef.current.getCenter();
+        const bounds = mapRef.current.getBounds();
+        
+        if (newCenter && setMapCenter) {
+            setMapCenter([newCenter.lat(), newCenter.lng()]);
+            prevCenterStr.current = `${newCenter.lat()},${newCenter.lng()}`;
+        }
+        
+        if (bounds && setMapBounds) {
+            const ne = bounds.getNorthEast();
+            const sw = bounds.getSouthWest();
+            setMapBounds({
+                minLat: sw.lat(),
+                maxLat: ne.lat(),
+                minLng: sw.lng(),
+                maxLng: ne.lng()
+            });
+        }
+    }, [mode, setMapCenter, setMapBounds]);
+
+    // Handle bounds to fit & centering
+    useEffect(() => {
+        if (!mapRef.current || mode !== 'explore') return;
+        const currentCenterStr = mapCenter ? `${mapCenter[0]},${mapCenter[1]}` : '';
+
+        if (boundsToFit && boundsToFit.ts !== prevBoundsTs.current) {
+            prevBoundsTs.current = boundsToFit.ts;
+            prevCenterStr.current = currentCenterStr;
+            
+            if (!isNaN(boundsToFit.minLat)) {
+                mapRef.current.fitBounds({
+                    north: boundsToFit.maxLat,
+                    south: boundsToFit.minLat,
+                    east: boundsToFit.maxLng,
+                    west: boundsToFit.minLng
+                }, 20);
+            }
+        } else if (mapCenter && currentCenterStr !== prevCenterStr.current) {
+            prevCenterStr.current = currentCenterStr;
+            if (Array.isArray(mapCenter) && !isNaN(mapCenter[0])) {
+                mapRef.current.panTo({ lat: mapCenter[0], lng: mapCenter[1] });
+            }
+        }
+    }, [mapCenter, boundsToFit, mode]);
+
+    // Prescription mode bounds
+    useEffect(() => {
+        if (mapRef.current && mode === 'prescription' && userLocation && shops.length > 0) {
+            const bounds = new google.maps.LatLngBounds();
+            bounds.extend({ lat: userLocation[0], lng: userLocation[1] });
+            shops.forEach(s => {
+                if (s.lat && s.lng) bounds.extend({ lat: s.lat, lng: s.lng });
+            });
+            mapRef.current.fitBounds(bounds, 50);
+        }
+    }, [mode, userLocation, shops, isLoaded]);
+
     const initialCenter = mapCenter || userLocation || [37.5665, 126.9780];
+    const [defaultCenter] = useState({ lat: initialCenter[0], lng: initialCenter[1] });
+
+    if (loadError) {
+        return <div className="w-full h-full flex items-center justify-center text-white bg-espresso-950">Error loading maps</div>;
+    }
+
+    if (!isLoaded) {
+        return <div className="w-full h-full flex items-center justify-center bg-espresso-950">
+            <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>;
+    }
 
     return (
         <div className="absolute inset-0 w-full h-full" style={{ touchAction: 'none', minHeight: '100%' }}>
-            <MapContainer 
-                center={initialCenter as [number, number]} 
-                zoom={14} 
-                className="absolute inset-0 w-full h-full pb-20 z-0 bg-espresso-950" style={{ minHeight: "100%" }} 
-                zoomControl={false}
-                scrollWheelZoom={true}
-                touchZoom={true}
-                doubleClickZoom={true}
+            <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                center={defaultCenter}
+                zoom={14}
+                options={defaultMapOptions}
+                onLoad={onLoad}
+                onUnmount={onUnmount}
+                onIdle={handleIdle}
+                onMouseDown={handleMapMouseDown}
+                onMouseUp={handleMapMouseUpOrDrag}
+                onDragStart={handleMapMouseUpOrDrag}
+                onRightClick={(e) => {
+                    if (e.latLng && onMapClick) {
+                        onMapClick(e.latLng.lat(), e.latLng.lng());
+                    }
+                }}
             >
-                <ZoomControl position="topright" />
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                
-                <MapClickHandler onMapClick={onMapClick} />
-
-                <MapControllerComponent 
-                    center={mapCenter} 
-                    setMapCenter={setMapCenter} 
-                    setMapBounds={setMapBounds}
-                    boundsToFit={boundsToFit}
-                    userLocation={userLocation} 
-                    shops={shops} 
-                    mode={mode} 
-                    isCourseMode={isCourseMode}
-                />
-
-                {/* User's Current Location Marker */}
-                {userLocation && (
-                    <Marker
-                        position={userLocation}
-                        icon={L.divIcon({
-                            className: 'user-location-marker',
-                            html: `<div style="width: 20px; height: 20px; background-color: #3b82f6; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);"></div>`,
-                            iconSize: [20, 20],
-                            iconAnchor: [10, 10]
-                        })}
-                    >
-                        <Popup className="rounded-xl overflow-hidden shadow-sm">
-                            <div className="p-2 text-center font-bold text-[13px] text-espresso-900">{t('shared_map.lbl_my_location', '현재 내 위치')}</div>
-                        </Popup>
-                    </Marker>
+                {userLocation && !isNaN(userLocation[0]) && !isNaN(userLocation[1]) && (
+                    <OverlayViewF
+                        position={{ lat: userLocation[0], lng: userLocation[1] }}
+                        mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                        getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -(h / 2) })}
+                        zIndex={999}
+                    >    <div className="relative group cursor-pointer flex items-center justify-center">
+                            <div className="w-[20px] h-[20px] bg-blue-500 border-[3px] border-white rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)]"></div>
+                            <div className="opacity-0 group-hover:opacity-100 absolute top-full mt-1 bg-white p-2 rounded-xl shadow-sm text-center font-bold text-[13px] text-espresso-900 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                                {t('shared_map.lbl_my_location', '?�재 ???�치')}
+                            </div>
+                        </div>
+                    </OverlayViewF>
                 )}
 
                 {/* Shop Markers */}
                 {shops.map((shop, idx) => {
-                    let coords: [number, number] = [37.5665 + idx * 0.001, 126.9780 + idx * 0.001]; // Safe Default Initializer
-                    try {
-                        const lat = typeof shop.lat === 'number' ? shop.lat : parseFloat(shop.lat as any);
-                        const lng = typeof shop.lng === 'number' ? shop.lng : parseFloat(shop.lng as any);
-                        if (!isNaN(lat) && !isNaN(lng)) {
-                            // Find all shops with exactly the same coordinates (e.g. same building)
-                            const overlaps = shops.filter(s => {
-                                const slat = typeof s.lat === 'number' ? s.lat : parseFloat(s.lat as any);
-                                const slng = typeof s.lng === 'number' ? s.lng : parseFloat(s.lng as any);
-                                return Math.abs(slat - lat) < 0.00001 && Math.abs(slng - lng) < 0.00001;
-                            });
-                            
-                            if (overlaps.length > 1) {
-                                const groupIdx = overlaps.findIndex(s => s.id === shop.id);
-                                // Create a visible flower pattern offset for overlapping markers (~150 meters)
-                                const radius = 0.0015; 
-                                const angle = (Math.PI * 2 * groupIdx) / overlaps.length;
-                                coords = [lat + radius * Math.cos(angle), lng + radius * Math.sin(angle)];
-                            } else {
-                                coords = [lat, lng];
-                            }
-                        } else if (userLocation && Array.isArray(userLocation) && userLocation.length === 2) {
-                            const hash = shop.id ? shop.id.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) : idx;
-                            // TIGHTENED RADIUS: 0.00005 degrees per modulo step caps the maximum randomized scatter at ~550 meters, 
-                            // guaranteeing that coordinate-less database shops (Amnesty shops) fall directly within the user's screen at zoom=14.
+                    let lat = typeof shop.lat === 'number' ? shop.lat : parseFloat(shop.lat as any);
+                    let lng = typeof shop.lng === 'number' ? shop.lng : parseFloat(shop.lng as any);
+                    
+                    if (isNaN(lat) || isNaN(lng)) {
+                        if (userLocation && Array.isArray(userLocation)) {
+                            const hash = shop.id ? shop.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) : idx;
                             const latOffset = (hash % 100) * 0.00005 * (hash % 2 === 0 ? 1 : -1);
                             const lngOffset = ((hash >> 3) % 100) * 0.00005 * (hash % 3 === 0 ? 1 : -1);
-                            coords = [Number(userLocation[0]) + latOffset, Number(userLocation[1]) + lngOffset];
-                        }
-                    } catch (err) {
-                        console.error('Coordinate parsing error:', err);
+                            lat = Number(userLocation[0]) + latOffset;
+                            lng = Number(userLocation[1]) + lngOffset;
+                        } else return null;
+                    }
+
+                    // Handle overlaps
+                    const overlaps = shops.filter(s => Math.abs(s.lat - lat) < 0.00001 && Math.abs(s.lng - lng) < 0.00001);
+                    if (overlaps.length > 1) {
+                        const groupIdx = overlaps.findIndex(s => s.id === shop.id);
+                        const radius = 0.0015; 
+                        const angle = (Math.PI * 2 * groupIdx) / overlaps.length;
+                        lat += radius * Math.cos(angle);
+                        lng += radius * Math.sin(angle);
                     }
 
                     const isDbShop = mode === 'explore' && !shop.isGeneric;
+                    const isFocused = shop.id === focusedShopId;
+                    const isSearched = shop.id === searchedShopId && (!focusedShopId || focusedShopId === searchedShopId);
+                    const isHighlighted = isSearched || isFocused;
+                    const isPremium = shop.isPremiumTop || shop.storePlan === 'PREMIUM';
+                    const isTargetRegion = shop.id.startsWith('target-region');
 
-                    if (isDbShop) {
-                        const isUnclaimed = !shop.mainImageUrl && !shop.markerImageUrl && (!shop.media || shop.media.length === 0);
+                    let zIndexOffset = 10;
+                    if (isFocused) zIndexOffset = 2000;
+                    else if (isSearched) zIndexOffset = 1500;
+                    else if (isPremium) zIndexOffset = 1200;
+                    else if (isDbShop) zIndexOffset = 1000;
+                    
+                    // Course Badge
+                    const courseIdx = isCourseMode && courseShops ? courseShops.findIndex(s => s.id === shop.id) : -1;
 
-                        // Handle videos in mainImage (Fallback to marker profile if main is a video for the circular map pin)
-                        let parsedMainImageUrl = shop.mainImageUrl;
-                        if (typeof parsedMainImageUrl === 'string' && parsedMainImageUrl.startsWith('[')) {
-                            try {
-                                const parsed = JSON.parse(parsedMainImageUrl);
-                                if (Array.isArray(parsed) && parsed.length > 0) {
-                                    parsedMainImageUrl = parsed[0];
-                                }
-                            } catch (e) {}
-                        }
-
-                        const fallbackMedia = shop.media?.find((m: any) => m.type === 'IMAGE' || m.type === 'VIDEO');
-                        const fallbackSrc = fallbackMedia ? fallbackMedia.url : shop.markerImageUrl;
-                        
-                        const defaultPlaceholder = 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800';
-                        const mainImageSrc = parsedMainImageUrl || fallbackSrc || defaultPlaceholder;
-                        
-                        const isMainMediaVideo = typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov') || mainImageSrc.toLowerCase().endsWith('.webm'));
-                        const markerImageSrc = shop.markerImageUrl || (isMainMediaVideo ? defaultPlaceholder : (typeof mainImageSrc === 'string' ? mainImageSrc : defaultPlaceholder));
-                        
-                        const isFocused = shop.id === focusedShopId;
-                        // Avoid showing 2 highlight badges by ignoring searchedShopId if the user is currently scrolling/focusing on another shop via the bottom list
-                        const isSearched = shop.id === searchedShopId && (!focusedShopId || focusedShopId === searchedShopId);
-                        const isHighlighted = isSearched || isFocused;
-
-                        const isPremium = shop.isPremiumTop || shop.storePlan === 'PREMIUM';
-                        const courseIdx = isCourseMode && courseShops ? courseShops.findIndex(s => s.id === shop.id) : -1;
-                        const courseBadgeHtml = courseIdx >= 0 ? `<div style="position: absolute; top: -14px; left: -14px; width: 28px; height: 28px; background: #f59e0b; color: white; border-radius: 50%; font-size: 14px; font-weight: 900; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.4); z-index: 5000; border: 2px solid white;">${courseIdx + 1}</div>` : '';
-
-                        let customIcon;
-
-                        if (isUnclaimed) {
-                            // UNCLAIMED/AI-HARVESTED DB SHOP: Smaller, distinct generic icon (e.g., small gray/brown circle with Coffee Icon)
-                            const size = isFocused ? 54 : 39;
-                            const bgColor = isHighlighted ? '#ef4444' : '#6b7280'; // Gray-500 standard, Red if active
-                            const zIndexOffset = isFocused ? 2000 : (isSearched ? 1500 : 500); // 500 < 1000 (Claimed)
-                            
-                            customIcon = L.divIcon({
-                                className: 'unclaimed-shop-marker',
-                                html: `<div class="transition-all duration-300 ease-out flex items-center justify-center font-sans tracking-tight" style="width: ${size}px; height: ${size}px; background-color: ${bgColor}; border: 2.5px solid white; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.3); position: relative; color: white; ${isFocused ? 'box-shadow: 0 0 15px rgba(239,68,68,0.6);' : ''}">
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="${isFocused ? 27 : 21}" height="${isFocused ? 27 : 21}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><line x1="6" x2="6" y1="2" y2="4"></line><line x1="10" x2="10" y1="2" y2="4"></line><line x1="14" x2="14" y1="2" y2="4"></line></svg>
-                                          ${isSearched && !isFocused ? `<div style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);">${t('shared_map.lbl_searched_shop', '검색된 매장')}</div>` : ''}
-                                          ${isFocused && !isSearched ? `<div style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4); z-index: 100;">${t('shared_map.lbl_selected_shop', '선택된 매장')}</div>` : ''}
-                                          ${courseBadgeHtml}
-                                       </div>`,
-                                iconSize: [size, size],
-                                iconAnchor: [size / 2, size / 2],
-                                popupAnchor: [0, -size / 2]
-                            });
-                        } else {
-                            // Focus style calculation
-                            const size = isFocused ? 64 : 48; 
-                            const borderColor = isFocused ? '#f59e0b' : (isSearched ? '#ef4444' : (isPremium ? '#f59e0b' : 'white'));
-                            const zIndexOffset = isFocused ? 2000 : (isSearched ? 1500 : (isPremium ? 1200 : 1000));
-
-                            customIcon = L.divIcon({
-                                className: 'custom-shop-marker',
-                                html: `<div class="transition-all duration-300 ease-out" style="width: ${size}px; height: ${size}px; border-radius: 50%; border: 3px solid ${borderColor}; box-shadow: 0 ${isFocused ? '8px 20px' : '4px 10px'} rgba(0,0,0,${isFocused ? '0.5' : '0.3'}); overflow: hidden; background-color: #f3f0ea; position: relative; ${isFocused || isPremium ? 'box-shadow: 0 0 15px rgba(251,191,36,0.6);' : ''}">
-                                           <img src="${getFullImageUrl(markerImageSrc as string)}" style="width: 100%; height: 100%; object-fit: cover;" />
-                                       </div>
-                                       ${isSearched && !isFocused ? `<div style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);">${t('shared_map.lbl_searched_shop', '검색된 매장')}</div>` : ''}
-                                       ${isFocused && !isSearched ? `<div style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%); background: #f59e0b; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 5px rgba(245, 158, 11, 0.4); z-index: 100;">${t('shared_map.lbl_selected_shop', '선택된 매장')}</div>` : ''}
-                                       ${isFocused && isSearched ? `<div style="position: absolute; top: -30px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4); z-index: 100;">${t('shared_map.lbl_searched_shop', '검색된 매장')}</div>` : ''}
-                                       ${isPremium && !isHighlighted ? `<div style="position: absolute; top: -18px; right: -8px; font-size: 24px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5)); transform: rotate(15deg);">👑</div>` : ''}
-                                       ${courseBadgeHtml}`,
-                                iconSize: [size, size],
-                                iconAnchor: [size / 2, size],
-                                popupAnchor: [0, -size]
-                            });
-                        }
-
-                        let zIndexOffset = 1000;
-                        if (isFocused) zIndexOffset = 2000;
-                        else if (isSearched) zIndexOffset = 1500;
-                        else if (isPremium) zIndexOffset = 1200;
-                        else if (isUnclaimed) zIndexOffset = 500;
-                        
-                        return (
-                            <Marker key={`map-${shop.id}`} position={coords} icon={customIcon} zIndexOffset={zIndexOffset} eventHandlers={{ click: () => onShopClick?.(shop) }}>
-                                <Popup
-                                    className="shop-popup p-0 border-0"
-                                    autoPan={false}
-                                    closeButton={false}
-                                    minWidth={240}
-                                >
-                                    <div 
-                                        className="bg-white flex p-3 gap-3 items-center cursor-pointer hover:bg-zinc-50 transition-colors relative w-auto min-w-[260px] max-w-[60vw] rounded-xl shadow-sm border border-zinc-200/60 font-sans"
-                                        onClick={(e) => { e.stopPropagation(); (onPopupClick || onShopClick)?.(shop); }}
-                                    >
-                                        {/* Absolute Heart Icon */}
-                                        <button 
-                                            onClick={(e) => { e.stopPropagation(); onBookmarkToggle?.(shop.id); }} 
-                                            className="absolute top-2.5 right-2.5 p-1 transition-transform active:scale-90 z-10"
-                                        >
-                                            <Heart size={18} fill={bookmarkedIds.has(shop.id) ? "currentColor" : "none"} className={bookmarkedIds.has(shop.id) ? 'text-rose-500' : 'text-zinc-400'} strokeWidth={bookmarkedIds.has(shop.id) ? 0 : 2} />
-                                        </button>
-
-                                        {/* Left: Thumbnail Thumbnail */}
-                                        <div className="w-[56px] h-[56px] shrink-0 rounded-[10px] overflow-hidden bg-zinc-100 shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)] border border-black/5">
-                                            {isMainMediaVideo ? (
-                                                <video src={getFullImageUrl(mainImageSrc as string)} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-                                            ) : (
-                                                <img src={getFullImageUrl(mainImageSrc as string) || defaultPlaceholder} alt={shop.name} className="w-full h-full object-cover" />
-                                            )}
-                                        </div>
-
-                                        {/* Right: Info */}
-                                        <div className="flex-1 min-w-0 flex flex-col justify-center pr-6">
-                                            <h3 className="font-extrabold text-[15px] font-sans text-zinc-900 leading-tight truncate w-full mb-0.5">
-                                                {shop.name}
-                                            </h3>
-
-                                            
-
-                                            
-                                            <div className="flex items-center gap-1 mt-1 text-[12px] text-zinc-600 w-full min-w-0 font-sans">
-                                                <span className="truncate block max-w-[120px]">
-                                                    {shop.shortDesc?.includes('AI가 발굴한 카페/명소입니다.') || shop.shortDesc?.includes('AI 큐레이터가 발굴한 스페셜티 추천 공간') 
-                                                        ? t('map.fallback_ai_subtitle', 'Specialty space recommended by AI Curator') 
-                                                        : (shop.shortDesc || shop.signatureBean || "Specialty Coffee")}
-                                                </span>
-                                                <span className="shrink-0 text-zinc-300">|</span>
-                                                <span className="shrink-0 text-zinc-600">
-                                                    {(shop.reviewCount ?? 0) > 0 ? (
-                                                        <span className="font-semibold text-amber-500">{shop.averageRating?.toFixed(1) || '0.0'} ★ <span className="text-zinc-400 font-normal">({(shop.reviewCount ?? 0) >= 1000 ? ((shop.reviewCount ?? 0)/1000).toFixed(1)+'k' : shop.reviewCount})</span></span>
-                                                    ) : (
-                                                        <span className="text-zinc-500 text-[11px]">{t('shared_map.lbl_no_review', '리뷰 없음')}</span>
-                                                    )}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Popup>
-                            </Marker>
-                        );
-                    } else {
-                        // PRESCRIPTION MODE & GENERIC AI PINS: Classic Blue Marker
-                        const isTargetRegion = shop.id.startsWith('target-region');
-                        const isFocused = shop.id === focusedShopId;
-                        const isSearched = shop.id === searchedShopId && (!focusedShopId || focusedShopId === searchedShopId);
-                        const isHighlighted = (isSearched || isFocused) && !isTargetRegion;
-                        const defaultFill = isHighlighted ? '#ef4444' : '#3b82f6';
-                        
-                        let customIcon;
-                        if (isTargetRegion) {
-                            customIcon = L.divIcon({
-                                className: 'target-region-marker',
-                                html: `<div style="position:relative; width:30px; height:30px; display:flex; justify-content:center; align-items:center;">
-                                          <div class="animate-ping" style="position:absolute; width:100%; height:100%; border-radius:50%; background-color:rgba(239, 68, 68, 0.5);"></div>
-                                          <div style="width:16px; height:16px; background-color:#ef4444; border:3px solid white; border-radius:50%; box-shadow:0 0 10px rgba(0,0,0,0.5); z-index:2;"></div>
-                                          <div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4); z-index: 10;">${t('shared_map.lbl_search_center', '검색 중심')}</div>
-                                       </div>`,
-                                iconSize: [30, 30],
-                                iconAnchor: [15, 15],
-                                popupAnchor: [0, -15]
-                            });
-                        } else {
-                            customIcon = L.divIcon({
-                                className: 'default-blue-marker',
-                                html: `<div style="display:flex; justify-content:center; align-items:center; width: 28px; height: 41px; background: none; border: none; filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.3)); position: relative;">
-                                          ${isHighlighted ? `<div style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; white-space: nowrap; box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4); z-index: 10;">${t('shared_map.lbl_selected_loc', '선택된 위치')}</div>` : ''}
-                                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="28" height="41" fill="${defaultFill}">
-                                              <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
-                                          </svg>
-                                       </div>`,
-                                iconSize: [28, 41],
-                                iconAnchor: [14, 41],
-                                popupAnchor: [0, -41]
-                            });
-                        }                        
-                        return (
-                            <Marker key={`map-ai-${shop.id || idx}-${idx}`} position={coords} icon={customIcon} zIndexOffset={10} eventHandlers={{ click: () => onShopClick?.(shop) }}>
-                                <Popup className="font-sans rounded-xl overflow-hidden shadow-md">
-                                    <div 
-                                        className="p-2 px-3 text-center cursor-pointer hover:bg-zinc-50 transition-colors"
-                                        onClick={(e) => { e.stopPropagation(); (onPopupClick || onShopClick)?.(shop); }}
-                                    >
-                                        <div className="font-bold whitespace-nowrap text-[14px] text-espresso-950">{shop.name}</div>
-                                        
-
-                                    </div>
-                                </Popup>
-                            </Marker>
-                        );
-                    }
+                    return (
+                        <MemoizedMapMarker
+                            key={`map-${shop.id}`}
+                            shop={shop}
+                            idx={idx}
+                            lat={lat}
+                            lng={lng}
+                            isDbShop={isDbShop}
+                            isFocused={isFocused}
+                            isSearched={isSearched}
+                            isHighlighted={isHighlighted}
+                            isPremium={isPremium}
+                            isTargetRegion={isTargetRegion}
+                            zIndexOffset={zIndexOffset}
+                            courseIdx={courseIdx}
+                            ignoreMapClickRef={ignoreMapClickRef}
+                            onShopClick={onShopClick}
+                            onPopupClick={onPopupClick}
+                            bookmarkedIds={bookmarkedIds}
+                            onBookmarkToggle={onBookmarkToggle}
+                            getFullImageUrl={getFullImageUrl}
+                            t={t}
+                        />
+                    );
                 })}
 
                 {/* Course Route Polyline */}
                 {isCourseMode && (courseShops || shops).length > 1 && (
-                    <Polyline 
-                        positions={(courseShops || shops).filter(s => s.lat && s.lng && !isNaN(Number(s.lat)) && !isNaN(Number(s.lng))).map(s => [Number(s.lat), Number(s.lng)] as [number, number])} 
-                        color="#f59e0b"
-                        weight={4}
-                        opacity={0.8}
-                        dashArray="8, 12" 
-                        lineJoin="round"
+                    <PolylineF
+                        path={(courseShops || shops).filter(s => s.lat && s.lng && !isNaN(Number(s.lat)) && !isNaN(Number(s.lng))).map(s => ({ lat: Number(s.lat), lng: Number(s.lng) }))}
+                        options={{
+                            strokeColor: "#f59e0b",
+                            strokeOpacity: 0.8,
+                            strokeWeight: 4,
+                            icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 4 }, offset: '0', repeat: '20px' }]
+                        }}
                     />
                 )}
-
-                {/* Sponsor Markers */}
-                {mapAds.map((ad, idx) => {
-                    // For now, randomly place sponsor marker near center if lat/lng is not provided.
-                    // In a real app, campaign or creative should have lat/lng targeting.
-                    const lat = ad.lat || (mapCenter ? mapCenter[0] + (Math.random() - 0.5) * 0.05 : 0);
-                    const lng = ad.lng || (mapCenter ? mapCenter[1] + (Math.random() - 0.5) * 0.05 : 0);
-                    if (lat === 0 && lng === 0) return null;
-                    
-                    return (
-                        <MapSponsorMarker 
-                            key={`sponsor-${ad.id || idx}`} 
-                            position={[lat, lng]} 
-                            adData={ad} 
-                            onClick={() => {
-                                if (ad.linkUrl) {
-                                    window.open(ad.linkUrl, '_blank');
-                                    console.log('Map Ad Clicked:', ad.id);
-                                }
-                            }}
-                        />
-                    );
-                })}
-            </MapContainer>
+            </GoogleMap>
 
             {/* Overlays */}
             {mode === 'explore' && onLocateMe && (
                 <button
                     onClick={(e) => { e.preventDefault(); onLocateMe(); }}
                     disabled={isLocating}
-                    title={t('shared_map.title_find_me', '내 위치 찾기')}
+                    title={t('shared_map.title_find_me', '???�치 찾기')}
                     className="absolute right-4 z-[400] w-12 h-12 bg-espresso-900 rounded-full shadow-lg flex items-center justify-center text-blue-500 border border-blue-100 hover:bg-blue-50 transition-all duration-300 disabled:opacity-50"
                     style={{ bottom: bottomPadding || '1.5rem' }}
                 >
@@ -638,7 +590,7 @@ export default function SharedCoffeeMap({
 
             {mode === 'explore' && shops.length === 0 && (
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[400] bg-espresso-900/90 backdrop-blur-sm px-6 py-3 rounded-full shadow-lg border border-espresso-700 text-center pointer-events-none">
-                    <p className="font-bold text-[13px] text-espresso-100">{t('shared_map.msg_no_shops', '이 지역에는 등록된 매장이 없습니다.')}</p>
+                    <p className="font-bold text-[13px] text-espresso-100">{t('shared_map.msg_no_shops', '??지??��???�록??매장???�습?�다.')}</p>
                 </div>
             )}
             {isRefreshing && (

@@ -1062,16 +1062,18 @@ export default function ShopBrowser() {
             // Always trigger AI search for the region even if local DB returned 0 shops.
             // If OSM failed too, centerToUse relies on the AI reverse-centering.
             const isOsmFailure = !foundTextMatch && centerToUse === mapCenter;
-            fetchAiShops(query, bboxForAi, isOsmFailure, centerToUse);
+            fetchAiShops(query, bboxForAi, isOsmFailure, centerToUse, false);
             
             setIsSearching(false);
         }
     };
 
-    const fetchAiShops = async (region: string, bbox?: string, forceCenterMap?: boolean, targetCenter?: [number, number]) => {
-        if (!isAiAutoExtractRef.current) return;
+    const fetchAiShops = async (region: string, bbox?: string, forceCenterMap?: boolean, targetCenter?: [number, number], bypassToggleCheck: boolean = false) => {
+        if (!bypassToggleCheck && !isAiAutoExtractRef.current) return;
 
-        const cacheKey = region.trim().toLowerCase() + (bbox ? `_bbox` : '');
+        const roundedBbox = bbox ? bbox.split(',').map(n => parseFloat(n).toFixed(2)).join(',') : '';
+        const cacheKey = region.trim().toLowerCase() + (roundedBbox ? `_${roundedBbox}` : '');
+        
         if (aiShopCache[cacheKey]) {
             setAiShops(prev => {
                 const existingIds = new Set(prev.map(s => s.id));
@@ -1290,18 +1292,15 @@ Format EXACTLY like this example:
             isGeneric: true
         };
         
+        setAiShops([mockShop]);
+
         fetchShopsAndBookmarks(lat, lng).then(fetched => {
-            const hasMock = fetched.some((s: any) => s.id === mockId);
-            if (!hasMock) {
-                setShops([...fetched, mockShop]);
-            } else {
-                setShops(fetched);
-            }
+            setShops(fetched);
             setSearchedShopId(mockId);
             setIsSearching(false);
         });
 
-        fetchAiShops(`latitude ${lat.toFixed(4)}, longitude ${lng.toFixed(4)}`, undefined, false, [lat, lng]);
+        fetchAiShops(`latitude ${lat.toFixed(4)}, longitude ${lng.toFixed(4)}`, undefined, false, [lat, lng], false);
     };
 
     return (

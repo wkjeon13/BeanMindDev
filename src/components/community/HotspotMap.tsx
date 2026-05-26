@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, useMapEvents, useMap } from 'react-leaflet';
-import L from 'leaflet';
+import { GoogleMap, useJsApiLoader, OverlayView } from '@react-google-maps/api';
 import { API_BASE } from '../../utils/apiConfig';
 import { Flame, MapPin } from 'lucide-react';
-import 'leaflet/dist/leaflet.css';
 
 interface Hotspot {
     lat: number;
@@ -11,50 +9,13 @@ interface Hotspot {
     weight: number;
 }
 
-// Sub-component to add heat points
-const HotspotLayer = ({ data }: { data: Hotspot[] }) => {
-    const map = useMapEvents({});
-
-    useEffect(() => {
-        if (!data || data.length === 0) return;
-
-        data.forEach(point => {
-            const intensity = Math.min(point.weight, 10) / 10;
-            const size = 30 + (intensity * 40); // 30px to 70px
-
-            const iconHtml = `
-                <div style="
-                    width: ${size}px;
-                    height: ${size}px;
-                    background: radial-gradient(circle, rgba(239, 68, 68, ${0.4 + intensity * 0.4}) 0%, rgba(239, 68, 68, 0) 70%);
-                    border-radius: 50%;
-                    transform: translate(-50%, -50%);
-                    pointer-events: none;
-                "></div>
-            `;
-
-            const glowingIcon = L.divIcon({
-                html: iconHtml,
-                className: '',
-                iconSize: [0, 0],
-            });
-
-            L.marker([point.lat, point.lng], { icon: glowingIcon, interactive: false }).addTo(map);
-        });
-    }, [data, map]);
-
-    return null;
-};
-
-const RecenterMap = ({ lat, lng }: { lat: number, lng: number }) => {
-    const map = useMap();
-    useEffect(() => {
-        map.setView([lat, lng], map.getZoom());
-    }, [lat, lng, map]);
-    return null;
-};
-
 export default function HotspotMap() {
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
+        libraries: ['places']
+    });
+
     const [hotspots, setHotspots] = useState<Hotspot[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
@@ -105,23 +66,58 @@ export default function HotspotMap() {
                 </div>
 
                 <div className="h-44 w-full rounded-2xl overflow-hidden shadow-inner relative border border-espresso-700/50 map-container-dark">
-                    <MapContainer 
-                        center={[defaultLat, defaultLng]} 
-                        zoom={13} 
-                        style={{ height: '100%', width: '100%', zIndex: 0 }}
-                        zoomControl={false}
-                        attributionControl={false}
-                        dragging={true}
-                    >
-                        {/* Enhanced Dark Theme Layer */}
-                        <TileLayer
-                            url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png"
-                        />
-                        <RecenterMap lat={defaultLat} lng={defaultLng} />
-                        <HotspotLayer data={hotspots} />
-                    </MapContainer>
+                    {isLoaded ? (
+                        <GoogleMap
+                            mapContainerStyle={{ width: '100%', height: '100%' }}
+                            center={{ lat: defaultLat, lng: defaultLng }}
+                            zoom={13}
+                            options={{
+                                disableDefaultUI: true,
+                                zoomControl: false,
+                                backgroundColor: '#1e1b19', // Dark mode background
+                                styles: [
+                                    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                                    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                                    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+                                    {
+                                      featureType: "administrative.locality",
+                                      elementType: "labels.text.fill",
+                                      stylers: [{ color: "#d59563" }],
+                                    },
+                                    {
+                                      featureType: "water",
+                                      elementType: "geometry",
+                                      stylers: [{ color: "#17263c" }],
+                                    },
+                                ]
+                            }}
+                        >
+                            {hotspots.map((point, i) => {
+                                const intensity = Math.min(point.weight, 10) / 10;
+                                const size = 30 + (intensity * 40); // 30px to 70px
+                                return (
+                                    <OverlayView
+                                        key={`hotspot-${i}`}
+                                        position={{ lat: point.lat, lng: point.lng }}
+                                        mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                                        getPixelPositionOffset={(w, h) => ({ x: -(w / 2), y: -(h / 2) })}
+                                    >
+                                        <div style={{
+                                            width: `${size}px`,
+                                            height: `${size}px`,
+                                            background: `radial-gradient(circle, rgba(239, 68, 68, ${0.4 + intensity * 0.4}) 0%, rgba(239, 68, 68, 0) 70%)`,
+                                            borderRadius: '50%',
+                                            pointerEvents: 'none',
+                                        }} />
+                                    </OverlayView>
+                                )
+                            })}
+                        </GoogleMap>
+                    ) : (
+                        <div className="w-full h-full bg-espresso-950 flex items-center justify-center">Loading Map...</div>
+                    )}
                     
-                    <div className="absolute top-2 right-2 bg-espresso-900/80 backdrop-blur-sm text-amber-100 text-[11px] px-2.5 py-1 rounded-full flex items-center gap-1 font-medium border border-coffee-800">
+                    <div className="absolute top-2 right-2 bg-espresso-900/80 backdrop-blur-sm text-amber-100 text-[11px] px-2.5 py-1 rounded-full flex items-center gap-1 font-medium border border-coffee-800 z-10 pointer-events-none">
                         <MapPin size={12} className="text-red-400" />
                         활발한 체크인 구역
                     </div>
