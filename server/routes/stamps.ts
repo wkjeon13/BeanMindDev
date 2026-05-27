@@ -287,12 +287,13 @@ router.post('/earn', authenticateToken, async (req: any, res: any) => {
                 } as any
             });
 
+            const resolvedItemsConfig = getItemsConfig(config);
             return { 
                 card: updatedCard, 
                 coupons: createdCoupons, 
                 transaction: {
                     ...transaction,
-                    itemsConfig: config.itemsConfig || null
+                    itemsConfig: resolvedItemsConfig ? JSON.stringify(resolvedItemsConfig) : null
                 } 
             };
         });
@@ -445,12 +446,13 @@ router.post('/rollback', authenticateToken, async (req: any, res: any) => {
                 }
             });
 
+            const resolvedItemsConfig = getItemsConfig(config);
             return { 
                 card: updatedCard, 
                 revokedCouponsCount, 
                 transaction: {
                     ...cancelTransaction,
-                    itemsConfig: config.itemsConfig || null
+                    itemsConfig: resolvedItemsConfig ? JSON.stringify(resolvedItemsConfig) : null
                 } 
             };
         });
@@ -766,12 +768,13 @@ router.get('/owner/stats/:storeId', authenticateToken, async (req: any, res: any
                 where: { id: txn.configId },
                 select: { cardTitle: true, cardType: true, itemsConfig: true }
             });
+            const resolvedItemsConfig = config ? getItemsConfig(config) : null;
             return {
                 ...txn,
                 userNickname: user?.nickname || "단골 고객",
                 cardTitle: config?.cardTitle || "일반 쿠폰",
                 cardType: config?.cardType || "REGULAR",
-                itemsConfig: config?.itemsConfig || null
+                itemsConfig: resolvedItemsConfig ? JSON.stringify(resolvedItemsConfig) : null
             };
         }));
 
@@ -886,13 +889,14 @@ router.get('/owner/transactions/:storeId', authenticateToken, async (req: any, r
                 where: { id: txn.configId },
                 select: { cardTitle: true, cardType: true, itemsConfig: true }
             });
+            const resolvedItemsConfig = config ? getItemsConfig(config) : null;
             return {
                 ...txn,
                 userNickname: user?.nickname || "단골 고객",
                 userEmail: user?.email || "unknown@test.com",
                 cardTitle: config?.cardTitle || "일반 쿠폰",
                 cardType: config?.cardType || "REGULAR",
-                itemsConfig: config?.itemsConfig || null
+                itemsConfig: resolvedItemsConfig ? JSON.stringify(resolvedItemsConfig) : null
             };
         }));
 

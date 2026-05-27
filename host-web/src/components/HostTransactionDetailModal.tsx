@@ -37,22 +37,43 @@ export default function HostTransactionDetailModal({ isOpen, onClose, transactio
 
     // itemsConfig 파싱하여 키 매핑 사전(Dictionary) 만들기
     let keyLabelMap: Record<string, string> = {};
+    let configItems: any[] = [];
+
     if (transaction.itemsConfig) {
         try {
             const parsedConfig = typeof transaction.itemsConfig === 'string' 
                 ? JSON.parse(transaction.itemsConfig) 
                 : transaction.itemsConfig;
             if (Array.isArray(parsedConfig)) {
-                parsedConfig.forEach((item: any) => {
-                    if (item.key && item.label) {
-                        keyLabelMap[item.key] = item.label;
-                    }
-                });
+                configItems = parsedConfig;
             }
         } catch (e) {
             console.error("Failed to parse itemsConfig:", e);
         }
     }
+
+    // [지능형 Fallback] 만약 itemsConfig가 없거나 비어있는 경우, cardTitle(예: "아메리카노10+녹차라떼5+크롸상5")로부터 동적 복구 시도
+    if (configItems.length === 0 && transaction.cardTitle) {
+        const cleanTitle = transaction.cardTitle.replace(/ 단골| 도장판| 정책/g, '').replace('☕ ', '').trim();
+        const items = cleanTitle.split('+');
+        items.forEach((item: string, idx: number) => {
+            const match = item.match(/^([^0-9]+?)\s*(\d+)/);
+            if (match) {
+                const label = match[1].trim();
+                configItems.push({
+                    key: `item_${idx}`,
+                    label: label
+                });
+            }
+        });
+    }
+
+    // 매핑 사전 구축
+    configItems.forEach((item: any) => {
+        if (item.key && item.label) {
+            keyLabelMap[item.key] = item.label;
+        }
+    });
 
     return (
         <AnimatePresence>
