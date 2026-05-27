@@ -19,6 +19,7 @@ export default function HostWebDashboard() {
     const [targetUserId, setTargetUserId] = useState('');
     const [selectedConfigId, setSelectedConfigId] = useState('');
     const [earnAmount, setEarnAmount] = useState(1);
+    const [storeConfigs, setStoreConfigs] = useState<any[]>([]);
     
     // Config Builder States
     const [cardType, setCardType] = useState('REGULAR');
@@ -75,8 +76,11 @@ export default function HostWebDashboard() {
                     const configRes = await fetch(`${API_BASE}/api/stamps/configs/${myStore.id}`);
                     if (configRes.ok) {
                         const configs = await configRes.json();
+                        setStoreConfigs(configs);
                         if (configs.length > 0) {
-                            setSelectedConfigId(configs[0].id);
+                            if (!selectedConfigId || !configs.some((c: any) => c.id === selectedConfigId)) {
+                                setSelectedConfigId(configs[0].id);
+                            }
                         }
                     }
                 } else {
@@ -386,16 +390,11 @@ export default function HostWebDashboard() {
                                             className="w-full bg-espresso-900 border border-espresso-700 rounded-xl px-4 py-3 text-xs text-espresso-100 outline-none focus:border-amber-500/50 cursor-pointer"
                                         >
                                             <option value="">적립 판을 선택하세요.</option>
-                                            {recentTransactions.length > 0 && Array.from(new Set(recentTransactions.map(t => t.configId))).map(cfgId => {
-                                                const txn = recentTransactions.find(t => t.configId === cfgId);
-                                                return (
-                                                    <option key={cfgId} value={cfgId}>{txn?.cardTitle} ({txn?.cardType})</option>
-                                                );
-                                            })}
-                                            {/* 기본 로드된 config가 리스트에 없을 경우 fallback용 */}
-                                            {selectedConfigId && !recentTransactions.some(t => t.configId === selectedConfigId) && (
-                                                <option value={selectedConfigId}>기본 활성 정책 판</option>
-                                            )}
+                                            {storeConfigs.map(cfg => (
+                                                <option key={cfg.id} value={cfg.id}>
+                                                    {cfg.cardTitle} ({cfg.cardType === 'REGULAR' ? '일반 스탬프' : '시즌 프로모션'})
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
 
