@@ -661,4 +661,53 @@ router.put('/owner/store-profile', authenticateToken, async (req: any, res: any)
     }
 });
 
+// 11. 스탬프 정책 수정 API
+router.put('/configs/:id', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+        const { cardTitle, maxStamps, targetMenu, rewardDesc, validDays, itemsConfig } = req.body;
+
+        if (!cardTitle || !rewardDesc) {
+            return res.status(400).json({ error: "INVALID_INPUT", message: "정책명과 리워드 설명은 필수입니다." });
+        }
+
+        const updatedConfig = await prisma.storeStampConfig.update({
+            where: { id },
+            data: {
+                cardTitle,
+                maxStamps: maxStamps ? parseInt(maxStamps, 10) : 10,
+                targetMenu: targetMenu || null,
+                rewardDesc,
+                validDays: validDays ? parseInt(validDays, 10) : 90,
+                itemsConfig: itemsConfig ? JSON.stringify(itemsConfig) : null
+            } as any
+        });
+
+        res.status(200).json(updatedConfig);
+    } catch (error) {
+        console.error("Update stamp config error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "정책 수정 중 오류가 발생했습니다." });
+    }
+});
+
+// 12. 스탬프 정책 삭제(비활성화) API - 소프트 딜리트
+router.delete('/configs/:id', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+
+        const deletedConfig = await prisma.storeStampConfig.update({
+            where: { id },
+            data: { isActive: false }
+        });
+
+        res.status(200).json({
+            message: "스탬프 정책이 성공적으로 삭제되었습니다.",
+            config: deletedConfig
+        });
+    } catch (error) {
+        console.error("Delete stamp config error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "정책 삭제 중 오류가 발생했습니다." });
+    }
+});
+
 export default router;
