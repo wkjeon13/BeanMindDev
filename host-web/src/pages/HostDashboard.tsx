@@ -298,12 +298,19 @@ export default function HostDashboard() {
         let finalAmount = earnAmount;
         let finalItems = null;
 
+        const totalItemsCount = Object.values(earnItems).reduce((sum, val) => sum + val, 0);
+
         if (isPromotion) {
             finalItems = earnItems;
-            finalAmount = Object.values(earnItems).reduce((sum, val) => sum + val, 0);
+            finalAmount = totalItemsCount;
             if (finalAmount <= 0) {
                 setErrorMessage(t('host_dashboard.err_min_item_qty', '최소 1개 이상의 품목 수량을 선택하여 적립을 진행해 주세요.'));
                 return;
+            }
+        } else {
+            if (totalItemsCount > 0) {
+                finalItems = earnItems;
+                finalAmount = totalItemsCount;
             }
         }
 

@@ -475,12 +475,19 @@ export default function HostQRScannerModal({ isOpen, onClose, onScanSuccess }: H
         let finalAmount = earnAmount;
         let finalItems = null;
 
+        const totalItemsCount = Object.values(earnItems).reduce((sum, val) => sum + val, 0);
+
         if (isPromotion) {
             finalItems = earnItems;
-            finalAmount = Object.values(earnItems).reduce((sum, val) => sum + val, 0);
+            finalAmount = totalItemsCount;
             if (finalAmount <= 0) {
                 setErrorMessage("품목을 1개 이상 골라주세요.");
                 return;
+            }
+        } else {
+            if (totalItemsCount > 0) {
+                finalItems = earnItems;
+                finalAmount = totalItemsCount;
             }
         }
 

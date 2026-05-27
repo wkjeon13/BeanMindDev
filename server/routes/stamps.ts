@@ -283,7 +283,7 @@ router.post('/earn', authenticateToken, async (req: any, res: any) => {
                     configId,
                     amount: earnAmount,
                     txnType: "EARN",
-                    itemsEarned: isPromotion && items ? JSON.stringify(items) : null
+                    itemsEarned: items ? JSON.stringify(items) : null
                 } as any
             });
 

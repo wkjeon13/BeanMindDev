@@ -26,6 +26,15 @@ export default function HostTransactionDetailModal({ isOpen, onClose, transactio
 
     const hasItems = Object.keys(parsedItems).length > 0;
 
+    // 기존에 품목 정보(hasItems)가 없을 경우 도장판 타이틀(cardTitle)을 파싱하여 폴백 품목 명칭 확보
+    let fallbackMenuName = t('host_transaction.general_earn', '기본 스탬프 일괄 적립');
+    if (transaction.cardTitle) {
+        const cleanTitle = transaction.cardTitle.replace(/ 단골| 도장판| 정책/g, '').replace('☕ ', '').trim();
+        if (cleanTitle) {
+            fallbackMenuName = `${cleanTitle} 적립`;
+        }
+    }
+
     return (
         <AnimatePresence>
             <div className="fixed inset-0 flex items-center justify-center z-[110] p-4 antialiased">
@@ -128,10 +137,11 @@ export default function HostTransactionDetailModal({ isOpen, onClose, transactio
                             </div>
                         ) : (
                             <div className="bg-espresso-950/40 p-3 rounded-xl border border-espresso-850/60 flex justify-between items-center text-xs">
-                                <span className="text-espresso-300 font-medium">
-                                    {t('host_transaction.general_earn', '기본 스탬프 일괄 적립')}
+                                <span className="text-espresso-200 font-semibold flex items-center gap-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]/50" />
+                                    {fallbackMenuName}
                                 </span>
-                                <span className="font-mono font-black text-amber-500">
+                                <span className="font-mono font-black text-[#D4AF37]">
                                     +{transaction.amount} {t('host_dashboard.unit_count', '개')}
                                 </span>
                             </div>
