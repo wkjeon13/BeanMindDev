@@ -71,7 +71,8 @@ export default function HostQRScannerModal({ isOpen, onClose, onScanSuccess }: H
                 const trimmed = token.trim();
                 if (!trimmed) continue;
                 
-                const match = trimmed.match(/^([가-힣a-zA-Z\s]+?)\s*(\d+)\s*(?:잔|개|병|팩|개입)?$/);
+                // 숫자가 아닌 모든 문자열(한글/영어/공백/기호) 매치 보강
+                const match = trimmed.match(/^([^0-9]+?)\s*(\d+)\s*(?:잔|개|병|팩|개입)?$/);
                 if (match) {
                     const label = match[1].trim();
                     const target = parseInt(match[2], 10);

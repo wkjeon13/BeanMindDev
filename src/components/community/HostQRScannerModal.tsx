@@ -10,16 +10,49 @@ interface HostQRScannerModalProps {
 }
 
 const getItemsConfig = (cfg: any) => {
-    if (!cfg || !cfg.itemsConfig) return null;
-    if (typeof cfg.itemsConfig === 'string') {
+    if (!cfg) return null;
+    let parsed = cfg.itemsConfig;
+    if (typeof parsed === 'string') {
         try {
-            return JSON.parse(cfg.itemsConfig);
+            parsed = JSON.parse(parsed);
         } catch (e) {
-            console.error("Failed to parse itemsConfig string:", e);
-            return null;
+            parsed = null;
         }
     }
-    return cfg.itemsConfig;
+    
+    if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+    }
+    
+    if (cfg.cardType === 'PROMOTION' && cfg.cardTitle) {
+        const tokens = cfg.cardTitle.split(/[+,]/);
+        const items: { key: string; label: string; target: number }[] = [];
+        let index = 0;
+        for (const token of tokens) {
+            const trimmed = token.trim();
+            if (!trimmed) continue;
+            
+            // 숫자가 아닌 모든 문자열(한글/영어/공백/기호) 매치 보강
+            const match = trimmed.match(/^([^0-9]+?)\s*(\d+)\s*(?:잔|개|병|팩|개입)?$/);
+            if (match) {
+                const label = match[1].trim();
+                const target = parseInt(match[2], 10);
+                if (label && !isNaN(target)) {
+                    items.push({
+                        key: `item_${index}`,
+                        label: label,
+                        target: target
+                    });
+                    index++;
+                }
+            }
+        }
+        if (items.length > 0) {
+            return items;
+        }
+    }
+    
+    return null;
 };
 
 export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerModalProps) {
