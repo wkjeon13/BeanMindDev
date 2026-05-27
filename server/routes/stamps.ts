@@ -792,7 +792,7 @@ router.put('/owner/store-profile', authenticateToken, async (req: any, res: any)
                 name: name || undefined,
                 address: address || undefined,
                 phone: phone || undefined,
-                description: description || undefined
+                longDesc: description || undefined
             }
         });
 

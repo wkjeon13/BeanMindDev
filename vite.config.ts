@@ -26,6 +26,19 @@ export default defineConfig(({ mode }) => {
         }
       }
     ],
+    optimizeDeps: {
+      include: [
+        '@capacitor/geolocation',
+        '@react-google-maps/api',
+        '@react-oauth/google',
+        'lucide-react',
+        'react',
+        'react-dom',
+        'react-router-dom',
+        'i18next',
+        'react-i18next'
+      ]
+    },
     define: {
       'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
     },
