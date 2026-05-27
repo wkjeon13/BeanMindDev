@@ -633,7 +633,7 @@ export default function CoffeeTalk() {
           window.history.replaceState(null, '', window.location.pathname + window.location.search);
       }
 
-      setTimeout(() => {
+      const performScroll = () => {
         const el = document.getElementById(`post-${targetId}`);
         const container = document.getElementById('coffee-feed-container');
         if (el && container) {
@@ -651,8 +651,22 @@ export default function CoffeeTalk() {
           setTimeout(() => {
               container.style.scrollBehavior = '';
           }, 50);
+          return true;
         }
-      }, 50);
+        return false;
+      };
+
+      // 0ms 즉시 스크롤 시도 (깜박거림 원천 방지)
+      if (!performScroll()) {
+        // 미세 렌더링 프레임 지연 대비 10ms 인터벌 폴링 재시도 (최대 10회)
+        let attempts = 0;
+        const interval = setInterval(() => {
+          if (performScroll() || attempts > 10) {
+            clearInterval(interval);
+          }
+          attempts++;
+        }, 10);
+      }
     }
   }, [posts, window.location.hash]);
 
