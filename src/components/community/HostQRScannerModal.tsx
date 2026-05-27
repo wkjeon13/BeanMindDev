@@ -310,11 +310,29 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
     };
 
     // 3. QR 스캔 / 식별자 입력 검증 API 호출
-    const handleSimulateScan = async (userIdToScan: string) => {
-        if (!userIdToScan.trim()) {
-            setErrorMessage("유저 ID를 입력해 주세요.");
+    const handleSimulateScan = async (rawUserIdToScan: string) => {
+        let userIdToScan = rawUserIdToScan.trim();
+        
+        // QR 생성 주소가 통째로 스캔되었거나 특수 문자가 인코딩된 경우의 지능형 복원 필터
+        try {
+            if (userIdToScan.includes('data=')) {
+                const urlObj = new URL(userIdToScan.startsWith('http') ? userIdToScan : `http://mock.com?${userIdToScan}`);
+                const dataParam = urlObj.searchParams.get('data');
+                if (dataParam) {
+                    userIdToScan = dataParam;
+                }
+            }
+            // URL 디코딩 복원 (예: google-oauth2%7C1234 -> google-oauth2|1234)
+            userIdToScan = decodeURIComponent(userIdToScan);
+        } catch (e) {
+            console.warn("QR Raw Data Decoding Fallback:", e);
+        }
+
+        if (!userIdToScan) {
+            setErrorMessage("올바른 유저 ID 또는 QR 데이터를 인식하지 못했습니다.");
             return;
         }
+
         setIsLoading(true);
         setErrorMessage('');
         

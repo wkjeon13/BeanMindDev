@@ -2616,9 +2616,10 @@ export default function Profile() {
 
                             <div className="bg-white p-4 rounded-2xl inline-block shadow-inner mx-auto border-2 border-amber-500/20">
                                 <img 
-                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${currentUser.id}&color=0f172a`} 
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentUser.id)}&color=0f172a`} 
                                     alt="User Stamp QR" 
                                     className="w-48 h-48 mx-auto"
+                                
                                 />
                             </div>
 
@@ -2660,7 +2661,7 @@ export default function Profile() {
 
                             <div className="bg-white p-4 rounded-2xl inline-block shadow-inner mx-auto border-2 border-amber-500/20">
                                 <img 
-                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${currentCouponForQR.id}&color=0f172a`} 
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentCouponForQR.id)}&color=0f172a`} 
                                     alt="Coupon QR" 
                                     className="w-48 h-48 mx-auto"
                                 />
