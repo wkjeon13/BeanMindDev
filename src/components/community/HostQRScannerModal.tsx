@@ -9,6 +9,19 @@ interface HostQRScannerModalProps {
     onClose: () => void;
 }
 
+const getItemsConfig = (cfg: any) => {
+    if (!cfg || !cfg.itemsConfig) return null;
+    if (typeof cfg.itemsConfig === 'string') {
+        try {
+            return JSON.parse(cfg.itemsConfig);
+        } catch (e) {
+            console.error("Failed to parse itemsConfig string:", e);
+            return null;
+        }
+    }
+    return cfg.itemsConfig;
+};
+
 export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerModalProps) {
     const { t } = useTranslation();
     const [scanStep, setScanStep] = useState<'SCANNING' | 'EARNING' | 'SUCCESS'>('SCANNING');
@@ -30,9 +43,10 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
     useEffect(() => {
         if (selectedConfigId) {
             const cfg = stampConfigs.find(c => c.id === selectedConfigId);
-            if (cfg && cfg.itemsConfig) {
+            const parsedItems = getItemsConfig(cfg);
+            if (cfg && parsedItems && Array.isArray(parsedItems)) {
                 const initialItems: Record<string, number> = {};
-                cfg.itemsConfig.forEach((item: any) => {
+                parsedItems.forEach((item: any) => {
                     initialItems[item.key] = 0;
                 });
                 setEarnItems(initialItems);
@@ -489,7 +503,8 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
         }
 
         const cfg = stampConfigs.find(c => c.id === selectedConfigId);
-        const isPromotion = cfg && cfg.itemsConfig;
+        const parsedItems = getItemsConfig(cfg);
+        const isPromotion = cfg && parsedItems && Array.isArray(parsedItems);
 
         let finalAmount = earnAmount;
         let finalItems = null;
@@ -816,14 +831,15 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                         {/* 스탬프 다중 적립 제어기 (- / +) 또는 복합 품목 카운터 */}
                         {(() => {
                             const cfg = stampConfigs.find(c => c.id === selectedConfigId);
-                            const isPromotion = cfg && cfg.itemsConfig;
+                            const parsedItems = getItemsConfig(cfg);
+                            const isPromotion = cfg && parsedItems && Array.isArray(parsedItems);
 
                             if (isPromotion) {
                                 return (
                                     <div className="bg-espresso-950/60 p-4 rounded-3xl border border-espresso-800 space-y-4">
                                         <span className="text-xs font-bold text-espresso-200 block text-center">{t('host_scanner.adjust_items_qty', '품목별 적립 수량 조절')}</span>
                                         <div className="space-y-2">
-                                            {cfg.itemsConfig.map((item: any) => {
+                                            {parsedItems.map((item: any) => {
                                                 const currentQty = earnItems[item.key] || 0;
                                                 return (
                                                     <div key={item.key} className="flex justify-between items-center bg-espresso-900/40 p-3 rounded-xl border border-espresso-800/60">
@@ -901,7 +917,8 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                 <Coffee size={14} /> {(() => {
                                     if (isLoading) return t('host_scanner.earning_progress', '적립 진행 중...');
                                     const cfg = stampConfigs.find(c => c.id === selectedConfigId);
-                                    if (cfg && cfg.itemsConfig) {
+                                    const parsedItems = getItemsConfig(cfg);
+                                    if (cfg && parsedItems && Array.isArray(parsedItems)) {
                                         const qty = Object.values(earnItems).reduce((a, b) => a + b, 0);
                                         return t('host_scanner.btn_earn_complete_qty', { count: qty, defaultValue: `${qty}개 스탬프 적립 완료` });
                                     }
