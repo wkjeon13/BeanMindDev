@@ -570,9 +570,9 @@ export default function CoffeeTalk() {
   };
 
   React.useEffect(() => {
-    // 필터/소트 전환 직전 기존 필터의 스크롤 위치를 세션에 백업
+    // 필터/소트 전환 직전 기존 필터의 스크롤 위치를 로컬 스토리지에 백업
     if (currentFilterRef.current) {
-        sessionStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, lastScrollTopRef.current.toString());
+        localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, lastScrollTopRef.current.toString());
     }
 
     currentFilterRef.current = activeFilter;
@@ -581,7 +581,7 @@ export default function CoffeeTalk() {
     // 딥링크가 아닌 경우 이전 스크롤 복원 대상 확보
     const targetId = window.location.hash ? window.location.hash.substring(1) : targetPostIdToScroll.current;
     if (!targetId) {
-        const savedScroll = sessionStorage.getItem(`coffeeTalkScrollTop_${activeFilter}`);
+        const savedScroll = localStorage.getItem(`coffeeTalkScrollTop_${activeFilter}`);
         if (savedScroll) {
             restoreScrollTop.current = parseInt(savedScroll, 10);
             setIsScrollJumping(true); // 스크롤 복원 전까지 투명 마스킹
@@ -643,8 +643,8 @@ export default function CoffeeTalk() {
         window.removeEventListener('scrollToTop', handleScrollToTop);
         if (container) {
             container.removeEventListener('scroll', handleScroll);
-            // 언마운트 시(다른 탭 이동 시) 마지막 스크롤 위치 세션 백업!
-            sessionStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, lastScrollTopRef.current.toString());
+            // 언마운트 시(다른 탭 이동 시) 마지막 스크롤 위치 로컬 스토리지 백업!
+            localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, lastScrollTopRef.current.toString());
         }
     };
   }, []);
@@ -718,7 +718,21 @@ export default function CoffeeTalk() {
         const container = document.getElementById('coffee-feed-container');
         if (container) {
           container.style.scrollBehavior = 'auto';
+          
+          // 1차 즉시 강제 스크롤 복원
           container.scrollTop = scrollPos;
+          
+          // [이미지 지연 로딩 튕김 Stopper] 이미지 렌더링에 따른 height 확장 매칭 다단계 동적 고정기 작동!
+          const delayTimes = [30, 80, 150, 300, 500];
+          delayTimes.forEach(delay => {
+              setTimeout(() => {
+                  const targetContainer = document.getElementById('coffee-feed-container');
+                  if (targetContainer) {
+                      targetContainer.scrollTop = scrollPos;
+                  }
+              }, delay);
+          });
+
           container.style.scrollBehavior = '';
           setIsScrollJumping(false);
           return true;
