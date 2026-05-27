@@ -287,7 +287,14 @@ router.post('/earn', authenticateToken, async (req: any, res: any) => {
                 } as any
             });
 
-            return { card: updatedCard, coupons: createdCoupons, transaction };
+            return { 
+                card: updatedCard, 
+                coupons: createdCoupons, 
+                transaction: {
+                    ...transaction,
+                    itemsConfig: config.itemsConfig || null
+                } 
+            };
         });
 
         res.status(200).json(result);
@@ -438,7 +445,14 @@ router.post('/rollback', authenticateToken, async (req: any, res: any) => {
                 }
             });
 
-            return { card: updatedCard, revokedCouponsCount, transaction: cancelTransaction };
+            return { 
+                card: updatedCard, 
+                revokedCouponsCount, 
+                transaction: {
+                    ...cancelTransaction,
+                    itemsConfig: config.itemsConfig || null
+                } 
+            };
         });
 
         res.status(200).json({
@@ -756,7 +770,8 @@ router.get('/owner/stats/:storeId', authenticateToken, async (req: any, res: any
                 ...txn,
                 userNickname: user?.nickname || "단골 고객",
                 cardTitle: config?.cardTitle || "일반 쿠폰",
-                cardType: config?.cardType || "REGULAR"
+                cardType: config?.cardType || "REGULAR",
+                itemsConfig: config?.itemsConfig || null
             };
         }));
 
@@ -876,7 +891,8 @@ router.get('/owner/transactions/:storeId', authenticateToken, async (req: any, r
                 userNickname: user?.nickname || "단골 고객",
                 userEmail: user?.email || "unknown@test.com",
                 cardTitle: config?.cardTitle || "일반 쿠폰",
-                cardType: config?.cardType || "REGULAR"
+                cardType: config?.cardType || "REGULAR",
+                itemsConfig: config?.itemsConfig || null
             };
         }));
 
