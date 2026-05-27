@@ -22,28 +22,69 @@ export default function HostWebDashboard() {
     const [storeConfigs, setStoreConfigs] = useState<any[]>([]);
     const [earnItems, setEarnItems] = useState<Record<string, number>>({});
 
+    // 💡 지능형 정책 명칭 파서: PROMOTION인데 itemsConfig가 DB 상에 비어있는(NULL) 상태여도,
+    // 정책 명칭(아메리카노10+시즌음료5+페어링케익2 등)을 지능적으로 분해/파싱하여 복합 카운터를 동적 생성하는 파서
+    const getItemsConfig = (cfg: any) => {
+        if (!cfg) return null;
+        let parsed = cfg.itemsConfig;
+        if (typeof parsed === 'string') {
+            try {
+                parsed = JSON.parse(parsed);
+            } catch (e) {
+                parsed = null;
+            }
+        }
+        
+        // itemsConfig가 정상 배열 형태이면 그대로 반환
+        if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed;
+        }
+        
+        // 만약 cardType이 PROMOTION이고 itemsConfig가 비어있다면 정책 명칭에서 파싱을 시도
+        if (cfg.cardType === 'PROMOTION' && cfg.cardTitle) {
+            const tokens = cfg.cardTitle.split(/[+,]/);
+            const items: { key: string; label: string; target: number }[] = [];
+            let index = 0;
+            for (const token of tokens) {
+                const trimmed = token.trim();
+                if (!trimmed) continue;
+                
+                // 한글/영문/숫자 혼합에서 텍스트 부분과 숫자 부분을 추출
+                // 예: "아메리카노10" -> label: "아메리카노", target: 10
+                // 예: "시즌음료 5잔" -> label: "시즌음료", target: 5
+                const match = trimmed.match(/^([가-힣a-zA-Z\s]+?)\s*(\d+)\s*(?:잔|개|병|팩|개입)?$/);
+                if (match) {
+                    const label = match[1].trim();
+                    const target = parseInt(match[2], 10);
+                    if (label && !isNaN(target)) {
+                        items.push({
+                            key: `item_${index}`,
+                            label: label,
+                            target: target
+                        });
+                        index++;
+                    }
+                }
+            }
+            if (items.length > 0) {
+                return items;
+            }
+        }
+        
+        return null;
+    };
+
     // selectedConfigId가 바뀔 때 earnItems 초기화
     useEffect(() => {
         if (selectedConfigId && storeConfigs.length > 0) {
             const cfg = storeConfigs.find(c => c.id === selectedConfigId);
-            if (cfg && cfg.itemsConfig) {
-                let parsedItems = cfg.itemsConfig;
-                if (typeof parsedItems === 'string') {
-                    try {
-                        parsedItems = JSON.parse(parsedItems);
-                    } catch (e) {
-                        parsedItems = [];
-                    }
-                }
-                if (Array.isArray(parsedItems)) {
-                    const initialItems: Record<string, number> = {};
-                    parsedItems.forEach((item: any) => {
-                        initialItems[item.key] = 0;
-                    });
-                    setEarnItems(initialItems);
-                } else {
-                    setEarnItems({});
-                }
+            const itemsConfig = getItemsConfig(cfg);
+            if (itemsConfig && Array.isArray(itemsConfig)) {
+                const initialItems: Record<string, number> = {};
+                itemsConfig.forEach((item: any) => {
+                    initialItems[item.key] = 0;
+                });
+                setEarnItems(initialItems);
             } else {
                 setEarnItems({});
             }
@@ -136,14 +177,7 @@ export default function HostWebDashboard() {
         }
 
         const cfg = storeConfigs.find(c => c.id === selectedConfigId);
-        let parsedItemsConfig = cfg?.itemsConfig;
-        if (typeof parsedItemsConfig === 'string') {
-            try {
-                parsedItemsConfig = JSON.parse(parsedItemsConfig);
-            } catch (e) {
-                parsedItemsConfig = null;
-            }
-        }
+        const parsedItemsConfig = getItemsConfig(cfg);
         const isPromotion = cfg && parsedItemsConfig && Array.isArray(parsedItemsConfig);
 
         let finalAmount = earnAmount;
@@ -462,14 +496,7 @@ export default function HostWebDashboard() {
                                     {/* 스탬프 개수 가감제어 또는 복합 품목 카운터 */}
                                     {(() => {
                                         const cfg = storeConfigs.find(c => c.id === selectedConfigId);
-                                        let parsedItemsConfig = cfg?.itemsConfig;
-                                        if (typeof parsedItemsConfig === 'string') {
-                                            try {
-                                                parsedItemsConfig = JSON.parse(parsedItemsConfig);
-                                            } catch (e) {
-                                                parsedItemsConfig = null;
-                                            }
-                                        }
+                                        const parsedItemsConfig = getItemsConfig(cfg);
                                         const isPromotion = cfg && parsedItemsConfig && Array.isArray(parsedItemsConfig);
 
                                         if (isPromotion) {
@@ -542,14 +569,7 @@ export default function HostWebDashboard() {
                                         <Coffee size={16} /> {(() => {
                                             if (isLoading) return "적립 처리 중...";
                                             const cfg = storeConfigs.find(c => c.id === selectedConfigId);
-                                            let parsedItemsConfig = cfg?.itemsConfig;
-                                            if (typeof parsedItemsConfig === 'string') {
-                                                try {
-                                                    parsedItemsConfig = JSON.parse(parsedItemsConfig);
-                                                } catch (e) {
-                                                    parsedItemsConfig = null;
-                                                }
-                                            }
+                                            const parsedItemsConfig = getItemsConfig(cfg);
                                             const isPromotion = cfg && parsedItemsConfig && Array.isArray(parsedItemsConfig);
                                             if (isPromotion) {
                                                 const totalQty = Object.values(earnItems).reduce((sum, val) => sum + val, 0);
