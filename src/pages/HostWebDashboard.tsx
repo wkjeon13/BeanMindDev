@@ -20,6 +20,35 @@ export default function HostWebDashboard() {
     const [selectedConfigId, setSelectedConfigId] = useState('');
     const [earnAmount, setEarnAmount] = useState(1);
     const [storeConfigs, setStoreConfigs] = useState<any[]>([]);
+    const [earnItems, setEarnItems] = useState<Record<string, number>>({});
+
+    // selectedConfigId가 바뀔 때 earnItems 초기화
+    useEffect(() => {
+        if (selectedConfigId && storeConfigs.length > 0) {
+            const cfg = storeConfigs.find(c => c.id === selectedConfigId);
+            if (cfg && cfg.itemsConfig) {
+                let parsedItems = cfg.itemsConfig;
+                if (typeof parsedItems === 'string') {
+                    try {
+                        parsedItems = JSON.parse(parsedItems);
+                    } catch (e) {
+                        parsedItems = [];
+                    }
+                }
+                if (Array.isArray(parsedItems)) {
+                    const initialItems: Record<string, number> = {};
+                    parsedItems.forEach((item: any) => {
+                        initialItems[item.key] = 0;
+                    });
+                    setEarnItems(initialItems);
+                } else {
+                    setEarnItems({});
+                }
+            } else {
+                setEarnItems({});
+            }
+        }
+    }, [selectedConfigId, storeConfigs]);
     
     // Config Builder States
     const [cardType, setCardType] = useState('REGULAR');
@@ -105,6 +134,30 @@ export default function HostWebDashboard() {
             setErrorMessage("고객 식별코드와 스탬프 종류를 선택해 주세요.");
             return;
         }
+
+        const cfg = storeConfigs.find(c => c.id === selectedConfigId);
+        let parsedItemsConfig = cfg?.itemsConfig;
+        if (typeof parsedItemsConfig === 'string') {
+            try {
+                parsedItemsConfig = JSON.parse(parsedItemsConfig);
+            } catch (e) {
+                parsedItemsConfig = null;
+            }
+        }
+        const isPromotion = cfg && parsedItemsConfig && Array.isArray(parsedItemsConfig);
+
+        let finalAmount = earnAmount;
+        let finalItems = null;
+
+        if (isPromotion) {
+            finalItems = earnItems;
+            finalAmount = Object.values(earnItems).reduce((sum, val) => sum + val, 0);
+            if (finalAmount <= 0) {
+                setErrorMessage("최소 1개 이상의 품목 수량을 선택하여 적립을 진행해 주세요.");
+                return;
+            }
+        }
+
         setIsLoading(true);
         setErrorMessage('');
         setSuccessMessage('');
@@ -119,7 +172,8 @@ export default function HostWebDashboard() {
                     userId: targetUserId,
                     storeId,
                     configId: selectedConfigId,
-                    amount: earnAmount
+                    amount: finalAmount,
+                    items: finalItems
                 })
             });
 
@@ -127,6 +181,13 @@ export default function HostWebDashboard() {
                 setSuccessMessage("스탬프 적립이 완벽하게 완료되었습니다! 🎉");
                 setTargetUserId('');
                 setEarnAmount(1);
+                if (isPromotion) {
+                    const resetItems: Record<string, number> = {};
+                    parsedItemsConfig.forEach((item: any) => {
+                        resetItems[item.key] = 0;
+                    });
+                    setEarnItems(resetItems);
+                }
                 fetchDashboardData(); // 데이터 리프레시
             } else {
                 const err = await res.json();
@@ -398,32 +459,104 @@ export default function HostWebDashboard() {
                                         </select>
                                     </div>
 
-                                    {/* 스탬프 개수 가감제어 */}
-                                    <div className="bg-espresso-950 p-4 rounded-2xl border border-espresso-800 text-center space-y-3">
-                                        <span className="text-xs text-espresso-200 block">스탬프 적립 수량 조절</span>
-                                        <div className="flex justify-center items-center gap-6">
-                                            <button 
-                                                onClick={() => setEarnAmount(prev => Math.max(1, prev - 1))}
-                                                className="w-10 h-10 rounded-xl bg-espresso-900 hover:bg-espresso-800 border border-espresso-700 text-espresso-50 flex items-center justify-center cursor-pointer"
-                                            >
-                                                <Minus size={16} />
-                                            </button>
-                                            <span className="font-mono text-2xl font-black text-amber-500 w-12">{earnAmount}</span>
-                                            <button 
-                                                onClick={() => setEarnAmount(prev => Math.min(10, prev + 1))}
-                                                className="w-10 h-10 rounded-xl bg-amber-600 hover:bg-amber-700 text-espresso-950 flex items-center justify-center cursor-pointer"
-                                            >
-                                                <Plus size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
+                                    {/* 스탬프 개수 가감제어 또는 복합 품목 카운터 */}
+                                    {(() => {
+                                        const cfg = storeConfigs.find(c => c.id === selectedConfigId);
+                                        let parsedItemsConfig = cfg?.itemsConfig;
+                                        if (typeof parsedItemsConfig === 'string') {
+                                            try {
+                                                parsedItemsConfig = JSON.parse(parsedItemsConfig);
+                                            } catch (e) {
+                                                parsedItemsConfig = null;
+                                            }
+                                        }
+                                        const isPromotion = cfg && parsedItemsConfig && Array.isArray(parsedItemsConfig);
+
+                                        if (isPromotion) {
+                                            return (
+                                                <div className="bg-espresso-950 p-4 rounded-2xl border border-espresso-800 space-y-4">
+                                                    <span className="text-xs text-espresso-200 block text-center font-bold">품목별 적립 수량 조절</span>
+                                                    <div className="space-y-2">
+                                                        {parsedItemsConfig.map((item: any) => {
+                                                            const currentQty = earnItems[item.key] || 0;
+                                                            return (
+                                                                <div key={item.key} className="flex justify-between items-center bg-espresso-900/40 p-3 rounded-xl border border-espresso-800/60">
+                                                                    <div className="text-left">
+                                                                        <span className="font-bold text-xs text-espresso-50">{item.label}</span>
+                                                                        <p className="text-[9px] text-espresso-300">목표 수량: {item.target}개</p>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-3">
+                                                                        <button 
+                                                                            onClick={() => setEarnItems(prev => ({ ...prev, [item.key]: Math.max(0, currentQty - 1) }))}
+                                                                            className="w-8 h-8 rounded-lg bg-espresso-900 border border-espresso-750 text-espresso-200 flex items-center justify-center active:scale-90 transition-all cursor-pointer"
+                                                                        >
+                                                                            <Minus size={12} />
+                                                                        </button>
+                                                                        <span className="font-mono text-sm font-black text-amber-500 w-6 text-center">{currentQty}</span>
+                                                                        <button 
+                                                                            onClick={() => setEarnItems(prev => ({ ...prev, [item.key]: Math.min(10, currentQty + 1) }))}
+                                                                            className="w-8 h-8 rounded-lg bg-[#D4AF37] text-espresso-950 flex items-center justify-center active:scale-90 transition-all cursor-pointer"
+                                                                        >
+                                                                            <Plus size={12} />
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                    <div className="text-right text-[10px] text-espresso-300">
+                                                        총 적립 예정: <span className="text-amber-500 font-bold">{Object.values(earnItems).reduce((a, b) => a + b, 0)}개</span> 스탬프
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+
+                                        // 기존 단일 카운터
+                                        return (
+                                            <div className="bg-espresso-950 p-4 rounded-2xl border border-espresso-800 text-center space-y-3">
+                                                <span className="text-xs text-espresso-200 block">스탬프 적립 수량 조절</span>
+                                                <div className="flex justify-center items-center gap-6">
+                                                    <button 
+                                                        onClick={() => setEarnAmount(prev => Math.max(1, prev - 1))}
+                                                        className="w-10 h-10 rounded-xl bg-espresso-900 hover:bg-espresso-800 border border-espresso-700 text-espresso-50 flex items-center justify-center cursor-pointer"
+                                                    >
+                                                        <Minus size={16} />
+                                                    </button>
+                                                    <span className="font-mono text-2xl font-black text-amber-500 w-12">{earnAmount}</span>
+                                                    <button 
+                                                        onClick={() => setEarnAmount(prev => Math.min(10, prev + 1))}
+                                                        className="w-10 h-10 rounded-xl bg-amber-600 hover:bg-amber-700 text-espresso-950 flex items-center justify-center cursor-pointer"
+                                                    >
+                                                        <Plus size={16} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
 
                                     <button 
                                         onClick={handlePosEarn}
                                         disabled={isLoading}
                                         className="w-full py-4 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-sm rounded-xl transition-all shadow-md active:scale-98 cursor-pointer flex justify-center items-center gap-1.5"
                                     >
-                                        <Coffee size={16} /> {isLoading ? "적립 처리 중..." : "스탬프 적립 전송 및 완료"}
+                                        <Coffee size={16} /> {(() => {
+                                            if (isLoading) return "적립 처리 중...";
+                                            const cfg = storeConfigs.find(c => c.id === selectedConfigId);
+                                            let parsedItemsConfig = cfg?.itemsConfig;
+                                            if (typeof parsedItemsConfig === 'string') {
+                                                try {
+                                                    parsedItemsConfig = JSON.parse(parsedItemsConfig);
+                                                } catch (e) {
+                                                    parsedItemsConfig = null;
+                                                }
+                                            }
+                                            const isPromotion = cfg && parsedItemsConfig && Array.isArray(parsedItemsConfig);
+                                            if (isPromotion) {
+                                                const totalQty = Object.values(earnItems).reduce((sum, val) => sum + val, 0);
+                                                return `${totalQty}개 스탬프 적립 전송 및 완료`;
+                                            }
+                                            return `${earnAmount}개 스탬프 적립 전송 및 완료`;
+                                        })()}
                                     </button>
                                 </div>
                             </div>
