@@ -131,8 +131,9 @@ export default function CoffeeTalk() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [expandedPosts, setExpandedPosts] = useState<Set<string>>(new Set());
-  const [isLiked, setIsLiked] = useState<Record<string, boolean>>(globalFeedCache[initialFilter]?.likes || {});
-  const [isBookmarked, setIsBookmarked] = useState<Record<string, boolean>>(globalFeedCache[initialFilter]?.bookmarks || {});
+  const initialCacheKey = initialFilter + '_latest';
+  const [isLiked, setIsLiked] = useState<Record<string, boolean>>(globalFeedCache[initialCacheKey]?.likes || {});
+  const [isBookmarked, setIsBookmarked] = useState<Record<string, boolean>>(globalFeedCache[initialCacheKey]?.bookmarks || {});
   const [hiddenAnnouncements, setHiddenAnnouncements] = useState<string[]>([]);
   const [unreadAnnouncementsCount, setUnreadAnnouncementsCount] = useState(0);
   const [unreadClubsBadge, setUnreadClubsBadge] = useState(false);
@@ -152,8 +153,8 @@ export default function CoffeeTalk() {
       }
   } catch {}
 
-  const [posts, setPosts] = useState<Post[]>(globalFeedCache[initialFilter]?.posts || []);
-  const [isLoading, setIsLoading] = useState(!globalFeedCache[initialFilter]?.posts);
+  const [posts, setPosts] = useState<Post[]>(globalFeedCache[initialCacheKey]?.posts || []);
+  const [isLoading, setIsLoading] = useState(!globalFeedCache[initialCacheKey]?.posts);
 
 
   // New Post Modal State
