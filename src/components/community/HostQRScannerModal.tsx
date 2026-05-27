@@ -36,7 +36,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                 });
                 if (meRes.ok) {
                     const meData = await meRes.json();
-                    const storeRes = await fetch(`${API_BASE}/api/shops`, {
+                    const storeRes = await fetch(`${API_BASE}/api/shops/my`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (storeRes.ok) {
