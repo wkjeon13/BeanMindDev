@@ -259,7 +259,7 @@ export default function Profile() {
         const token = localStorage.getItem('token');
         if (!token) return;
         try {
-            const cardRes = await fetch(`${API_BASE}/api/stamps/cards/my`, {
+            const cardRes = await fetch(`${API_BASE}/api/stamps/cards/my?_t=${Date.now()}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (cardRes.ok) {
@@ -267,7 +267,7 @@ export default function Profile() {
                 setMyStampCards(cardData);
             }
             
-            const couponRes = await fetch(`${API_BASE}/api/stamps/coupons/my`, {
+            const couponRes = await fetch(`${API_BASE}/api/stamps/coupons/my?_t=${Date.now()}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (couponRes.ok) {
@@ -2141,8 +2141,13 @@ export default function Profile() {
                                                             </div>
                                                         ))}
                                                     </div>
-                                                    <div className="text-right pt-1">
-                                                        <span className="text-[10px] text-espresso-300">완성 횟수: <span className="text-amber-500 font-bold">{card.completedCount}회</span></span>
+                                                    <div className="flex justify-between items-center pt-1.5 border-t border-espresso-800/40 mt-1">
+                                                        <span className="text-[9.5px] text-espresso-300">
+                                                            총 누적 적립: <span className="text-[#D4AF37] font-black font-mono">{(card.completedCount * card.maxStamps) + card.currentStamps}개</span>
+                                                        </span>
+                                                        <span className="text-[9.5px] text-espresso-300">
+                                                            완성 횟수: <span className="text-amber-500 font-black">{card.completedCount}회</span>
+                                                        </span>
                                                     </div>
                                                 </div>
                                             );
