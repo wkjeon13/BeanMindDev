@@ -1881,199 +1881,78 @@ export default function Profile() {
                         )}
                     </section>
 
-                    {/* Taste Matrix (Radar Chart) */}
-                    {isAuthenticated && tasteMatrix && (
-                        <section className="bg-[#1e1e21] rounded-2xl border border-amber-500/50 overflow-hidden relative shadow-lg">
-                            <div className="px-5 py-4 flex items-center justify-between border-b border-espresso-700">
-                                <div className="flex items-center gap-2">
-                                    <span className="text-amber-500 font-serif font-bold text-lg pt-0.5" style={{lineHeight: 1}}>✨</span>
-                                    <span className="font-bold text-[15px] text-amber-500 tracking-tight">{t('profile.title_taste_matrix', '마이 취향 매트릭스')}</span>
+                    {/* STORE & ADS MANAGEMENT (Host Only) */}
+                    {isAuthenticated && currentUser?.role === 'OWNER' && (
+                        <div className="space-y-4 mt-6 p-6 bg-gradient-to-br from-espresso-900 to-[#150f0b] rounded-[2rem] border border-amber-500/40 relative shadow-2xl">
+                            <div className="flex items-center justify-between mb-2">
+                                <div>
+                                    <h3 className="text-lg font-serif font-black text-amber-500 tracking-tight flex items-center gap-1.5">
+                                        💼 Business Center
+                                    </h3>
+                                    <p className="text-[11px] text-espresso-200">매장 정보 관리 및 모바일 웹 POS 시스템</p>
                                 </div>
-                                <Link to="/profile/tasting-note" className="text-xs bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-full font-bold">
-                                    {t('profile.btn_write_note', '+ 노트 작성')}
-                                </Link>
+                                <span className="text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded text-[9px] font-mono font-bold tracking-widest uppercase">HOST</span>
                             </div>
-                            <div className="p-5 flex flex-col items-center">
-                                <div className="w-full h-64 min-h-[250px] min-w-[250px]">
-                                    <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
-                                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={tasteMatrix.matrix}>
-                                            <PolarGrid stroke="#3f3f46" />
-                                            <PolarAngleAxis dataKey="subject" tick={{ fill: '#a1a1aa', fontSize: 12, fontWeight: 'bold' }} tickFormatter={(tick) => {
-                                                const map: Record<string, string> = {
-                                                    '산미': t('profile.radar_acidity', '산미 (Acidity)'),
-                                                    '단맛': t('profile.radar_sweetness', '단맛 (Sweetness)'),
-                                                    '쓴맛': t('profile.radar_bitterness', '쓴맛 (Bitterness)'),
-                                                    '바디감': t('profile.radar_body', '바디감 (Body)'),
-                                                    '아로마': t('profile.radar_aroma', '아로마 (Aroma)')
-                                                };
-                                                return map[tick] || tick;
-                                            }} />
-                                            <PolarRadiusAxis angle={30} domain={[0, 5]} tick={false} axisLine={false} />
-                                            <Radar
-                                                name="Taste"
-                                                dataKey="A"
-                                                stroke="#f59e0b"
-                                                strokeWidth={2}
-                                                fill="#f59e0b"
-                                                fillOpacity={0.4}
-                                            />
-                                        </RadarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                                {tasteMatrix.recentTags && tasteMatrix.recentTags.length > 0 && (
-                                    <div className="mt-4 w-full">
-                                        <div className="text-[11px] font-bold text-gray-500 mb-2">{t('profile.lbl_recent_tags', '최근 기록된 풍미 태그')}</div>
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {tasteMatrix.recentTags.map((tag: string, i: number) => (
-                                                <span key={i} className="px-2 py-1 bg-white/5 border border-white/10 text-gray-300 rounded-md text-[10px]">
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </section>
-                    )}
 
-                    {/* Taste Profile Editor */}
-                    {isAuthenticated && (
-                        <section className="bg-espresso-900 rounded-2xl border border-espresso-700 overflow-hidden">
-                            <button 
-                                onClick={() => setIsTasteProfileOpen(!isTasteProfileOpen)} 
-                                className="w-full px-5 py-4 flex items-center justify-between active:bg-espresso-950 transition-colors"
+                            {/* Manage Existing Shop */}
+                            <div className="bg-espresso-950/40 rounded-2xl border border-amber-500/20 overflow-hidden shadow-sm group">
+                                <button onClick={() => navigate('/profile/manage-shop')} className="w-full px-5 py-4 flex items-center justify-between active:bg-espresso-950 transition-colors">
+                                    <span className="font-bold text-[15px] text-espresso-50 group-hover:text-amber-400 transition-colors">{t('profile.menu_manage_shop')}</span>
+                                    <ChevronRight size={18} className="text-espresso-300 group-hover:text-amber-400 transition-colors" />
+                                </button>
+                            </div>
+
+                            {/* B2B Web Dashboard & Host QR Stamp Scanner */}
+                            <div className="grid grid-cols-2 gap-3">
+                                <button 
+                                    onClick={() => navigate('/profile/host-web')} 
+                                    className="flex flex-col items-center justify-center p-5 bg-[#140e0b]/40 border border-amber-500/30 rounded-2xl active:scale-[0.98] transition-all hover:bg-[#140e0b]/60 cursor-pointer text-left w-full"
+                                >
+                                    <Database size={22} className="text-amber-400 mb-2" />
+                                    <span className="font-bold text-[13px] text-espresso-50">웹 POS 대시보드</span>
+                                    <span className="text-[10px] text-espresso-300 mt-1">정책설정 & B2B 통계</span>
+                                </button>
+                                <button 
+                                    onClick={() => setIsHostScannerOpen(true)} 
+                                    className="flex flex-col items-center justify-center p-5 bg-[#140e0b]/40 border border-amber-500/30 rounded-2xl active:scale-[0.98] transition-all hover:bg-[#140e0b]/60 cursor-pointer text-left w-full"
+                                >
+                                    <Coffee size={22} className="text-amber-400 mb-2" />
+                                    <span className="font-bold text-[13px] text-espresso-50">점주용 QR 스캐너</span>
+                                    <span className="text-[10px] text-espresso-300 mt-1">스탬프 적립 및 취소</span>
+                                </button>
+                            </div>
+
+                            {/* Add New Shop */}
+                            <button
+                                onClick={() => navigate('/register')}
+                                className="w-full bg-[#140e0b]/30 border border-amber-500/20 rounded-2xl p-4 flex flex-col gap-2 items-start active:scale-[0.98] transition-all hover:bg-[#140e0b]/50 group"
                             >
-                                <div className="flex items-center gap-2">
-                                    <span className="text-amber-500 font-serif font-bold text-lg text-center pt-0.5" style={{lineHeight: 1}}>☕</span>
-                                    <span className="font-bold text-[15px] text-amber-500 tracking-tight">{t('profile.menu_taste_profile', '내 커피 취향 (Taste Profile)')}</span>
+                                <div className="flex justify-between w-full">
+                                    <div className="bg-espresso-950/60 p-2.5 rounded-xl text-espresso-200 shadow-sm border border-espresso-800 group-hover:scale-105 transition-transform">
+                                        <Store size={20} />
+                                    </div>
+                                    <div className="text-espresso-300 bg-[#140e0b]/60 px-2 py-1 rounded text-[10px] font-bold tracking-widest uppercase">
+                                        {t('profile.owner_banner')}
+                                    </div>
                                 </div>
-                                <motion.div animate={{ rotate: isTasteProfileOpen ? 90 : 0 }} transition={{ duration: 0.2 }}>
-                                    <ChevronRight size={18} className="text-amber-500/80" />
-                                </motion.div>
+                                <div className="text-left mt-1">
+                                    <h3 className="font-serif font-bold text-[15px] text-espresso-50">{t('profile.owner_add_shop')}</h3>
+                                    <p className="text-[11px] text-espresso-200 leading-relaxed mt-1 break-keep">
+                                        {t('profile.owner_add_shop_desc').split('\n').map((line, i) => (
+                                            <React.Fragment key={i}>
+                                                {line}
+                                                <br />
+                                            </React.Fragment>
+                                        ))}
+                                    </p>
+                                </div>
                             </button>
-                            <AnimatePresence>
-                                {isTasteProfileOpen && (
-                                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-espresso-950/30 px-5 pb-5 pt-2">
-                                        <p className="text-[12px] text-espresso-200 mb-5 leading-relaxed">
-                                            {t('profile.taste_desc', '설정하신 프로필은 커뮤니티의 취향 매칭 피드에 반영되어 나와 가장 잘 맞는 스페셜티 커피를 찾아줍니다.')}
-                                        </p>
-                                        
-                                        {/* Sliders */}
-                                        <div className="space-y-4">
-                                            {[
-                                                { label: t('profile.taste_acidity', '산미 (Acidity)'), key: 'acidity', color: 'from-yellow-500 to-amber-400' },
-                                                { label: t('profile.taste_sweetness', '단맛 (Sweetness)'), key: 'sweetness', color: 'from-orange-500 to-amber-500' },
-                                                { label: t('profile.taste_bitterness', '쓴맛 (Bitterness)'), key: 'bitterness', color: 'from-amber-700 to-amber-800' },
-                                                { label: t('profile.taste_body', '바디감 (Body)'), key: 'body', color: 'from-amber-600 to-amber-700' },
-                                            ].map(({ label, key, color }) => (
-                                                <div key={key}>
-                                                    <div className="flex justify-between items-end mb-1.5">
-                                                        <span className="text-[13px] font-bold text-espresso-100">{label}</span>
-                                                        <span className="text-[12px] font-medium text-amber-500">{t('profile.lbl_taste_points', { points: tastePref[key as keyof typeof tastePref] })}</span>
-                                                    </div>
-                                                    <input
-                                                        type="range"
-                                                        min="0" max="5" step="0.5"
-                                                        value={tastePref[key as keyof typeof tastePref]}
-                                                        onChange={(e) => setTastePref({ ...tastePref, [key]: parseFloat(e.target.value) })}
-                                                        className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-espresso-800"
-                                                        style={{ 
-                                                            background: `linear-gradient(to right, #f59e0b 0%, #d97706 ${(Number(tastePref[key as keyof typeof tastePref])/5)*100}%, #27272a ${(Number(tastePref[key as keyof typeof tastePref])/5)*100}%, #27272a 100%)` 
-                                                        }}
-                                                    />
-                                                    <div className="flex justify-between px-1 mt-1">
-                                                        <span className="text-[10px] text-espresso-300">{t('profile.lbl_low')}</span>
-                                                        <span className="text-[10px] text-espresso-300">{t('profile.lbl_high')}</span>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {/* 향(Aroma) 선호도 다중 선택 구역 */}
-                                        <div className="pt-6 pb-6 mt-4 border-t border-b border-espresso-700">
-                                            <div className="flex justify-between items-center mb-3 text-sm">
-                                                <span className="font-bold text-espresso-50 flex items-center gap-2">
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500"><path d="M11 6c-2 0-3 1-3 3s1 3 3 3 3-1 3-3-1-3-3-3z"></path><path d="M12 21v-4"></path><path d="M9 13.5l-3 5.5"></path><path d="M15 13.5l3 5.5"></path></svg>
-                                                    {t('profile.lbl_aroma_notes', '선호하는 향 노트 (Aroma)')}
-                                                </span>
-                                                <span className="text-amber-500 font-bold border-b border-amber-500/30 pb-0.5">{t('profile.lbl_max_3', '최대 3개')}</span>
-                                            </div>
-                                            <div className="flex flex-wrap gap-2">
-                                                {AROMA_TAGS.map(tag => {
-                                                    const currentTags = tastePref.aroma ? tastePref.aroma.split(',').filter(Boolean) : [];
-                                                    const isSelected = currentTags.includes(tag);
-                                                    return (
-                                                        <button
-                                                            key={tag}
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                let newTags = [...currentTags];
-                                                                if (isSelected) {
-                                                                    newTags = newTags.filter(t => t !== tag);
-                                                                } else {
-                                                                    if (newTags.length >= 3) {
-                                                                        alert(t('profile.msg_aroma_max', '최대 3개까지만 선택 가능합니다.'));
-                                                                        return;
-                                                                    }
-                                                                    newTags.push(tag);
-                                                                }
-                                                                setTastePref({...tastePref, aroma: newTags.join(',')});
-                                                            }}
-                                                            className={`px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${isSelected ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' : 'bg-espresso-800 text-espresso-300 border-espresso-700 hover:border-espresso-600'}`}
-                                                        >
-                                                            {isSelected && <span className="mr-1">✓</span>}
-                                                            {getAromaLabel(tag)}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-
-                                        <button 
-                                            onClick={async () => {
-                                                setIsLoading(true);
-                                                try {
-                                                    const res = await fetch(`${API_BASE}/api/users/me/taste`, {
-                                                        method: 'PUT',
-                                                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-                                                        body: JSON.stringify({
-                                                            prefAcidity: tastePref.acidity,
-                                                            prefSweetness: tastePref.sweetness,
-                                                            prefBody: tastePref.body,
-                                                            prefBitterness: tastePref.bitterness,
-                                                            prefAroma: tastePref.aroma
-                                                        })
-                                                    });
-                                                    if (res.ok) {
-                                                        const data = await res.json();
-                                                        localStorage.setItem('user', JSON.stringify(data.user));
-                                                        setCurrentUser(data.user);
-                                                        alert(t('profile.alert_taste_saved', '내 취향이 성공적으로 저장되었습니다!'));
-                                                        setIsTasteProfileOpen(false);
-                                                    } else {
-                                                        alert(t('profile.alert_save_fail', '저장에 실패했습니다.'));
-                                                    }
-                                                } catch (err) {
-                                                    alert(t('profile.alert_error', '오류가 발생했습니다.'));
-                                                } finally {
-                                                    setIsLoading(false);
-                                                }
-                                            }}
-                                            disabled={isLoading}
-                                            className="mt-6 w-full py-3 bg-[#1e1e21] border border-amber-500/50 text-amber-500 font-bold text-[14px] rounded-xl active:scale-95 transition-all hover:bg-amber-500/10"
-                                        >
-                                            {isLoading ? t('profile.btn_saving', '저장 중...') : t('profile.btn_save_taste', '적용 및 취향 저장하기')}
-                                        </button>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </section>
+                        </div>
                     )}
-
 
                     {/* 🎫 BeanStamp 스탬프 지갑 */}
                     {isAuthenticated && (
-                        <section className="bg-gradient-to-br from-espresso-900 to-[#1b120c] rounded-[2rem] border border-amber-900/30 overflow-hidden relative shadow-2xl p-6">
+                        <section className="bg-gradient-to-br from-espresso-900 to-[#1b120c] rounded-[2rem] border border-amber-500/40 overflow-hidden relative shadow-2xl p-6 mt-6">
                             <div className="flex justify-between items-center mb-4">
                                 <div>
                                     <h3 className="text-lg font-serif font-black text-amber-500 tracking-tight flex items-center gap-1.5">
@@ -2268,6 +2147,198 @@ export default function Profile() {
                             )}
                         </section>
                     )}
+
+                    {/* Taste Matrix (Radar Chart) */}
+                    {isAuthenticated && tasteMatrix && (
+                        <section className="bg-[#1e1e21] rounded-2xl border border-amber-500/50 overflow-hidden relative shadow-lg">
+                            <div className="px-5 py-4 flex items-center justify-between border-b border-espresso-700">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-amber-500 font-serif font-bold text-lg pt-0.5" style={{lineHeight: 1}}>✨</span>
+                                    <span className="font-bold text-[15px] text-amber-500 tracking-tight">{t('profile.title_taste_matrix', '마이 취향 매트릭스')}</span>
+                                </div>
+                                <Link to="/profile/tasting-note" className="text-xs bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-full font-bold">
+                                    {t('profile.btn_write_note', '+ 노트 작성')}
+                                </Link>
+                            </div>
+                            <div className="p-5 flex flex-col items-center">
+                                <div className="w-full h-64 min-h-[250px] min-w-[250px]">
+                                    <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
+                                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={tasteMatrix.matrix}>
+                                            <PolarGrid stroke="#3f3f46" />
+                                            <PolarAngleAxis dataKey="subject" tick={{ fill: '#a1a1aa', fontSize: 12, fontWeight: 'bold' }} tickFormatter={(tick) => {
+                                                const map: Record<string, string> = {
+                                                    '산미': t('profile.radar_acidity', '산미 (Acidity)'),
+                                                    '단맛': t('profile.radar_sweetness', '단맛 (Sweetness)'),
+                                                    '쓴맛': t('profile.radar_bitterness', '쓴맛 (Bitterness)'),
+                                                    '바디감': t('profile.radar_body', '바디감 (Body)'),
+                                                    '아로마': t('profile.radar_aroma', '아로마 (Aroma)')
+                                                };
+                                                return map[tick] || tick;
+                                            }} />
+                                            <PolarRadiusAxis angle={30} domain={[0, 5]} tick={false} axisLine={false} />
+                                            <Radar
+                                                name="Taste"
+                                                dataKey="A"
+                                                stroke="#f59e0b"
+                                                strokeWidth={2}
+                                                fill="#f59e0b"
+                                                fillOpacity={0.4}
+                                            />
+                                        </RadarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                                {tasteMatrix.recentTags && tasteMatrix.recentTags.length > 0 && (
+                                    <div className="mt-4 w-full">
+                                        <div className="text-[11px] font-bold text-gray-500 mb-2">{t('profile.lbl_recent_tags', '최근 기록된 풍미 태그')}</div>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {tasteMatrix.recentTags.map((tag: string, i: number) => (
+                                                <span key={i} className="px-2 py-1 bg-white/5 border border-white/10 text-gray-300 rounded-md text-[10px]">
+                                                    {tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+                    )}
+
+                    {/* Taste Profile Editor */}
+                    {isAuthenticated && (
+                        <section className="bg-espresso-900 rounded-2xl border border-espresso-700 overflow-hidden">
+                            <button 
+                                onClick={() => setIsTasteProfileOpen(!isTasteProfileOpen)} 
+                                className="w-full px-5 py-4 flex items-center justify-between active:bg-espresso-950 transition-colors"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <span className="text-amber-500 font-serif font-bold text-lg text-center pt-0.5" style={{lineHeight: 1}}>☕</span>
+                                    <span className="font-bold text-[15px] text-amber-500 tracking-tight">{t('profile.menu_taste_profile', '내 커피 취향 (Taste Profile)')}</span>
+                                </div>
+                                <motion.div animate={{ rotate: isTasteProfileOpen ? 90 : 0 }} transition={{ duration: 0.2 }}>
+                                    <ChevronRight size={18} className="text-amber-500/80" />
+                                </motion.div>
+                            </button>
+                            <AnimatePresence>
+                                {isTasteProfileOpen && (
+                                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-espresso-950/30 px-5 pb-5 pt-2">
+                                        <p className="text-[12px] text-espresso-200 mb-5 leading-relaxed">
+                                            {t('profile.taste_desc', '설정하신 프로필은 커뮤니티의 취향 매칭 피드에 반영되어 나와 가장 잘 맞는 스페셜티 커피를 찾아줍니다.')}
+                                        </p>
+                                        
+                                        {/* Sliders */}
+                                        <div className="space-y-4">
+                                            {[
+                                                { label: t('profile.taste_acidity', '산미 (Acidity)'), key: 'acidity', color: 'from-yellow-500 to-amber-400' },
+                                                { label: t('profile.taste_sweetness', '단맛 (Sweetness)'), key: 'sweetness', color: 'from-orange-500 to-amber-500' },
+                                                { label: t('profile.taste_bitterness', '쓴맛 (Bitterness)'), key: 'bitterness', color: 'from-amber-700 to-amber-800' },
+                                                { label: t('profile.taste_body', '바디감 (Body)'), key: 'body', color: 'from-amber-600 to-amber-700' },
+                                            ].map(({ label, key, color }) => (
+                                                <div key={key}>
+                                                    <div className="flex justify-between items-end mb-1.5">
+                                                        <span className="text-[13px] font-bold text-espresso-100">{label}</span>
+                                                        <span className="text-[12px] font-medium text-amber-500">{t('profile.lbl_taste_points', { points: tastePref[key as keyof typeof tastePref] })}</span>
+                                                    </div>
+                                                    <input
+                                                        type="range"
+                                                        min="0" max="5" step="0.5"
+                                                        value={tastePref[key as keyof typeof tastePref]}
+                                                        onChange={(e) => setTastePref({ ...tastePref, [key]: parseFloat(e.target.value) })}
+                                                        className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-espresso-800"
+                                                        style={{ 
+                                                            background: `linear-gradient(to right, #f59e0b 0%, #d97706 ${(Number(tastePref[key as keyof typeof tastePref])/5)*100}%, #27272a ${(Number(tastePref[key as keyof typeof tastePref])/5)*100}%, #27272a 100%)` 
+                                                        }}
+                                                    />
+                                                    <div className="flex justify-between px-1 mt-1">
+                                                        <span className="text-[10px] text-espresso-300">{t('profile.lbl_low')}</span>
+                                                        <span className="text-[10px] text-espresso-300">{t('profile.lbl_high')}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* 향(Aroma) 선호도 다중 선택 구역 */}
+                                        <div className="pt-6 pb-6 mt-4 border-t border-b border-espresso-700">
+                                            <div className="flex justify-between items-center mb-3 text-sm">
+                                                <span className="font-bold text-espresso-50 flex items-center gap-2">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500"><path d="M11 6c-2 0-3 1-3 3s1 3 3 3 3-1 3-3-1-3-3-3z"></path><path d="M12 21v-4"></path><path d="M9 13.5l-3 5.5"></path><path d="M15 13.5l3 5.5"></path></svg>
+                                                    {t('profile.lbl_aroma_notes', '선호하는 향 노트 (Aroma)')}
+                                                </span>
+                                                <span className="text-amber-500 font-bold border-b border-amber-500/30 pb-0.5">{t('profile.lbl_max_3', '최대 3개')}</span>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2">
+                                                {AROMA_TAGS.map(tag => {
+                                                    const currentTags = tastePref.aroma ? tastePref.aroma.split(',').filter(Boolean) : [];
+                                                    const isSelected = currentTags.includes(tag);
+                                                    return (
+                                                        <button
+                                                            key={tag}
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                let newTags = [...currentTags];
+                                                                if (isSelected) {
+                                                                    newTags = newTags.filter(t => t !== tag);
+                                                                } else {
+                                                                    if (newTags.length >= 3) {
+                                                                        alert(t('profile.msg_aroma_max', '최대 3개까지만 선택 가능합니다.'));
+                                                                        return;
+                                                                    }
+                                                                    newTags.push(tag);
+                                                                }
+                                                                setTastePref({...tastePref, aroma: newTags.join(',')});
+                                                            }}
+                                                            className={`px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${isSelected ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' : 'bg-espresso-800 text-espresso-300 border-espresso-700 hover:border-espresso-600'}`}
+                                                        >
+                                                            {isSelected && <span className="mr-1">✓</span>}
+                                                            {getAromaLabel(tag)}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+
+                                        <button 
+                                            onClick={async () => {
+                                                setIsLoading(true);
+                                                try {
+                                                    const res = await fetch(`${API_BASE}/api/users/me/taste`, {
+                                                        method: 'PUT',
+                                                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+                                                        body: JSON.stringify({
+                                                            prefAcidity: tastePref.acidity,
+                                                            prefSweetness: tastePref.sweetness,
+                                                            prefBody: tastePref.body,
+                                                            prefBitterness: tastePref.bitterness,
+                                                            prefAroma: tastePref.aroma
+                                                        })
+                                                    });
+                                                    if (res.ok) {
+                                                        const data = await res.json();
+                                                        localStorage.setItem('user', JSON.stringify(data.user));
+                                                        setCurrentUser(data.user);
+                                                        alert(t('profile.alert_taste_saved', '내 취향이 성공적으로 저장되었습니다!'));
+                                                        setIsTasteProfileOpen(false);
+                                                    } else {
+                                                        alert(t('profile.alert_save_fail', '저장에 실패했습니다.'));
+                                                    }
+                                                } catch (err) {
+                                                    alert(t('profile.alert_error', '오류가 발생했습니다.'));
+                                                } finally {
+                                                    setIsLoading(false);
+                                                }
+                                            }}
+                                            disabled={isLoading}
+                                            className="mt-6 w-full py-3 bg-[#1e1e21] border border-amber-500/50 text-amber-500 font-bold text-[14px] rounded-xl active:scale-95 transition-all hover:bg-amber-500/10"
+                                        >
+                                            {isLoading ? t('profile.btn_saving', '저장 중...') : t('profile.btn_save_taste', '적용 및 취향 저장하기')}
+                                        </button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </section>
+                    )}
+
+
+
 
                     <div className="my-6"></div>
 
@@ -2626,70 +2697,7 @@ export default function Profile() {
                     
 
 
-                    {/* STORE & ADS MANAGEMENT (Host Only) */}
-                    {isAuthenticated && currentUser?.role === 'OWNER' && (
-                        <div className="space-y-4 mt-12 pt-8 pb-4 border-t border-espresso-700 relative">
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-espresso-950 px-4">
-                                <span className="text-amber-500/80 font-bold text-[11px] tracking-widest uppercase flex items-center gap-1.5"><Store size={12} /> Business Center</span>
-                            </div>
 
-                            {/* Manage Existing Shop */}
-                            <div className="bg-espresso-900 rounded-2xl border border-espresso-700 overflow-hidden mt-4 shadow-sm group">
-                                <button onClick={() => navigate('/profile/manage-shop')} className="w-full px-5 py-4 flex items-center justify-between active:bg-espresso-950 transition-colors">
-                                    <span className="font-bold text-[15px] text-espresso-50 group-hover:text-amber-400 transition-colors">{t('profile.menu_manage_shop')}</span>
-                                    <ChevronRight size={18} className="text-espresso-300 group-hover:text-amber-400 transition-colors" />
-                                </button>
-                            </div>
-
-                            {/* B2B Web Dashboard & Host QR Stamp Scanner */}
-                            <div className="grid grid-cols-2 gap-3 mt-2">
-                                <button 
-                                    onClick={() => navigate('/profile/host-web')} 
-                                    className="flex flex-col items-center justify-center p-5 bg-gradient-to-br from-amber-950/20 to-espresso-900 border border-amber-500/20 rounded-2xl active:scale-[0.98] transition-all hover:bg-espresso-850 cursor-pointer text-left w-full"
-                                >
-                                    <Database size={22} className="text-amber-400 mb-2" />
-                                    <span className="font-bold text-[13px] text-espresso-50">웹 POS 대시보드</span>
-                                    <span className="text-[10px] text-espresso-300 mt-1">정책설정 & B2B 통계</span>
-                                </button>
-                                <button 
-                                    onClick={() => setIsHostScannerOpen(true)} 
-                                    className="flex flex-col items-center justify-center p-5 bg-gradient-to-br from-amber-950/20 to-espresso-900 border border-amber-500/20 rounded-2xl active:scale-[0.98] transition-all hover:bg-espresso-850 cursor-pointer text-left w-full"
-                                >
-                                    <Coffee size={22} className="text-amber-400 mb-2" />
-                                    <span className="font-bold text-[13px] text-espresso-50">점주용 QR 스캐너</span>
-                                    <span className="text-[10px] text-espresso-300 mt-1">스탬프 적립 및 취소</span>
-                                </button>
-                            </div>
-
-                            {/* Add New Shop */}
-                            <section className="pt-2 pb-6">
-                                <button
-                                    onClick={() => navigate('/register')}
-                                    className="w-full bg-espresso-950 border-2 border-espresso-700 rounded-[2rem] p-5 flex flex-col gap-2 items-start active:scale-[0.98] transition-all hover:bg-espresso-900 group"
-                                >
-                                    <div className="flex justify-between w-full">
-                                        <div className="bg-espresso-900 p-2.5 rounded-xl text-espresso-200 shadow-sm border border-espresso-700 group-hover:scale-105 transition-transform">
-                                            <Store size={22} />
-                                        </div>
-                                        <div className="text-espresso-300 bg-espresso-900/50 px-2 py-1 rounded text-[10px] font-bold tracking-widest uppercase">
-                                            {t('profile.owner_banner')}
-                                        </div>
-                                    </div>
-                                    <div className="text-left mt-1">
-                                        <h3 className="font-serif font-bold text-lg text-espresso-50">{t('profile.owner_add_shop')}</h3>
-                                        <p className="text-[13px] text-espresso-100 font-medium leading-relaxed mt-1 break-keep">
-                                            {t('profile.owner_add_shop_desc').split('\n').map((line, i) => (
-                                                <React.Fragment key={i}>
-                                                    {line}
-                                                    <br />
-                                                </React.Fragment>
-                                            ))}
-                                        </p>
-                                    </div>
-                                </button>
-                            </section>
-                        </div>
-                    )}
                     
                     {/* Spacer to push account settings down */}
                     <div className="flex-1"></div>
