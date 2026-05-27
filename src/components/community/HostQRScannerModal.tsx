@@ -25,7 +25,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
     const [isCameraSupported, setIsCameraSupported] = useState(true);
     const [isScanningActive, setIsScanningActive] = useState(false);
 
-    // 1. 점주가 소유한 첫 번째 매장 ID를 임의로 pre-fetch
+    // 1. 점주가 소유한 첫 번째 매장 ID를 임의로 pre-fetch 및 스탬프 정책 자동 개설(Auto-Provisioning)
     useEffect(() => {
         const fetchStoreAndConfigs = async () => {
             const token = localStorage.getItem('token');
@@ -45,9 +45,34 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                             const myStore = stores[0];
                             setStoreId(myStore.id);
                             
-                            const configRes = await fetch(`${API_BASE}/api/stamps/configs/${myStore.id}`);
+                            // 스탬프 정책 목록 조회
+                            let configRes = await fetch(`${API_BASE}/api/stamps/configs/${myStore.id}`);
                             if (configRes.ok) {
-                                const configs = await configRes.json();
+                                let configs = await configRes.json();
+                                
+                                // 💡 자동 개설(Auto-Provisioning): 활성 도장 정책이 단 하나도 없다면 백그라운드에서 기본 꿀도장 정책 즉시 개설!
+                                if (!configs || configs.length === 0) {
+                                    const createRes = await fetch(`${API_BASE}/api/stamps/configs`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${token}`
+                                        },
+                                        body: JSON.stringify({
+                                            storeId: myStore.id,
+                                            cardType: "REGULAR",
+                                            cardTitle: "☕ 아메리카노 단골 도장판",
+                                            maxStamps: 10,
+                                            rewardDesc: "아메리카노 1잔 무료 쿠폰",
+                                            validDays: 90
+                                        })
+                                    });
+                                    if (createRes.ok) {
+                                        const newConfig = await createRes.json();
+                                        configs = [newConfig];
+                                    }
+                                }
+                                
                                 setStampConfigs(configs);
                                 if (configs.length > 0) {
                                     setSelectedConfigId(configs[0].id);
@@ -366,11 +391,15 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                 setScannedUserId(userIdToScan);
                 
                 if (data.cards && data.cards.length > 0) {
-                    const mappedConfigs = data.cards.map((c: any) => c.config);
-                    setStampConfigs(mappedConfigs);
+                    const mappedConfigs = data.cards.map((c: any) => c.config).filter(Boolean);
                     if (mappedConfigs.length > 0) {
+                        setStampConfigs(mappedConfigs);
                         setSelectedConfigId(mappedConfigs[0].id);
+                    } else if (stampConfigs.length > 0) {
+                        setSelectedConfigId(stampConfigs[0].id);
                     }
+                } else if (stampConfigs.length > 0) {
+                    setSelectedConfigId(stampConfigs[0].id);
                 }
                 setScanStep('EARNING');
             } else {
