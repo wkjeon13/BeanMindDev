@@ -405,6 +405,13 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
             return;
         }
 
+        // 💡 지능형 UUID 정규식 정제 필터: URL 전체나 파라미터가 섞여서 오독/스캔되었을 때 순수 36글자 UUID만 정확히 쏙 정출!
+        const uuidRegex = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+        const match = userIdToScan.match(uuidRegex);
+        if (match) {
+            userIdToScan = match[0];
+        }
+
         setIsLoading(true);
         setErrorMessage('');
         

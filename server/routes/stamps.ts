@@ -462,8 +462,16 @@ router.get('/user/:userId/cards', authenticateToken, async (req: any, res: any) 
             select: { id: true, nickname: true, email: true }
         });
 
+        // 💡 미가입 유저 차단 가드: 스캔된 ID가 실제 가입 회원이 아닐 경우 오적립을 원천 차단하고 에러 반환!
+        if (!user) {
+            return res.status(404).json({ 
+                error: "USER_NOT_FOUND", 
+                message: "존재하지 않거나 올바르지 않은 유저 QR 코드 식별자입니다." 
+            });
+        }
+
         res.status(200).json({
-            user: user || { nickname: "임시 고객", email: "" },
+            user: user,
             cards: cardsWithConfig
         });
     } catch (error) {
