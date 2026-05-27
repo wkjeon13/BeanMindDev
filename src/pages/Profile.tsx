@@ -2015,7 +2015,7 @@ export default function Profile() {
                                                             )}
                                                             <div className="min-w-0 flex-1">
                                                                 <h4 className="font-bold text-[14px] text-espresso-50 leading-tight truncate">{card.storeName}</h4>
-                                                                <p className="text-[10px] text-espresso-300 truncate">{card.cardTitle}</p>
+                                                                <p className="text-[10px] text-espresso-300 truncate">{t(card.cardTitle, card.cardTitle) as string}</p>
                                                                 {(() => {
                                                                     const remaining = getStampCardRemainingDays(card.updatedAt, card.validDays || 90);
                                                                     if (remaining === null) return null;

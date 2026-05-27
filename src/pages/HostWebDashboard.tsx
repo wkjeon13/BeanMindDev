@@ -489,7 +489,7 @@ export default function HostWebDashboard() {
                                             <option value="">{t('host_dashboard.opt_select_card_placeholder', '적립 판을 선택하세요.')}</option>
                                             {storeConfigs.map(cfg => (
                                                 <option key={cfg.id} value={cfg.id}>
-                                                    {cfg.cardTitle} ({cfg.cardType === 'REGULAR' ? t('host_dashboard.suffix_regular_card', '일반 스탬프') : t('host_dashboard.suffix_promo_card', '시즌 프로모션')})
+                                                    {t(cfg.cardTitle, cfg.cardTitle) as string} ({cfg.cardType === 'REGULAR' ? t('host_dashboard.suffix_regular_card', '일반 스탬프') : t('host_dashboard.suffix_promo_card', '시즌 프로모션')})
                                                 </option>
                                             ))}
                                         </select>
@@ -597,7 +597,7 @@ export default function HostWebDashboard() {
                                                             {txn.txnType}
                                                         </span>
                                                     </div>
-                                                    <p className="text-[10px] text-espresso-300">{txn.cardTitle}</p>
+                                                    <p className="text-[10px] text-espresso-300">{t(txn.cardTitle, txn.cardTitle) as string}</p>
                                                     <span className="text-[9px] text-espresso-400 block font-mono">{new Date(txn.createdAt).toLocaleString()}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">

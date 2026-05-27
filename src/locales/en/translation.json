@@ -1690,6 +1690,8 @@
         "saving_store": "Updating profile...",
         "alert_rollback_confirm": "Are you sure you want to cancel and rollback [{{name}}]'s recent earning ({{amount}} stamps)?",
         "login_session": "Login Session",
-        "owner_role": "Owner"
+        "owner_role": "Owner",
+        "아메리카노 단골 도장판": "Americano Regular Stamp Card",
+        "☕ 아메리카노 단골 도장판": "☕ Americano Regular Stamp Card"
     }
 }

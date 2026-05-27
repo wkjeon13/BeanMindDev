@@ -801,7 +801,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                                 className="accent-amber-500 hidden"
                                             />
                                             <div>
-                                                <span className="font-bold text-xs">{cfg.cardTitle}</span>
+                                                <span className="font-bold text-xs">{t(cfg.cardTitle, cfg.cardTitle) as string}</span>
                                                 <p className="text-[9px] text-espresso-300 mt-0.5">{t('host_scanner.card_policy_info', { max: cfg.maxStamps, reward: cfg.rewardDesc, defaultValue: `목표: ${cfg.maxStamps}개 | 보상: ${cfg.rewardDesc}` })}</p>
                                             </div>
                                         </div>
