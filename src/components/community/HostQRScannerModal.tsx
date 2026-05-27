@@ -19,6 +19,9 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [successData, setSuccessData] = useState<any>(null);
+    
+    // 💡 비동기 로딩 락 상태: 매장 정보와 적립 정책 바인딩이 끝나기 전 스캔 경쟁 상태를 완벽히 격리
+    const [isStoreLoading, setIsStoreLoading] = useState(true);
 
     // Real Camera Stream States
     const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
@@ -29,7 +32,11 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
     useEffect(() => {
         const fetchStoreAndConfigs = async () => {
             const token = localStorage.getItem('token');
-            if (!token) return;
+            if (!token) {
+                setIsStoreLoading(false);
+                return;
+            }
+            setIsStoreLoading(true);
             try {
                 const meRes = await fetch(`${API_BASE}/api/users/me`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -39,14 +46,32 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                     const storeRes = await fetch(`${API_BASE}/api/shops/my`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
+                    
                     if (storeRes.ok) {
                         const stores = await storeRes.json();
+                        let targetStore = null;
+                        
                         if (stores && stores.length > 0) {
-                            const myStore = stores[0];
-                            setStoreId(myStore.id);
+                            targetStore = stores[0];
+                        } else {
+                            // 💡 점주 소유 매장이 없을 때의 풀백: 전체 매장 API에서 실제 존재하는 첫 번째 매장 ID 획득!
+                            console.warn("No owned stores found for host. Trying global shops fallback...");
+                            const globalStoreRes = await fetch(`${API_BASE}/api/shops`, {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            if (globalStoreRes.ok) {
+                                const globalStores = await globalStoreRes.json();
+                                if (globalStores && globalStores.length > 0) {
+                                    targetStore = globalStores[0];
+                                }
+                            }
+                        }
+
+                        if (targetStore) {
+                            setStoreId(targetStore.id);
                             
                             // 스탬프 정책 목록 조회
-                            let configRes = await fetch(`${API_BASE}/api/stamps/configs/${myStore.id}`);
+                            let configRes = await fetch(`${API_BASE}/api/stamps/configs/${targetStore.id}`);
                             if (configRes.ok) {
                                 let configs = await configRes.json();
                                 
@@ -59,7 +84,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                             'Authorization': `Bearer ${token}`
                                         },
                                         body: JSON.stringify({
-                                            storeId: myStore.id,
+                                            storeId: targetStore.id,
                                             cardType: "REGULAR",
                                             cardTitle: "☕ 아메리카노 단골 도장판",
                                             maxStamps: 10,
@@ -86,6 +111,8 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                 }
             } catch (err) {
                 console.error("Host setup failed:", err);
+            } finally {
+                setIsStoreLoading(false); // 로딩 해제
             }
         };
         fetchStoreAndConfigs();
@@ -532,8 +559,22 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                     </div>
                 )}
 
-                {/* 1단계: 스캔 대기 상태 (실시간 카메라 뷰포트 바인딩) */}
-                {scanStep === 'SCANNING' && (
+                {isStoreLoading ? (
+                    <div className="py-20 flex flex-col items-center justify-center space-y-4 shrink-0">
+                        <motion.div 
+                            animate={{ rotate: 360 }}
+                            transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+                            className="w-10 h-10 border-4 border-amber-500/20 border-t-amber-500 rounded-full"
+                        />
+                        <div className="text-center space-y-1">
+                            <span className="text-xs font-bold text-espresso-200 block">점주 매장 정보 동기화 중...</span>
+                            <p className="text-[10px] text-espresso-400">O2O 단골 적립 정책을 안전하게 연동하고 있습니다. ⏳</p>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        {/* 1단계: 스캔 대기 상태 (실시간 카메라 뷰포트 바인딩) */}
+                        {scanStep === 'SCANNING' && (
                     <div className="space-y-6">
                         <div className="border border-espresso-800 bg-espresso-950/80 rounded-3xl p-2 text-center relative overflow-hidden flex flex-col items-center justify-center space-y-4 min-h-[260px]">
                             {/* 카메라 애니메이션 가이드 라인 */}
@@ -825,6 +866,8 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                             </button>
                         </div>
                     </div>
+                )}
+                    </>
                 )}
             </motion.div>
         </>
