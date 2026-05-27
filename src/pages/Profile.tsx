@@ -24,6 +24,23 @@ import { compressImage } from '../utils/imageUtils';
 export default function Profile() {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
+
+    // 💡 도장판 남은 유효기간 D-Day 계산 헬퍼 함수
+    const getStampCardRemainingDays = (updatedAtStr: string, validDays: number) => {
+        if (!updatedAtStr) return null;
+        const updatedAt = new Date(updatedAtStr);
+        const expireDate = new Date(updatedAt.getTime() + validDays * 24 * 60 * 60 * 1000);
+        const today = new Date();
+        
+        // 날짜 차이 구하기 (시간 부분은 제하고 날짜끼리만 비교)
+        today.setHours(0, 0, 0, 0);
+        expireDate.setHours(0, 0, 0, 0);
+        
+        const diffTime = expireDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        return diffDays >= 0 ? diffDays : 0;
+    };
     const location = useLocation();
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     // JWT auth state
@@ -2117,6 +2134,16 @@ export default function Profile() {
                                                             <div>
                                                                 <h4 className="font-bold text-[14px] text-espresso-50 leading-tight">{card.storeName}</h4>
                                                                 <p className="text-[10px] text-espresso-300">{card.cardTitle}</p>
+                                                                {(() => {
+                                                                    const remaining = getStampCardRemainingDays(card.updatedAt, card.validDays || 90);
+                                                                    if (remaining === null) return null;
+                                                                    const expireDate = new Date(new Date(card.updatedAt).getTime() + (card.validDays || 90) * 24 * 60 * 60 * 1000);
+                                                                    return (
+                                                                        <p className="text-[9px] text-amber-500 font-mono mt-0.5 font-bold">
+                                                                            유효기간: {expireDate.toLocaleDateString()} (D-{remaining})
+                                                                        </p>
+                                                                    );
+                                                                })()}
                                                             </div>
                                                         </div>
                                                         <div className="text-right">
@@ -2210,7 +2237,10 @@ export default function Profile() {
                                                 </div>
                                                 <div className="space-y-1">
                                                     <h4 className="font-bold text-[14px] text-espresso-50">{coupon.storeName} 무료 혜택</h4>
-                                                    <p className="text-[11px] text-[#D4AF37] font-bold">쿠폰 코드: {coupon.couponCode}</p>
+                                                    {coupon.rewardDesc && (
+                                                        <p className="text-[12px] text-amber-400 font-bold mt-0.5">{coupon.rewardDesc}</p>
+                                                    )}
+                                                    <p className="text-[11px] text-[#D4AF37]/80 font-bold">쿠폰 코드: {coupon.couponCode}</p>
                                                     <p className="text-[10px] text-espresso-300">
                                                         만료일: {new Date(coupon.expiresAt).toLocaleDateString()}
                                                     </p>

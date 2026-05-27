@@ -1010,6 +1010,7 @@ model StampCoupon {
   id            String   @id @default(uuid())
   userId        String
   storeId       String
+  configId      String?  // 연계된 스탬프 정책 ID
   couponCode    String   @unique
   status        String   @default("UNUSED") // UNUSED, USED, EXPIRED
   expiresAt     DateTime

@@ -177,6 +177,7 @@ router.post('/earn', authenticateToken, async (req: any, res: any) => {
                         data: {
                             userId,
                             storeId,
+                            configId,
                             couponCode: `STAMP-${uuidv4().substring(0, 8).toUpperCase()}`,
                             status: "UNUSED",
                             expiresAt
@@ -207,6 +208,7 @@ router.post('/earn', authenticateToken, async (req: any, res: any) => {
                         data: {
                             userId,
                             storeId,
+                            configId,
                             couponCode: `STAMP-${uuidv4().substring(0, 8).toUpperCase()}`,
                             status: "UNUSED",
                             expiresAt
@@ -415,16 +417,32 @@ router.get('/coupons/my', authenticateToken, async (req: any, res: any) => {
             orderBy: { expiresAt: 'asc' }
         });
 
-        // 매장 정보 함께 붙여서 전송
+        // 매장 정보 및 정책 리워드 혜택 명칭 함께 붙여서 전송
         const couponsWithStore = await Promise.all(coupons.map(async (coupon) => {
             const store = await prisma.store.findUnique({
                 where: { id: coupon.storeId },
                 select: { name: true, mainImageUrl: true }
             });
+            
+            let rewardDesc = "무료 음료 교환 혜택";
+            let cardTitle = "스탬프 도장판";
+            if (coupon.configId) {
+                const config = await prisma.storeStampConfig.findUnique({
+                    where: { id: coupon.configId },
+                    select: { rewardDesc: true, cardTitle: true }
+                });
+                if (config) {
+                    rewardDesc = config.rewardDesc || rewardDesc;
+                    cardTitle = config.cardTitle || cardTitle;
+                }
+            }
+
             return {
                 ...coupon,
                 storeName: store?.name || "알 수 없는 매장",
-                storeLogo: store?.mainImageUrl || null
+                storeLogo: store?.mainImageUrl || null,
+                rewardDesc,
+                cardTitle
             };
         }));
 
@@ -505,6 +523,7 @@ router.get('/cards/my', authenticateToken, async (req: any, res: any) => {
                 cardType: config?.cardType || "REGULAR",
                 maxStamps: config?.maxStamps || 10,
                 rewardDesc: config?.rewardDesc || "아메리카노 무료 쿠폰",
+                validDays: config?.validDays || 90,
                 storeName: store?.name || "알 수 없는 매장",
                 storeLogo: store?.mainImageUrl || null,
                 itemsConfig: config?.itemsConfig ? JSON.parse(config.itemsConfig) : null,
