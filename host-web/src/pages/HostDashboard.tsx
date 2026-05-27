@@ -1155,24 +1155,24 @@ export default function HostDashboard() {
                                     <div className="space-y-3.5 bg-espresso-950/40 p-4 rounded-2xl border border-espresso-850/50">
                                         <span className="text-[11px] font-black text-espresso-200 block border-b border-espresso-900 pb-1">☕ {t('manage_shop.title_basic_info', '기본 정보')}</span>
                                         
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_shop_name', '매장명')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('register_shop.label_shop_name', '매장명')}</label>
                                             <input 
                                                 type="text" 
                                                 value={editData.name || ''}
                                                 onChange={e => setEditData({ ...editData, name: e.target.value })}
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 font-medium outline-none focus:border-[#D4AF37]/50"
                                                 required
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_address', '매장 주소')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('register_shop.label_address', '매장 주소')}</label>
                                             <input 
                                                 type="text" 
                                                 value={editData.address || ''}
                                                 onChange={e => setEditData({ ...editData, address: e.target.value })}
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 font-medium outline-none focus:border-[#D4AF37]/50"
                                                 required
                                             />
                                         </div>
@@ -1231,20 +1231,20 @@ export default function HostDashboard() {
                                             </div>
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_phone', '매장 대표 연락처')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('register_shop.label_phone', '매장 대표 연락처')}</label>
                                             <input 
                                                 type="text" 
                                                 value={editData.phone || ''}
                                                 onChange={e => setEditData({ ...editData, phone: e.target.value })}
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50 font-mono"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 font-medium outline-none focus:border-[#D4AF37]/50 font-mono"
                                             />
                                         </div>
 
                                         {/* 영업시간 요일별 세부 적용 기능 */}
                                         <div className="space-y-2.5">
                                             <div className="flex justify-between items-end">
-                                                <label className="text-[10px] text-espresso-300 font-bold block">⏰ {t('register_shop.label_hours', '영업시간 세분화')}</label>
+                                                <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">⏰ {t('register_shop.label_hours', '영업시간 세분화')}</label>
                                                 <button 
                                                     type="button"
                                                     onClick={() => {
@@ -1266,9 +1266,9 @@ export default function HostDashboard() {
                                                             
                                                             {!dayHour.isClosed ? (
                                                                 <div className="flex-1 min-w-0 flex items-center gap-1.5">
-                                                                    <input type="time" value={dayHour.open} onChange={e => setDailyHours(prev => prev.map((h, i) => i === idx ? { ...h, open: e.target.value } : h))} className="flex-1 min-w-0 bg-espresso-900 border border-espresso-800 rounded h-7 px-1.5 outline-none text-[10px] font-mono text-espresso-100 focus:border-amber-500/40" />
-                                                                    <span className="text-espresso-500 font-bold shrink-0">-</span>
-                                                                    <input type="time" value={dayHour.close} onChange={e => setDailyHours(prev => prev.map((h, i) => i === idx ? { ...h, close: e.target.value } : h))} className="flex-1 min-w-0 bg-espresso-900 border border-espresso-800 rounded h-7 px-1.5 outline-none text-[10px] font-mono text-espresso-100 focus:border-amber-500/40" />
+                                                                    <input type="time" value={dayHour.open} onChange={e => setDailyHours(prev => prev.map((h, i) => i === idx ? { ...h, open: e.target.value } : h))} className="flex-1 min-w-0 bg-espresso-900 border border-espresso-800 rounded h-7 px-1.5 outline-none text-[10px] font-mono text-espresso-50 font-medium focus:border-amber-500/40" />
+                                                                    <span className="text-espresso-400 font-bold shrink-0">-</span>
+                                                                    <input type="time" value={dayHour.close} onChange={e => setDailyHours(prev => prev.map((h, i) => i === idx ? { ...h, close: e.target.value } : h))} className="flex-1 min-w-0 bg-espresso-900 border border-espresso-800 rounded h-7 px-1.5 outline-none text-[10px] font-mono text-espresso-50 font-medium focus:border-amber-500/40" />
                                                                 </div>
                                                             ) : (
                                                                 <div className="flex-1 flex items-center justify-center bg-espresso-900/20 rounded h-7 border border-espresso-900/50">
@@ -1277,8 +1277,8 @@ export default function HostDashboard() {
                                                             )}
                                                             
                                                             <label className="flex items-center gap-1.5 ml-1 shrink-0 cursor-pointer">
-                                                                <input type="checkbox" checked={dayHour.isClosed} onChange={e => setDailyHours(prev => prev.map((h, i) => i === idx ? { ...h, isClosed: e.target.checked } : h))} className="w-3.5 h-3.5 accent-red-500 rounded border-espresso-800" />
-                                                                <span className="text-[9px] font-bold text-espresso-300">휴무</span>
+                                                                <input type="checkbox" checked={dayHour.isClosed} onChange={e => setDailyHours(prev => prev.map((h, i) => i === idx ? { ...h, isClosed: e.target.checked } : h))} className="w-3.5 h-3.5 accent-[#D4AF37] rounded border-espresso-800" />
+                                                                <span className="text-[9px] font-black text-[#D4AF37]/80">휴무</span>
                                                             </label>
                                                         </div>
                                                         <div className="flex items-center pl-[2rem]">
@@ -1287,7 +1287,7 @@ export default function HostDashboard() {
                                                                 placeholder="특이사항 (예: 브레이크타임, 공휴일 휴무 등)" 
                                                                 value={dayHour.comment || ''} 
                                                                 onChange={e => setDailyHours(prev => prev.map((h, i) => i === idx ? { ...h, comment: e.target.value } : h))}
-                                                                className="w-full bg-espresso-900 border border-espresso-800 rounded h-6 px-2 outline-none text-[9px] font-medium text-espresso-200 focus:border-amber-500/30 placeholder:text-espresso-600" 
+                                                                className="w-full bg-espresso-900 border border-espresso-800 rounded h-6 px-2 outline-none text-[9px] font-medium text-espresso-50 focus:border-amber-500/30 placeholder:text-espresso-600" 
                                                             />
                                                         </div>
                                                     </div>
@@ -1295,34 +1295,34 @@ export default function HostDashboard() {
                                             </div>
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_website', '홈페이지 / SNS 링크')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('register_shop.label_website', '홈페이지 / SNS 링크')}</label>
                                             <input 
                                                 type="url" 
                                                 value={editData.websiteUrl || ''}
                                                 onChange={e => setEditData({ ...editData, websiteUrl: e.target.value })}
                                                 placeholder="https://instagram.com/..."
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 font-medium outline-none focus:border-[#D4AF37]/50"
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_short_desc', '한 줄 소개')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('register_shop.label_short_desc', '한 줄 소개')}</label>
                                             <input 
                                                 type="text" 
                                                 value={editData.shortDesc || ''}
                                                 onChange={e => setEditData({ ...editData, shortDesc: e.target.value })}
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 font-medium outline-none focus:border-[#D4AF37]/50"
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('host_dashboard.lbl_store_desc', '브랜드 감성 상세 소개')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('host_dashboard.lbl_store_desc', '브랜드 감성 상세 소개')}</label>
                                             <textarea 
                                                 value={editData.longDesc || ''}
                                                 onChange={e => setEditData({ ...editData, longDesc: e.target.value })}
                                                 rows={3}
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50 resize-none leading-relaxed"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 font-medium outline-none focus:border-[#D4AF37]/50 resize-none leading-relaxed"
                                             />
                                         </div>
                                     </div>
@@ -1331,59 +1331,59 @@ export default function HostDashboard() {
                                     <div className="space-y-3.5 bg-espresso-950/40 p-4 rounded-2xl border border-espresso-850/50">
                                         <span className="text-[11px] font-black text-espresso-200 block border-b border-espresso-900 pb-1">✨ {t('register_shop.title_sensory_details', '메뉴 및 브랜드 감성')}</span>
                                         
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_sig_bean', '대표 시그니처 원두')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('register_shop.label_sig_bean', '대표 시그니처 원두')}</label>
                                             <input 
                                                 type="text" 
                                                 value={editData.signatureBean || ''}
                                                 onChange={e => setEditData({ ...editData, signatureBean: e.target.value })}
                                                 placeholder="예: 싱글오리진 에티오피아 게샤"
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 font-medium outline-none focus:border-[#D4AF37]/50"
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_sig_menu', '대표 시그니처 음료 메뉴')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('register_shop.label_sig_menu', '대표 시그니처 음료 메뉴')}</label>
                                             <input 
                                                 type="text" 
                                                 value={editData.signatureMenu || ''}
                                                 onChange={e => setEditData({ ...editData, signatureMenu: e.target.value })}
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 font-medium outline-none focus:border-[#D4AF37]/50"
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_dessert_pairing', '페어링 디저트 추천')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('register_shop.label_dessert_pairing', '페어링 디저트 추천')}</label>
                                             <input 
                                                 type="text" 
                                                 value={editData.dessertPairing || ''}
                                                 onChange={e => setEditData({ ...editData, dessertPairing: e.target.value })}
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 font-medium outline-none focus:border-[#D4AF37]/50"
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_equipment', '브루잉 추출 머신 / 도구')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('register_shop.label_equipment', '브루잉 추출 머신 / 도구')}</label>
                                             <input 
                                                 type="text" 
                                                 value={editData.equipment || ''}
                                                 onChange={e => setEditData({ ...editData, equipment: e.target.value })}
                                                 placeholder="예: La Marzocco Linea PB, Hario V60"
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 font-medium outline-none focus:border-[#D4AF37]/50"
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_coffee_type', '주요 에스프레소/커피 방식')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('register_shop.label_coffee_type', '주요 에스프레소/커피 방식')}</label>
                                             <select 
                                                 value={editData.primaryCoffeeType || 'GENERAL'}
                                                 onChange={e => setEditData({ ...editData, primaryCoffeeType: e.target.value })}
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2.5 text-espresso-100 cursor-pointer outline-none focus:border-[#D4AF37]/50"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2.5 text-espresso-50 font-medium cursor-pointer outline-none focus:border-[#D4AF37]/50"
                                             >
-                                                <option value="SINGLE_ORIGIN">{t('register_shop.type_single', '✨ 싱글오리진 스페셜티 중심')}</option>
-                                                <option value="BLENDED">{t('register_shop.type_blended', '🎨 독자적인 로스터리 블렌딩')}</option>
-                                                <option value="SPECIALTY_ROASTERY">{t('register_shop.type_specialty', '🏆 스페셜티 로스터리 (모두 취급)')}</option>
-                                                <option value="GENERAL">{t('register_shop.type_general', '🏬 대중적인 프랜차이즈 / 일반')}</option>
+                                                <option value="SINGLE_ORIGIN" className="bg-espresso-950">{t('register_shop.type_single', '✨ 싱글오리진 스페셜티 중심')}</option>
+                                                <option value="BLENDED" className="bg-espresso-950">{t('register_shop.type_blended', '🎨 독자적인 로스터리 블렌딩')}</option>
+                                                <option value="SPECIALTY_ROASTERY" className="bg-espresso-950">{t('register_shop.type_specialty', '🏆 스페셜티 로스터리 (모두 취급)')}</option>
+                                                <option value="GENERAL" className="bg-espresso-950">{t('register_shop.type_general', '🏬 대중적인 프랜차이즈 / 일반')}</option>
                                             </select>
                                         </div>
 
@@ -1433,18 +1433,18 @@ export default function HostDashboard() {
                                                             />
                                                         </div>
                                                         <div className="flex-1 min-w-0 space-y-1.5 pt-0.5">
-                                                            <input type="text" placeholder={t('register_shop.ph_item_name', '메뉴명 (예: 아메리카노)')} value={item.name} onChange={e => setMenuItems(prev => prev.map((m, i) => i === idx ? { ...m, name: e.target.value } : m))} className="w-full bg-transparent border-b border-espresso-800 focus:border-amber-500/40 outline-none text-[12px] font-bold text-espresso-100 pb-0.5" />
+                                                            <input type="text" placeholder={t('register_shop.ph_item_name', '메뉴명 (예: 아메리카노)')} value={item.name} onChange={e => setMenuItems(prev => prev.map((m, i) => i === idx ? { ...m, name: e.target.value } : m))} className="w-full bg-transparent border-b border-espresso-800 focus:border-amber-500/40 outline-none text-[12px] font-bold text-espresso-50 pb-0.5" />
                                                             <div className="flex gap-2">
-                                                                <select value={item.category} onChange={e => setMenuItems(prev => prev.map((m, i) => i === idx ? { ...m, category: e.target.value } : m))} className="bg-espresso-950 border border-espresso-800 text-[9px] font-bold text-espresso-200 rounded px-1.5 h-6 outline-none cursor-pointer">
-                                                                    <option value="COFFEE">Coffee</option>
-                                                                    <option value="DESSERT">Dessert</option>
-                                                                    <option value="BEVERAGE">Beverage</option>
-                                                                    <option value="TEA">Tea</option>
-                                                                    <option value="BREAD">Bread</option>
-                                                                    <option value="FOOD">Food</option>
-                                                                    <option value="ETC">Etc</option>
+                                                                <select value={item.category} onChange={e => setMenuItems(prev => prev.map((m, i) => i === idx ? { ...m, category: e.target.value } : m))} className="bg-espresso-950 border border-espresso-800 text-[9px] font-bold text-espresso-50 rounded px-1.5 h-6 outline-none cursor-pointer">
+                                                                    <option value="COFFEE" className="bg-espresso-950">Coffee</option>
+                                                                    <option value="DESSERT" className="bg-espresso-950">Dessert</option>
+                                                                    <option value="BEVERAGE" className="bg-espresso-950">Beverage</option>
+                                                                    <option value="TEA" className="bg-espresso-950">Tea</option>
+                                                                    <option value="BREAD" className="bg-espresso-950">Bread</option>
+                                                                    <option value="FOOD" className="bg-espresso-950">Food</option>
+                                                                    <option value="ETC" className="bg-espresso-950">Etc</option>
                                                                 </select>
-                                                                <input type="text" placeholder={t('register_shop.ph_item_price', '가격 (예: 5,000원)')} value={item.price} onChange={e => setMenuItems(prev => prev.map((m, i) => i === idx ? { ...m, price: e.target.value } : m))} className="flex-1 min-w-0 bg-transparent border-b border-espresso-800 focus:border-amber-500/40 outline-none text-[10px] text-espresso-200 pb-0.5 h-6" />
+                                                                <input type="text" placeholder={t('register_shop.ph_item_price', '가격 (예: 5,000원)')} value={item.price} onChange={e => setMenuItems(prev => prev.map((m, i) => i === idx ? { ...m, price: e.target.value } : m))} className="flex-1 min-w-0 bg-transparent border-b border-espresso-800 focus:border-amber-500/40 outline-none text-[10px] text-espresso-50 pb-0.5 h-6" />
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1460,36 +1460,36 @@ export default function HostDashboard() {
                                     <div className="space-y-3 bg-espresso-950/40 p-3.5 rounded-2xl border border-espresso-850/50">
                                         <span className="text-[11px] font-black text-espresso-200 block border-b border-espresso-900 pb-1">🌱 {t('register_shop.title_bean_profile', '원두 프로필 상세')}</span>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_bean_origin', '원두 원산지 생산지')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('register_shop.label_bean_origin', '원두 원산지 생산지')}</label>
                                             <input 
                                                 type="text" 
                                                 value={editData.beanOrigin || ''}
                                                 onChange={e => setEditData({ ...editData, beanOrigin: e.target.value })}
                                                 placeholder="예: Colombia Sidra, Ethiopia Yirgacheffe"
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 font-medium outline-none focus:border-[#D4AF37]/50"
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_bean_roast', '로스팅 포인트 단계')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('register_shop.label_bean_roast', '로스팅 포인트 단계')}</label>
                                             <input 
                                                 type="text" 
                                                 value={editData.beanRoastLevel || ''}
                                                 onChange={e => setEditData({ ...editData, beanRoastLevel: e.target.value })}
                                                 placeholder="예: 미디엄 로스트, 라이트 로스트"
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 font-medium outline-none focus:border-[#D4AF37]/50"
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_bean_notes', '원두 컵 노트 컵 테이스팅 감성')}</label>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('register_shop.label_bean_notes', '원두 컵 노트 컵 테이스팅 감성')}</label>
                                             <input 
                                                 type="text" 
                                                 value={editData.beanNotes || ''}
                                                 onChange={e => setEditData({ ...editData, beanNotes: e.target.value })}
                                                 placeholder="예: 자스민, 레몬그라스, 메이플시럽"
-                                                className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 font-medium outline-none focus:border-[#D4AF37]/50"
                                             />
                                         </div>
                                     </div>
@@ -1498,10 +1498,10 @@ export default function HostDashboard() {
                                     <div className="space-y-3.5 bg-espresso-950/40 p-3.5 rounded-2xl border border-espresso-850/50">
                                         <span className="text-[11px] font-black text-espresso-200 block border-b border-espresso-900 pb-1">📊 {t('register_shop.title_taste_profile', '원두 4대 맛 매커니즘 조율')}</span>
                                         
-                                        <div className="space-y-1">
-                                            <div className="flex justify-between items-center text-[10px]">
-                                                <span className="text-espresso-300 font-bold">{t('profile.radar_acidity', '산미 (Acidity)')}</span>
-                                                <span className="font-mono text-amber-500 font-black">{editData.acidity || 3} / 5</span>
+                                        <div className="space-y-1.5">
+                                            <div className="flex justify-between items-center text-[9px]">
+                                                <span className="text-[#D4AF37]/85 font-black tracking-widest">{t('profile.radar_acidity', '산미 (Acidity)')}</span>
+                                                <span className="font-mono text-espresso-50 font-black">{editData.acidity || 3} / 5</span>
                                             </div>
                                             <input 
                                                 type="range" min="1" max="5" step="0.5"
@@ -1511,10 +1511,10 @@ export default function HostDashboard() {
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <div className="flex justify-between items-center text-[10px]">
-                                                <span className="text-espresso-300 font-bold">{t('profile.radar_sweetness', '단맛 (Sweetness)')}</span>
-                                                <span className="font-mono text-amber-500 font-black">{editData.sweetness || 3} / 5</span>
+                                        <div className="space-y-1.5">
+                                            <div className="flex justify-between items-center text-[9px]">
+                                                <span className="text-[#D4AF37]/85 font-black tracking-widest">{t('profile.radar_sweetness', '단맛 (Sweetness)')}</span>
+                                                <span className="font-mono text-espresso-50 font-black">{editData.sweetness || 3} / 5</span>
                                             </div>
                                             <input 
                                                 type="range" min="1" max="5" step="0.5"
@@ -1524,10 +1524,10 @@ export default function HostDashboard() {
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <div className="flex justify-between items-center text-[10px]">
-                                                <span className="text-espresso-300 font-bold">{t('profile.radar_bitterness', '쓴맛 (Bitterness)')}</span>
-                                                <span className="font-mono text-amber-500 font-black">{editData.bitterness || 3} / 5</span>
+                                        <div className="space-y-1.5">
+                                            <div className="flex justify-between items-center text-[9px]">
+                                                <span className="text-[#D4AF37]/85 font-black tracking-widest">{t('profile.radar_bitterness', '쓴맛 (Bitterness)')}</span>
+                                                <span className="font-mono text-espresso-50 font-black">{editData.bitterness || 3} / 5</span>
                                             </div>
                                             <input 
                                                 type="range" min="1" max="5" step="0.5"
@@ -1537,10 +1537,10 @@ export default function HostDashboard() {
                                             />
                                         </div>
 
-                                        <div className="space-y-1">
-                                            <div className="flex justify-between items-center text-[10px]">
-                                                <span className="text-espresso-300 font-bold">{t('profile.radar_body', '바디감 (Body)')}</span>
-                                                <span className="font-mono text-amber-500 font-black">{editData.body || 3} / 5</span>
+                                        <div className="space-y-1.5">
+                                            <div className="flex justify-between items-center text-[9px]">
+                                                <span className="text-[#D4AF37]/85 font-black tracking-widest">{t('profile.radar_body', '바디감 (Body)')}</span>
+                                                <span className="font-mono text-espresso-50 font-black">{editData.body || 3} / 5</span>
                                             </div>
                                             <input 
                                                 type="range" min="1" max="5" step="0.5"
@@ -1561,9 +1561,9 @@ export default function HostDashboard() {
                                                     type="checkbox" 
                                                     checked={Boolean(editData.hasDecaf)}
                                                     onChange={e => setEditData({ ...editData, hasDecaf: e.target.checked })}
-                                                    className="w-4 h-4 accent-amber-500 border-espresso-800 rounded bg-espresso-950"
+                                                    className="w-4 h-4 accent-[#D4AF37] border-espresso-800 rounded bg-espresso-950"
                                                 />
-                                                <span className="text-[10px] text-espresso-100 font-bold">{t('register_shop.opt_decaf', '디카페인 변경')}</span>
+                                                <span className="text-[10px] text-espresso-50 font-bold">{t('register_shop.opt_decaf', '디카페인 변경')}</span>
                                             </label>
 
                                             <label className="flex items-center gap-2 bg-espresso-950 border border-espresso-850 hover:border-amber-500/20 px-2.5 py-2 rounded-xl transition-all cursor-pointer">
@@ -1571,9 +1571,9 @@ export default function HostDashboard() {
                                                     type="checkbox" 
                                                     checked={Boolean(editData.hasOatMilk)}
                                                     onChange={e => setEditData({ ...editData, hasOatMilk: e.target.checked })}
-                                                    className="w-4 h-4 accent-amber-500 border-espresso-800 rounded bg-espresso-950"
+                                                    className="w-4 h-4 accent-[#D4AF37] border-espresso-800 rounded bg-espresso-950"
                                                 />
-                                                <span className="text-[10px] text-espresso-100 font-bold">{t('register_shop.opt_oat', '오트밀크 변경')}</span>
+                                                <span className="text-[10px] text-espresso-50 font-bold">{t('register_shop.opt_oat', '오트밀크 변경')}</span>
                                             </label>
 
                                             <label className="flex items-center gap-2 bg-espresso-950 border border-espresso-850 hover:border-amber-500/20 px-2.5 py-2 rounded-xl transition-all cursor-pointer">
@@ -1581,9 +1581,9 @@ export default function HostDashboard() {
                                                     type="checkbox" 
                                                     checked={Boolean(editData.hasParking)}
                                                     onChange={e => setEditData({ ...editData, hasParking: e.target.checked })}
-                                                    className="w-4 h-4 accent-amber-500 border-espresso-800 rounded bg-espresso-950"
+                                                    className="w-4 h-4 accent-[#D4AF37] border-espresso-800 rounded bg-espresso-950"
                                                 />
-                                                <span className="text-[10px] text-espresso-100 font-bold">{t('register_shop.opt_parking', '주차 지원')}</span>
+                                                <span className="text-[10px] text-espresso-50 font-bold">{t('register_shop.opt_parking', '주차 지원')}</span>
                                             </label>
 
                                             <label className="flex items-center gap-2 bg-espresso-950 border border-espresso-850 hover:border-amber-500/20 px-2.5 py-2 rounded-xl transition-all cursor-pointer">
@@ -1591,9 +1591,9 @@ export default function HostDashboard() {
                                                     type="checkbox" 
                                                     checked={Boolean(editData.hasWifi)}
                                                     onChange={e => setEditData({ ...editData, hasWifi: e.target.checked })}
-                                                    className="w-4 h-4 accent-amber-500 border-espresso-800 rounded bg-espresso-950"
+                                                    className="w-4 h-4 accent-[#D4AF37] border-espresso-800 rounded bg-espresso-950"
                                                 />
-                                                <span className="text-[10px] text-espresso-100 font-bold">{t('register_shop.opt_wifi', '무선 인터넷')}</span>
+                                                <span className="text-[10px] text-espresso-50 font-bold">{t('register_shop.opt_wifi', '무선 인터넷')}</span>
                                             </label>
 
                                             <label className="flex items-center gap-2 bg-espresso-950 border border-espresso-850 hover:border-amber-500/20 px-2.5 py-2 rounded-xl transition-all cursor-pointer">
@@ -1601,9 +1601,9 @@ export default function HostDashboard() {
                                                     type="checkbox" 
                                                     checked={Boolean(editData.hasPetFriendly)}
                                                     onChange={e => setEditData({ ...editData, hasPetFriendly: e.target.checked })}
-                                                    className="w-4 h-4 accent-amber-500 border-espresso-800 rounded bg-espresso-950"
+                                                    className="w-4 h-4 accent-[#D4AF37] border-espresso-800 rounded bg-espresso-950"
                                                 />
-                                                <span className="text-[10px] text-espresso-100 font-bold">{t('register_shop.opt_pet', '반려동물 동반')}</span>
+                                                <span className="text-[10px] text-espresso-50 font-bold">{t('register_shop.opt_pet', '반려동물 동반')}</span>
                                             </label>
 
                                             <label className="flex items-center gap-2 bg-espresso-950 border border-espresso-850 hover:border-amber-500/20 px-2.5 py-2 rounded-xl transition-all cursor-pointer">
@@ -1611,9 +1611,9 @@ export default function HostDashboard() {
                                                     type="checkbox" 
                                                     checked={Boolean(editData.hasPowerOutlets)}
                                                     onChange={e => setEditData({ ...editData, hasPowerOutlets: e.target.checked })}
-                                                    className="w-4 h-4 accent-amber-500 border-espresso-800 rounded bg-espresso-950"
+                                                    className="w-4 h-4 accent-[#D4AF37] border-espresso-800 rounded bg-espresso-950"
                                                 />
-                                                <span className="text-[10px] text-espresso-100 font-bold">{t('register_shop.opt_outlets', '콘센트 다수')}</span>
+                                                <span className="text-[10px] text-espresso-50 font-bold">{t('register_shop.opt_outlets', '콘센트 다수')}</span>
                                             </label>
                                         </div>
                                     </div>
@@ -1625,7 +1625,7 @@ export default function HostDashboard() {
                                         {/* A. 매장 전경 대표 사진 (mediaFiles) */}
                                         <div>
                                             <div className="flex justify-between items-center mb-1.5">
-                                                <label className="text-[10px] text-espresso-300 font-bold block">{t('manage_shop.title_media', '매장 대표 분위기 사진')}</label>
+                                                <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('manage_shop.title_media', '매장 대표 분위기 사진')}</label>
                                                 <span className="text-[9px] text-espresso-500 font-bold font-mono">{mediaFiles.length}/5</span>
                                             </div>
                                             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-espresso-800 scrollbar-track-transparent">
@@ -1638,7 +1638,7 @@ export default function HostDashboard() {
                                                 {mediaFiles.map((media, idx) => (
                                                     <div key={idx} className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden border border-espresso-800">
                                                         <img src={media.url.startsWith('data:') || media.url.startsWith('http') || media.url.startsWith('/uploads') ? media.url : `/api${media.url}`} alt="" className="w-full h-full object-cover" />
-                                                        <button type="button" onClick={() => removeFile(idx)} className="absolute top-1 right-1 w-4 h-4 bg-espresso-950/60 text-espresso-50 rounded-full flex items-center justify-center active:scale-90 border border-espresso-800 cursor-pointer">
+                                                        <button type="button" onClick={() => removeFile(idx)} className="absolute top-1 right-1 w-4 h-4 bg-espresso-955/60 text-espresso-50 rounded-full flex items-center justify-center active:scale-90 border border-espresso-800 cursor-pointer">
                                                             <Trash2 size={10} />
                                                         </button>
                                                     </div>
@@ -1650,7 +1650,7 @@ export default function HostDashboard() {
                                         {/* B. 커피 메뉴판 이미지 (coffeeMenuImages) */}
                                         <div>
                                             <div className="flex justify-between items-center mb-1.5">
-                                                <label className="text-[10px] text-espresso-300 font-bold block">{t('manage_shop.label_menu_image', '커피 메뉴판 이미지')}</label>
+                                                <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('manage_shop.label_menu_image', '커피 메뉴판 이미지')}</label>
                                                 <span className="text-[9px] text-espresso-500 font-bold font-mono">{coffeeMenuImages.length}/5</span>
                                             </div>
                                             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-espresso-800 scrollbar-track-transparent">
@@ -1663,7 +1663,7 @@ export default function HostDashboard() {
                                                 {coffeeMenuImages.map((media, idx) => (
                                                     <div key={idx} className="relative w-16 h-16 shrink-0 rounded-xl overflow-hidden border border-espresso-800">
                                                         <img src={media.url.startsWith('data:') || media.url.startsWith('http') || media.url.startsWith('/uploads') ? media.url : `/api${media.url}`} alt="" className="w-full h-full object-cover" />
-                                                        <button type="button" onClick={() => removeMenuFile(idx, setCoffeeMenuImages)} className="absolute top-1 right-1 w-4 h-4 bg-espresso-950/60 text-espresso-50 rounded-full flex items-center justify-center active:scale-90 border border-espresso-800 cursor-pointer">
+                                                        <button type="button" onClick={() => removeMenuFile(idx, setCoffeeMenuImages)} className="absolute top-1 right-1 w-4 h-4 bg-espresso-955/60 text-espresso-50 rounded-full flex items-center justify-center active:scale-90 border border-espresso-800 cursor-pointer">
                                                             <Trash2 size={10} />
                                                         </button>
                                                     </div>
@@ -1675,7 +1675,7 @@ export default function HostDashboard() {
                                         {/* C. 인기 디저트/메뉴 이미지 (popularMenuImages) */}
                                         <div>
                                             <div className="flex justify-between items-center mb-1.5">
-                                                <label className="text-[10px] text-espresso-300 font-bold block">{t('manage_shop.label_popular_image', '인기 디저트/메뉴 이미지')}</label>
+                                                <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">{t('manage_shop.label_popular_image', '인기 디저트/메뉴 이미지')}</label>
                                                 <span className="text-[9px] text-espresso-500 font-bold font-mono">{popularMenuImages.length}/5</span>
                                             </div>
                                             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-espresso-800 scrollbar-track-transparent">
