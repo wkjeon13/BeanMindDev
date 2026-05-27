@@ -408,14 +408,12 @@ router.post('/rollback', authenticateToken, async (req: any, res: any) => {
 router.get('/coupons/my', authenticateToken, async (req: any, res: any) => {
     try {
         const userId = req.user.id;
-        const coupons = await prisma.stampCoupon.findMany({
-            where: {
-                userId,
-                status: "UNUSED",
-                expiresAt: { gte: new Date() }
-            },
-            orderBy: { expiresAt: 'asc' }
-        });
+        // 💡 프리즈마 클라이언트 EPERM 파일 잠금 우회를 위해 raw SQL로 쿼리하여 물리 DB 상의 configId 값을 안전히 보장받아 로드합니다.
+        const coupons: any[] = await prisma.$queryRawUnsafe(`
+            SELECT * FROM StampCoupon 
+            WHERE userId = ? AND status = 'UNUSED' AND expiresAt >= ?
+            ORDER BY expiresAt ASC
+        `, userId, new Date());
 
         // 매장 정보 및 정책 리워드 혜택 명칭 함께 붙여서 전송
         const couponsWithStore = await Promise.all(coupons.map(async (coupon) => {
@@ -423,18 +421,28 @@ router.get('/coupons/my', authenticateToken, async (req: any, res: any) => {
                 where: { id: coupon.storeId },
                 select: { name: true, mainImageUrl: true }
             });
-            
             let rewardDesc = "무료 음료 교환 혜택";
             let cardTitle = "스탬프 도장판";
+            let config = null;
+
             if (coupon.configId) {
-                const config = await prisma.storeStampConfig.findUnique({
+                config = await prisma.storeStampConfig.findUnique({
                     where: { id: coupon.configId },
                     select: { rewardDesc: true, cardTitle: true }
                 });
-                if (config) {
-                    rewardDesc = config.rewardDesc || rewardDesc;
-                    cardTitle = config.cardTitle || cardTitle;
-                }
+            }
+
+            // [Fallback] 만약 configId가 없거나 매칭되는 config가 없으면, 해당 매장의 현재 활성화된 정책을 기반으로 리워드를 산출합니다.
+            if (!config) {
+                config = await prisma.storeStampConfig.findFirst({
+                    where: { storeId: coupon.storeId, isActive: true },
+                    select: { rewardDesc: true, cardTitle: true }
+                });
+            }
+
+            if (config) {
+                rewardDesc = config.rewardDesc || rewardDesc;
+                cardTitle = config.cardTitle || cardTitle;
             }
 
             return {

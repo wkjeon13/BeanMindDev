@@ -2124,32 +2124,32 @@ export default function Profile() {
                                             
                                             return (
                                                 <div key={card.id} className="bg-espresso-950/40 p-4 rounded-2xl border border-espresso-800 space-y-3">
-                                                    <div className="flex justify-between items-center">
-                                                        <div className="flex items-center gap-2">
+                                                    <div className="flex justify-between items-center gap-2">
+                                                        <div className="flex items-center gap-2 flex-1 min-w-0">
                                                             {card.storeLogo ? (
-                                                                <img src={`${API_BASE}${card.storeLogo}`} className="w-8 h-8 rounded-full border border-espresso-700" alt={card.storeName} />
+                                                                <img src={`${API_BASE}${card.storeLogo}`} className="w-8 h-8 rounded-full border border-espresso-700 flex-shrink-0" alt={card.storeName} />
                                                             ) : (
-                                                                <div className="w-8 h-8 rounded-full bg-espresso-800 border border-espresso-700 flex items-center justify-center text-espresso-200 text-xs">☕</div>
+                                                                <div className="w-8 h-8 rounded-full bg-espresso-800 border border-espresso-700 flex items-center justify-center text-espresso-200 text-xs flex-shrink-0">☕</div>
                                                             )}
-                                                            <div>
-                                                                <h4 className="font-bold text-[14px] text-espresso-50 leading-tight">{card.storeName}</h4>
-                                                                <p className="text-[10px] text-espresso-300">{card.cardTitle}</p>
+                                                            <div className="min-w-0 flex-1">
+                                                                <h4 className="font-bold text-[14px] text-espresso-50 leading-tight truncate">{card.storeName}</h4>
+                                                                <p className="text-[10px] text-espresso-300 truncate">{card.cardTitle}</p>
                                                                 {(() => {
                                                                     const remaining = getStampCardRemainingDays(card.updatedAt, card.validDays || 90);
                                                                     if (remaining === null) return null;
                                                                     const expireDate = new Date(new Date(card.updatedAt).getTime() + (card.validDays || 90) * 24 * 60 * 60 * 1000);
                                                                     return (
-                                                                        <p className="text-[9px] text-amber-500 font-mono mt-0.5 font-bold">
+                                                                        <p className="text-[9px] text-amber-500 font-mono mt-0.5 font-bold truncate">
                                                                             유효기간: {expireDate.toLocaleDateString()} (D-{remaining})
                                                                         </p>
                                                                     );
                                                                 })()}
                                                             </div>
                                                         </div>
-                                                        <div className="text-right">
+                                                        <div className="text-right flex-shrink-0">
                                                             <span className="font-mono font-black text-amber-500 text-[16px]">{card.currentStamps}</span>
                                                             <span className="font-mono text-espresso-300 text-[12px]"> / {card.maxStamps}</span>
-                                                            <p className="text-[9px] text-[#D4AF37] font-bold mt-0.5">완성 시: {card.rewardDesc}</p>
+                                                            <p className="text-[9px] text-[#D4AF37] font-bold mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">완성 시: {card.rewardDesc}</p>
                                                         </div>
                                                     </div>
 
