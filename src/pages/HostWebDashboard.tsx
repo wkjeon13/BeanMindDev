@@ -98,7 +98,6 @@ export default function HostWebDashboard() {
     const [targetMenu, setTargetMenu] = useState('');
     const [rewardDesc, setRewardDesc] = useState('');
     const [validDays, setValidDays] = useState(90);
-    const [editingConfigId, setEditingConfigId] = useState<string | null>(null);
     
     // Store Info States
     const [storeName, setStoreName] = useState('');
@@ -269,7 +268,7 @@ export default function HostWebDashboard() {
         }
     };
 
-    // 4. 스탬프/프로모션 정책 등록 및 수정
+    // 4. 새로운 스탬프/프로모션 정책 등록
     const handleCreateConfig = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!cardTitle || !rewardDesc) {
@@ -280,22 +279,8 @@ export default function HostWebDashboard() {
         setErrorMessage('');
         setSuccessMessage('');
         try {
-            const isEditing = !!editingConfigId;
-            const url = isEditing 
-                ? `${API_BASE}/api/stamps/configs/${editingConfigId}` 
-                : `${API_BASE}/api/stamps/configs`;
-            const method = isEditing ? 'PUT' : 'POST';
-
-            // 복합 프로모션 도장판 구성 분석
-            let finalItemsConfig = null;
-            if (cardType === 'PROMOTION') {
-                // 지능형 파서 헬퍼를 빌려서 임시 빌드
-                const tempConfig = { cardType: 'PROMOTION', cardTitle };
-                finalItemsConfig = getItemsConfig(tempConfig);
-            }
-
-            const res = await fetch(url, {
-                method,
+            const res = await fetch(`${API_BASE}/api/stamps/configs`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -307,96 +292,26 @@ export default function HostWebDashboard() {
                     maxStamps,
                     targetMenu: targetMenu || null,
                     rewardDesc,
-                    validDays,
-                    itemsConfig: finalItemsConfig
+                    validDays
                 })
             });
 
             if (res.ok) {
-                setSuccessMessage(isEditing 
-                    ? "스탬프 정책이 성공적으로 수정 업데이트되었습니다! ✨"
-                    : "새로운 스탬프 정책이 생성되어 활성화되었습니다! ✨"
-                );
+                setSuccessMessage("새로운 스탬프 정책이 생성되어 활성화되었습니다! ✨");
                 // 폼 초기화
                 setCardTitle('');
                 setTargetMenu('');
                 setRewardDesc('');
-                setEditingConfigId(null);
-                setCardType('REGULAR');
-                setMaxStamps(10);
-                setValidDays(90);
                 fetchDashboardData();
             } else {
                 const err = await res.json();
-                setErrorMessage(err.message || "정책 저장 실패");
+                setErrorMessage(err.message || "정책 생성 실패");
             }
         } catch (err) {
             setErrorMessage("네트워크 전송 오류가 발생했습니다.");
         } finally {
             setIsLoading(false);
         }
-    };
-
-    // 4-2. 정책 삭제 (소프트 딜리트)
-    const handleDeleteConfig = async (id: string, title: string) => {
-        if (!window.confirm(`[${title}] 스탬프 정책을 정말 삭제하시겠습니까? (이전 적립 고객 카드는 안전하게 보존되며 신규 적립/노출에서 제외됩니다.)`)) return;
-        setIsLoading(true);
-        setErrorMessage('');
-        setSuccessMessage('');
-        try {
-            const res = await fetch(`${API_BASE}/api/stamps/configs/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            if (res.ok) {
-                setSuccessMessage("스탬프 정책이 성공적으로 삭제(비활성화)되었습니다. 🗑️");
-                if (editingConfigId === id) {
-                    setEditingConfigId(null);
-                    setCardTitle('');
-                    setTargetMenu('');
-                    setRewardDesc('');
-                    setCardType('REGULAR');
-                    setMaxStamps(10);
-                    setValidDays(90);
-                }
-                fetchDashboardData();
-            } else {
-                const err = await res.json();
-                setErrorMessage(err.message || "정책 삭제에 실패했습니다.");
-            }
-        } catch (err) {
-            setErrorMessage("네트워크 통신 에러가 발생했습니다.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    // 4-3. 정책 수정 모드 바인딩 시작
-    const startEditConfig = (cfg: any) => {
-        setEditingConfigId(cfg.id);
-        setCardType(cfg.cardType || 'REGULAR');
-        setCardTitle(cfg.cardTitle || '');
-        setMaxStamps(cfg.maxStamps || 10);
-        setTargetMenu(cfg.targetMenu || '');
-        setRewardDesc(cfg.rewardDesc || '');
-        setValidDays(cfg.validDays || 90);
-        
-        // 상단으로 부드러운 스크롤 이동
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    // 4-4. 정책 수정 모드 취소
-    const cancelEditConfig = () => {
-        setEditingConfigId(null);
-        setCardType('REGULAR');
-        setCardTitle('');
-        setMaxStamps(10);
-        setTargetMenu('');
-        setRewardDesc('');
-        setValidDays(90);
     };
 
     // 5. 매장 프로필 저장
@@ -714,18 +629,11 @@ export default function HostWebDashboard() {
                         <div className="bg-[#17171c] p-6 rounded-3xl border border-espresso-850 space-y-6">
                             <div className="flex justify-between items-center pb-4 border-b border-espresso-850">
                                 <div>
-                                    <h3 className="font-serif font-black text-lg text-amber-500">
-                                        {editingConfigId ? "📝 스탬프 정책 수정하기" : "스탬프 & 시즌 정책 빌더"}
-                                    </h3>
-                                    <p className="text-xs text-espresso-300 mt-1">
-                                        {editingConfigId 
-                                            ? "선택한 도장판 정책 정보를 안전하게 편집하여 저장합니다." 
-                                            : "매장의 리워드 정책 및 프로모션 이벤트를 자유롭게 분기하고 설정합니다."
-                                        }
-                                    </p>
+                                    <h3 className="font-serif font-black text-lg text-amber-500">스탬프 & 시즌 프로모션 정책 빌더</h3>
+                                    <p className="text-xs text-espresso-300 mt-1">매장의 리워드 정책 및 프로모션 이벤트를 자유롭게 분기하고 설정합니다.</p>
                                 </div>
-                                <span className={`text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1.5 transition-all ${editingConfigId ? 'bg-amber-600 text-espresso-950 animate-pulse' : 'bg-[#D4AF37] text-espresso-950'}`}>
-                                    <Sparkles size={12} /> {editingConfigId ? "EDITING MODE ACTIVE" : "MULTI-CONFIG ACTIVE"}
+                                <span className="bg-[#D4AF37] text-espresso-950 text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                                    <Sparkles size={12} /> MULTI-CONFIG ACTIVE
                                 </span>
                             </div>
 
@@ -815,75 +723,14 @@ export default function HostWebDashboard() {
                                     />
                                 </div>
 
-                                <div className="flex gap-3 mt-3">
-                                    {editingConfigId && (
-                                        <button 
-                                            type="button"
-                                            onClick={cancelEditConfig}
-                                            className="flex-1 py-3.5 bg-espresso-900 border border-espresso-750 text-espresso-100 font-bold text-xs rounded-xl active:scale-95 transition-all cursor-pointer"
-                                        >
-                                            수정 취소
-                                        </button>
-                                    )}
-                                    <button 
-                                        type="submit" 
-                                        disabled={isLoading}
-                                        className="flex-[2] py-3.5 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-xs rounded-xl active:scale-95 transition-all shadow-md cursor-pointer flex justify-center items-center gap-1.5"
-                                    >
-                                        <Save size={14} /> 
-                                        {isLoading 
-                                            ? "정책 저장 중..." 
-                                            : editingConfigId 
-                                                ? "스탬프 정책 수정 완료 및 저장" 
-                                                : "새로운 정책 활성화 및 적용"
-                                        }
-                                    </button>
-                                </div>
+                                <button 
+                                    type="submit" 
+                                    disabled={isLoading}
+                                    className="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-xs rounded-xl active:scale-95 transition-all shadow-md cursor-pointer flex justify-center items-center gap-1.5 mt-2"
+                                >
+                                    <Save size={14} /> {isLoading ? "정책 저장 중..." : "새로운 정책 활성화 및 적용"}
+                                </button>
                             </form>
-
-                            {/* 💡 정책 리스팅 및 수정/삭제 제어반 */}
-                            <div className="pt-6 border-t border-espresso-850 space-y-4">
-                                <h4 className="font-serif font-black text-base text-espresso-100">현재 운영 중인 도장판 정책 목록</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {storeConfigs.length > 0 ? (
-                                        storeConfigs.map(cfg => (
-                                            <div key={cfg.id} className="bg-espresso-950/60 p-4 rounded-2xl border border-espresso-800 flex flex-col justify-between space-y-3.5">
-                                                <div className="space-y-1.5">
-                                                    <div className="flex justify-between items-start">
-                                                        <span className="font-bold text-xs text-espresso-50 leading-snug">{cfg.cardTitle}</span>
-                                                        <span className={`text-[8.5px] font-black px-2 py-0.5 rounded-full ${cfg.cardType === 'REGULAR' ? 'bg-amber-500/10 text-amber-400' : 'bg-[#D4AF37]/15 text-[#D4AF37]'}`}>
-                                                            {cfg.cardType === 'REGULAR' ? '일반' : '시즌 프로모션'}
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-[10px] text-espresso-300">🎁 보상 리워드: <span className="text-espresso-100 font-bold">{cfg.rewardDesc}</span></p>
-                                                    <p className="text-[9.5px] text-espresso-400 font-mono">
-                                                        목표 도장: {cfg.maxStamps}개 | 유효기간: {cfg.validDays}일
-                                                        {cfg.targetMenu && ` | 타겟 메뉴: ${cfg.targetMenu}`}
-                                                    </p>
-                                                </div>
-                                                <div className="flex gap-2 border-t border-espresso-850/50 pt-3">
-                                                    <button 
-                                                        onClick={() => startEditConfig(cfg)}
-                                                        className="flex-1 py-2 bg-espresso-900 border border-espresso-750 text-espresso-200 hover:text-amber-400 font-bold text-[10.5px] rounded-lg active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1"
-                                                    >
-                                                        수정하기
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleDeleteConfig(cfg.id, cfg.cardTitle)}
-                                                        className="flex-1 py-2 bg-red-950/15 border border-red-900/20 text-red-400 hover:bg-red-950/30 font-bold text-[10.5px] rounded-lg active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1"
-                                                    >
-                                                        <Trash2 size={12} /> 삭제하기
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="col-span-full text-center py-12 text-espresso-400 opacity-60 text-xs">
-                                            현재 활성화된 도장판 정책이 존재하지 않습니다.
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
                         </div>
                     )}
 
