@@ -1887,9 +1887,9 @@ export default function Profile() {
                             <div className="flex items-center justify-between mb-2">
                                 <div>
                                     <h3 className="text-lg font-serif font-black text-amber-500 tracking-tight flex items-center gap-1.5">
-                                        💼 Business Center
+                                        {t('profile.business_center_title', '💼 Business Center')}
                                     </h3>
-                                    <p className="text-[11px] text-espresso-200">매장 정보 관리 및 모바일 웹 POS 시스템</p>
+                                    <p className="text-[11px] text-espresso-200">{t('profile.business_center_desc', '매장 정보 관리 및 모바일 웹 POS 시스템')}</p>
                                 </div>
                                 <span className="text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded text-[9px] font-mono font-bold tracking-widest uppercase">HOST</span>
                             </div>
@@ -1909,16 +1909,16 @@ export default function Profile() {
                                     className="flex flex-col items-center justify-center p-5 bg-[#140e0b]/40 border border-amber-500/30 rounded-2xl active:scale-[0.98] transition-all hover:bg-[#140e0b]/60 cursor-pointer text-left w-full"
                                 >
                                     <Database size={22} className="text-amber-400 mb-2" />
-                                    <span className="font-bold text-[13px] text-espresso-50">웹 POS 대시보드</span>
-                                    <span className="text-[10px] text-espresso-300 mt-1">정책설정 & B2B 통계</span>
+                                    <span className="font-bold text-[13px] text-espresso-50">{t('profile.btn_pos_dashboard', '웹 POS 대시보드')}</span>
+                                    <span className="text-[10px] text-espresso-300 mt-1">{t('profile.desc_pos_dashboard', '정책설정 & B2B 통계')}</span>
                                 </button>
                                 <button 
                                     onClick={() => setIsHostScannerOpen(true)} 
                                     className="flex flex-col items-center justify-center p-5 bg-[#140e0b]/40 border border-amber-500/30 rounded-2xl active:scale-[0.98] transition-all hover:bg-[#140e0b]/60 cursor-pointer text-left w-full"
                                 >
                                     <Coffee size={22} className="text-amber-400 mb-2" />
-                                    <span className="font-bold text-[13px] text-espresso-50">점주용 QR 스캐너</span>
-                                    <span className="text-[10px] text-espresso-300 mt-1">스탬프 적립 및 취소</span>
+                                    <span className="font-bold text-[13px] text-espresso-50">{t('profile.btn_host_scanner', '점주용 QR 스캐너')}</span>
+                                    <span className="text-[10px] text-espresso-300 mt-1">{t('profile.desc_host_scanner', '스탬프 적립 및 취소')}</span>
                                 </button>
                             </div>
 
@@ -1956,9 +1956,9 @@ export default function Profile() {
                             <div className="flex justify-between items-center mb-4">
                                 <div>
                                     <h3 className="text-lg font-serif font-black text-amber-500 tracking-tight flex items-center gap-1.5">
-                                        🎫 BeanStamp 지갑
+                                        {t('profile.beanstamp_title', '🎫 BeanStamp 지갑')}
                                     </h3>
-                                    <p className="text-[11px] text-espresso-200">단골 매장 도장판 및 적립용 QR</p>
+                                    <p className="text-[11px] text-espresso-200">{t('profile.beanstamp_subtitle', '단골 매장 도장판 및 적립용 QR')}</p>
                                 </div>
                                 
                                 {/* 적립용 QR 생성 버튼 */}
@@ -1966,7 +1966,7 @@ export default function Profile() {
                                     onClick={() => setIsStampModalOpen(true)}
                                     className="bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 text-xs font-bold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1 shadow-sm active:scale-95 cursor-pointer"
                                 >
-                                    <Share2 size={13} /> 내 QR 코드
+                                    <Share2 size={13} /> {t('profile.btn_my_qr', '내 QR 코드')}
                                 </button>
                             </div>
 
@@ -1976,19 +1976,19 @@ export default function Profile() {
                                     onClick={() => setActiveStampTab('REGULAR')}
                                     className={`flex-1 text-center py-2 text-[12px] font-bold rounded-lg transition-all ${activeStampTab === 'REGULAR' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/10'}`}
                                 >
-                                    일반 음료
+                                    {t('profile.tab_regular', '일반 음료')}
                                 </button>
                                 <button 
                                     onClick={() => setActiveStampTab('PROMOTION')}
                                     className={`flex-1 text-center py-2 text-[12px] font-bold rounded-lg transition-all ${activeStampTab === 'PROMOTION' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/10'}`}
                                 >
-                                    프로모션
+                                    {t('profile.tab_promotion', '프로모션')}
                                 </button>
                                 <button 
                                     onClick={() => setActiveStampTab('COUPON')}
                                     className={`flex-1 text-center py-2 text-[12px] font-bold rounded-lg transition-all ${activeStampTab === 'COUPON' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/10'} flex justify-center items-center gap-1.5`}
                                 >
-                                    무료 쿠폰
+                                    {t('profile.tab_coupon', '무료 쿠폰')}
                                     {myStampCoupons.length > 0 && (
                                         <span className="bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center font-mono">
                                             {myStampCoupons.length}
@@ -2022,7 +2022,7 @@ export default function Profile() {
                                                                     const expireDate = new Date(new Date(card.updatedAt).getTime() + (card.validDays || 90) * 24 * 60 * 60 * 1000);
                                                                     return (
                                                                         <p className="text-[9px] text-amber-500 font-mono mt-0.5 font-bold truncate">
-                                                                            유효기간: {expireDate.toLocaleDateString()} (D-{remaining})
+                                                                            {t('profile.lbl_expiry', '유효기간')}: {expireDate.toLocaleDateString()} (D-{remaining})
                                                                         </p>
                                                                     );
                                                                 })()}
@@ -2031,7 +2031,7 @@ export default function Profile() {
                                                         <div className="text-right flex-shrink-0">
                                                             <span className="font-mono font-black text-amber-500 text-[16px]">{card.currentStamps}</span>
                                                             <span className="font-mono text-espresso-300 text-[12px]"> / {card.maxStamps}</span>
-                                                            <p className="text-[9px] text-[#D4AF37] font-bold mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">완성 시: {card.rewardDesc}</p>
+                                                            <p className="text-[9px] text-[#D4AF37] font-bold mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">{t('profile.lbl_reward_on_complete', '완성 시')}: {card.rewardDesc}</p>
                                                         </div>
                                                     </div>
 
@@ -2048,8 +2048,8 @@ export default function Profile() {
                                                                         return (
                                                                             <div key={item.key} className="space-y-1 bg-espresso-950/20 p-2.5 rounded-xl border border-espresso-800/30">
                                                                                 <div className="flex justify-between items-center text-[10px] font-bold">
-                                                                                    <span className="text-espresso-100">{item.label} 도장판</span>
-                                                                                    <span className="font-mono text-[#D4AF37]">{currentVal} / {targetVal}개</span>
+                                                                                    <span className="text-espresso-100">{t('profile.lbl_stamp_card_title', { label: item.label, defaultValue: `${item.label} 도장판` })}</span>
+                                                                                    <span className="font-mono text-[#D4AF37]">{currentVal} / {t('profile.unit_stamps', { count: targetVal, defaultValue: `${targetVal}개` })}</span>
                                                                                 </div>
                                                                                 <div className="grid grid-cols-6 gap-2.5 pt-1">
                                                                                     {itemDots.map((isStamped, dIdx) => (
@@ -2093,10 +2093,10 @@ export default function Profile() {
 
                                                     <div className="flex justify-between items-center pt-1.5 border-t border-espresso-800/40 mt-1">
                                                         <span className="text-[9.5px] text-espresso-300">
-                                                            총 누적 적립: <span className="text-[#D4AF37] font-black font-mono">{(card.completedCount * card.maxStamps) + card.currentStamps}개</span>
+                                                            {t('profile.lbl_total_stamps', '총 누적 적립')}: <span className="text-[#D4AF37] font-black font-mono">{t('profile.unit_stamps', { count: (card.completedCount * card.maxStamps) + card.currentStamps, defaultValue: `${(card.completedCount * card.maxStamps) + card.currentStamps}개` })}</span>
                                                         </span>
                                                         <span className="text-[9.5px] text-espresso-300">
-                                                            완성 횟수: <span className="text-amber-500 font-black">{card.completedCount}회</span>
+                                                            {t('profile.lbl_complete_count', '완성 횟수')}: <span className="text-amber-500 font-black">{t('profile.unit_times', { count: card.completedCount, defaultValue: `${card.completedCount}회` })}</span>
                                                         </span>
                                                     </div>
                                                 </div>
@@ -2104,7 +2104,7 @@ export default function Profile() {
                                         })
                                     ) : (
                                         <div className="text-center py-8 text-espresso-300 text-xs opacity-75">
-                                            적립된 {activeStampTab === 'REGULAR' ? '일반' : '시즌 프로모션'} 스탬프 카드가 없습니다.
+                                            {t('profile.no_stamp_cards', { type: activeStampTab === 'REGULAR' ? t('profile.tab_regular', '일반 음료') : t('profile.tab_promotion', '프로모션'), defaultValue: `적립된 ${activeStampTab === 'REGULAR' ? '일반' : '시즌 프로모션'} 스탬프 카드가 없습니다.` })}
                                         </div>
                                     )}
                                 </div>
@@ -2118,13 +2118,13 @@ export default function Profile() {
                                                     FREE
                                                 </div>
                                                 <div className="space-y-1">
-                                                    <h4 className="font-bold text-[14px] text-espresso-50">{coupon.storeName} 무료 혜택</h4>
+                                                    <h4 className="font-bold text-[14px] text-espresso-50">{t('profile.coupon_reward_title', { storeName: coupon.storeName, defaultValue: `${coupon.storeName} 무료 혜택` })}</h4>
                                                     {coupon.rewardDesc && (
                                                         <p className="text-[12px] text-amber-400 font-bold mt-0.5">{coupon.rewardDesc}</p>
                                                     )}
-                                                    <p className="text-[11px] text-[#D4AF37]/80 font-bold">쿠폰 코드: {coupon.couponCode}</p>
+                                                    <p className="text-[11px] text-[#D4AF37]/80 font-bold">{t('profile.lbl_coupon_code', '쿠폰 코드')}: {coupon.couponCode}</p>
                                                     <p className="text-[10px] text-espresso-300">
-                                                        만료일: {new Date(coupon.expiresAt).toLocaleDateString()}
+                                                        {t('profile.lbl_expire_date', '만료일')}: {new Date(coupon.expiresAt).toLocaleDateString()}
                                                     </p>
                                                 </div>
                                                 <button 
@@ -2134,13 +2134,13 @@ export default function Profile() {
                                                     }}
                                                     className="bg-amber-500 text-espresso-950 font-black text-xs px-3.5 py-2 rounded-xl active:scale-95 transition-all shadow-sm shrink-0 cursor-pointer"
                                                 >
-                                                    사용하기
+                                                    {t('profile.btn_use_now', '사용하기')}
                                                 </button>
                                             </div>
                                         ))
                                     ) : (
                                         <div className="text-center py-8 text-espresso-300 text-xs opacity-75">
-                                            사용 가능한 무료 쿠폰이 없습니다.
+                                            {t('profile.no_free_coupons', '사용 가능한 무료 쿠폰이 없습니다.')}
                                         </div>
                                     )}
                                 </div>
@@ -2731,8 +2731,8 @@ export default function Profile() {
                             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-gradient-to-br from-espresso-900 to-[#1b120c] rounded-3xl border border-amber-900/40 p-6 z-[120] text-center shadow-2xl space-y-6"
                         >
                             <div>
-                                <h3 className="font-serif font-black text-xl text-amber-500">단골 적립용 QR</h3>
-                                <p className="text-xs text-espresso-200 mt-1">매장 점주에게 이 QR 코드를 보여주세요.</p>
+                                <h3 className="font-serif font-black text-xl text-amber-500">{t('profile.qr_modal_title', '단골 적립용 QR')}</h3>
+                                <p className="text-xs text-espresso-200 mt-1">{t('profile.qr_modal_desc', '매장 점주에게 이 QR 코드를 보여주세요.')}</p>
                             </div>
 
                             <div className="bg-white p-4 rounded-2xl inline-block shadow-inner mx-auto border-2 border-amber-500/20">
@@ -2745,7 +2745,7 @@ export default function Profile() {
                             </div>
 
                             <div className="space-y-1 bg-espresso-950/60 py-3 px-4 rounded-2xl border border-espresso-800">
-                                <span className="text-xs text-espresso-300 font-bold">고유 식별코드</span>
+                                <span className="text-xs text-espresso-300 font-bold">{t('profile.qr_modal_unique_code', '고유 식별코드')}</span>
                                 <p className="font-mono text-xs font-black text-amber-400 select-all truncate">{currentUser.id}</p>
                             </div>
 
@@ -2756,7 +2756,7 @@ export default function Profile() {
                                 }}
                                 className="w-full py-3 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-[14px] rounded-xl active:scale-95 transition-all shadow-md cursor-pointer"
                             >
-                                닫기
+                                {t('profile.btn_close', '닫기')}
                             </button>
                         </motion.div>
                     </>
@@ -2782,8 +2782,8 @@ export default function Profile() {
                             <div>
                                 <span className="bg-amber-500 text-espresso-950 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">COUPON</span>
                                 <h3 className="font-serif font-black text-lg text-espresso-50 mt-2">{currentCouponForQR.storeName}</h3>
-                                <p className="text-[11px] text-amber-400 font-bold mt-0.5">무료 쿠폰 사용하기</p>
-                                <p className="text-xs text-espresso-200 mt-1 break-keep">매장 직원에게 제시하여 혜택을 받으세요.</p>
+                                <p className="text-[11px] text-amber-400 font-bold mt-0.5">{t('profile.coupon_qr_modal_subtitle', '무료 쿠폰 사용하기')}</p>
+                                <p className="text-xs text-espresso-200 mt-1 break-keep">{t('profile.coupon_qr_modal_desc', '매장 직원에게 제시하여 혜택을 받으세요.')}</p>
                             </div>
 
                             <div className="bg-white p-4 rounded-2xl inline-block shadow-inner mx-auto border-2 border-amber-500/20">
@@ -2795,7 +2795,7 @@ export default function Profile() {
                             </div>
 
                             <div className="space-y-1 bg-espresso-950/60 py-3 px-4 rounded-2xl border border-espresso-800">
-                                <span className="text-xs text-espresso-300 font-bold">쿠폰 코드</span>
+                                <span className="text-xs text-espresso-300 font-bold">{t('profile.lbl_coupon_code', '쿠폰 코드')}</span>
                                 <p className="font-mono text-xs font-black text-amber-400 select-all">{currentCouponForQR.couponCode}</p>
                             </div>
 
@@ -2803,7 +2803,7 @@ export default function Profile() {
                                 <button 
                                     onClick={async () => {
                                         // 수동 모바일 사용 처리 지원
-                                        if (window.confirm("쿠폰을 지금 사용 처리하시겠습니까?")) {
+                                        if (window.confirm(t('profile.confirm_manual_use', '쿠폰을 지금 사용 처리하시겠습니까?'))) {
                                             try {
                                                 const token = localStorage.getItem('token');
                                                 const res = await fetch(`${API_BASE}/api/stamps/coupons/${currentCouponForQR.id}/use`, {
@@ -2811,21 +2811,21 @@ export default function Profile() {
                                                     headers: { 'Authorization': `Bearer ${token}` }
                                                 });
                                                 if (res.ok) {
-                                                    alert("쿠폰 사용이 완료되었습니다! 🎉");
+                                                    alert(t('profile.alert_use_success', '쿠폰 사용이 완료되었습니다! 🎉'));
                                                     setIsCouponQRModalOpen(false);
                                                     fetchStampData();
                                                 } else {
                                                     const err = await res.json();
-                                                    alert(err.message || "쿠폰 사용에 실패했습니다.");
+                                                    alert(err.message || t('profile.alert_use_fail', '쿠폰 사용에 실패했습니다.'));
                                                 }
                                             } catch (err) {
-                                                alert("오류가 발생했습니다.");
+                                                alert(t('profile.alert_use_error', '오류가 발생했습니다.'));
                                             }
                                         }
                                     }}
                                     className="flex-1 py-3 bg-[#1e1e21] border border-amber-500/50 text-amber-500 font-black text-[14px] rounded-xl active:scale-95 transition-all cursor-pointer"
                                 >
-                                    수동 사용하기
+                                    {t('profile.btn_manual_use', '수동 사용하기')}
                                 </button>
                                 <button 
                                     onClick={() => {
@@ -2834,7 +2834,7 @@ export default function Profile() {
                                     }}
                                     className="flex-1 py-3 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-[14px] rounded-xl active:scale-95 transition-all cursor-pointer"
                                 >
-                                    닫기
+                                    {t('profile.btn_close', '닫기')}
                                 </button>
                             </div>
                         </motion.div>

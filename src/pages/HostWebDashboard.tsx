@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
     Store, Database, Settings, BarChart3, Clock, UserCheck, 
     Plus, Minus, Coffee, ChevronLeft, Save, Sparkles, RefreshCw, Undo, Trash2 
@@ -8,6 +9,7 @@ import {
 import { API_BASE } from '../utils/apiConfig';
 
 export default function HostWebDashboard() {
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'POS' | 'CONFIG' | 'STORE' | 'ANALYTICS'>('POS');
     const [storeId, setStoreId] = useState('');
@@ -154,12 +156,12 @@ export default function HostWebDashboard() {
                         }
                     }
                 } else {
-                    setErrorMessage("등록된 내 매장을 찾을 수 없습니다. 마이페이지에서 매장 추가를 먼저 진행해주세요.");
+                    setErrorMessage(t('host_dashboard.err_no_store', '등록된 내 매장을 찾을 수 없습니다. 마이페이지에서 매장 추가를 먼저 진행해주세요.'));
                 }
             }
         } catch (err) {
             console.error("Dashboard error:", err);
-            setErrorMessage("데이터를 불러오는 중 오류가 발생했습니다.");
+            setErrorMessage(t('host_dashboard.err_load_fail', '데이터를 불러오는 중 오류가 발생했습니다.'));
         } finally {
             setIsLoading(false);
         }
@@ -172,7 +174,7 @@ export default function HostWebDashboard() {
     // 2. POS 적립 요청
     const handlePosEarn = async () => {
         if (!targetUserId || !selectedConfigId) {
-            setErrorMessage("고객 식별코드와 스탬프 종류를 선택해 주세요.");
+            setErrorMessage(t('host_dashboard.err_select_card', '고객 식별코드와 스탬프 종류를 선택해 주세요.'));
             return;
         }
 
@@ -187,7 +189,7 @@ export default function HostWebDashboard() {
             finalItems = earnItems;
             finalAmount = Object.values(earnItems).reduce((sum, val) => sum + val, 0);
             if (finalAmount <= 0) {
-                setErrorMessage("최소 1개 이상의 품목 수량을 선택하여 적립을 진행해 주세요.");
+                setErrorMessage(t('host_dashboard.err_min_item_qty', '최소 1개 이상의 품목 수량을 선택하여 적립을 진행해 주세요.'));
                 return;
             }
         }
@@ -212,7 +214,7 @@ export default function HostWebDashboard() {
             });
 
             if (res.ok) {
-                setSuccessMessage("스탬프 적립이 완벽하게 완료되었습니다! 🎉");
+                setSuccessMessage(t('host_dashboard.success_earn', '스탬프 적립이 완벽하게 완료되었습니다! 🎉'));
                 setTargetUserId('');
                 setEarnAmount(1);
                 if (isPromotion) {
@@ -225,10 +227,10 @@ export default function HostWebDashboard() {
                 fetchDashboardData(); // 데이터 리프레시
             } else {
                 const err = await res.json();
-                setErrorMessage(err.message || "적립 처리에 실패했습니다.");
+                setErrorMessage(err.message || t('host_dashboard.err_earn_fail', '적립 처리에 실패했습니다.'));
             }
         } catch (err) {
-            setErrorMessage("네트워크 연결에 문제가 발생했습니다.");
+            setErrorMessage(t('host_dashboard.err_network', '네트워크 연결에 문제가 발생했습니다.'));
         } finally {
             setIsLoading(false);
         }
@@ -236,7 +238,7 @@ export default function HostWebDashboard() {
 
     // 3. 최근 트랜잭션 롤백
     const handleRollback = async (txn: any) => {
-        if (!window.confirm(`[${txn.userNickname}] 고객님의 최근 적립(${txn.amount}개)을 취소하고 롤백하시겠습니까?`)) return;
+        if (!window.confirm(t('host_dashboard.alert_rollback_confirm', { name: txn.userNickname, amount: txn.amount, defaultValue: `[${txn.userNickname}] 고객님의 최근 적립(${txn.amount}개)을 취소하고 롤백하시겠습니까?` }))) return;
         setIsLoading(true);
         setErrorMessage('');
         setSuccessMessage('');
@@ -255,14 +257,14 @@ export default function HostWebDashboard() {
             });
 
             if (res.ok) {
-                setSuccessMessage("스탬프 적립이 정상적으로 취소(롤백)되었습니다. ↩");
+                setSuccessMessage(t('host_dashboard.success_rollback', '스탬프 적립이 정상적으로 취소(롤백)되었습니다. ↩'));
                 fetchDashboardData();
             } else {
                 const err = await res.json();
-                setErrorMessage(err.message || "롤백 취소에 실패했습니다.");
+                setErrorMessage(err.message || t('host_dashboard.err_rollback_fail', '롤백 취소에 실패했습니다.'));
             }
         } catch (err) {
-            setErrorMessage("네트워크 에러가 발생했습니다.");
+            setErrorMessage(t('host_dashboard.err_network_rollback', '네트워크 에러가 발생했습니다.'));
         } finally {
             setIsLoading(false);
         }
@@ -272,7 +274,7 @@ export default function HostWebDashboard() {
     const handleCreateConfig = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!cardTitle || !rewardDesc) {
-            setErrorMessage("정책명과 리워드 보상 설명은 필수입니다.");
+            setErrorMessage(t('host_dashboard.err_empty_fields', '정책명과 리워드 보상 설명은 필수입니다.'));
             return;
         }
         setIsLoading(true);
@@ -297,7 +299,7 @@ export default function HostWebDashboard() {
             });
 
             if (res.ok) {
-                setSuccessMessage("새로운 스탬프 정책이 생성되어 활성화되었습니다! ✨");
+                setSuccessMessage(t('host_dashboard.success_config_create', '새로운 스탬프 정책이 생성되어 활성화되었습니다! ✨'));
                 // 폼 초기화
                 setCardTitle('');
                 setTargetMenu('');
@@ -305,10 +307,10 @@ export default function HostWebDashboard() {
                 fetchDashboardData();
             } else {
                 const err = await res.json();
-                setErrorMessage(err.message || "정책 생성 실패");
+                setErrorMessage(err.message || t('host_dashboard.err_config_create_fail', '정책 생성 실패'));
             }
         } catch (err) {
-            setErrorMessage("네트워크 전송 오류가 발생했습니다.");
+            setErrorMessage(t('host_dashboard.err_network_config', '네트워크 전송 오류가 발생했습니다.'));
         } finally {
             setIsLoading(false);
         }
@@ -337,14 +339,14 @@ export default function HostWebDashboard() {
             });
 
             if (res.ok) {
-                setSuccessMessage("매장 프로필 정보가 안전하게 업데이트되었습니다! 💾");
+                setSuccessMessage(t('host_dashboard.success_store_update', '매장 프로필 정보가 안전하게 업데이트되었습니다! 💾'));
                 fetchDashboardData();
             } else {
                 const err = await res.json();
-                setErrorMessage(err.message || "프로필 변경 실패");
+                setErrorMessage(err.message || t('host_dashboard.err_store_update_fail', '프로필 변경 실패'));
             }
         } catch (err) {
-            setErrorMessage("통신 에러가 발생했습니다.");
+            setErrorMessage(t('host_dashboard.err_network_store', '통신 에러가 발생했습니다.'));
         } finally {
             setIsLoading(false);
         }
@@ -371,7 +373,7 @@ export default function HostWebDashboard() {
                             </h1>
                             <span className="bg-amber-600/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold px-1.5 py-0.5 rounded">B2B</span>
                         </div>
-                        <p className="text-[11px] text-espresso-300 mt-0.5">매장 전용 디지털 스탬프 관리 파트너 대시보드</p>
+                        <p className="text-[11px] text-espresso-300 mt-0.5">{t('host_dashboard.sub_title', '매장 전용 디지털 스탬프 관리 파트너 대시보드')}</p>
                     </div>
                 </div>
 
@@ -382,7 +384,7 @@ export default function HostWebDashboard() {
                     >
                         <RefreshCw size={16} />
                     </button>
-                    <span className="text-xs text-espresso-300 hidden md:block">로그인 세션: <span className="font-bold text-amber-400">점주</span></span>
+                    <span className="text-xs text-espresso-300 hidden md:block">{t('host_dashboard.login_session', '로그인 세션')}: <span className="font-bold text-amber-400">{t('host_dashboard.owner_role', '점주')}</span></span>
                 </div>
             </header>
 
@@ -390,31 +392,31 @@ export default function HostWebDashboard() {
             {stats && (
                 <section className="p-6 grid grid-cols-2 lg:grid-cols-4 gap-4 bg-espresso-900/30 border-b border-espresso-850">
                     <div className="bg-espresso-900/50 p-4 rounded-2xl border border-espresso-800/60 shadow-sm flex flex-col justify-between">
-                        <span className="text-[11px] text-espresso-300 font-bold uppercase tracking-wider">누적 적립 건수</span>
+                        <span className="text-[11px] text-espresso-300 font-bold uppercase tracking-wider">{t('host_dashboard.stat_total_earn', '누적 적립 건수')}</span>
                         <div className="flex items-baseline gap-1 mt-2">
                             <span className="font-mono text-2xl font-black text-espresso-50">{stats.totalEarnCount}</span>
-                            <span className="text-xs text-espresso-300">건</span>
+                            <span className="text-xs text-espresso-300">{t('host_dashboard.unit_count', '건')}</span>
                         </div>
                     </div>
                     <div className="bg-espresso-900/50 p-4 rounded-2xl border border-espresso-800/60 shadow-sm flex flex-col justify-between">
-                        <span className="text-[11px] text-amber-500 font-bold uppercase tracking-wider">오늘 신규 적립</span>
+                        <span className="text-[11px] text-amber-500 font-bold uppercase tracking-wider">{t('host_dashboard.stat_today_earn', '오늘 신규 적립')}</span>
                         <div className="flex items-baseline gap-1 mt-2">
                             <span className="font-mono text-2xl font-black text-amber-400">{stats.todayEarnCount}</span>
-                            <span className="text-xs text-amber-500/80">건</span>
+                            <span className="text-xs text-amber-500/80">{t('host_dashboard.unit_count', '건')}</span>
                         </div>
                     </div>
                     <div className="bg-espresso-900/50 p-4 rounded-2xl border border-espresso-800/60 shadow-sm flex flex-col justify-between">
-                        <span className="text-[11px] text-espresso-300 font-bold uppercase tracking-wider">발행된 무료 쿠폰</span>
+                        <span className="text-[11px] text-espresso-300 font-bold uppercase tracking-wider">{t('host_dashboard.stat_issued_coupons', '발행된 무료 쿠폰')}</span>
                         <div className="flex items-baseline gap-1 mt-2">
                             <span className="font-mono text-2xl font-black text-espresso-50">{stats.totalIssuedCoupons}</span>
-                            <span className="text-xs text-espresso-300">장</span>
+                            <span className="text-xs text-espresso-300">{t('host_dashboard.unit_sheets', '장')}</span>
                         </div>
                     </div>
                     <div className="bg-espresso-900/50 p-4 rounded-2xl border border-espresso-800/60 shadow-sm flex flex-col justify-between">
-                        <span className="text-[11px] text-green-400 font-bold uppercase tracking-wider">사용된 무료 쿠폰</span>
+                        <span className="text-[11px] text-green-400 font-bold uppercase tracking-wider">{t('host_dashboard.stat_used_coupons', '사용된 무료 쿠폰')}</span>
                         <div className="flex items-baseline gap-1 mt-2">
                             <span className="font-mono text-2xl font-black text-green-400">{stats.totalUsedCoupons}</span>
-                            <span className="text-xs text-green-400/80">장</span>
+                            <span className="text-xs text-green-400/80">{t('host_dashboard.unit_sheets', '장')}</span>
                         </div>
                     </div>
                 </section>
@@ -428,19 +430,19 @@ export default function HostWebDashboard() {
                         onClick={() => setActiveTab('POS')}
                         className={`flex-1 lg:flex-none flex items-center justify-center lg:justify-start gap-2.5 px-4 py-3 rounded-xl font-bold text-sm transition-all whitespace-nowrap cursor-pointer ${activeTab === 'POS' ? 'bg-amber-600 text-espresso-950 shadow-md' : 'text-espresso-200 hover:bg-espresso-800/40'}`}
                     >
-                        <Coffee size={18} /> POS 실시간 적립
+                        <Coffee size={18} /> {t('host_dashboard.tab_pos', 'POS 실시간 적립')}
                     </button>
                     <button 
                         onClick={() => setActiveTab('CONFIG')}
                         className={`flex-1 lg:flex-none flex items-center justify-center lg:justify-start gap-2.5 px-4 py-3 rounded-xl font-bold text-sm transition-all whitespace-nowrap cursor-pointer ${activeTab === 'CONFIG' ? 'bg-amber-600 text-espresso-950 shadow-md' : 'text-espresso-200 hover:bg-espresso-800/40'}`}
                     >
-                        <Settings size={18} /> 스탬프/시즌 정책 빌더
+                        <Settings size={18} /> {t('host_dashboard.tab_config', '스탬프/시즌 정책 빌더')}
                     </button>
                     <button 
                         onClick={() => setActiveTab('STORE')}
                         className={`flex-1 lg:flex-none flex items-center justify-center lg:justify-start gap-2.5 px-4 py-3 rounded-xl font-bold text-sm transition-all whitespace-nowrap cursor-pointer ${activeTab === 'STORE' ? 'bg-amber-600 text-espresso-950 shadow-md' : 'text-espresso-200 hover:bg-espresso-800/40'}`}
                     >
-                        <Store size={18} /> 매장 정보 수정
+                        <Store size={18} /> {t('host_dashboard.tab_store', '매장 정보 수정')}
                     </button>
                 </aside>
 
@@ -462,32 +464,32 @@ export default function HostWebDashboard() {
                         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                             {/* 적립 폼 */}
                             <div className="xl:col-span-2 bg-[#17171c] p-6 rounded-3xl border border-espresso-850 space-y-5">
-                                <h3 className="font-serif font-black text-lg text-amber-500">원터치 수동 적립 패널 (POS 대응)</h3>
+                                <h3 className="font-serif font-black text-lg text-amber-500">{t('host_dashboard.pos_panel_title', '원터치 수동 적립 패널 (POS 대응)')}</h3>
                                 
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-xs text-espresso-200 font-bold block">고객 고유식별 QR코드 문자열 (또는 ID)</label>
+                                        <label className="text-xs text-espresso-200 font-bold block">{t('host_dashboard.ph_user_qr_string', '고객 고유식별 QR코드 문자열 (또는 ID)')}</label>
                                         <input 
                                             type="text" 
                                             value={targetUserId}
                                             onChange={e => setTargetUserId(e.target.value)}
-                                            placeholder="예: d7e6b0a1-c9f2-45e0-..."
+                                            placeholder={t('host_scanner.ph_user_id', '유저 고유 식별코드 직접 입력')}
                                             className="w-full bg-espresso-900 border border-espresso-700 rounded-xl px-4 py-3 font-mono text-sm text-espresso-50 outline-none focus:border-amber-500/50"
                                         />
                                     </div>
 
                                     {/* 스탬프 종류 */}
                                     <div className="space-y-2">
-                                        <label className="text-xs text-espresso-200 font-bold block">적립 대상 도장판 설정</label>
+                                        <label className="text-xs text-espresso-200 font-bold block">{t('host_dashboard.lbl_select_card', '적립 대상 도장판 설정')}</label>
                                         <select 
                                             value={selectedConfigId}
                                             onChange={e => setSelectedConfigId(e.target.value)}
                                             className="w-full bg-espresso-900 border border-espresso-700 rounded-xl px-4 py-3 text-xs text-espresso-100 outline-none focus:border-amber-500/50 cursor-pointer"
                                         >
-                                            <option value="">적립 판을 선택하세요.</option>
+                                            <option value="">{t('host_dashboard.opt_select_card_placeholder', '적립 판을 선택하세요.')}</option>
                                             {storeConfigs.map(cfg => (
                                                 <option key={cfg.id} value={cfg.id}>
-                                                    {cfg.cardTitle} ({cfg.cardType === 'REGULAR' ? '일반 스탬프' : '시즌 프로모션'})
+                                                    {cfg.cardTitle} ({cfg.cardType === 'REGULAR' ? t('host_dashboard.suffix_regular_card', '일반 스탬프') : t('host_dashboard.suffix_promo_card', '시즌 프로모션')})
                                                 </option>
                                             ))}
                                         </select>
@@ -502,7 +504,7 @@ export default function HostWebDashboard() {
                                         if (isPromotion) {
                                             return (
                                                 <div className="bg-espresso-950 p-4 rounded-2xl border border-espresso-800 space-y-4">
-                                                    <span className="text-xs text-espresso-200 block text-center font-bold">품목별 적립 수량 조절</span>
+                                                    <span className="text-xs text-espresso-200 block text-center font-bold">{t('host_scanner.adjust_items_qty', '품목별 적립 수량 조절')}</span>
                                                     <div className="space-y-2">
                                                         {parsedItemsConfig.map((item: any) => {
                                                             const currentQty = earnItems[item.key] || 0;
@@ -510,7 +512,7 @@ export default function HostWebDashboard() {
                                                                 <div key={item.key} className="flex justify-between items-center bg-espresso-900/40 p-3 rounded-xl border border-espresso-800/60">
                                                                     <div className="text-left">
                                                                         <span className="font-bold text-xs text-espresso-50">{item.label}</span>
-                                                                        <p className="text-[9px] text-espresso-300">목표 수량: {item.target}개</p>
+                                                                        <p className="text-[9px] text-espresso-300">{t('host_scanner.target_qty', { target: item.target })}</p>
                                                                     </div>
                                                                     <div className="flex items-center gap-3">
                                                                         <button 
@@ -532,7 +534,7 @@ export default function HostWebDashboard() {
                                                         })}
                                                     </div>
                                                     <div className="text-right text-[10px] text-espresso-300">
-                                                        총 적립 예정: <span className="text-amber-500 font-bold">{Object.values(earnItems).reduce((a, b) => a + b, 0)}개</span> 스탬프
+                                                        {t('host_scanner.total_earn_expected', { count: Object.values(earnItems).reduce((a, b) => a + b, 0) })}
                                                     </div>
                                                 </div>
                                             );
@@ -541,7 +543,7 @@ export default function HostWebDashboard() {
                                         // 기존 단일 카운터
                                         return (
                                             <div className="bg-espresso-950 p-4 rounded-2xl border border-espresso-800 text-center space-y-3">
-                                                <span className="text-xs text-espresso-200 block">스탬프 적립 수량 조절</span>
+                                                <span className="text-xs text-espresso-200 block">{t('host_scanner.adjust_stamp_qty', '적립할 스탬프 수량 조절')}</span>
                                                 <div className="flex justify-center items-center gap-6">
                                                     <button 
                                                         onClick={() => setEarnAmount(prev => Math.max(1, prev - 1))}
@@ -567,15 +569,15 @@ export default function HostWebDashboard() {
                                         className="w-full py-4 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-sm rounded-xl transition-all shadow-md active:scale-98 cursor-pointer flex justify-center items-center gap-1.5"
                                     >
                                         <Coffee size={16} /> {(() => {
-                                            if (isLoading) return "적립 처리 중...";
+                                            if (isLoading) return t('host_dashboard.earning_processing', '적립 처리 중...');
                                             const cfg = storeConfigs.find(c => c.id === selectedConfigId);
                                             const parsedItemsConfig = getItemsConfig(cfg);
                                             const isPromotion = cfg && parsedItemsConfig && Array.isArray(parsedItemsConfig);
                                             if (isPromotion) {
                                                 const totalQty = Object.values(earnItems).reduce((sum, val) => sum + val, 0);
-                                                return `${totalQty}개 스탬프 적립 전송 및 완료`;
+                                                return t('host_dashboard.btn_earn_submit', { count: totalQty });
                                             }
-                                            return `${earnAmount}개 스탬프 적립 전송 및 완료`;
+                                            return t('host_dashboard.btn_earn_submit', { count: earnAmount });
                                         })()}
                                     </button>
                                 </div>
@@ -583,7 +585,7 @@ export default function HostWebDashboard() {
 
                             {/* 실시간 적립/취소 타임라인 */}
                             <div className="bg-[#17171c] p-6 rounded-3xl border border-espresso-850 space-y-4 max-h-[500px] overflow-y-auto hide-scrollbar">
-                                <h3 className="font-serif font-black text-lg text-espresso-100">최근 적립 타임라인</h3>
+                                <h3 className="font-serif font-black text-lg text-espresso-100">{t('host_dashboard.timeline_title', '최근 적립 타임라인')}</h3>
                                 <div className="space-y-3">
                                     {recentTransactions.length > 0 ? (
                                         recentTransactions.map((txn) => (
@@ -606,7 +608,7 @@ export default function HostWebDashboard() {
                                                         <button 
                                                             onClick={() => handleRollback(txn)}
                                                             className="p-1.5 bg-espresso-900 border border-espresso-750 text-espresso-300 hover:text-red-400 rounded-lg active:scale-95 transition-all cursor-pointer"
-                                                            title="적립 취소(롤백)"
+                                                            title={t('host_scanner.btn_rollback', '방금 보낸 적립 전면 취소(롤백)')}
                                                         >
                                                             <Undo size={12} />
                                                         </button>
@@ -616,7 +618,7 @@ export default function HostWebDashboard() {
                                         ))
                                     ) : (
                                         <div className="text-center py-12 text-espresso-400 opacity-60 text-xs">
-                                            최근 적립 이력이 없습니다.
+                                            {t('host_dashboard.no_timeline_history', '최근 적립 이력이 없습니다.')}
                                         </div>
                                     )}
                                 </div>
@@ -629,8 +631,8 @@ export default function HostWebDashboard() {
                         <div className="bg-[#17171c] p-6 rounded-3xl border border-espresso-850 space-y-6">
                             <div className="flex justify-between items-center pb-4 border-b border-espresso-850">
                                 <div>
-                                    <h3 className="font-serif font-black text-lg text-amber-500">스탬프 & 시즌 프로모션 정책 빌더</h3>
-                                    <p className="text-xs text-espresso-300 mt-1">매장의 리워드 정책 및 프로모션 이벤트를 자유롭게 분기하고 설정합니다.</p>
+                                    <h3 className="font-serif font-black text-lg text-amber-500">{t('host_dashboard.config_builder_title', '스탬프 & 시즌 프로모션 정책 빌더')}</h3>
+                                    <p className="text-xs text-espresso-300 mt-1">{t('host_dashboard.config_builder_desc', '매장의 리워드 정책 및 프로모션 이벤트를 자유롭게 분기하고 설정합니다.')}</p>
                                 </div>
                                 <span className="bg-[#D4AF37] text-espresso-950 text-[10px] font-black px-2.5 py-1 rounded-full flex items-center gap-1.5">
                                     <Sparkles size={12} /> MULTI-CONFIG ACTIVE
@@ -641,20 +643,20 @@ export default function HostWebDashboard() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {/* 카드 종류 */}
                                     <div className="space-y-1.5">
-                                        <label className="text-xs text-espresso-200 font-bold block">정책 종류</label>
+                                        <label className="text-xs text-espresso-200 font-bold block">{t('host_dashboard.lbl_policy_type', '정책 종류')}</label>
                                         <select 
                                             value={cardType}
                                             onChange={e => setCardType(e.target.value)}
                                             className="w-full bg-espresso-900 border border-espresso-750 rounded-xl px-4 py-3 text-xs text-espresso-100 cursor-pointer"
                                         >
-                                            <option value="REGULAR">일반 스탬프 (기본 아메리카노 등)</option>
-                                            <option value="PROMOTION">시즌 프로모션 (기획/페어링 세트 등)</option>
+                                            <option value="REGULAR">{t('host_dashboard.opt_regular', '일반 스탬프 (기본 아메리카노 등)')}</option>
+                                            <option value="PROMOTION">{t('host_dashboard.opt_promotion', '시즌 프로모션 (기획/페어링 세트 등)')}</option>
                                         </select>
                                     </div>
 
                                     {/* 완성 목표 도장수 */}
                                     <div className="space-y-1.5">
-                                        <label className="text-xs text-espresso-200 font-bold block">완성 목표 도장수 (기본 10개)</label>
+                                        <label className="text-xs text-espresso-200 font-bold block">{t('host_dashboard.lbl_max_stamps', '완성 목표 도장수 (기본 10개)')}</label>
                                         <input 
                                             type="number" 
                                             min="5" 
@@ -667,19 +669,19 @@ export default function HostWebDashboard() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs text-espresso-200 font-bold block">도장판 정책 명칭</label>
+                                    <label className="text-xs text-espresso-200 font-bold block">{t('host_dashboard.lbl_card_title', '도장판 정책 명칭')}</label>
                                     <input 
                                         type="text" 
                                         value={cardTitle}
                                         onChange={e => setCardTitle(e.target.value)}
-                                        placeholder="예: 아메리카노10+시즌음료5+페어링케익2 또는 [아메리카노 10잔 적립판]"
+                                        placeholder={t('host_dashboard.ph_card_title', '예: 아메리카노10+시즌음료5+페어링케익2 또는 [아메리카노 10잔 적립판]')}
                                         className="w-full bg-espresso-900 border border-espresso-750 rounded-xl px-4 py-3 text-xs text-espresso-100 outline-none focus:border-amber-500/50"
                                     />
                                     {cardType === 'PROMOTION' && (
                                         <p className="text-[10px] text-amber-400 leading-relaxed mt-1 bg-amber-950/20 border border-amber-900/30 p-2.5 rounded-lg flex items-start gap-1">
                                             <span>💡</span>
                                             <span>
-                                                <strong>복합 프로모션 구성 가이드</strong>: 명칭을 <strong>`[메뉴명][목표숫자]`</strong> 형태로 기재하고 <strong>`+`</strong> 기호로 연결해 주시면(예: <code className="bg-espresso-950 px-1 py-0.5 rounded font-mono text-[9px] text-[#D4AF37]">아메리카노10+시즌음료5+페어링케익2</code>), POS 수동 적립 화면에서 메뉴별 <strong>개별 수량 카운터가 자동으로 완벽하게 구성</strong>됩니다!
+                                                <strong>{t('host_dashboard.promo_guide_title', '복합 프로모션 구성 가이드')}</strong>: {t('host_dashboard.promo_guide_body', '명칭을 [메뉴명][목표숫자] 형태로 기재하고 + 기호로 연결해 주시면(예: 아메리카노10+시즌음료5+페어링케익2), POS 수동 적립 화면에서 메뉴별 개별 수량 카운터가 자동으로 완벽하게 구성됩니다!')}
                                             </span>
                                         </p>
                                     )}
@@ -688,19 +690,19 @@ export default function HostWebDashboard() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {/* 보상 설명 */}
                                     <div className="space-y-1.5">
-                                        <label className="text-xs text-espresso-200 font-bold block">도장판 완성 시 무료 리워드</label>
+                                        <label className="text-xs text-espresso-200 font-bold block">{t('host_dashboard.lbl_reward_desc', '도장판 완성 시 무료 리워드')}</label>
                                         <input 
                                             type="text" 
                                             value={rewardDesc}
                                             onChange={e => setRewardDesc(e.target.value)}
-                                            placeholder="예: 무료 아메리카노 1잔 무료 교환 쿠폰"
+                                            placeholder={t('host_dashboard.ph_reward_desc', '예: 무료 아메리카노 1잔 무료 교환 쿠폰')}
                                             className="w-full bg-espresso-900 border border-espresso-750 rounded-xl px-4 py-3 text-xs text-espresso-100 outline-none focus:border-amber-500/50"
                                         />
                                     </div>
 
                                     {/* 유효 기간 */}
                                     <div className="space-y-1.5">
-                                        <label className="text-xs text-espresso-200 font-bold block">쿠폰 유효 기간 (기본 90일)</label>
+                                        <label className="text-xs text-espresso-200 font-bold block">{t('host_dashboard.lbl_valid_days', '쿠폰 유효 기간 (기본 90일)')}</label>
                                         <input 
                                             type="number" 
                                             min="30" 
@@ -713,12 +715,12 @@ export default function HostWebDashboard() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs text-espresso-200 font-bold block">적립 제외/특정 타겟 메뉴 범위 (선택사항)</label>
+                                    <label className="text-xs text-espresso-200 font-bold block">{t('host_dashboard.lbl_target_menu', '적립 제외/특정 타겟 메뉴 범위 (선택사항)')}</label>
                                     <input 
                                         type="text" 
                                         value={targetMenu}
                                         onChange={e => setTargetMenu(e.target.value)}
-                                        placeholder="예: 특정 시그니처 멜론 소다, 초코 딸기 크레이프 페어링 세트 한정"
+                                        placeholder={t('host_dashboard.ph_target_menu', '예: 특정 시그니처 멜론 소다, 초코 딸기 크레이프 페어링 세트 한정')}
                                         className="w-full bg-espresso-900 border border-espresso-750 rounded-xl px-4 py-3 text-xs text-espresso-100 outline-none"
                                     />
                                 </div>
@@ -728,7 +730,7 @@ export default function HostWebDashboard() {
                                     disabled={isLoading}
                                     className="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-xs rounded-xl active:scale-95 transition-all shadow-md cursor-pointer flex justify-center items-center gap-1.5 mt-2"
                                 >
-                                    <Save size={14} /> {isLoading ? "정책 저장 중..." : "새로운 정책 활성화 및 적용"}
+                                    <Save size={14} /> {isLoading ? t('host_dashboard.saving_config', '정책 저장 중...') : t('host_dashboard.btn_save_config', '새로운 정책 활성화 및 적용')}
                                 </button>
                             </form>
                         </div>
@@ -738,14 +740,14 @@ export default function HostWebDashboard() {
                     {activeTab === 'STORE' && (
                         <div className="bg-[#17171c] p-6 rounded-3xl border border-espresso-850 space-y-6">
                             <div>
-                                <h3 className="font-serif font-black text-lg text-amber-500">매장 정보 및 프로필 관리</h3>
-                                <p className="text-xs text-espresso-300 mt-1">고객들이 빈마인드 지도 상세에서 확인하는 매장의 프로필을 편집합니다.</p>
+                                <h3 className="font-serif font-black text-lg text-amber-500">{t('host_dashboard.store_profile_title', '매장 정보 및 프로필 관리')}</h3>
+                                <p className="text-xs text-espresso-300 mt-1">{t('host_dashboard.store_profile_desc', '고객들이 빈마인드 지도 상세에서 확인하는 매장의 프로필을 편집합니다.')}</p>
                             </div>
 
                             <form onSubmit={handleUpdateStore} className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <label className="text-xs text-espresso-200 font-bold block">매장명</label>
+                                        <label className="text-xs text-espresso-200 font-bold block">{t('host_dashboard.lbl_store_name', '매장명')}</label>
                                         <input 
                                             type="text" 
                                             value={storeName}
@@ -754,7 +756,7 @@ export default function HostWebDashboard() {
                                         />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-xs text-espresso-200 font-bold block">전화번호</label>
+                                        <label className="text-xs text-espresso-200 font-bold block">{t('host_dashboard.lbl_store_phone', '전화번호')}</label>
                                         <input 
                                             type="text" 
                                             value={storePhone}
@@ -765,7 +767,7 @@ export default function HostWebDashboard() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs text-espresso-200 font-bold block">도로명 주소</label>
+                                    <label className="text-xs text-espresso-200 font-bold block">{t('host_dashboard.lbl_store_address', '도로명 주소')}</label>
                                     <input 
                                         type="text" 
                                         value={storeAddress}
@@ -775,7 +777,7 @@ export default function HostWebDashboard() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs text-espresso-200 font-bold block">매장 상세 설명</label>
+                                    <label className="text-xs text-espresso-200 font-bold block">{t('host_dashboard.lbl_store_desc', '매장 상세 설명')}</label>
                                     <textarea 
                                         rows={4}
                                         value={storeDescription}
@@ -789,7 +791,7 @@ export default function HostWebDashboard() {
                                     disabled={isLoading}
                                     className="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-xs rounded-xl active:scale-95 transition-all shadow-md cursor-pointer flex justify-center items-center gap-1.5 mt-2"
                                 >
-                                    <Save size={14} /> {isLoading ? "프로필 수정 중..." : "매장 정보 업데이트 저장"}
+                                    <Save size={14} /> {isLoading ? t('host_dashboard.saving_store', '프로필 수정 중...') : t('host_dashboard.btn_save_store', '매장 정보 업데이트 저장')}
                                 </button>
                             </form>
                         </div>

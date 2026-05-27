@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, Camera, Plus, Minus, CheckCircle, RotateCcw, AlertTriangle, UserCheck, Coffee } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { API_BASE } from '../../utils/apiConfig';
 
 interface HostQRScannerModalProps {
@@ -9,6 +10,7 @@ interface HostQRScannerModalProps {
 }
 
 export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerModalProps) {
+    const { t } = useTranslation();
     const [scanStep, setScanStep] = useState<'SCANNING' | 'EARNING' | 'SUCCESS'>('SCANNING');
     const [scannedUserId, setScannedUserId] = useState('');
     const [scannedUser, setScannedUser] = useState<any>(null);
@@ -597,7 +599,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                 
                 <div className="flex justify-between items-center mb-6">
                     <h3 className="text-lg font-serif font-black text-amber-500 tracking-tight flex items-center gap-2">
-                        🎫 점주용 실시간 QR 스캐너
+                        {t('host_scanner.title', '🎫 점주용 실시간 QR 스캐너')}
                     </h3>
                     <button onClick={onClose} className="p-1 text-espresso-300 hover:text-espresso-50 active:scale-90 transition-transform">
                         <X size={20} />
@@ -619,8 +621,8 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                             className="w-10 h-10 border-4 border-amber-500/20 border-t-amber-500 rounded-full"
                         />
                         <div className="text-center space-y-1">
-                            <span className="text-xs font-bold text-espresso-200 block">점주 매장 정보 동기화 중...</span>
-                            <p className="text-[10px] text-espresso-400">O2O 단골 적립 정책을 안전하게 연동하고 있습니다. ⏳</p>
+                            <span className="text-xs font-bold text-espresso-200 block">{t('host_scanner.sync_loading', '점주 매장 정보 동기화 중...')}</span>
+                            <p className="text-[10px] text-espresso-400">{t('host_scanner.sync_desc', 'O2O 단골 적립 정책을 안전하게 연동하고 있습니다. ⏳')}</p>
                         </div>
                     </div>
                 ) : (
@@ -654,10 +656,9 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                         <Camera size={24} />
                                     </motion.div>
                                     <div className="max-w-[280px]">
-                                        <span className="text-[12px] font-bold text-amber-500/90 block">실시간 스캔 카메라 비활성화됨</span>
+                                        <span className="text-[12px] font-bold text-amber-500/90 block">{t('host_scanner.camera_disabled', '실시간 스캔 카메라 비활성화됨')}</span>
                                         <p className="text-[10px] text-espresso-300 mt-1 leading-relaxed">
-                                            보안 정책(HTTP) 또는 기기 권한 문제로 실시간 화면이 제한되었습니다. 
-                                            아래 <span className="text-amber-400 font-bold">촬영 스캔</span> 또는 <span className="text-amber-400 font-bold">에뮬레이터</span>로 안전하게 테스트를 진행하세요!
+                                            {t('host_scanner.camera_disabled_desc', '보안 정책(HTTP) 또는 기기 권한 문제로 실시간 화면이 제한되었습니다. 아래 촬영 스캔 또는 에뮬레이터로 안전하게 테스트를 진행하세요!')}
                                         </p>
                                     </div>
                                 </div>
@@ -674,7 +675,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                         <div className="flex flex-col gap-2">
                             <label className="flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-amber-500 to-[#D4AF37] hover:from-amber-600 hover:to-[#B5952F] text-espresso-950 font-black text-xs rounded-xl shadow-md cursor-pointer active:scale-95 transition-transform text-center select-none">
                                 <Camera size={16} />
-                                <span>실제 카메라로 사진 촬영하여 스캔하기</span>
+                                <span>{t('host_scanner.btn_capture', '실제 카메라로 사진 촬영하여 스캔하기')}</span>
                                 <input 
                                     type="file" 
                                     accept="image/*" 
@@ -684,20 +685,20 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                 />
                             </label>
                             <span className="text-[9.5px] text-espresso-400 text-center">
-                                ※ 실시간 비디오가 막힌 경우, 이 버튼을 통해 QR코드를 촬영해 즉시 디코딩할 수 있습니다.
+                                {t('host_scanner.capture_tip', '※ 실시간 비디오가 막힌 경우, 이 버튼을 통해 QR코드를 촬영해 즉시 디코딩할 수 있습니다.')}
                             </span>
                         </div>
 
                         {/* 모의 카메라 에뮬레이션 테스트용 패널 (수동 입력 및 테스트 지원) */}
                         <div className="bg-espresso-950/50 p-4 rounded-2xl border border-espresso-800 space-y-4">
                             <div className="flex justify-between items-center border-b border-espresso-800 pb-2">
-                                <span className="text-[11px] font-bold text-amber-500/80 uppercase tracking-widest block">스캔 에뮬레이터</span>
-                                <span className="text-[9px] text-espresso-400">UUID 직접 입력 또는 퀵 프리셋 터치</span>
+                                <span className="text-[11px] font-bold text-amber-500/80 uppercase tracking-widest block">{t('host_scanner.emulator_title', '스캔 에뮬레이터')}</span>
+                                <span className="text-[9px] text-espresso-400">{t('host_scanner.emulator_desc', 'UUID 직접 입력 또는 퀵 프리셋 터치')}</span>
                             </div>
 
                             {/* 간편 테스트용 프리셋 버튼 (원터치 단골 고객) */}
                             <div className="space-y-2">
-                                <span className="text-[10px] text-espresso-300 font-bold block">💡 단골 고객 퀵 선택 (원터치 가상 스캔)</span>
+                                <span className="text-[10px] text-espresso-300 font-bold block">{t('host_scanner.emulator_quick_title', '💡 단골 고객 퀵 선택 (원터치 가상 스캔)')}</span>
                                 <div className="flex gap-1.5 flex-wrap">
                                     <button 
                                         onClick={() => {
@@ -706,7 +707,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                         }}
                                         className="text-[10px] bg-amber-950/20 hover:bg-amber-950/40 text-amber-400 border border-amber-900/30 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer font-bold flex items-center gap-1"
                                     >
-                                        ☕ 김아메 단골님 (김아메)
+                                        {t('host_scanner.emulator_customer_1', '☕ 김아메 단골님 (김아메)')}
                                     </button>
                                     <button 
                                         onClick={() => {
@@ -715,7 +716,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                         }}
                                         className="text-[10px] bg-amber-950/20 hover:bg-amber-950/40 text-amber-400 border border-amber-900/30 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer font-bold flex items-center gap-1"
                                     >
-                                        🍮 박라떼 고객님 (박라떼)
+                                        {t('host_scanner.emulator_customer_2', '🍮 박라떼 고객님 (박라떼)')}
                                     </button>
                                     <button 
                                         onClick={() => {
@@ -724,7 +725,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                         }}
                                         className="text-[10px] bg-amber-950/20 hover:bg-amber-950/40 text-amber-400 border border-amber-900/30 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer font-bold flex items-center gap-1"
                                     >
-                                        🍯 이바닐 VIP님 (이바닐)
+                                        {t('host_scanner.emulator_customer_3', '🍯 이바닐 VIP님 (이바닐)')}
                                     </button>
                                 </div>
                             </div>
@@ -732,7 +733,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                             <div className="flex gap-2">
                                 <input 
                                     type="text" 
-                                    placeholder="유저 고유 식별코드 직접 입력" 
+                                    placeholder={t('host_scanner.ph_user_id', '유저 고유 식별코드 직접 입력')} 
                                     value={scannedUserId} 
                                     onChange={e => setScannedUserId(e.target.value)}
                                     className="flex-1 bg-espresso-900 border border-espresso-700 rounded-xl px-3 py-2 text-xs font-bold text-espresso-50 outline-none focus:border-amber-500/50"
@@ -742,7 +743,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                     disabled={isLoading}
                                     className="bg-amber-600 hover:bg-amber-700 text-espresso-950 text-xs font-black px-4 rounded-xl active:scale-95 transition-all shrink-0 cursor-pointer"
                                 >
-                                    스캔
+                                    {t('host_scanner.btn_scan', '스캔')}
                                 </button>
                             </div>
                             
@@ -760,7 +761,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                     }}
                                     className="text-[10px] bg-espresso-900 hover:bg-espresso-800 text-espresso-200 border border-espresso-700 px-2.5 py-1 rounded-lg transition-colors cursor-pointer w-full text-center"
                                 >
-                                    나 자신을 스캔 (셀프 테스트)
+                                    {t('host_scanner.btn_self_scan', '나 자신을 스캔 (셀프 테스트)')}
                                 </button>
                             </div>
                         </div>
@@ -776,14 +777,14 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                 <UserCheck size={20} />
                             </div>
                             <div>
-                                <span className="text-[10px] text-espresso-300 font-bold">스캔 성공 (인식 완료)</span>
-                                <h4 className="font-bold text-[14px] text-espresso-50">{scannedUser.nickname} 단골 고객님</h4>
+                                <span className="text-[10px] text-espresso-300 font-bold">{t('host_scanner.scan_success_badge', '스캔 성공 (인식 완료)')}</span>
+                                <h4 className="font-bold text-[14px] text-espresso-50">{t('host_scanner.scanned_customer', { name: scannedUser.nickname, defaultValue: `${scannedUser.nickname} 단골 고객님` })}</h4>
                             </div>
                         </div>
 
                         {/* 적립 정책(도장판 종류) 선택 */}
                         <div className="space-y-2">
-                            <span className="text-xs font-bold text-espresso-100 block">적립 대상 도장판 선택</span>
+                            <span className="text-xs font-bold text-espresso-100 block">{t('host_scanner.select_card_title', '적립 대상 도장판 선택')}</span>
                             <div className="grid grid-cols-1 gap-2">
                                 {stampConfigs.map((cfg) => (
                                     <label 
@@ -801,7 +802,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                             />
                                             <div>
                                                 <span className="font-bold text-xs">{cfg.cardTitle}</span>
-                                                <p className="text-[9px] text-espresso-300 mt-0.5">목표: {cfg.maxStamps}개 | 보상: {cfg.rewardDesc}</p>
+                                                <p className="text-[9px] text-espresso-300 mt-0.5">{t('host_scanner.card_policy_info', { max: cfg.maxStamps, reward: cfg.rewardDesc, defaultValue: `목표: ${cfg.maxStamps}개 | 보상: ${cfg.rewardDesc}` })}</p>
                                             </div>
                                         </div>
                                         <span className="bg-espresso-900 text-[9px] font-bold px-2 py-0.5 rounded text-espresso-300 uppercase tracking-widest">
@@ -820,7 +821,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                             if (isPromotion) {
                                 return (
                                     <div className="bg-espresso-950/60 p-4 rounded-3xl border border-espresso-800 space-y-4">
-                                        <span className="text-xs font-bold text-espresso-200 block text-center">품목별 적립 수량 조절</span>
+                                        <span className="text-xs font-bold text-espresso-200 block text-center">{t('host_scanner.adjust_items_qty', '품목별 적립 수량 조절')}</span>
                                         <div className="space-y-2">
                                             {cfg.itemsConfig.map((item: any) => {
                                                 const currentQty = earnItems[item.key] || 0;
@@ -828,7 +829,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                                     <div key={item.key} className="flex justify-between items-center bg-espresso-900/40 p-3 rounded-xl border border-espresso-800/60">
                                                         <div className="text-left">
                                                             <span className="font-bold text-xs text-espresso-50">{item.label}</span>
-                                                            <p className="text-[9px] text-espresso-300">목표 수량: {item.target}개</p>
+                                                            <p className="text-[9px] text-espresso-300">{t('host_scanner.target_qty', { target: item.target, defaultValue: `목표 수량: ${item.target}개` })}</p>
                                                         </div>
                                                         <div className="flex items-center gap-3">
                                                             <button 
@@ -850,7 +851,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                             })}
                                         </div>
                                         <div className="text-right text-[10px] text-espresso-300">
-                                            총 적립 예정: <span className="text-amber-500 font-bold">{Object.values(earnItems).reduce((a, b) => a + b, 0)}개</span> 스탬프
+                                            {t('host_scanner.total_earn_expected', { count: Object.values(earnItems).reduce((a, b) => a + b, 0), defaultValue: `총 적립 예정: ${Object.values(earnItems).reduce((a, b) => a + b, 0)}개 스탬프` })}
                                         </div>
                                     </div>
                                 );
@@ -859,7 +860,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                             // 기존 일반 카운터
                             return (
                                 <div className="bg-espresso-950/60 p-5 rounded-3xl border border-espresso-800 text-center space-y-4">
-                                    <span className="text-xs font-bold text-espresso-200 block">적립할 스탬프 수량 조절</span>
+                                    <span className="text-xs font-bold text-espresso-200 block">{t('host_scanner.adjust_stamp_qty', '적립할 스탬프 수량 조절')}</span>
                                     
                                     <div className="flex justify-center items-center gap-6">
                                         <button 
@@ -878,7 +879,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                     </div>
                                     
                                     <span className="text-[10px] text-espresso-300 block">
-                                        원터치 분기적립: 일반/프로모션 수량 가감을 분할 지정하여 동시 적립
+                                        {t('host_scanner.one_touch_desc', '원터치 분기적립: 일반/프로모션 수량 가감을 분할 지정하여 동시 적립')}
                                     </span>
                                 </div>
                             );
@@ -890,7 +891,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                 onClick={() => setScanStep('SCANNING')}
                                 className="flex-1 py-3.5 bg-espresso-900 border border-espresso-750 text-espresso-100 font-bold text-xs rounded-xl active:scale-95 transition-all cursor-pointer uppercase tracking-wider"
                             >
-                                뒤로가기
+                                {t('host_scanner.btn_back', '뒤로가기')}
                             </button>
                             <button 
                                 onClick={handleEarnStamps}
@@ -898,13 +899,13 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                 className="flex-[2] py-3.5 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-xs rounded-xl active:scale-95 transition-all shadow-md cursor-pointer flex justify-center items-center gap-1.5"
                             >
                                 <Coffee size={14} /> {(() => {
-                                    if (isLoading) return "적립 진행 중...";
+                                    if (isLoading) return t('host_scanner.earning_progress', '적립 진행 중...');
                                     const cfg = stampConfigs.find(c => c.id === selectedConfigId);
                                     if (cfg && cfg.itemsConfig) {
                                         const qty = Object.values(earnItems).reduce((a, b) => a + b, 0);
-                                        return `${qty}개 스탬프 적립 완료`;
+                                        return t('host_scanner.btn_earn_complete_qty', { count: qty, defaultValue: `${qty}개 스탬프 적립 완료` });
                                     }
-                                    return `${earnAmount}개 스탬프 적립 완료`;
+                                    return t('host_scanner.btn_earn_complete_qty', { count: earnAmount, defaultValue: `${earnAmount}개 스탬프 적립 완료` });
                                 })()}
                             </button>
                         </div>
@@ -923,28 +924,28 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                         </motion.div>
                         
                         <div>
-                            <h4 className="font-serif font-black text-xl text-espresso-50">스탬프 적립이 완료되었습니다!</h4>
+                            <h4 className="font-serif font-black text-xl text-espresso-50">{t('host_scanner.earn_complete_title', '스탬프 적립이 완료되었습니다!')}</h4>
                             <p className="text-xs text-espresso-200 mt-1">
-                                {scannedUser?.nickname} 고객님께 <span className="text-amber-500 font-bold">{earnAmount} 스탬프</span>가 적립되었습니다.
+                                {t('host_scanner.earn_complete_desc', { name: scannedUser?.nickname, qty: earnAmount, defaultValue: `${scannedUser?.nickname} 고객님께 ${earnAmount} 스탬프가 적립되었습니다.` })}
                             </p>
                         </div>
 
                         {/* 상세 적립결과 요약 패널 */}
                         <div className="bg-espresso-950/40 p-4 rounded-2xl border border-espresso-800 text-left space-y-2 max-w-sm mx-auto text-xs">
                             <div className="flex justify-between">
-                                <span className="text-espresso-300">현재 누적 도장 수:</span>
+                                <span className="text-espresso-300">{t('host_scanner.current_stamps_lbl', '현재 누적 도장 수:')}</span>
                                 <span className="font-bold text-espresso-50 font-mono">{successData.card?.currentStamps} / 10개</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-espresso-300">총 완성 횟수:</span>
-                                <span className="font-bold text-espresso-50">{successData.card?.completedCount}회</span>
+                                <span className="text-espresso-300">{t('host_scanner.completed_count_lbl', '총 완성 횟수:')}</span>
+                                <span className="font-bold text-espresso-50">{t('host_scanner.unit_times', { count: successData.card?.completedCount, defaultValue: `${successData.card?.completedCount}회` })}</span>
                             </div>
                             {successData.coupons && successData.coupons.length > 0 && (
                                 <div className="border-t border-espresso-800/80 pt-2 mt-2 space-y-1">
-                                    <span className="text-amber-500 font-bold text-[10px] uppercase block tracking-wider">🎉 무료 쿠폰 신규 발행!</span>
+                                    <span className="text-amber-500 font-bold text-[10px] uppercase block tracking-wider">{t('host_scanner.new_coupon_issued', '🎉 무료 쿠폰 신규 발행!')}</span>
                                     {successData.coupons.map((cp: any) => (
                                         <div key={cp.id} className="flex justify-between text-[11px] font-bold text-[#D4AF37]">
-                                            <span>무료 교환권 발급:</span>
+                                            <span>{t('host_scanner.free_coupon_lbl', '무료 교환권 발급:')}</span>
                                             <span className="font-mono">{cp.couponCode}</span>
                                         </div>
                                     ))}
@@ -959,7 +960,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                 disabled={isLoading}
                                 className="w-full py-3.5 bg-red-950/30 hover:bg-red-950/50 border border-red-900/30 text-red-400 font-bold text-xs rounded-xl active:scale-95 transition-all cursor-pointer flex justify-center items-center gap-1.5"
                             >
-                                <RotateCcw size={14} /> 방금 보낸 적립 전면 취소(롤백)
+                                <RotateCcw size={14} /> {t('host_scanner.btn_rollback', '방금 보낸 적립 전면 취소(롤백)')}
                             </button>
                             <button 
                                 onClick={() => {
@@ -969,7 +970,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                 }}
                                 className="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-xs rounded-xl active:scale-95 transition-all shadow-md cursor-pointer"
                             >
-                                다른 고객 추가 적립하기
+                                {t('host_scanner.btn_earn_more', '다른 고객 추가 적립하기')}
                             </button>
                         </div>
                     </div>
