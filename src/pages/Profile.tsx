@@ -1628,7 +1628,10 @@ export default function Profile() {
 
 
     return (
-        <div id="profile-scroll-container" className="h-full w-full bg-espresso-950 overflow-y-auto pb-24 font-sans selection:bg-espresso-700 selection:text-espresso-50">
+        <div id="profile-scroll-container" className="h-full w-full bg-espresso-950 overflow-y-auto pb-24 font-sans selection:bg-espresso-700 selection:text-espresso-50 relative">
+            {/* 💡 상단 시스템 영역(상태바) 겹침 방지 불투명 가드 (Sticky StatusBar Shield) */}
+            <div className="sticky top-0 left-0 right-0 h-[env(safe-area-inset-top,24px)] bg-espresso-950 z-50 pointer-events-none w-full shrink-0" />
+            
             <IAPPaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} onSuccess={handleChargePoints} userId={currentUser?.id || ''} />
             <div className="max-w-md md:max-w-2xl mx-auto relative flex flex-col min-h-full">
 

@@ -314,21 +314,31 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
             }, 300);
         }
 
-        // Cleanup: 모달 닫힐 때만 카메라 하드웨어를 릴리즈하고 리소스를 반납합니다.
+        // Cleanup: 모달이 닫히거나 컴포넌트가 언마운트될 때 카메라 하드웨어를 확실하게 릴리즈하고 리소스를 반납합니다.
         return () => {
             if (detectionInterval) {
                 clearInterval(detectionInterval);
             }
-            if (!isOpen) {
-                if (activeStream) {
-                    activeStream.getTracks().forEach(track => track.stop());
-                }
-                if (videoStream) {
-                    videoStream.getTracks().forEach(track => track.stop());
-                }
-                setVideoStream(null);
-                setIsScanningActive(false);
+            // 💡 [버그 픽스] 컴포넌트 언마운트 또는 모달 비활성화 시 조건문 없이 항상 카메라 스트림을 중지하여 녹색 표시등(카메라 사용 중)을 해제합니다.
+            if (activeStream) {
+                activeStream.getTracks().forEach(track => track.stop());
             }
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+            // 전역 DOM에 바인딩되어 있을 수 있는 비디오 소스 스트림 트랙들도 안전하게 전면 정지
+            const videoEl = document.getElementById('host-scanner-video') as HTMLVideoElement;
+            if (videoEl && videoEl.srcObject) {
+                try {
+                    const srcStream = videoEl.srcObject as MediaStream;
+                    srcStream.getTracks().forEach(track => track.stop());
+                } catch (e) {
+                    console.warn("Failed to stop track from video srcObject:", e);
+                }
+                videoEl.srcObject = null;
+            }
+            setVideoStream(null);
+            setIsScanningActive(false);
         };
     }, [isOpen, scanStep, isJsQrLoaded, videoStream, isStoreLoading]);
 
