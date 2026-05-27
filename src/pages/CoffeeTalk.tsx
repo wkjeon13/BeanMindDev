@@ -141,6 +141,7 @@ export default function CoffeeTalk() {
   const [activeRecipeNotePost, setActiveRecipeNotePost] = useState<Post | null>(null);
   const lastScrollTopRef = useRef<number>(0);
   const restoreScrollTop = useRef<number | null>(null);
+  const isMountedRef = useRef(false);
 
   let currentUserId = '';
   try {
@@ -570,9 +571,13 @@ export default function CoffeeTalk() {
   };
 
   React.useEffect(() => {
-    // 필터/소트 전환 직전 기존 필터의 스크롤 위치를 로컬 스토리지에 백업
-    if (currentFilterRef.current) {
-        localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, lastScrollTopRef.current.toString());
+    // 최초 마운트 시점에는 백업을 건너뜀으로써 로컬 스토리지에 유효하게 들어있던 이전 복원 대상 값을 0으로 덮어쓰는 버그를 차단합니다.
+    if (isMountedRef.current) {
+        if (currentFilterRef.current) {
+            localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, lastScrollTopRef.current.toString());
+        }
+    } else {
+        isMountedRef.current = true;
     }
 
     currentFilterRef.current = activeFilter;
