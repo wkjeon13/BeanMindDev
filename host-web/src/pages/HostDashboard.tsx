@@ -545,7 +545,7 @@ export default function HostDashboard() {
                                             <span className="text-xs text-espresso-200 block text-center font-bold">
                                                 {t('host_scanner.adjust_items_qty', '품목별 적립 수량 조절')}
                                             </span>
-                                            <div className="space-y-2 max-h-[170px] overflow-y-auto pr-1">
+                                            <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
                                                 {parsedItemsConfig.map((item: any) => {
                                                     const currentQty = earnItems[item.key] || 0;
                                                     return (
@@ -646,7 +646,7 @@ export default function HostDashboard() {
                         </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto mt-4 pr-1 space-y-3 hide-scrollbar">
+                    <div className="flex-1 overflow-y-auto mt-4 pr-1 space-y-3 max-h-[580px] hide-scrollbar">
                         {recentTransactions.length > 0 ? (
                             recentTransactions.map((txn) => (
                                 <div 
