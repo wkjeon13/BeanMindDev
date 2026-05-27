@@ -316,12 +316,12 @@ router.get('/coupons/my', authenticateToken, async (req: any, res: any) => {
         const couponsWithStore = await Promise.all(coupons.map(async (coupon) => {
             const store = await prisma.store.findUnique({
                 where: { id: coupon.storeId },
-                select: { name: true, logoUrl: true }
+                select: { name: true, mainImageUrl: true }
             });
             return {
                 ...coupon,
                 storeName: store?.name || "알 수 없는 매장",
-                storeLogo: store?.logoUrl || null
+                storeLogo: store?.mainImageUrl || null
             };
         }));
 
@@ -393,7 +393,7 @@ router.get('/cards/my', authenticateToken, async (req: any, res: any) => {
             });
             const store = await prisma.store.findUnique({
                 where: { id: card.storeId },
-                select: { name: true, logoUrl: true }
+                select: { name: true, mainImageUrl: true }
             });
 
             return {
@@ -403,7 +403,7 @@ router.get('/cards/my', authenticateToken, async (req: any, res: any) => {
                 maxStamps: config?.maxStamps || 10,
                 rewardDesc: config?.rewardDesc || "아메리카노 무료 쿠폰",
                 storeName: store?.name || "알 수 없는 매장",
-                storeLogo: store?.logoUrl || null
+                storeLogo: store?.mainImageUrl || null
             };
         }));
 
