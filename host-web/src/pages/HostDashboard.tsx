@@ -44,10 +44,16 @@ export default function HostDashboard() {
     const [validDays, setValidDays] = useState(90);
     
     // Store Info States
-    const [storeName, setStoreName] = useState('');
-    const [storeAddress, setStoreAddress] = useState('');
-    const [storePhone, setStorePhone] = useState('');
-    const [storeDescription, setStoreDescription] = useState('');
+    const [editData, setEditData] = useState<any>({
+        name: '', address: '', phone: '', shortDesc: '', longDesc: '', hours: '',
+        signatureBean: '', signatureMenu: '', dessertPairing: '', equipment: '', websiteUrl: '',
+        acidity: 3, sweetness: 3, bitterness: 3, body: 3,
+        primaryCoffeeType: 'GENERAL',
+        hasDecaf: false, hasOatMilk: false,
+        hasParking: false, hasWifi: false, hasPetFriendly: false, hasPowerOutlets: false,
+        lat: 37.5665, lng: 126.9780,
+        beanOrigin: '', beanRoastLevel: '', beanNotes: ''
+    });
 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -134,10 +140,35 @@ export default function HostDashboard() {
                     setStoreInfo(myStore);
                     
                     // 폼 바인딩
-                    setStoreName(myStore.name || '');
-                    setStoreAddress(myStore.address || '');
-                    setStorePhone(myStore.phone || '');
-                    setStoreDescription(myStore.description || '');
+                    setEditData({
+                        name: myStore.name || '',
+                        address: myStore.address || '',
+                        phone: myStore.phone || '',
+                        shortDesc: myStore.shortDesc || '',
+                        longDesc: myStore.longDesc || myStore.description || '',
+                        hours: myStore.hours || '',
+                        signatureBean: myStore.signatureBean || '',
+                        signatureMenu: myStore.signatureMenu || '',
+                        dessertPairing: myStore.dessertPairing || '',
+                        equipment: myStore.equipment || '',
+                        websiteUrl: myStore.websiteUrl || '',
+                        acidity: myStore.acidity || 3,
+                        sweetness: myStore.sweetness || 3,
+                        bitterness: myStore.bitterness || 3,
+                        body: myStore.body || 3,
+                        primaryCoffeeType: myStore.primaryCoffeeType || 'GENERAL',
+                        hasDecaf: Boolean(myStore.hasDecaf),
+                        hasOatMilk: Boolean(myStore.hasOatMilk),
+                        hasParking: Boolean(myStore.hasParking),
+                        hasWifi: Boolean(myStore.hasWifi),
+                        hasPetFriendly: Boolean(myStore.hasPetFriendly),
+                        hasPowerOutlets: Boolean(myStore.hasPowerOutlets),
+                        lat: myStore.lat || 37.5665,
+                        lng: myStore.lng || 126.9780,
+                        beanOrigin: myStore.beanOrigin || '',
+                        beanRoastLevel: myStore.beanRoastLevel || '',
+                        beanNotes: myStore.beanNotes || ''
+                    });
 
                     // 스탬프 configs 및 통계 가져오기
                     const statsRes = await fetch(`/api/stamps/owner/stats/${myStore.id}`, {
@@ -322,22 +353,19 @@ export default function HostDashboard() {
     // 5. 매장 프로필 저장
     const handleUpdateStore = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!storeInfo?.id) return;
         setIsLoading(true);
         setErrorMessage('');
         setSuccessMessage('');
         try {
-            const res = await fetch('/api/stamps/owner/store-profile', {
+            const res = await fetch(`/api/shops/${storeInfo.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    storeId: storeInfo?.id,
-                    name: storeName,
-                    address: storeAddress,
-                    phone: storePhone,
-                    description: storeDescription
+                    ...editData
                 })
             });
 
@@ -803,60 +831,309 @@ export default function HostDashboard() {
                             </form>
                         ) : (
                             /* 매장 프로필 수정 스페이스 */
-                            <form onSubmit={handleUpdateStore} className="space-y-4 text-xs">
+                            <form onSubmit={handleUpdateStore} className="space-y-5 text-xs">
                                 <div className="pb-2 border-b border-espresso-850">
-                                    <h4 className="font-serif font-black text-sm text-espresso-100">
+                                    <h4 className="font-serif font-black text-sm text-amber-500">
                                         {t('host_dashboard.store_form_title', '매장 정보 오피스 빌더')}
                                     </h4>
+                                    <p className="text-[10px] text-espresso-400 mt-0.5">{t('host_dashboard.store_form_subtitle', '모바일 앱과 실시간으로 공유되는 원격 관리 스튜디오')}</p>
                                 </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="text-espresso-350 font-bold block">{t('host_dashboard.lbl_store_name', '가맹점 매장명')}</label>
-                                    <input 
-                                        type="text" 
-                                        value={storeName}
-                                        onChange={e => setStoreName(e.target.value)}
-                                        className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
-                                        required
-                                    />
+                                {/* 1. 기본 정보 섹션 */}
+                                <div className="space-y-3 bg-espresso-950/40 p-3.5 rounded-2xl border border-espresso-850/50">
+                                    <span className="text-[11px] font-black text-espresso-200 block border-b border-espresso-900 pb-1">☕ {t('manage_shop.title_basic_info', '기본 정보')}</span>
+                                    
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_shop_name', '매장명')}</label>
+                                        <input 
+                                            type="text" 
+                                            value={editData.name || ''}
+                                            onChange={e => setEditData({ ...editData, name: e.target.value })}
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_address', '매장 주소')}</label>
+                                        <input 
+                                            type="text" 
+                                            value={editData.address || ''}
+                                            onChange={e => setEditData({ ...editData, address: e.target.value })}
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_phone', '매장 대표 연락처')}</label>
+                                        <input 
+                                            type="text" 
+                                            value={editData.phone || ''}
+                                            onChange={e => setEditData({ ...editData, phone: e.target.value })}
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50 font-mono"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_website', '홈페이지 / SNS 링크')}</label>
+                                        <input 
+                                            type="url" 
+                                            value={editData.websiteUrl || ''}
+                                            onChange={e => setEditData({ ...editData, websiteUrl: e.target.value })}
+                                            placeholder="https://instagram.com/..."
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_short_desc', '한 줄 소개')}</label>
+                                        <input 
+                                            type="text" 
+                                            value={editData.shortDesc || ''}
+                                            onChange={e => setEditData({ ...editData, shortDesc: e.target.value })}
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('host_dashboard.lbl_store_desc', '브랜드 감성 상세 소개')}</label>
+                                        <textarea 
+                                            value={editData.longDesc || ''}
+                                            onChange={e => setEditData({ ...editData, longDesc: e.target.value })}
+                                            rows={3}
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50 resize-none leading-relaxed"
+                                        />
+                                    </div>
                                 </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="text-espresso-350 font-bold block">{t('host_dashboard.lbl_store_address', '매장 도로명 주소')}</label>
-                                    <input 
-                                        type="text" 
-                                        value={storeAddress}
-                                        onChange={e => setStoreAddress(e.target.value)}
-                                        className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
-                                        required
-                                    />
+                                {/* 2. 메뉴 & 브랜드 감성 시그니처 */}
+                                <div className="space-y-3 bg-espresso-950/40 p-3.5 rounded-2xl border border-espresso-850/50">
+                                    <span className="text-[11px] font-black text-espresso-200 block border-b border-espresso-900 pb-1">✨ {t('register_shop.title_sensory_details', '메뉴 및 브랜드 감성')}</span>
+                                    
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_sig_bean', '대표 시그니처 원두')}</label>
+                                        <input 
+                                            type="text" 
+                                            value={editData.signatureBean || ''}
+                                            onChange={e => setEditData({ ...editData, signatureBean: e.target.value })}
+                                            placeholder="예: 싱글오리진 에티오피아 게샤"
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_sig_menu', '대표 시그니처 음료 메뉴')}</label>
+                                        <input 
+                                            type="text" 
+                                            value={editData.signatureMenu || ''}
+                                            onChange={e => setEditData({ ...editData, signatureMenu: e.target.value })}
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_dessert_pairing', '페어링 디저트 추천')}</label>
+                                        <input 
+                                            type="text" 
+                                            value={editData.dessertPairing || ''}
+                                            onChange={e => setEditData({ ...editData, dessertPairing: e.target.value })}
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_equipment', '브루잉 추출 머신 / 도구')}</label>
+                                        <input 
+                                            type="text" 
+                                            value={editData.equipment || ''}
+                                            onChange={e => setEditData({ ...editData, equipment: e.target.value })}
+                                            placeholder="예: La Marzocco Linea PB, Hario V60"
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_coffee_type', '주요 에스프레소/커피 방식')}</label>
+                                        <select 
+                                            value={editData.primaryCoffeeType || 'GENERAL'}
+                                            onChange={e => setEditData({ ...editData, primaryCoffeeType: e.target.value })}
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2.5 text-espresso-100 cursor-pointer outline-none focus:border-[#D4AF37]/50"
+                                        >
+                                            <option value="GENERAL">{t('register_shop.opt_coffee_type_general', '일반 블렌드 에스프레소')}</option>
+                                            <option value="SINGLE_ORIGIN">{t('register_shop.opt_coffee_type_single', '싱글 오리진 에스프레소')}</option>
+                                            <option value="SPECIALTY">{t('register_shop.opt_coffee_type_specialty', '스페셜티 브루잉 스튜디오')}</option>
+                                        </select>
+                                    </div>
                                 </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="text-espresso-350 font-bold block">{t('host_dashboard.lbl_store_phone', '매장 대표 전화번호')}</label>
-                                    <input 
-                                        type="text" 
-                                        value={storePhone}
-                                        onChange={e => setStorePhone(e.target.value)}
-                                        className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50 font-mono"
-                                    />
+                                {/* 3. 상세 원두 프로필 */}
+                                <div className="space-y-3 bg-espresso-950/40 p-3.5 rounded-2xl border border-espresso-850/50">
+                                    <span className="text-[11px] font-black text-espresso-200 block border-b border-espresso-900 pb-1">🌱 {t('register_shop.title_bean_profile', '원두 프로필 상세')}</span>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_bean_origin', '원두 원산지 생산지')}</label>
+                                        <input 
+                                            type="text" 
+                                            value={editData.beanOrigin || ''}
+                                            onChange={e => setEditData({ ...editData, beanOrigin: e.target.value })}
+                                            placeholder="예: Colombia Sidra, Ethiopia Yirgacheffe"
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_bean_roast', '로스팅 포인트 단계')}</label>
+                                        <input 
+                                            type="text" 
+                                            value={editData.beanRoastLevel || ''}
+                                            onChange={e => setEditData({ ...editData, beanRoastLevel: e.target.value })}
+                                            placeholder="예: 미디엄 로스트, 라이트 로스트"
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-espresso-300 font-bold block">{t('register_shop.label_bean_notes', '원두 컵 노트 컵 테이스팅 감성')}</label>
+                                        <input 
+                                            type="text" 
+                                            value={editData.beanNotes || ''}
+                                            onChange={e => setEditData({ ...editData, beanNotes: e.target.value })}
+                                            placeholder="예: 자스민, 레몬그라스, 메이플시럽"
+                                            className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50"
+                                        />
+                                    </div>
                                 </div>
 
-                                <div className="space-y-1.5">
-                                    <label className="text-espresso-350 font-bold block">{t('host_dashboard.lbl_store_desc', '매장 브랜드 감성 상세 소개')}</label>
-                                    <textarea 
-                                        value={storeDescription}
-                                        onChange={e => setStoreDescription(e.target.value)}
-                                        rows={4}
-                                        className="w-full bg-espresso-950 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-100 outline-none focus:border-[#D4AF37]/50 resize-none leading-relaxed"
-                                    />
+                                {/* 4. 취향 매트릭스 4대 맛 강도 */}
+                                <div className="space-y-3.5 bg-espresso-950/40 p-3.5 rounded-2xl border border-espresso-850/50">
+                                    <span className="text-[11px] font-black text-espresso-200 block border-b border-espresso-900 pb-1">📊 {t('register_shop.title_taste_profile', '원두 4대 맛 매커니즘 조율')}</span>
+                                    
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between items-center text-[10px]">
+                                            <span className="text-espresso-300 font-bold">{t('profile.radar_acidity', '산미 (Acidity)')}</span>
+                                            <span className="font-mono text-amber-500 font-black">{editData.acidity || 3} / 5</span>
+                                        </div>
+                                        <input 
+                                            type="range" min="1" max="5" 
+                                            value={editData.acidity || 3} 
+                                            onChange={e => setEditData({ ...editData, acidity: parseInt(e.target.value, 10) })}
+                                            className="w-full accent-amber-500 bg-espresso-950 h-1 rounded-lg outline-none cursor-pointer"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between items-center text-[10px]">
+                                            <span className="text-espresso-300 font-bold">{t('profile.radar_sweetness', '단맛 (Sweetness)')}</span>
+                                            <span className="font-mono text-amber-500 font-black">{editData.sweetness || 3} / 5</span>
+                                        </div>
+                                        <input 
+                                            type="range" min="1" max="5" 
+                                            value={editData.sweetness || 3} 
+                                            onChange={e => setEditData({ ...editData, sweetness: parseInt(e.target.value, 10) })}
+                                            className="w-full accent-amber-500 bg-espresso-950 h-1 rounded-lg outline-none cursor-pointer"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between items-center text-[10px]">
+                                            <span className="text-espresso-300 font-bold">{t('profile.radar_bitterness', '쓴맛 (Bitterness)')}</span>
+                                            <span className="font-mono text-amber-500 font-black">{editData.bitterness || 3} / 5</span>
+                                        </div>
+                                        <input 
+                                            type="range" min="1" max="5" 
+                                            value={editData.bitterness || 3} 
+                                            onChange={e => setEditData({ ...editData, bitterness: parseInt(e.target.value, 10) })}
+                                            className="w-full accent-amber-500 bg-espresso-950 h-1 rounded-lg outline-none cursor-pointer"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between items-center text-[10px]">
+                                            <span className="text-espresso-300 font-bold">{t('profile.radar_body', '바디감 (Body)')}</span>
+                                            <span className="font-mono text-amber-500 font-black">{editData.body || 3} / 5</span>
+                                        </div>
+                                        <input 
+                                            type="range" min="1" max="5" 
+                                            value={editData.body || 3} 
+                                            onChange={e => setEditData({ ...editData, body: parseInt(e.target.value, 10) })}
+                                            className="w-full accent-amber-500 bg-espresso-950 h-1 rounded-lg outline-none cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* 5. 편의 옵션 & 제공 혜택 체크박스 */}
+                                <div className="space-y-3 bg-espresso-950/40 p-3.5 rounded-2xl border border-espresso-850/50">
+                                    <span className="text-[11px] font-black text-espresso-200 block border-b border-espresso-900 pb-1">⚡ {t('register_shop.title_features', '매장 제공 혜택 및 편의 정보')}</span>
+
+                                    <div className="grid grid-cols-2 gap-2.5">
+                                        <label className="flex items-center gap-2 bg-espresso-950 border border-espresso-850 hover:border-amber-500/20 px-2.5 py-2 rounded-xl transition-all cursor-pointer">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={Boolean(editData.hasDecaf)}
+                                                onChange={e => setEditData({ ...editData, hasDecaf: e.target.checked })}
+                                                className="w-4 h-4 accent-amber-500 border-espresso-800 rounded bg-espresso-950"
+                                            />
+                                            <span className="text-[10px] text-espresso-100 font-bold">{t('register_shop.opt_decaf', '디카페인 변경')}</span>
+                                        </label>
+
+                                        <label className="flex items-center gap-2 bg-espresso-950 border border-espresso-850 hover:border-amber-500/20 px-2.5 py-2 rounded-xl transition-all cursor-pointer">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={Boolean(editData.hasOatMilk)}
+                                                onChange={e => setEditData({ ...editData, hasOatMilk: e.target.checked })}
+                                                className="w-4 h-4 accent-amber-500 border-espresso-800 rounded bg-espresso-950"
+                                            />
+                                            <span className="text-[10px] text-espresso-100 font-bold">{t('register_shop.opt_oat', '오트밀크 변경')}</span>
+                                        </label>
+
+                                        <label className="flex items-center gap-2 bg-espresso-950 border border-espresso-850 hover:border-amber-500/20 px-2.5 py-2 rounded-xl transition-all cursor-pointer">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={Boolean(editData.hasParking)}
+                                                onChange={e => setEditData({ ...editData, hasParking: e.target.checked })}
+                                                className="w-4 h-4 accent-amber-500 border-espresso-800 rounded bg-espresso-950"
+                                            />
+                                            <span className="text-[10px] text-espresso-100 font-bold">{t('register_shop.opt_parking', '주차 지원')}</span>
+                                        </label>
+
+                                        <label className="flex items-center gap-2 bg-espresso-950 border border-espresso-850 hover:border-amber-500/20 px-2.5 py-2 rounded-xl transition-all cursor-pointer">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={Boolean(editData.hasWifi)}
+                                                onChange={e => setEditData({ ...editData, hasWifi: e.target.checked })}
+                                                className="w-4 h-4 accent-amber-500 border-espresso-800 rounded bg-espresso-950"
+                                            />
+                                            <span className="text-[10px] text-espresso-100 font-bold">{t('register_shop.opt_wifi', '무선 인터넷')}</span>
+                                        </label>
+
+                                        <label className="flex items-center gap-2 bg-espresso-950 border border-espresso-850 hover:border-amber-500/20 px-2.5 py-2 rounded-xl transition-all cursor-pointer">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={Boolean(editData.hasPetFriendly)}
+                                                onChange={e => setEditData({ ...editData, hasPetFriendly: e.target.checked })}
+                                                className="w-4 h-4 accent-amber-500 border-espresso-800 rounded bg-espresso-950"
+                                            />
+                                            <span className="text-[10px] text-espresso-100 font-bold">{t('register_shop.opt_pet', '반려동물 동반')}</span>
+                                        </label>
+
+                                        <label className="flex items-center gap-2 bg-espresso-950 border border-espresso-850 hover:border-amber-500/20 px-2.5 py-2 rounded-xl transition-all cursor-pointer">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={Boolean(editData.hasPowerOutlets)}
+                                                onChange={e => setEditData({ ...editData, hasPowerOutlets: e.target.checked })}
+                                                className="w-4 h-4 accent-amber-500 border-espresso-800 rounded bg-espresso-950"
+                                            />
+                                            <span className="text-[10px] text-espresso-100 font-bold">{t('register_shop.opt_outlets', '콘센트 다수')}</span>
+                                        </label>
+                                    </div>
                                 </div>
 
                                 <button 
                                     type="submit" 
-                                    className="w-full py-3 bg-espresso-850 hover:bg-espresso-800 border border-espresso-750 text-[#D4AF37] font-black rounded-xl transition-all shadow active:scale-98 cursor-pointer mt-2"
+                                    className="w-full py-3.5 bg-[#D4AF37] hover:bg-amber-500 text-espresso-950 font-black rounded-xl transition-all shadow-md active:scale-98 cursor-pointer mt-3 text-xs"
                                 >
-                                    {t('host_dashboard.btn_save_store', '매장 감성 정보 안전하게 업데이트')}
+                                    {t('host_dashboard.btn_save_store', '매장 정보 업데이트 저장')}
                                 </button>
                             </form>
                         )}
