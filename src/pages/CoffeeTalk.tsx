@@ -139,6 +139,8 @@ export default function CoffeeTalk() {
   const [collectionPostId, setCollectionPostId] = useState<string | null>(null);
   const [selectedPublicUserId, setSelectedPublicUserId] = useState<string | null>(null);
   const [activeRecipeNotePost, setActiveRecipeNotePost] = useState<Post | null>(null);
+  const lastScrollTopRef = useRef<number>(0);
+  const restoreScrollTop = useRef<number | null>(null);
 
   let currentUserId = '';
   try {
@@ -568,8 +570,27 @@ export default function CoffeeTalk() {
   };
 
   React.useEffect(() => {
+    // 필터/소트 전환 직전 기존 필터의 스크롤 위치를 세션에 백업
+    if (currentFilterRef.current) {
+        sessionStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, lastScrollTopRef.current.toString());
+    }
+
     currentFilterRef.current = activeFilter;
     const cacheKey = activeFilter + '_' + sortOption;
+    
+    // 딥링크가 아닌 경우 이전 스크롤 복원 대상 확보
+    const targetId = window.location.hash ? window.location.hash.substring(1) : targetPostIdToScroll.current;
+    if (!targetId) {
+        const savedScroll = sessionStorage.getItem(`coffeeTalkScrollTop_${activeFilter}`);
+        if (savedScroll) {
+            restoreScrollTop.current = parseInt(savedScroll, 10);
+            setIsScrollJumping(true); // 스크롤 복원 전까지 투명 마스킹
+        } else {
+            restoreScrollTop.current = null;
+        }
+    } else {
+        restoreScrollTop.current = null;
+    }
     
     let useCache = false;
     if (globalFeedCache[cacheKey]) {
@@ -603,13 +624,29 @@ export default function CoffeeTalk() {
     checkClubUpdates();
     setHiddenAnnouncements(JSON.parse(localStorage.getItem('hiddenAnnouncements') || '[]'));
 
+    const container = document.getElementById('coffee-feed-container');
+    const handleScroll = () => {
+        if (container) {
+            lastScrollTopRef.current = container.scrollTop;
+        }
+    };
+    if (container) {
+        container.addEventListener('scroll', handleScroll);
+    }
+
     // Listen for global scrollToTop events (e.g. from Bottom Nav)
     const handleScrollToTop = () => {
-        const container = document.getElementById('coffee-feed-container');
         if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
     };
     window.addEventListener('scrollToTop', handleScrollToTop);
-    return () => window.removeEventListener('scrollToTop', handleScrollToTop);
+    return () => {
+        window.removeEventListener('scrollToTop', handleScrollToTop);
+        if (container) {
+            container.removeEventListener('scroll', handleScroll);
+            // 언마운트 시(다른 탭 이동 시) 마지막 스크롤 위치 세션 백업!
+            sessionStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, lastScrollTopRef.current.toString());
+        }
+    };
   }, []);
 
   React.useEffect(() => {
@@ -625,12 +662,11 @@ export default function CoffeeTalk() {
   React.useEffect(() => {
     const targetId = window.location.hash ? window.location.hash.substring(1) : targetPostIdToScroll.current;
     
+    // 1. 딥링크 타깃 포스트 스크롤 이동
     if (posts.length > 0 && targetId) {
-      // 즉시 초기화하여 posts가 연달아 업데이트 될 때 스크롤이 중복으로 예약되는 것을 방지
       if (targetPostIdToScroll.current === targetId) {
           targetPostIdToScroll.current = null;
       }
-      // 해시가 원인이었다면 해시도 지워서 중복 방지 (뒤로가기 등)
       if (window.location.hash === `#${targetId}`) {
           window.history.replaceState(null, '', window.location.pathname + window.location.search);
       }
@@ -661,7 +697,6 @@ export default function CoffeeTalk() {
         return false;
       };
 
-      // 0ms 즉시 스크롤 시도 (깜박거림 원천 방지)
       if (!performScroll()) {
         // 미세 렌더링 프레임 지연 대비 10ms 인터벌 폴링 재시도 (최대 10회)
         let attempts = 0;
@@ -669,6 +704,34 @@ export default function CoffeeTalk() {
           if (performScroll() || attempts > 10) {
             clearInterval(interval);
             setIsScrollJumping(false); // 스크롤 시도 종료/실패 시에도 강제 잠금 해제하여 먹통 예방
+          }
+          attempts++;
+        }, 10);
+      }
+    } 
+    // 2. 이전 탭 및 이력 스크롤 위치 복원 (0ms 즉시 스크롤 & 마이크로 폴링)
+    else if (posts.length > 0 && restoreScrollTop.current !== null) {
+      const scrollPos = restoreScrollTop.current;
+      restoreScrollTop.current = null; // 중복 복원 즉시 해제
+
+      const performScrollRestore = () => {
+        const container = document.getElementById('coffee-feed-container');
+        if (container) {
+          container.style.scrollBehavior = 'auto';
+          container.scrollTop = scrollPos;
+          container.style.scrollBehavior = '';
+          setIsScrollJumping(false);
+          return true;
+        }
+        return false;
+      };
+
+      if (!performScrollRestore()) {
+        let attempts = 0;
+        const interval = setInterval(() => {
+          if (performScrollRestore() || attempts > 10) {
+            clearInterval(interval);
+            setIsScrollJumping(false);
           }
           attempts++;
         }, 10);
