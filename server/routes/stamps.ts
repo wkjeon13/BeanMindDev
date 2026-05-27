@@ -887,4 +887,64 @@ router.get('/owner/transactions/:storeId', authenticateToken, async (req: any, r
     }
 });
 
+// 13. 일반 이용자용 사용 완료/만료된 쿠폰 사용 내역 목록 조회
+// GET /api/stamps/coupons/history
+router.get('/coupons/history', authenticateToken, async (req: any, res: any) => {
+    try {
+        const userId = req.user.id;
+        
+        // 사용 완료(USED) 또는 만료(EXPIRED)된 쿠폰 조회 (최근 사용/만료 순으로 정렬)
+        const coupons = await prisma.stampCoupon.findMany({
+            where: {
+                userId,
+                status: { in: ["USED", "EXPIRED"] }
+            },
+            orderBy: { usedAt: "desc" }
+        });
+
+        // 매장 정보 및 정책 리워드 혜택 명칭 매핑
+        const couponsWithDetails = await Promise.all(coupons.map(async (coupon) => {
+            const store = await prisma.store.findUnique({
+                where: { id: coupon.storeId },
+                select: { name: true, mainImageUrl: true }
+            });
+            let rewardDesc = "무료 음료 교환 혜택";
+            let cardTitle = "스탬프 도장판";
+            let config = null;
+
+            if (coupon.configId) {
+                config = await prisma.storeStampConfig.findUnique({
+                    where: { id: coupon.configId },
+                    select: { rewardDesc: true, cardTitle: true }
+                });
+            }
+
+            if (!config) {
+                config = await prisma.storeStampConfig.findFirst({
+                    where: { storeId: coupon.storeId, isActive: true },
+                    select: { rewardDesc: true, cardTitle: true }
+                });
+            }
+
+            if (config) {
+                rewardDesc = config.rewardDesc || rewardDesc;
+                cardTitle = config.cardTitle || cardTitle;
+            }
+
+            return {
+                ...coupon,
+                storeName: store?.name || "알 수 없는 매장",
+                storeLogo: store?.mainImageUrl || null,
+                rewardDesc,
+                cardTitle
+            };
+        }));
+
+        res.status(200).json(couponsWithDetails);
+    } catch (error) {
+        console.error("Fetch coupon history error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "쿠폰 사용 내역 조회 중 오류가 발생했습니다." });
+    }
+});
+
 export default router;

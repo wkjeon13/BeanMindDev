@@ -111,6 +111,8 @@ export default function Profile() {
     // Stamp O2O States
     const [myStampCards, setMyStampCards] = useState<any[]>([]);
     const [myStampCoupons, setMyStampCoupons] = useState<any[]>([]);
+    const [myCouponHistory, setMyCouponHistory] = useState<any[]>([]);
+    const [couponSubTab, setCouponSubTab] = useState<'UNUSED' | 'USED'>('UNUSED');
     const [activeStampTab, setActiveStampTab] = useState<'REGULAR' | 'PROMOTION' | 'COUPON'>('REGULAR');
     const [isStampModalOpen, setIsStampModalOpen] = useState(false);
     const [isHostScannerOpen, setIsHostScannerOpen] = useState(false);
@@ -336,6 +338,14 @@ export default function Profile() {
             if (couponRes.ok) {
                 const couponData = await couponRes.json();
                 setMyStampCoupons(couponData);
+            }
+
+            const historyRes = await fetch(`${API_BASE}/api/stamps/coupons/history?_t=${Date.now()}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (historyRes.ok) {
+                const historyData = await historyRes.json();
+                setMyCouponHistory(historyData);
             }
         } catch (err) {
             console.error("Failed to fetch stamps or coupons", err);
@@ -2158,37 +2168,95 @@ export default function Profile() {
                                 </div>
                             ) : (
                                 // 무료 쿠폰함
-                                <div className="space-y-3">
-                                    {myStampCoupons.length > 0 ? (
-                                        myStampCoupons.map((coupon) => (
-                                            <div key={coupon.id} className="bg-gradient-to-r from-amber-900/30 to-espresso-900 p-4 rounded-2xl border border-amber-500/10 flex justify-between items-center relative overflow-hidden ticket-cutout">
-                                                <div className="absolute right-0 top-0 bg-amber-500 text-espresso-950 text-[9px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">
-                                                    FREE
+                                <div className="space-y-4">
+                                    {/* 무료 쿠폰 서브 탭 (사용 가능 / 사용 내역) */}
+                                    <div className="flex justify-center bg-espresso-950/40 rounded-xl p-1 mb-2 border border-espresso-800/60 max-w-[280px] mx-auto">
+                                        <button
+                                            onClick={() => setCouponSubTab('UNUSED')}
+                                            className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${couponSubTab === 'UNUSED' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
+                                        >
+                                            {t('profile.coupon_subtab_unused', '사용 가능한 쿠폰')}
+                                        </button>
+                                        <button
+                                            onClick={() => setCouponSubTab('USED')}
+                                            className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${couponSubTab === 'USED' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
+                                        >
+                                            {t('profile.coupon_subtab_used', '사용/만료 내역')}
+                                        </button>
+                                    </div>
+
+                                    {couponSubTab === 'UNUSED' ? (
+                                        <div className="space-y-3">
+                                            {myStampCoupons.length > 0 ? (
+                                                myStampCoupons.map((coupon) => (
+                                                    <div key={coupon.id} className="bg-gradient-to-r from-amber-900/30 to-espresso-900 p-4 rounded-2xl border border-amber-500/10 flex justify-between items-center relative overflow-hidden ticket-cutout">
+                                                        <div className="absolute right-0 top-0 bg-amber-500 text-espresso-950 text-[9px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">
+                                                            FREE
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <h4 className="font-bold text-[14px] text-espresso-50">{t('profile.coupon_reward_title', { storeName: coupon.storeName, defaultValue: `${coupon.storeName} 무료 혜택` })}</h4>
+                                                            {coupon.rewardDesc && (
+                                                                <p className="text-[12px] text-amber-400 font-bold mt-0.5">{coupon.rewardDesc}</p>
+                                                            )}
+                                                            <p className="text-[11px] text-[#D4AF37]/80 font-bold">{t('profile.lbl_coupon_code', '쿠폰 코드')}: {coupon.couponCode}</p>
+                                                            <p className="text-[10px] text-espresso-300">
+                                                                {t('profile.lbl_expire_date', '만료일')}: {new Date(coupon.expiresAt).toLocaleDateString()}
+                                                            </p>
+                                                        </div>
+                                                        <button 
+                                                            onClick={() => {
+                                                                setCurrentCouponForQR(coupon);
+                                                                setIsCouponQRModalOpen(true);
+                                                            }}
+                                                            className="bg-amber-500 text-espresso-950 font-black text-xs px-3.5 py-2 rounded-xl active:scale-95 transition-all shadow-sm shrink-0 cursor-pointer"
+                                                        >
+                                                            {t('profile.btn_use_now', '사용하기')}
+                                                        </button>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="text-center py-8 text-espresso-300 text-xs opacity-75">
+                                                    {t('profile.no_free_coupons', '사용 가능한 무료 쿠폰이 없습니다.')}
                                                 </div>
-                                                <div className="space-y-1">
-                                                    <h4 className="font-bold text-[14px] text-espresso-50">{t('profile.coupon_reward_title', { storeName: coupon.storeName, defaultValue: `${coupon.storeName} 무료 혜택` })}</h4>
-                                                    {coupon.rewardDesc && (
-                                                        <p className="text-[12px] text-amber-400 font-bold mt-0.5">{coupon.rewardDesc}</p>
-                                                    )}
-                                                    <p className="text-[11px] text-[#D4AF37]/80 font-bold">{t('profile.lbl_coupon_code', '쿠폰 코드')}: {coupon.couponCode}</p>
-                                                    <p className="text-[10px] text-espresso-300">
-                                                        {t('profile.lbl_expire_date', '만료일')}: {new Date(coupon.expiresAt).toLocaleDateString()}
-                                                    </p>
-                                                </div>
-                                                <button 
-                                                    onClick={() => {
-                                                        setCurrentCouponForQR(coupon);
-                                                        setIsCouponQRModalOpen(true);
-                                                    }}
-                                                    className="bg-amber-500 text-espresso-950 font-black text-xs px-3.5 py-2 rounded-xl active:scale-95 transition-all shadow-sm shrink-0 cursor-pointer"
-                                                >
-                                                    {t('profile.btn_use_now', '사용하기')}
-                                                </button>
-                                            </div>
-                                        ))
+                                            )}
+                                        </div>
                                     ) : (
-                                        <div className="text-center py-8 text-espresso-300 text-xs opacity-75">
-                                            {t('profile.no_free_coupons', '사용 가능한 무료 쿠폰이 없습니다.')}
+                                        <div className="space-y-3">
+                                            {myCouponHistory.length > 0 ? (
+                                                myCouponHistory.map((coupon) => {
+                                                    const isExpired = coupon.status === 'EXPIRED';
+                                                    return (
+                                                        <div key={coupon.id} className="bg-espresso-950/20 p-4 rounded-2xl border border-espresso-850 flex justify-between items-center relative overflow-hidden ticket-cutout opacity-60 grayscale">
+                                                            <div className={`absolute right-0 top-0 text-espresso-950 text-[9px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-wider ${isExpired ? 'bg-red-500/80 text-white' : 'bg-espresso-700 text-espresso-200'}`}>
+                                                                {isExpired ? t('profile.coupon_status_expired', '만료') : t('profile.coupon_status_used', '사용완료')}
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <h4 className="font-bold text-[14px] text-espresso-400">{coupon.storeName} {t('profile.coupon_history_title_suffix', '무료 쿠폰')}</h4>
+                                                                {coupon.rewardDesc && (
+                                                                    <p className="text-[12px] text-espresso-300 font-bold mt-0.5">{coupon.rewardDesc}</p>
+                                                                )}
+                                                                <p className="text-[11px] text-espresso-400">{t('profile.lbl_coupon_code', '쿠폰 코드')}: {coupon.couponCode}</p>
+                                                                {coupon.usedAt ? (
+                                                                    <p className="text-[10px] text-amber-500/80 font-bold">
+                                                                        {t('profile.lbl_used_date', '사용일')}: {new Date(coupon.usedAt).toLocaleDateString()} {new Date(coupon.usedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                                                                    </p>
+                                                                ) : (
+                                                                    <p className="text-[10px] text-red-400/80 font-bold">
+                                                                        {t('profile.lbl_expired_date', '만료일')}: {new Date(coupon.expiresAt).toLocaleDateString()}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                            <div className="text-[11px] font-bold text-espresso-500 px-3.5 py-2 select-none border border-espresso-800 rounded-xl">
+                                                                {isExpired ? t('profile.lbl_expired', '기간 만료') : t('profile.lbl_used', '사용 완료')}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })
+                                            ) : (
+                                                <div className="text-center py-8 text-espresso-300 text-xs opacity-75">
+                                                    {t('profile.no_coupon_history', '사용 완료되거나 만료된 쿠폰 내역이 없습니다.')}
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
