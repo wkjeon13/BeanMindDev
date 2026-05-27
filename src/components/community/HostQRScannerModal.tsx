@@ -342,7 +342,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
             setVideoStream(null);
             setIsScanningActive(false);
         };
-    }, [isOpen, scanStep, isJsQrLoaded, videoStream, isStoreLoading]);
+    }, [isOpen, scanStep, isJsQrLoaded, isStoreLoading]);
 
     // 2-2. 모바일 카메라 사진 촬영 / 이미지 파일 업로드 기반 QR 스캔 폴백
     const handleImageCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
