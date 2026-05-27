@@ -750,7 +750,7 @@ router.get('/owner/stats/:storeId', authenticateToken, async (req: any, res: any
             });
             const config = await prisma.storeStampConfig.findUnique({
                 where: { id: txn.configId },
-                select: { cardTitle: true, cardType: true }
+                select: { cardTitle: true, cardType: true, itemsConfig: true }
             });
             return {
                 ...txn,
@@ -869,7 +869,7 @@ router.get('/owner/transactions/:storeId', authenticateToken, async (req: any, r
             });
             const config = await prisma.storeStampConfig.findUnique({
                 where: { id: txn.configId },
-                select: { cardTitle: true, cardType: true }
+                select: { cardTitle: true, cardType: true, itemsConfig: true }
             });
             return {
                 ...txn,

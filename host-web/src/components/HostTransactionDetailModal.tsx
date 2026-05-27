@@ -35,6 +35,25 @@ export default function HostTransactionDetailModal({ isOpen, onClose, transactio
         }
     }
 
+    // itemsConfig 파싱하여 키 매핑 사전(Dictionary) 만들기
+    let keyLabelMap: Record<string, string> = {};
+    if (transaction.itemsConfig) {
+        try {
+            const parsedConfig = typeof transaction.itemsConfig === 'string' 
+                ? JSON.parse(transaction.itemsConfig) 
+                : transaction.itemsConfig;
+            if (Array.isArray(parsedConfig)) {
+                parsedConfig.forEach((item: any) => {
+                    if (item.key && item.label) {
+                        keyLabelMap[item.key] = item.label;
+                    }
+                });
+            }
+        } catch (e) {
+            console.error("Failed to parse itemsConfig:", e);
+        }
+    }
+
     return (
         <AnimatePresence>
             <div className="fixed inset-0 flex items-center justify-center z-[110] p-4 antialiased">
@@ -123,17 +142,20 @@ export default function HostTransactionDetailModal({ isOpen, onClose, transactio
 
                         {hasItems ? (
                             <div className="bg-espresso-950/40 p-3 rounded-xl border border-espresso-850/60 space-y-2">
-                                {Object.entries(parsedItems).map(([menuName, qty]) => (
-                                    <div key={menuName} className="flex justify-between items-center text-xs">
-                                        <span className="text-espresso-200 font-semibold flex items-center gap-1.5">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]/50" />
-                                            {menuName}
-                                        </span>
-                                        <span className="font-mono font-black text-[#D4AF37]">
-                                            +{qty} {t('host_dashboard.unit_count', '개')}
-                                        </span>
-                                    </div>
-                                ))}
+                                {Object.entries(parsedItems).map(([menuName, qty]) => {
+                                    const displayName = keyLabelMap[menuName] || menuName;
+                                    return (
+                                        <div key={menuName} className="flex justify-between items-center text-xs">
+                                            <span className="text-espresso-200 font-semibold flex items-center gap-1.5">
+                                                <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]/50" />
+                                                {displayName}
+                                            </span>
+                                            <span className="font-mono font-black text-[#D4AF37]">
+                                                +{qty} {t('host_dashboard.unit_count', '개')}
+                                            </span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         ) : (
                             <div className="bg-espresso-950/40 p-3 rounded-xl border border-espresso-850/60 flex justify-between items-center text-xs">
