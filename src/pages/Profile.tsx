@@ -393,6 +393,22 @@ export default function Profile() {
         }
     }, [isAuthenticated, i18n.language]);
 
+    // QR 모달이 열려있는 동안 3초 간격으로 실시간 적립 상태를 가져오는 폴링 메커니즘
+    React.useEffect(() => {
+        let intervalId: any;
+        if ((isStampModalOpen || isCouponQRModalOpen) && isAuthenticated) {
+            fetchStampData();
+            intervalId = setInterval(() => {
+                fetchStampData();
+            }, 3000);
+        }
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        };
+    }, [isStampModalOpen, isCouponQRModalOpen, isAuthenticated]);
+
     // Badge Logic
     const getBadgeTier = (count: number) => {
         if (count >= 50) return { name: t('profile.badge_master', 'Master Roaster'), icon: '☕', next: null, progress: 100 };
@@ -2602,7 +2618,10 @@ export default function Profile() {
                     <>
                         <motion.div
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                            onClick={() => setIsStampModalOpen(false)}
+                            onClick={() => {
+                                setIsStampModalOpen(false);
+                                fetchStampData();
+                            }}
                             className="fixed inset-0 bg-espresso-950/80 backdrop-blur-sm z-[110]"
                         />
                         <motion.div
@@ -2629,7 +2648,10 @@ export default function Profile() {
                             </div>
 
                             <button 
-                                onClick={() => setIsStampModalOpen(false)}
+                                onClick={() => {
+                                    setIsStampModalOpen(false);
+                                    fetchStampData();
+                                }}
                                 className="w-full py-3 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-[14px] rounded-xl active:scale-95 transition-all shadow-md cursor-pointer"
                             >
                                 닫기
@@ -2645,7 +2667,10 @@ export default function Profile() {
                     <>
                         <motion.div
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                            onClick={() => setIsCouponQRModalOpen(false)}
+                            onClick={() => {
+                                setIsCouponQRModalOpen(false);
+                                fetchStampData();
+                            }}
                             className="fixed inset-0 bg-espresso-950/80 backdrop-blur-sm z-[110]"
                         />
                         <motion.div
@@ -2701,7 +2726,10 @@ export default function Profile() {
                                     수동 사용하기
                                 </button>
                                 <button 
-                                    onClick={() => setIsCouponQRModalOpen(false)}
+                                    onClick={() => {
+                                        setIsCouponQRModalOpen(false);
+                                        fetchStampData();
+                                    }}
                                     className="flex-1 py-3 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-[14px] rounded-xl active:scale-95 transition-all cursor-pointer"
                                 >
                                     닫기
