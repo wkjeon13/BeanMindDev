@@ -672,9 +672,17 @@ export default function HostWebDashboard() {
                                         type="text" 
                                         value={cardTitle}
                                         onChange={e => setCardTitle(e.target.value)}
-                                        placeholder="예: [아메리카노 10잔 적립판] 또는 [여름 시즌 신메뉴 & 디저트 도장판]"
+                                        placeholder="예: 아메리카노10+시즌음료5+페어링케익2 또는 [아메리카노 10잔 적립판]"
                                         className="w-full bg-espresso-900 border border-espresso-750 rounded-xl px-4 py-3 text-xs text-espresso-100 outline-none focus:border-amber-500/50"
                                     />
+                                    {cardType === 'PROMOTION' && (
+                                        <p className="text-[10px] text-amber-400 leading-relaxed mt-1 bg-amber-950/20 border border-amber-900/30 p-2.5 rounded-lg flex items-start gap-1">
+                                            <span>💡</span>
+                                            <span>
+                                                <strong>복합 프로모션 구성 가이드</strong>: 명칭을 <strong>`[메뉴명][목표숫자]`</strong> 형태로 기재하고 <strong>`+`</strong> 기호로 연결해 주시면(예: <code className="bg-espresso-950 px-1 py-0.5 rounded font-mono text-[9px] text-[#D4AF37]">아메리카노10+시즌음료5+페어링케익2</code>), POS 수동 적립 화면에서 메뉴별 <strong>개별 수량 카운터가 자동으로 완벽하게 구성</strong>됩니다!
+                                            </span>
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
