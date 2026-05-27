@@ -640,7 +640,7 @@ export default function HostDashboard() {
             <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#8c8c73]/3 rounded-full filter blur-[150px] pointer-events-none" />
 
             {/* 상단 네비게이션 헤더 */}
-            <header className="bg-espresso-900/60 backdrop-blur-md border-b border-espresso-800/80 px-8 py-4 flex items-center justify-between shadow-lg relative z-20 shrink-0">
+            <header className="bg-espresso-900/60 backdrop-blur-md border-b border-espresso-800/80 px-8 py-4 flex items-center justify-between shadow-lg sticky top-0 z-50 shrink-0">
                 <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#D4AF37]/20 to-amber-500/10 border border-[#D4AF37]/30 flex items-center justify-center text-amber-500">
                         <Store size={20} />
@@ -979,7 +979,7 @@ export default function HostDashboard() {
                         </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto pr-1 hide-scrollbar">
+                    <div className="flex-1 overflow-y-auto pr-1 max-h-[580px] scrollbar-thin scrollbar-thumb-espresso-800 scrollbar-track-transparent">
                         {rightPanelTab === 'CONFIG' ? (
                             /* 스탬프 정책 생성 스튜디오 */
                             <form onSubmit={handleCreateConfig} className="space-y-4 text-xs">
