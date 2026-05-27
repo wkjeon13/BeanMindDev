@@ -66,6 +66,21 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
         fetchStoreAndConfigs();
     }, []);
 
+    // 햅틱 체감 및 스캔 성공음 헬퍼
+    const triggerBeep = () => {
+        try {
+            const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High Beep
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.15);
+        } catch (ae) {}
+    };
+
     // 2. 실시간 카메라 스트림 활성화 및 해제 수명주기 제어
     useEffect(() => {
         let activeStream: MediaStream | null = null;
@@ -74,16 +89,37 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
         const startCamera = async () => {
             if (scanStep !== 'SCANNING' || !isOpen) return;
             setErrorMessage('');
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { 
-                        facingMode: 'environment', // 후면 카메라 우선
-                        width: { ideal: 640 },
-                        height: { ideal: 480 }
-                    },
+            
+            // 점진적인 카메라 획득 constraints 설정 (기기 호환성 극대화)
+            const constraintsList = [
+                {
+                    video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } },
                     audio: false
-                });
-                
+                },
+                {
+                    video: { facingMode: 'environment' },
+                    audio: false
+                },
+                {
+                    video: true,
+                    audio: false
+                }
+            ];
+
+            let stream: MediaStream | null = null;
+            let lastError: any = null;
+
+            for (const constraints of constraintsList) {
+                try {
+                    stream = await navigator.mediaDevices.getUserMedia(constraints as any);
+                    if (stream) break; // 성공 시 루프 탈출
+                } catch (err: any) {
+                    console.warn("Camera option failed with constraints:", constraints, err);
+                    lastError = err;
+                }
+            }
+
+            if (stream) {
                 activeStream = stream;
                 setVideoStream(stream);
                 setIsCameraSupported(true);
@@ -115,18 +151,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                         const detectedValue = barcodes[0].rawValue;
                                         if (detectedValue) {
                                             clearInterval(detectionInterval);
-                                            // 성공 시 소리 알림 (햅틱 체감 에뮬레이션)
-                                            try {
-                                                const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-                                                const osc = audioCtx.createOscillator();
-                                                const gain = audioCtx.createGain();
-                                                osc.connect(gain);
-                                                gain.connect(audioCtx.destination);
-                                                osc.frequency.setValueAtTime(880, audioCtx.currentTime); // High Beep
-                                                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                                                osc.start();
-                                                osc.stop(audioCtx.currentTime + 0.15);
-                                            } catch (ae) {}
+                                            triggerBeep();
                                             
                                             // 적립 대상 식별자 조회 시작
                                             handleSimulateScan(detectedValue);
@@ -139,13 +164,24 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                         }, 300);
                     }
                 } else {
-                    // BarcodeDetector 미지원 시 경고가 아닌 단순 tip 노출용 플래그
                     console.warn("BarcodeDetector is not supported on this browser.");
                 }
-            } catch (err: any) {
-                console.error("Camera access failed:", err);
+            } else {
+                console.error("All camera constraints failed:", lastError);
                 setIsCameraSupported(false);
-                setErrorMessage("카메라에 접근할 수 없습니다. 권한 승인이 필요하거나 다른 앱에서 사용 중인지 확인해주세요.");
+                const errName = lastError?.name || '';
+                
+                if (window.isSecureContext === false) {
+                    setErrorMessage("실시간 QR 카메라는 HTTPS 보안 연결 환경(Secure Context) 또는 모바일 Native App에서만 활성화됩니다. 로컬 환경 테스트는 하단의 [스캔 에뮬레이터]에 고유코드를 직접 입력하거나 [나 자신을 스캔]을 터치하여 완벽히 테스트가 가능합니다!");
+                } else if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError') {
+                    setErrorMessage("💡 카메라 사용 권한이 거절되었습니다. 핸드폰/기기의 시스템 설정에서 브라우저 또는 앱의 카메라 접근 권한을 '허용'해 주셔야 실시간 스캔 기능을 이용할 수 있습니다.");
+                } else if (errName === 'NotReadableError' || errName === 'TrackStartError') {
+                    setErrorMessage("💡 카메라가 다른 앱(예: 기본 카메라, 인스타 등)에서 이미 사용 중입니다. 다른 앱들을 완전히 종료한 후 다시 시도해 주세요.");
+                } else if (errName === 'NotFoundError' || errName === 'DevicesNotFoundError') {
+                    setErrorMessage("💡 이 기기에 사용할 수 있는 카메라 하드웨어 장치를 찾을 수 없습니다.");
+                } else {
+                    setErrorMessage(`카메라 장치에 접근할 수 없습니다. (${lastError?.message || '권한 및 환경 제약'}) 하단의 '사진 촬영하여 스캔' 버튼을 눌러 카메라 촬영본으로 스캔을 진행하거나 스캔 에뮬레이터를 이용해 주세요!`);
+                }
             }
         };
 
@@ -165,6 +201,50 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
             setIsScanningActive(false);
         };
     }, [isOpen, scanStep]);
+
+    // 2-2. 모바일 카메라 사진 촬영 / 이미지 파일 업로드 기반 QR 스캔 폴백
+    const handleImageCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        
+        setIsLoading(true);
+        setErrorMessage('');
+        
+        try {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            await new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = reject;
+            });
+            
+            if ('BarcodeDetector' in window) {
+                const BarcodeDetectorClass = (window as any).BarcodeDetector;
+                const detector = new BarcodeDetectorClass({ formats: ['qr_code'] });
+                const barcodes = await detector.detect(img);
+                
+                if (barcodes.length > 0 && barcodes[0].rawValue) {
+                    triggerBeep();
+                    handleSimulateScan(barcodes[0].rawValue);
+                } else {
+                    throw new Error("이미지에서 QR 코드를 인식하지 못했습니다. QR 코드가 정중앙에 선명하게 나오도록 밝은 곳에서 다시 촬영해 주세요.");
+                }
+            } else {
+                // BarcodeDetector가 없는 기기/웹뷰 환경 폴백: 데모용 가상 단골 유저 코드로 자동 인식 시뮬레이션
+                triggerBeep();
+                setErrorMessage("이 브라우저/기기는 이미지 QR 스캔 API(BarcodeDetector)를 미지원하여, 모바일 체험을 위해 가상 단골 고객(김아메 단골님)으로 자동 매칭 및 성공 처리되었습니다!");
+                setTimeout(() => {
+                    handleSimulateScan("test-customer-01");
+                }, 1800);
+            }
+        } catch (err: any) {
+            console.error("Image QR Scan failed:", err);
+            setErrorMessage(err.message || "이미지 분석 중 오류가 발생했습니다. 선명한 QR 코드 사진으로 촬영해 주세요.");
+        } finally {
+            setIsLoading(false);
+            if (e.target) e.target.value = ''; // Input 초기화
+        }
+    };
 
     // 3. QR 스캔 / 식별자 입력 검증 API 호출
     const handleSimulateScan = async (userIdToScan: string) => {
@@ -346,17 +426,20 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                     className="w-full h-64 object-cover rounded-2xl bg-black"
                                 />
                             ) : (
-                                <div className="py-12 flex flex-col items-center gap-3">
+                                <div className="py-8 px-4 flex flex-col items-center gap-3">
                                     <motion.div 
-                                        animate={{ scale: [1, 1.05, 1] }} 
+                                        animate={{ scale: [1, 1.06, 1] }} 
                                         transition={{ repeat: Infinity, duration: 2 }}
                                         className="w-14 h-14 bg-amber-500/10 border border-amber-500/30 rounded-full flex items-center justify-center text-amber-400"
                                     >
                                         <Camera size={24} />
                                     </motion.div>
-                                    <div>
-                                        <span className="text-[12px] font-bold text-espresso-200">데모 스캔모드 작동 중</span>
-                                        <p className="text-[9px] text-espresso-400 mt-0.5">카메라를 지원하지 않는 브라우저입니다.</p>
+                                    <div className="max-w-[280px]">
+                                        <span className="text-[12px] font-bold text-amber-500/90 block">실시간 스캔 카메라 비활성화됨</span>
+                                        <p className="text-[10px] text-espresso-300 mt-1 leading-relaxed">
+                                            보안 정책(HTTP) 또는 기기 권한 문제로 실시간 화면이 제한되었습니다. 
+                                            아래 <span className="text-amber-400 font-bold">촬영 스캔</span> 또는 <span className="text-amber-400 font-bold">에뮬레이터</span>로 안전하게 테스트를 진행하세요!
+                                        </p>
                                     </div>
                                 </div>
                             )}
@@ -368,13 +451,69 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                             )}
                         </div>
 
+                        {/* 모바일 실기기 스캔 폴백: 사진 촬영 스캔 버튼 */}
+                        <div className="flex flex-col gap-2">
+                            <label className="flex items-center justify-center gap-2 py-3 px-4 bg-gradient-to-r from-amber-500 to-[#D4AF37] hover:from-amber-600 hover:to-[#B5952F] text-espresso-950 font-black text-xs rounded-xl shadow-md cursor-pointer active:scale-95 transition-transform text-center select-none">
+                                <Camera size={16} />
+                                <span>실제 카메라로 사진 촬영하여 스캔하기</span>
+                                <input 
+                                    type="file" 
+                                    accept="image/*" 
+                                    capture="environment" 
+                                    onChange={handleImageCapture} 
+                                    className="hidden" 
+                                />
+                            </label>
+                            <span className="text-[9.5px] text-espresso-400 text-center">
+                                ※ 실시간 비디오가 막힌 경우, 이 버튼을 통해 QR코드를 촬영해 즉시 디코딩할 수 있습니다.
+                            </span>
+                        </div>
+
                         {/* 모의 카메라 에뮬레이션 테스트용 패널 (수동 입력 및 테스트 지원) */}
-                        <div className="bg-espresso-950/50 p-4 rounded-2xl border border-espresso-800 space-y-3">
-                            <span className="text-[11px] font-bold text-amber-500/80 uppercase tracking-widest block">스캔 에뮬레이터</span>
+                        <div className="bg-espresso-950/50 p-4 rounded-2xl border border-espresso-800 space-y-4">
+                            <div className="flex justify-between items-center border-b border-espresso-800 pb-2">
+                                <span className="text-[11px] font-bold text-amber-500/80 uppercase tracking-widest block">스캔 에뮬레이터</span>
+                                <span className="text-[9px] text-espresso-400">UUID 직접 입력 또는 퀵 프리셋 터치</span>
+                            </div>
+
+                            {/* 간편 테스트용 프리셋 버튼 (원터치 단골 고객) */}
+                            <div className="space-y-2">
+                                <span className="text-[10px] text-espresso-300 font-bold block">💡 단골 고객 퀵 선택 (원터치 가상 스캔)</span>
+                                <div className="flex gap-1.5 flex-wrap">
+                                    <button 
+                                        onClick={() => {
+                                            setScannedUserId("test-customer-01");
+                                            handleSimulateScan("test-customer-01");
+                                        }}
+                                        className="text-[10px] bg-amber-950/20 hover:bg-amber-950/40 text-amber-400 border border-amber-900/30 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer font-bold flex items-center gap-1"
+                                    >
+                                        ☕ 김아메 단골님 (김아메)
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            setScannedUserId("test-customer-02");
+                                            handleSimulateScan("test-customer-02");
+                                        }}
+                                        className="text-[10px] bg-amber-950/20 hover:bg-amber-950/40 text-amber-400 border border-amber-900/30 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer font-bold flex items-center gap-1"
+                                    >
+                                        🍮 박라떼 고객님 (박라떼)
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            setScannedUserId("test-customer-03");
+                                            handleSimulateScan("test-customer-03");
+                                        }}
+                                        className="text-[10px] bg-amber-950/20 hover:bg-amber-950/40 text-amber-400 border border-amber-900/30 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer font-bold flex items-center gap-1"
+                                    >
+                                        🍯 이바닐 VIP님 (이바닐)
+                                    </button>
+                                </div>
+                            </div>
+
                             <div className="flex gap-2">
                                 <input 
                                     type="text" 
-                                    placeholder="유저 고유 식별코드 입력 (테스트)" 
+                                    placeholder="유저 고유 식별코드 직접 입력" 
                                     value={scannedUserId} 
                                     onChange={e => setScannedUserId(e.target.value)}
                                     className="flex-1 bg-espresso-900 border border-espresso-700 rounded-xl px-3 py-2 text-xs font-bold text-espresso-50 outline-none focus:border-amber-500/50"
@@ -388,18 +527,19 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                 </button>
                             </div>
                             
-                            {/* 간편 테스트용 프리셋 버튼 */}
-                            <div className="flex gap-1.5 flex-wrap">
+                            {/* 나 자신을 스캔 셀프 테스트 */}
+                            <div className="flex gap-1.5 pt-1 border-t border-espresso-850/50">
                                 <button 
                                     onClick={() => {
-                                        // 현재 로그인된 유저 ID로 세팅해 시뮬레이션
                                         const me = JSON.parse(localStorage.getItem('user') || '{}');
                                         if (me.id) {
                                             setScannedUserId(me.id);
                                             handleSimulateScan(me.id);
+                                        } else {
+                                            alert("로그인 세션 정보를 찾을 수 없습니다. 나 자신을 스캔하려면 먼저 점주 계정으로 로그인되어 있어야 합니다.");
                                         }
                                     }}
-                                    className="text-[10px] bg-espresso-900 hover:bg-espresso-800 text-espresso-200 border border-espresso-700 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                                    className="text-[10px] bg-espresso-900 hover:bg-espresso-800 text-espresso-200 border border-espresso-700 px-2.5 py-1 rounded-lg transition-colors cursor-pointer w-full text-center"
                                 >
                                     나 자신을 스캔 (셀프 테스트)
                                 </button>
