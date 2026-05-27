@@ -25,7 +25,7 @@ const authenticateToken = (req: any, res: any, next: any) => {
 // POST /api/stamps/configs
 router.post('/configs', authenticateToken, async (req: any, res: any) => {
     try {
-        const { storeId, cardType, cardTitle, maxStamps, targetMenu, rewardDesc, validDays } = req.body;
+        const { storeId, cardType, cardTitle, maxStamps, targetMenu, rewardDesc, validDays, itemsConfig } = req.body;
 
         if (!storeId || !cardTitle || !rewardDesc) {
             return res.status(400).json({ error: "INVALID_INPUT", message: "필수 입력 항목이 누락되었습니다." });
@@ -53,8 +53,9 @@ router.post('/configs', authenticateToken, async (req: any, res: any) => {
                 targetMenu: targetMenu || null,
                 rewardDesc,
                 validDays: validDays ? parseInt(validDays, 10) : 90,
-                isActive: true
-            }
+                isActive: true,
+                itemsConfig: itemsConfig ? JSON.stringify(itemsConfig) : null
+            } as any
         });
 
         res.status(200).json(newConfig);
@@ -64,8 +65,6 @@ router.post('/configs', authenticateToken, async (req: any, res: any) => {
     }
 });
 
-// 2. 특정 매장의 전체 스탬프 정책 목록 조회
-// GET /api/stamps/configs/:storeId
 router.get('/configs/:storeId', async (req: any, res: any) => {
     try {
         const { storeId } = req.params;
@@ -73,7 +72,13 @@ router.get('/configs/:storeId', async (req: any, res: any) => {
             where: { storeId, isActive: true },
             orderBy: { createdAt: 'desc' }
         });
-        res.status(200).json(configs);
+        
+        const parsedConfigs = configs.map((c: any) => ({
+            ...c,
+            itemsConfig: c.itemsConfig ? JSON.parse(c.itemsConfig) : null
+        }));
+        
+        res.status(200).json(parsedConfigs);
     } catch (error) {
         console.error("Fetch stamp configs error:", error);
         res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "정책 조회 중 오류가 발생했습니다." });
@@ -84,7 +89,7 @@ router.get('/configs/:storeId', async (req: any, res: any) => {
 // POST /api/stamps/earn
 router.post('/earn', authenticateToken, async (req: any, res: any) => {
     try {
-        const { userId, storeId, configId, amount } = req.body;
+        const { userId, storeId, configId, amount, items } = req.body;
         const earnAmount = parseInt(amount, 10);
 
         if (!userId || !storeId || !configId || isNaN(earnAmount) || earnAmount <= 0) {
@@ -101,6 +106,7 @@ router.post('/earn', authenticateToken, async (req: any, res: any) => {
         }
 
         const maxStamps = config.maxStamps;
+        const isPromotion = config.cardType === "PROMOTION" && (config as any).itemsConfig;
 
         const result = await prisma.$transaction(async (tx) => {
             // 유저의 기존 스탬프 카드 조회
@@ -118,34 +124,96 @@ router.post('/earn', authenticateToken, async (req: any, res: any) => {
                         storeId,
                         configId,
                         currentStamps: 0,
-                        completedCount: 0
-                    }
+                        completedCount: 0,
+                        itemsProgress: null
+                    } as any
                 });
             }
 
-            let newStamps = stampCard.currentStamps + earnAmount;
+            let newStamps = stampCard.currentStamps;
             let newCompletedCount = stampCard.completedCount;
             const createdCoupons = [];
+            let updatedItemsProgress = stampCard.itemsProgress;
 
-            // 이월 및 쿠폰 자동 생성 로직
-            while (newStamps >= maxStamps) {
-                newStamps -= maxStamps;
-                newCompletedCount += 1;
+            if (isPromotion) {
+                // [복합 프로모션 도장판 적립 로직]
+                const configItems = JSON.parse((config as any).itemsConfig);
+                let progress = stampCard.itemsProgress ? JSON.parse(stampCard.itemsProgress) : {};
+                const inputItems = items || {};
 
-                // 무료 쿠폰 생성
-                const expiresAt = new Date();
-                expiresAt.setDate(expiresAt.getDate() + config.validDays);
-
-                const coupon = await tx.stampCoupon.create({
-                    data: {
-                        userId,
-                        storeId,
-                        couponCode: `STAMP-${uuidv4().substring(0, 8).toUpperCase()}`,
-                        status: "UNUSED",
-                        expiresAt
-                    }
+                // 품목별 가산
+                configItems.forEach((item: any) => {
+                    const key = item.key;
+                    const earnQty = parseInt(inputItems[key] || 0, 10);
+                    progress[key] = (progress[key] || 0) + earnQty;
                 });
-                createdCoupons.push(coupon);
+
+                // 루프를 돌며 품목별 목표 완성 충족 시 쿠폰 발급 및 차감
+                while (true) {
+                    let canComplete = true;
+                    configItems.forEach((item: any) => {
+                        const key = item.key;
+                        const target = item.target;
+                        if ((progress[key] || 0) < target) {
+                            canComplete = false;
+                        }
+                    });
+
+                    if (!canComplete) break;
+
+                    // 품목별 수량 소모
+                    configItems.forEach((item: any) => {
+                        const key = item.key;
+                        progress[key] -= item.target;
+                    });
+
+                    newCompletedCount += 1;
+
+                    // 무료 쿠폰 생성
+                    const expiresAt = new Date();
+                    expiresAt.setDate(expiresAt.getDate() + config.validDays);
+
+                    const coupon = await tx.stampCoupon.create({
+                        data: {
+                            userId,
+                            storeId,
+                            couponCode: `STAMP-${uuidv4().substring(0, 8).toUpperCase()}`,
+                            status: "UNUSED",
+                            expiresAt
+                        }
+                    });
+                    createdCoupons.push(coupon);
+                }
+
+                // 현재 보유 스탬프 총량 재계산
+                let totalCurrent = 0;
+                configItems.forEach((item: any) => {
+                    totalCurrent += (progress[item.key] || 0);
+                });
+
+                newStamps = totalCurrent;
+                updatedItemsProgress = JSON.stringify(progress);
+            } else {
+                // [기존 일반 단일 품목 적립 로직]
+                newStamps = stampCard.currentStamps + earnAmount;
+                while (newStamps >= maxStamps) {
+                    newStamps -= maxStamps;
+                    newCompletedCount += 1;
+
+                    const expiresAt = new Date();
+                    expiresAt.setDate(expiresAt.getDate() + config.validDays);
+
+                    const coupon = await tx.stampCoupon.create({
+                        data: {
+                            userId,
+                            storeId,
+                            couponCode: `STAMP-${uuidv4().substring(0, 8).toUpperCase()}`,
+                            status: "UNUSED",
+                            expiresAt
+                        }
+                    });
+                    createdCoupons.push(coupon);
+                }
             }
 
             // 스탬프 카드 업데이트
@@ -153,8 +221,9 @@ router.post('/earn', authenticateToken, async (req: any, res: any) => {
                 where: { id: stampCard.id },
                 data: {
                     currentStamps: newStamps,
-                    completedCount: newCompletedCount
-                }
+                    completedCount: newCompletedCount,
+                    itemsProgress: updatedItemsProgress
+                } as any
             });
 
             // 스탬프 트랜잭션 기록
@@ -164,8 +233,9 @@ router.post('/earn', authenticateToken, async (req: any, res: any) => {
                     storeId,
                     configId,
                     amount: earnAmount,
-                    txnType: "EARN"
-                }
+                    txnType: "EARN",
+                    itemsEarned: isPromotion && items ? JSON.stringify(items) : null
+                } as any
             });
 
             return { card: updatedCard, coupons: createdCoupons, transaction };
@@ -403,7 +473,9 @@ router.get('/cards/my', authenticateToken, async (req: any, res: any) => {
                 maxStamps: config?.maxStamps || 10,
                 rewardDesc: config?.rewardDesc || "아메리카노 무료 쿠폰",
                 storeName: store?.name || "알 수 없는 매장",
-                storeLogo: store?.mainImageUrl || null
+                storeLogo: store?.mainImageUrl || null,
+                itemsConfig: config?.itemsConfig ? JSON.parse(config.itemsConfig) : null,
+                itemsProgress: card.itemsProgress ? JSON.parse(card.itemsProgress) : null
             };
         }));
 
@@ -437,22 +509,28 @@ router.get('/user/:userId/cards', authenticateToken, async (req: any, res: any) 
                 }
             });
 
-            if (!card) {
-                // 없으면 가상 데이터 제공 또는 즉시 기본값 반환
-                card = {
-                    id: "",
-                    userId,
-                    storeId: storeId as string,
-                    configId: config.id,
-                    currentStamps: 0,
-                    completedCount: 0,
-                    updatedAt: new Date()
-                };
-            }
+            const parsedConfig = {
+                ...config,
+                itemsConfig: config.itemsConfig ? JSON.parse(config.itemsConfig) : null
+            };
+
+            const parsedCard = card ? {
+                ...card,
+                itemsProgress: card.itemsProgress ? JSON.parse(card.itemsProgress) : null
+            } : {
+                id: "",
+                userId,
+                storeId: storeId as string,
+                configId: config.id,
+                currentStamps: 0,
+                completedCount: 0,
+                itemsProgress: null,
+                updatedAt: new Date()
+            };
 
             return {
-                config,
-                card
+                config: parsedConfig,
+                card: parsedCard
             };
         }));
 

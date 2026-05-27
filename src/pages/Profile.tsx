@@ -2126,21 +2126,62 @@ export default function Profile() {
                                                         </div>
                                                     </div>
 
-                                                    {/* 도장판 그리드 */}
-                                                    <div className="grid grid-cols-5 gap-2.5 pt-2">
-                                                        {dots.map((isStamped, dIdx) => (
-                                                            <div 
-                                                                key={dIdx} 
-                                                                className={`aspect-square rounded-full border flex items-center justify-center transition-all ${isStamped ? 'bg-gradient-to-br from-amber-500 to-amber-700 border-amber-400 shadow-md shadow-amber-500/10 scale-105' : 'border-dashed border-espresso-700 bg-espresso-900/30'}`}
-                                                            >
-                                                                {isStamped ? (
-                                                                    <span className="text-espresso-950 font-black text-[13px]">☕</span>
-                                                                ) : (
-                                                                    <span className="text-[11px] font-mono text-espresso-700 font-bold">{dIdx + 1}</span>
-                                                                )}
+                                                    {/* 도장판 그리드 또는 복합 카테고리별 분할 도장판 */}
+                                                    {(() => {
+                                                        const isPromotion = card.itemsConfig && card.itemsProgress;
+                                                        if (isPromotion) {
+                                                            return (
+                                                                <div className="space-y-3 pt-2">
+                                                                    {card.itemsConfig.map((item: any) => {
+                                                                        const currentVal = card.itemsProgress[item.key] || 0;
+                                                                        const targetVal = item.target;
+                                                                        const itemDots = Array.from({ length: targetVal }, (_, i) => i < currentVal);
+                                                                        return (
+                                                                            <div key={item.key} className="space-y-1 bg-espresso-950/20 p-2.5 rounded-xl border border-espresso-800/30">
+                                                                                <div className="flex justify-between items-center text-[10px] font-bold">
+                                                                                    <span className="text-espresso-100">{item.label} 도장판</span>
+                                                                                    <span className="font-mono text-[#D4AF37]">{currentVal} / {targetVal}개</span>
+                                                                                </div>
+                                                                                <div className="grid grid-cols-6 gap-2.5 pt-1">
+                                                                                    {itemDots.map((isStamped, dIdx) => (
+                                                                                        <div 
+                                                                                            key={dIdx} 
+                                                                                            className={`aspect-square rounded-lg border flex items-center justify-center transition-all ${isStamped ? 'bg-gradient-to-br from-amber-500 to-amber-700 border-amber-400 shadow-md shadow-amber-500/10 scale-105' : 'border-dashed border-espresso-750 bg-espresso-900/20'}`}
+                                                                                        >
+                                                                                            {isStamped ? (
+                                                                                                <span className="text-espresso-950 font-black text-[10px]">☕</span>
+                                                                                            ) : (
+                                                                                                <span className="text-[9px] font-mono text-espresso-750 font-bold">{dIdx + 1}</span>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            );
+                                                        }
+
+                                                        // 기존 일반 그리드
+                                                        return (
+                                                            <div className="grid grid-cols-5 gap-2.5 pt-2">
+                                                                {dots.map((isStamped, dIdx) => (
+                                                                    <div 
+                                                                        key={dIdx} 
+                                                                        className={`aspect-square rounded-full border flex items-center justify-center transition-all ${isStamped ? 'bg-gradient-to-br from-amber-500 to-amber-700 border-amber-400 shadow-md shadow-amber-500/10 scale-105' : 'border-dashed border-espresso-700 bg-espresso-900/30'}`}
+                                                                    >
+                                                                        {isStamped ? (
+                                                                            <span className="text-espresso-950 font-black text-[13px]">☕</span>
+                                                                        ) : (
+                                                                            <span className="text-[11px] font-mono text-espresso-700 font-bold">{dIdx + 1}</span>
+                                                                        )}
+                                                                    </div>
+                                                                ))}
                                                             </div>
-                                                        ))}
-                                                    </div>
+                                                        );
+                                                    })()}
+
                                                     <div className="flex justify-between items-center pt-1.5 border-t border-espresso-800/40 mt-1">
                                                         <span className="text-[9.5px] text-espresso-300">
                                                             총 누적 적립: <span className="text-[#D4AF37] font-black font-mono">{(card.completedCount * card.maxStamps) + card.currentStamps}개</span>

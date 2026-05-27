@@ -16,12 +16,29 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
     const [stampConfigs, setStampConfigs] = useState<any[]>([]);
     const [selectedConfigId, setSelectedConfigId] = useState('');
     const [earnAmount, setEarnAmount] = useState(1);
+    const [earnItems, setEarnItems] = useState<Record<string, number>>({});
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [successData, setSuccessData] = useState<any>(null);
     
     // 💡 비동기 로딩 락 상태: 매장 정보와 적립 정책 바인딩이 끝나기 전 스캔 경쟁 상태를 완벽히 격리
     const [isStoreLoading, setIsStoreLoading] = useState(true);
+
+    // selectedConfigId가 바뀔 때 earnItems 초기화
+    useEffect(() => {
+        if (selectedConfigId) {
+            const cfg = stampConfigs.find(c => c.id === selectedConfigId);
+            if (cfg && cfg.itemsConfig) {
+                const initialItems: Record<string, number> = {};
+                cfg.itemsConfig.forEach((item: any) => {
+                    initialItems[item.key] = 0;
+                });
+                setEarnItems(initialItems);
+            } else {
+                setEarnItems({});
+            }
+        }
+    }, [selectedConfigId, stampConfigs]);
 
     // Real Camera Stream States
     const [videoStream, setVideoStream] = useState<MediaStream | null>(null);
@@ -458,6 +475,22 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
             setErrorMessage("적립 정보가 올바르지 않습니다.");
             return;
         }
+
+        const cfg = stampConfigs.find(c => c.id === selectedConfigId);
+        const isPromotion = cfg && cfg.itemsConfig;
+
+        let finalAmount = earnAmount;
+        let finalItems = null;
+
+        if (isPromotion) {
+            finalItems = earnItems;
+            finalAmount = Object.values(earnItems).reduce((sum, val) => sum + val, 0);
+            if (finalAmount <= 0) {
+                setErrorMessage("최소 1개 이상의 품목 수량을 선택하여 적립을 진행해 주세요.");
+                return;
+            }
+        }
+
         setIsLoading(true);
         setErrorMessage('');
         try {
@@ -472,7 +505,8 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                     userId: scannedUserId,
                     storeId,
                     configId: selectedConfigId,
-                    amount: earnAmount
+                    amount: finalAmount,
+                    items: finalItems
                 })
             });
 
@@ -768,30 +802,77 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                             </div>
                         </div>
 
-                        {/* 스탬프 다중 적립 제어기 (- / +) */}
-                        <div className="bg-espresso-950/60 p-5 rounded-3xl border border-espresso-800 text-center space-y-4">
-                            <span className="text-xs font-bold text-espresso-200 block">적립할 스탬프 수량 조절</span>
-                            
-                            <div className="flex justify-center items-center gap-6">
-                                <button 
-                                    onClick={() => setEarnAmount(prev => Math.max(1, prev - 1))}
-                                    className="w-12 h-12 rounded-2xl bg-espresso-900 hover:bg-espresso-850 border border-espresso-700 text-espresso-100 flex items-center justify-center active:scale-90 transition-all shrink-0 cursor-pointer"
-                                >
-                                    <Minus size={18} />
-                                </button>
-                                <span className="font-mono text-3xl font-black text-amber-500 w-16">{earnAmount}</span>
-                                <button 
-                                    onClick={() => setEarnAmount(prev => Math.min(10, prev + 1))}
-                                    className="w-12 h-12 rounded-2xl bg-[#D4AF37] hover:bg-[#B5952F] text-espresso-950 flex items-center justify-center active:scale-90 transition-all shrink-0 cursor-pointer"
-                                >
-                                    <Plus size={18} />
-                                </button>
-                            </div>
-                            
-                            <span className="text-[10px] text-espresso-300 block">
-                                원터치 분기적립: 일반/프로모션 수량 가감을 분할 지정하여 동시 적립
-                            </span>
-                        </div>
+                        {/* 스탬프 다중 적립 제어기 (- / +) 또는 복합 품목 카운터 */}
+                        {(() => {
+                            const cfg = stampConfigs.find(c => c.id === selectedConfigId);
+                            const isPromotion = cfg && cfg.itemsConfig;
+
+                            if (isPromotion) {
+                                return (
+                                    <div className="bg-espresso-950/60 p-4 rounded-3xl border border-espresso-800 space-y-4">
+                                        <span className="text-xs font-bold text-espresso-200 block text-center">품목별 적립 수량 조절</span>
+                                        <div className="space-y-2">
+                                            {cfg.itemsConfig.map((item: any) => {
+                                                const currentQty = earnItems[item.key] || 0;
+                                                return (
+                                                    <div key={item.key} className="flex justify-between items-center bg-espresso-900/40 p-3 rounded-xl border border-espresso-800/60">
+                                                        <div className="text-left">
+                                                            <span className="font-bold text-xs text-espresso-50">{item.label}</span>
+                                                            <p className="text-[9px] text-espresso-300">목표 수량: {item.target}개</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-3">
+                                                            <button 
+                                                                onClick={() => setEarnItems(prev => ({ ...prev, [item.key]: Math.max(0, currentQty - 1) }))}
+                                                                className="w-8 h-8 rounded-lg bg-espresso-900 border border-espresso-750 text-espresso-200 flex items-center justify-center active:scale-90 transition-all cursor-pointer"
+                                                            >
+                                                                <Minus size={12} />
+                                                            </button>
+                                                            <span className="font-mono text-sm font-black text-amber-500 w-6 text-center">{currentQty}</span>
+                                                            <button 
+                                                                onClick={() => setEarnItems(prev => ({ ...prev, [item.key]: Math.min(10, currentQty + 1) }))}
+                                                                className="w-8 h-8 rounded-lg bg-[#D4AF37] text-espresso-950 flex items-center justify-center active:scale-90 transition-all cursor-pointer"
+                                                            >
+                                                                <Plus size={12} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                        <div className="text-right text-[10px] text-espresso-300">
+                                            총 적립 예정: <span className="text-amber-500 font-bold">{Object.values(earnItems).reduce((a, b) => a + b, 0)}개</span> 스탬프
+                                        </div>
+                                    </div>
+                                );
+                            }
+
+                            // 기존 일반 카운터
+                            return (
+                                <div className="bg-espresso-950/60 p-5 rounded-3xl border border-espresso-800 text-center space-y-4">
+                                    <span className="text-xs font-bold text-espresso-200 block">적립할 스탬프 수량 조절</span>
+                                    
+                                    <div className="flex justify-center items-center gap-6">
+                                        <button 
+                                            onClick={() => setEarnAmount(prev => Math.max(1, prev - 1))}
+                                            className="w-12 h-12 rounded-2xl bg-espresso-900 hover:bg-espresso-850 border border-espresso-700 text-espresso-100 flex items-center justify-center active:scale-90 transition-all shrink-0 cursor-pointer"
+                                        >
+                                            <Minus size={18} />
+                                        </button>
+                                        <span className="font-mono text-3xl font-black text-amber-500 w-16">{earnAmount}</span>
+                                        <button 
+                                            onClick={() => setEarnAmount(prev => Math.min(10, prev + 1))}
+                                            className="w-12 h-12 rounded-2xl bg-[#D4AF37] hover:bg-[#B5952F] text-espresso-950 flex items-center justify-center active:scale-90 transition-all shrink-0 cursor-pointer"
+                                        >
+                                            <Plus size={18} />
+                                        </button>
+                                    </div>
+                                    
+                                    <span className="text-[10px] text-espresso-300 block">
+                                        원터치 분기적립: 일반/프로모션 수량 가감을 분할 지정하여 동시 적립
+                                    </span>
+                                </div>
+                            );
+                        })()}
 
                         {/* 하단 적립 버튼 */}
                         <div className="flex gap-2.5 pt-2">
@@ -806,7 +887,15 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                                 disabled={isLoading}
                                 className="flex-[2] py-3.5 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-xs rounded-xl active:scale-95 transition-all shadow-md cursor-pointer flex justify-center items-center gap-1.5"
                             >
-                                <Coffee size={14} /> {isLoading ? "적립 진행 중..." : `${earnAmount}개 스탬프 적립 완료`}
+                                <Coffee size={14} /> {(() => {
+                                    if (isLoading) return "적립 진행 중...";
+                                    const cfg = stampConfigs.find(c => c.id === selectedConfigId);
+                                    if (cfg && cfg.itemsConfig) {
+                                        const qty = Object.values(earnItems).reduce((a, b) => a + b, 0);
+                                        return `${qty}개 스탬프 적립 완료`;
+                                    }
+                                    return `${earnAmount}개 스탬프 적립 완료`;
+                                })()}
                             </button>
                         </div>
                     </div>

@@ -988,6 +988,7 @@ model StoreStampConfig {
   validDays     Int      @default(90)       // 유효 기한
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
+  itemsConfig   String?                     // 복합 품목 설정 JSON 문자열
 }
 
 // 2. 유저가 소지한 매장별 실시간 도장판
@@ -999,6 +1000,7 @@ model UserStampCard {
   currentStamps Int      @default(0)        // 현재 도장 수 (0 ~ maxStamps)
   completedCount Int     @default(0)        // 완성 횟수
   updatedAt     DateTime @updatedAt
+  itemsProgress String?                     // 항목별 적립 현황 JSON 문자열
 
   @@unique([userId, configId])
 }
@@ -1023,4 +1025,5 @@ model StampTransaction {
   amount        Int      // 가감된 스탬프 개수 (적립은 +4, 취소는 -4)
   txnType       String   // EARN, CANCEL_ROLLBACK
   createdAt     DateTime @default(now())
+  itemsEarned   String?                     // 항목별 적립 수량 JSON 문자열
 }
