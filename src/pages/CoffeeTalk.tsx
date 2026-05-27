@@ -125,6 +125,7 @@ export default function CoffeeTalk() {
   const [activeFilter, setActiveFilter] = useState(initialFilter);
     const [sortOption, setSortOption] = useState('latest');
   const [isDeepLinked, setIsDeepLinked] = useState(!!location.state?.activePost || !!window.location.hash);
+  const [isScrollJumping, setIsScrollJumping] = useState(!!location.state?.activePost || !!window.location.hash);
   const currentFilterRef = useRef(activeFilter);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -233,6 +234,7 @@ export default function CoffeeTalk() {
     
     if (location.state?.activePost) {
         targetPostIdToScroll.current = location.state.activePost;
+        setIsScrollJumping(true);
     }
     
     if (location.state?.composePilgrimageLedger) {
@@ -651,6 +653,9 @@ export default function CoffeeTalk() {
           setTimeout(() => {
               container.style.scrollBehavior = '';
           }, 50);
+
+          // 스크롤이 완료된 즉시 화면 투명도 잠금 해제! (0ms 찰나에 페이드인)
+          setIsScrollJumping(false);
           return true;
         }
         return false;
@@ -663,6 +668,7 @@ export default function CoffeeTalk() {
         const interval = setInterval(() => {
           if (performScroll() || attempts > 10) {
             clearInterval(interval);
+            setIsScrollJumping(false); // 스크롤 시도 종료/실패 시에도 강제 잠금 해제하여 먹통 예방
           }
           attempts++;
         }, 10);
@@ -1425,7 +1431,7 @@ export default function CoffeeTalk() {
 
       {/* Main Feed Content */}
       <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto scroll-smooth ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24'}`}>
-        <div className={`mx-auto ${activeFilter === 'shorts' ? 'w-full max-w-md md:max-w-2xl h-full' : 'max-w-md md:max-w-2xl sm:px-4 sm:pb-4'}`}>
+        <div className={`mx-auto transition-opacity duration-200 ${isScrollJumping ? 'opacity-0' : 'opacity-100'} ${activeFilter === 'shorts' ? 'w-full max-w-md md:max-w-2xl h-full' : 'max-w-md md:max-w-2xl sm:px-4 sm:pb-4'}`}>
           {activeFilter === 'near_live' && <HotspotMap />}
           {isLoading && <p className="text-center text-espresso-200 mt-10">{t('coffee_talk.loading_feed', '피드를 불러오는 중입니다...')}</p>}
           {!isLoading && filteredPosts.length === 0 && (
