@@ -721,4 +721,85 @@ router.put('/owner/store-profile', authenticateToken, async (req: any, res: any)
     }
 });
 
+// 11. 점주용 매장 전체 무료 쿠폰 발급/사용 리스트 조회 API
+// GET /api/stamps/owner/coupons/:storeId
+router.get('/owner/coupons/:storeId', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { storeId } = req.params;
+
+        // 해당 매장의 모든 쿠폰 조회 (최신 발행순 - 만료일이 가장 늦게 도래하는 역순 정렬)
+        const coupons = await prisma.stampCoupon.findMany({
+            where: { storeId },
+            orderBy: { expiresAt: "desc" }
+        });
+
+        // 유저 정보 및 쿠폰 리워드명 매핑
+        const couponsWithUser = await Promise.all(coupons.map(async (coupon) => {
+            const user = await prisma.user.findUnique({
+                where: { id: coupon.userId },
+                select: { nickname: true, email: true }
+            });
+            let rewardDesc = "무료 혜택 무료 쿠폰";
+            if (coupon.configId) {
+                const config = await prisma.storeStampConfig.findUnique({
+                    where: { id: coupon.configId },
+                    select: { rewardDesc: true }
+                });
+                if (config?.rewardDesc) {
+                    rewardDesc = config.rewardDesc;
+                }
+            }
+            return {
+                ...coupon,
+                userNickname: user?.nickname || "단골 고객",
+                userEmail: user?.email || "unknown@test.com",
+                rewardDesc
+            };
+        }));
+
+        res.status(200).json(couponsWithUser);
+    } catch (error) {
+        console.error("Fetch host coupons error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "쿠폰 데이터 조회 중 오류가 발생했습니다." });
+    }
+});
+
+// 12. 점주용 매장 전체 적립/롤백 거래 상세 이력 조회 API
+// GET /api/stamps/owner/transactions/:storeId
+router.get('/owner/transactions/:storeId', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { storeId } = req.params;
+
+        // 해당 매장의 모든 스탬프 거래 이력 조회 (최신 발생순)
+        const transactions = await prisma.stampTransaction.findMany({
+            where: { storeId },
+            orderBy: { createdAt: "desc" }
+        });
+
+        // 유저 정보 및 정책 카드 타이틀 매핑
+        const txnsWithDetails = await Promise.all(transactions.map(async (txn) => {
+            const user = await prisma.user.findUnique({
+                where: { id: txn.userId },
+                select: { nickname: true, email: true }
+            });
+            const config = await prisma.storeStampConfig.findUnique({
+                where: { id: txn.configId },
+                select: { cardTitle: true, cardType: true }
+            });
+            return {
+                ...txn,
+                userNickname: user?.nickname || "단골 고객",
+                userEmail: user?.email || "unknown@test.com",
+                cardTitle: config?.cardTitle || "일반 쿠폰",
+                cardType: config?.cardType || "REGULAR"
+            };
+        }));
+
+        res.status(200).json(txnsWithDetails);
+    } catch (error) {
+        console.error("Fetch host transactions error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "거래 이력 데이터 조회 중 오류가 발생했습니다." });
+    }
+});
+
 export default router;

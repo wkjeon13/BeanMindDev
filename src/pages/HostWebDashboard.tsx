@@ -423,7 +423,7 @@ export default function HostWebDashboard() {
             )}
 
             {/* 레이아웃 바디 */}
-            <div className="flex-1 flex flex-col lg:flex-row min-h-0">
+            <div className="flex-1 flex flex-col lg:flex-row lg:min-h-0">
                 {/* 사이드바 메뉴 탭 */}
                 <aside className="w-full lg:w-60 bg-espresso-900/50 border-r border-espresso-800/60 p-4 space-y-2 shrink-0 flex lg:flex-col flex-row gap-2 lg:gap-0 lg:space-x-0 overflow-x-auto lg:overflow-x-visible">
                     <button 
@@ -447,7 +447,7 @@ export default function HostWebDashboard() {
                 </aside>
 
                 {/* 콘텐츠 영역 */}
-                <main className="flex-1 p-6 overflow-y-auto max-h-[calc(100vh-180px)] space-y-6">
+                <main className="flex-1 p-6 lg:overflow-y-auto lg:max-h-[calc(100vh-180px)] space-y-6">
                     {errorMessage && (
                         <div className="bg-red-950/40 border border-red-500/30 text-red-400 p-4 rounded-2xl text-xs">
                             {errorMessage}
