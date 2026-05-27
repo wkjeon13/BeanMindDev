@@ -1504,9 +1504,9 @@ export default function HostDashboard() {
                                                 <span className="font-mono text-amber-500 font-black">{editData.acidity || 3} / 5</span>
                                             </div>
                                             <input 
-                                                type="range" min="1" max="5" 
+                                                type="range" min="1" max="5" step="0.5"
                                                 value={editData.acidity || 3} 
-                                                onChange={e => setEditData({ ...editData, acidity: parseInt(e.target.value, 10) })}
+                                                onChange={e => setEditData({ ...editData, acidity: parseFloat(e.target.value) })}
                                                 className="w-full accent-amber-500 bg-espresso-950 h-1 rounded-lg outline-none cursor-pointer"
                                             />
                                         </div>
@@ -1517,9 +1517,9 @@ export default function HostDashboard() {
                                                 <span className="font-mono text-amber-500 font-black">{editData.sweetness || 3} / 5</span>
                                             </div>
                                             <input 
-                                                type="range" min="1" max="5" 
+                                                type="range" min="1" max="5" step="0.5"
                                                 value={editData.sweetness || 3} 
-                                                onChange={e => setEditData({ ...editData, sweetness: parseInt(e.target.value, 10) })}
+                                                onChange={e => setEditData({ ...editData, sweetness: parseFloat(e.target.value) })}
                                                 className="w-full accent-amber-500 bg-espresso-950 h-1 rounded-lg outline-none cursor-pointer"
                                             />
                                         </div>
@@ -1530,9 +1530,9 @@ export default function HostDashboard() {
                                                 <span className="font-mono text-amber-500 font-black">{editData.bitterness || 3} / 5</span>
                                             </div>
                                             <input 
-                                                type="range" min="1" max="5" 
+                                                type="range" min="1" max="5" step="0.5"
                                                 value={editData.bitterness || 3} 
-                                                onChange={e => setEditData({ ...editData, bitterness: parseInt(e.target.value, 10) })}
+                                                onChange={e => setEditData({ ...editData, bitterness: parseFloat(e.target.value) })}
                                                 className="w-full accent-amber-500 bg-espresso-950 h-1 rounded-lg outline-none cursor-pointer"
                                             />
                                         </div>
@@ -1543,9 +1543,9 @@ export default function HostDashboard() {
                                                 <span className="font-mono text-amber-500 font-black">{editData.body || 3} / 5</span>
                                             </div>
                                             <input 
-                                                type="range" min="1" max="5" 
+                                                type="range" min="1" max="5" step="0.5"
                                                 value={editData.body || 3} 
-                                                onChange={e => setEditData({ ...editData, body: parseInt(e.target.value, 10) })}
+                                                onChange={e => setEditData({ ...editData, body: parseFloat(e.target.value) })}
                                                 className="w-full accent-amber-500 bg-espresso-950 h-1 rounded-lg outline-none cursor-pointer"
                                             />
                                         </div>
