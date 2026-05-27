@@ -1,0 +1,578 @@
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
+import prisma from '../utils/prisma.js';
+import { ERROR_CODES } from '../utils/errorCodes.js';
+
+const router = express.Router();
+const JWT_SECRET = process.env.JWT_SECRET as string;
+
+// 인증 미들웨어
+const authenticateToken = (req: any, res: any, next: any) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) return res.status(401).json({ error: ERROR_CODES.MISSING_AUTH_HEADER || "MISSING_AUTH_HEADER" });
+
+    jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
+        if (err) return res.status(403).json({ error: ERROR_CODES.INVALID_TOKEN || "INVALID_TOKEN" });
+        req.user = user;
+        next();
+    });
+};
+
+// 1. 매장별 스탬프 발급 정책 생성 및 변경 (일반 및 프로모션 다중 Config 등록 지원)
+// POST /api/stamps/configs
+router.post('/configs', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { storeId, cardType, cardTitle, maxStamps, targetMenu, rewardDesc, validDays } = req.body;
+
+        if (!storeId || !cardTitle || !rewardDesc) {
+            return res.status(400).json({ error: "INVALID_INPUT", message: "필수 입력 항목이 누락되었습니다." });
+        }
+
+        // 기존에 동일 매장 & 카드타입에 대해 활성화된 정책이 있는지 체크
+        const existingConfig = await prisma.storeStampConfig.findFirst({
+            where: { storeId, cardType, isActive: true }
+        });
+
+        // 기존 활성 정책 비활성화 (새 정책으로 교체하는 개념)
+        if (existingConfig) {
+            await prisma.storeStampConfig.update({
+                where: { id: existingConfig.id },
+                data: { isActive: false }
+            });
+        }
+
+        const newConfig = await prisma.storeStampConfig.create({
+            data: {
+                storeId,
+                cardType: cardType || "REGULAR",
+                cardTitle,
+                maxStamps: maxStamps ? parseInt(maxStamps, 10) : 10,
+                targetMenu: targetMenu || null,
+                rewardDesc,
+                validDays: validDays ? parseInt(validDays, 10) : 90,
+                isActive: true
+            }
+        });
+
+        res.status(200).json(newConfig);
+    } catch (error) {
+        console.error("Create stamp config error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "정책 생성 중 오류가 발생했습니다." });
+    }
+});
+
+// 2. 특정 매장의 전체 스탬프 정책 목록 조회
+// GET /api/stamps/configs/:storeId
+router.get('/configs/:storeId', async (req: any, res: any) => {
+    try {
+        const { storeId } = req.params;
+        const configs = await prisma.storeStampConfig.findMany({
+            where: { storeId, isActive: true },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.status(200).json(configs);
+    } catch (error) {
+        console.error("Fetch stamp configs error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "정책 조회 중 오류가 발생했습니다." });
+    }
+});
+
+// 3. 다중 스탬프 카드 적립 (이월 적립 및 자동 쿠폰 발행 지원)
+// POST /api/stamps/earn
+router.post('/earn', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { userId, storeId, configId, amount } = req.body;
+        const earnAmount = parseInt(amount, 10);
+
+        if (!userId || !storeId || !configId || isNaN(earnAmount) || earnAmount <= 0) {
+            return res.status(400).json({ error: "INVALID_INPUT", message: "올바르지 않은 입력값입니다." });
+        }
+
+        // 해당 정책(StoreStampConfig) 조회
+        const config = await prisma.storeStampConfig.findUnique({
+            where: { id: configId }
+        });
+
+        if (!config || !config.isActive) {
+            return res.status(404).json({ error: "CONFIG_NOT_FOUND", message: "활성화된 스탬프 정책을 찾을 수 없습니다." });
+        }
+
+        const maxStamps = config.maxStamps;
+
+        const result = await prisma.$transaction(async (tx) => {
+            // 유저의 기존 스탬프 카드 조회
+            let stampCard = await tx.userStampCard.findUnique({
+                where: {
+                    userId_configId: { userId, configId }
+                }
+            });
+
+            if (!stampCard) {
+                // 신규 생성
+                stampCard = await tx.userStampCard.create({
+                    data: {
+                        userId,
+                        storeId,
+                        configId,
+                        currentStamps: 0,
+                        completedCount: 0
+                    }
+                });
+            }
+
+            let newStamps = stampCard.currentStamps + earnAmount;
+            let newCompletedCount = stampCard.completedCount;
+            const createdCoupons = [];
+
+            // 이월 및 쿠폰 자동 생성 로직
+            while (newStamps >= maxStamps) {
+                newStamps -= maxStamps;
+                newCompletedCount += 1;
+
+                // 무료 쿠폰 생성
+                const expiresAt = new Date();
+                expiresAt.setDate(expiresAt.getDate() + config.validDays);
+
+                const coupon = await tx.stampCoupon.create({
+                    data: {
+                        userId,
+                        storeId,
+                        couponCode: `STAMP-${uuidv4().substring(0, 8).toUpperCase()}`,
+                        status: "UNUSED",
+                        expiresAt
+                    }
+                });
+                createdCoupons.push(coupon);
+            }
+
+            // 스탬프 카드 업데이트
+            const updatedCard = await tx.userStampCard.update({
+                where: { id: stampCard.id },
+                data: {
+                    currentStamps: newStamps,
+                    completedCount: newCompletedCount
+                }
+            });
+
+            // 스탬프 트랜잭션 기록
+            const transaction = await tx.stampTransaction.create({
+                data: {
+                    userId,
+                    storeId,
+                    configId,
+                    amount: earnAmount,
+                    txnType: "EARN"
+                }
+            });
+
+            return { card: updatedCard, coupons: createdCoupons, transaction };
+        });
+
+        res.status(200).json(result);
+    } catch (error) {
+        console.error("Earn stamp error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "스탬프 적립 중 오류가 발생했습니다." });
+    }
+});
+
+// 4. 마지막 트랜잭션 롤백/취소
+// POST /api/stamps/rollback
+router.post('/rollback', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { userId, storeId, configId } = req.body;
+
+        if (!userId || !storeId || !configId) {
+            return res.status(400).json({ error: "INVALID_INPUT", message: "필수 항목이 누락되었습니다." });
+        }
+
+        // 해당 유저, 매장, 정책의 가장 마지막 EARN 트랜잭션 조회
+        const lastTxn = await prisma.stampTransaction.findFirst({
+            where: { userId, storeId, configId, txnType: "EARN" },
+            orderBy: { createdAt: "desc" }
+        });
+
+        if (!lastTxn) {
+            return res.status(404).json({ error: "TRANSACTION_NOT_FOUND", message: "롤백할 적립 내역을 찾을 수 없습니다." });
+        }
+
+        // 이미 롤백 되었는지 여부 체크를 위해 동일 내역 취소 트랜잭션 확인 (단순 최종건 기준)
+        const lastCancelTxn = await prisma.stampTransaction.findFirst({
+            where: { userId, storeId, configId, txnType: "CANCEL_ROLLBACK" },
+            orderBy: { createdAt: "desc" }
+        });
+
+        if (lastCancelTxn && lastCancelTxn.createdAt > lastTxn.createdAt) {
+            return res.status(400).json({ error: "ALREADY_ROLLED_BACK", message: "가장 최근의 적립 내역이 이미 취소되었습니다." });
+        }
+
+        const rollbackAmount = lastTxn.amount;
+
+        // 해당 스탬프 설정 조회
+        const config = await prisma.storeStampConfig.findUnique({
+            where: { id: configId }
+        });
+
+        if (!config) {
+            return res.status(404).json({ error: "CONFIG_NOT_FOUND", message: "정책을 찾을 수 없습니다." });
+        }
+
+        const maxStamps = config.maxStamps;
+
+        const result = await prisma.$transaction(async (tx) => {
+            const stampCard = await tx.userStampCard.findUnique({
+                where: { userId_configId: { userId, configId } }
+            });
+
+            if (!stampCard) {
+                throw new Error("스탬프 카드가 존재하지 않습니다.");
+            }
+
+            let currentStamps = stampCard.currentStamps;
+            let completedCount = stampCard.completedCount;
+
+            // 수학적 롤백 (이월 복원)
+            currentStamps -= rollbackAmount;
+
+            let couponsToRevokeCount = 0;
+            while (currentStamps < 0) {
+                if (completedCount <= 0) {
+                    currentStamps = 0; // 마이너스 방지 폴백
+                    break;
+                }
+                completedCount -= 1;
+                currentStamps += maxStamps;
+                couponsToRevokeCount += 1;
+            }
+
+            // 롤백으로 인해 완성 횟수가 줄어들었다면, 발행했던 미사용 쿠폰도 취소 처리
+            let revokedCouponsCount = 0;
+            if (couponsToRevokeCount > 0) {
+                const couponsToRevoke = await tx.stampCoupon.findMany({
+                    where: { userId, storeId, status: "UNUSED" },
+                    orderBy: { expiresAt: "desc" },
+                    take: couponsToRevokeCount
+                });
+
+                for (const coupon of couponsToRevoke) {
+                    await tx.stampCoupon.update({
+                        where: { id: coupon.id },
+                        data: { status: "EXPIRED" } // EXPIRED로 만료 처리하여 취소
+                    });
+                    revokedCouponsCount++;
+                }
+            }
+
+            // 스탬프 카드 롤백 반영
+            const updatedCard = await tx.userStampCard.update({
+                where: { id: stampCard.id },
+                data: {
+                    currentStamps,
+                    completedCount
+                }
+            });
+
+            // 취소 트랜잭션 로그 생성
+            const cancelTransaction = await tx.stampTransaction.create({
+                data: {
+                    userId,
+                    storeId,
+                    configId,
+                    amount: -rollbackAmount,
+                    txnType: "CANCEL_ROLLBACK"
+                }
+            });
+
+            return { card: updatedCard, revokedCouponsCount, transaction: cancelTransaction };
+        });
+
+        res.status(200).json({
+            message: "적립 취소(롤백)가 성공적으로 완료되었습니다.",
+            ...result
+        });
+    } catch (error: any) {
+        console.error("Rollback stamp error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: error.message || "롤백 처리 중 오류가 발생했습니다." });
+    }
+});
+
+// 5. 로그인된 이용자의 사용 가능한 무료 쿠폰 목록 조회
+// GET /api/stamps/coupons/my
+router.get('/coupons/my', authenticateToken, async (req: any, res: any) => {
+    try {
+        const userId = req.user.id;
+        const coupons = await prisma.stampCoupon.findMany({
+            where: {
+                userId,
+                status: "UNUSED",
+                expiresAt: { gte: new Date() }
+            },
+            orderBy: { expiresAt: 'asc' }
+        });
+
+        // 매장 정보 함께 붙여서 전송
+        const couponsWithStore = await Promise.all(coupons.map(async (coupon) => {
+            const store = await prisma.store.findUnique({
+                where: { id: coupon.storeId },
+                select: { name: true, logoUrl: true }
+            });
+            return {
+                ...coupon,
+                storeName: store?.name || "알 수 없는 매장",
+                storeLogo: store?.logoUrl || null
+            };
+        }));
+
+        res.status(200).json(couponsWithStore);
+    } catch (error) {
+        console.error("Fetch my coupons error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "쿠폰함 조회 중 오류가 발생했습니다." });
+    }
+});
+
+// 6. 쿠폰 사용 처리
+// POST /api/stamps/coupons/:id/use
+router.post('/coupons/:id/use', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+
+        const coupon = await prisma.stampCoupon.findUnique({
+            where: { id }
+        });
+
+        if (!coupon) {
+            return res.status(404).json({ error: "COUPON_NOT_FOUND", message: "쿠폰을 찾을 수 없습니다." });
+        }
+
+        if (coupon.status !== "UNUSED") {
+            return res.status(400).json({ error: "ALREADY_USED_OR_EXPIRED", message: "이미 사용되었거나 만료된 쿠폰입니다." });
+        }
+
+        if (new Date() > coupon.expiresAt) {
+            await prisma.stampCoupon.update({
+                where: { id },
+                data: { status: "EXPIRED" }
+            });
+            return res.status(400).json({ error: "EXPIRED_COUPON", message: "유효 기간이 만료된 쿠폰입니다." });
+        }
+
+        const updatedCoupon = await prisma.stampCoupon.update({
+            where: { id },
+            data: {
+                status: "USED",
+                usedAt: new Date()
+            }
+        });
+
+        res.status(200).json({
+            message: "쿠폰 사용 처리가 완료되었습니다.",
+            coupon: updatedCoupon
+        });
+    } catch (error) {
+        console.error("Use coupon error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "쿠폰 사용 중 오류가 발생했습니다." });
+    }
+});
+
+// 7. 로그인된 이용자의 전체 스탬프 카드 현황 조회
+// GET /api/stamps/cards/my
+router.get('/cards/my', authenticateToken, async (req: any, res: any) => {
+    try {
+        const userId = req.user.id;
+
+        const stampCards = await prisma.userStampCard.findMany({
+            where: { userId },
+            orderBy: { updatedAt: 'desc' }
+        });
+
+        const cardsWithDetails = await Promise.all(stampCards.map(async (card) => {
+            const config = await prisma.storeStampConfig.findUnique({
+                where: { id: card.configId }
+            });
+            const store = await prisma.store.findUnique({
+                where: { id: card.storeId },
+                select: { name: true, logoUrl: true }
+            });
+
+            return {
+                ...card,
+                cardTitle: config?.cardTitle || "스탬프 쿠폰",
+                cardType: config?.cardType || "REGULAR",
+                maxStamps: config?.maxStamps || 10,
+                rewardDesc: config?.rewardDesc || "아메리카노 무료 쿠폰",
+                storeName: store?.name || "알 수 없는 매장",
+                storeLogo: store?.logoUrl || null
+            };
+        }));
+
+        res.status(200).json(cardsWithDetails);
+    } catch (error) {
+        console.error("Fetch my stamp cards error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "스탬프 조회 중 오류가 발생했습니다." });
+    }
+});
+
+// 8. 점주용 API. 스캔한 이용자 ID로 해당 매장에서의 적립 카드 조회
+// GET /api/stamps/user/:userId/cards
+router.get('/user/:userId/cards', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { userId } = req.params;
+        const { storeId } = req.query; // 점주가 담당하는 매장 ID
+
+        if (!userId || !storeId) {
+            return res.status(400).json({ error: "INVALID_INPUT", message: "필수 항목(userId, storeId)이 누락되었습니다." });
+        }
+
+        // 해당 매장의 스탬프 설정 조회
+        const configs = await prisma.storeStampConfig.findMany({
+            where: { storeId: storeId as string, isActive: true }
+        });
+
+        const cardsWithConfig = await Promise.all(configs.map(async (config) => {
+            let card = await prisma.userStampCard.findUnique({
+                where: {
+                    userId_configId: { userId, configId: config.id }
+                }
+            });
+
+            if (!card) {
+                // 없으면 가상 데이터 제공 또는 즉시 기본값 반환
+                card = {
+                    id: "",
+                    userId,
+                    storeId: storeId as string,
+                    configId: config.id,
+                    currentStamps: 0,
+                    completedCount: 0,
+                    updatedAt: new Date()
+                };
+            }
+
+            return {
+                config,
+                card
+            };
+        }));
+
+        // 유저 정보 가져오기
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: { id: true, nickname: true, email: true }
+        });
+
+        res.status(200).json({
+            user: user || { nickname: "임시 고객", email: "" },
+            cards: cardsWithConfig
+        });
+    } catch (error) {
+        console.error("Fetch user stamp cards by host error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "고객 정보 조회 중 오류가 발생했습니다." });
+    }
+});
+
+// 9. 점주용 통계 API. 매장의 총 적립 건수, 오늘 적립 수, 총 발행 쿠폰, 총 사용 쿠폰 조회
+// GET /api/stamps/owner/stats/:storeId
+router.get('/owner/stats/:storeId', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { storeId } = req.params;
+
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
+        // 총 적립 트랜잭션 건수 (EARN)
+        const totalEarnCount = await prisma.stampTransaction.count({
+            where: { storeId, txnType: "EARN" }
+        });
+
+        // 오늘 적립 트랜잭션 건수 (EARN)
+        const todayEarnCount = await prisma.stampTransaction.count({
+            where: {
+                storeId,
+                txnType: "EARN",
+                createdAt: { gte: startOfToday }
+            }
+        });
+
+        // 총 발행 무료 쿠폰
+        const totalIssuedCoupons = await prisma.stampCoupon.count({
+            where: { storeId }
+        });
+
+        // 사용 완료된 쿠폰
+        const totalUsedCoupons = await prisma.stampCoupon.count({
+            where: { storeId, status: "USED" }
+        });
+
+        // 최근 적립 내역 10건 가져오기
+        const recentTxns = await prisma.stampTransaction.findMany({
+            where: { storeId },
+            orderBy: { createdAt: "desc" },
+            take: 10
+        });
+
+        const txnsWithUser = await Promise.all(recentTxns.map(async (txn) => {
+            const user = await prisma.user.findUnique({
+                where: { id: txn.userId },
+                select: { nickname: true }
+            });
+            const config = await prisma.storeStampConfig.findUnique({
+                where: { id: txn.configId },
+                select: { cardTitle: true, cardType: true }
+            });
+            return {
+                ...txn,
+                userNickname: user?.nickname || "단골 고객",
+                cardTitle: config?.cardTitle || "일반 쿠폰",
+                cardType: config?.cardType || "REGULAR"
+            };
+        }));
+
+        res.status(200).json({
+            stats: {
+                totalEarnCount,
+                todayEarnCount,
+                totalIssuedCoupons,
+                totalUsedCoupons
+            },
+            recentTransactions: txnsWithUser
+        });
+    } catch (error) {
+        console.error("Fetch host stats error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "통계 데이터 조회 중 오류가 발생했습니다." });
+    }
+});
+
+// 10. 매장 정보 업데이트 (매장 주소, 설명, 전화번호 등)
+// PUT /api/stamps/owner/store-profile
+router.put('/owner/store-profile', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { storeId, name, address, phone, description } = req.body;
+
+        if (!storeId) {
+            return res.status(400).json({ error: "INVALID_INPUT", message: "매장 ID는 필수 입력 사항입니다." });
+        }
+
+        // Store 모델 업데이트
+        const updatedStore = await prisma.store.update({
+            where: { id: storeId },
+            data: {
+                name: name || undefined,
+                address: address || undefined,
+                phone: phone || undefined,
+                description: description || undefined
+            }
+        });
+
+        res.status(200).json({
+            message: "매장 정보가 성공적으로 업데이트되었습니다.",
+            store: updatedStore
+        });
+    } catch (error) {
+        console.error("Update store profile error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "매장 정보 업데이트 중 오류가 발생했습니다." });
+    }
+});
+
+export default router;

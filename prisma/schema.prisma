@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client-stamp"
 }
 
 datasource db {
@@ -973,4 +974,53 @@ enum InquiryStatus {
   MORE_INFO_NEEDED
   APPROVED
   REJECTED
+}
+
+// 1. 매장별 스탬프 발급 정책 (일반 및 프로모션 다중 Config 등록 지원)
+model StoreStampConfig {
+  id            String   @id @default(uuid())
+  storeId       String
+  cardType      String   @default("REGULAR") // REGULAR, PROMOTION
+  cardTitle     String   // 쿠폰판 타이틀
+  maxStamps     Int      @default(10)       // 완성 목표 도장수
+  targetMenu    String?                     // 적립 대상 메뉴 범위
+  rewardDesc    String                      // 보상 내용
+  validDays     Int      @default(90)       // 유효 기한
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+}
+
+// 2. 유저가 소지한 매장별 실시간 도장판
+model UserStampCard {
+  id            String   @id @default(uuid())
+  userId        String
+  storeId       String
+  configId      String   // 연결된 StoreStampConfig ID
+  currentStamps Int      @default(0)        // 현재 도장 수 (0 ~ maxStamps)
+  completedCount Int     @default(0)        // 완성 횟수
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, configId])
+}
+
+// 3. 10개 달성 시 자동 발급되는 무료 쿠폰
+model StampCoupon {
+  id            String   @id @default(uuid())
+  userId        String
+  storeId       String
+  couponCode    String   @unique
+  status        String   @default("UNUSED") // UNUSED, USED, EXPIRED
+  expiresAt     DateTime
+  usedAt        DateTime?
+}
+
+// 4. 적립 상세 이력 (수량 가감 및 취소/롤백 처리를 검증하기 위한 상세 로그)
+model StampTransaction {
+  id            String   @id @default(uuid())
+  userId        String
+  storeId       String
+  configId      String
+  amount        Int      // 가감된 스탬프 개수 (적립은 +4, 취소는 -4)
+  txnType       String   // EARN, CANCEL_ROLLBACK
+  createdAt     DateTime @default(now())
 }

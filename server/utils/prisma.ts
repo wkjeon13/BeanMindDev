@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../node_modules/.prisma/client-stamp/index.js';
 
 // Prevent multiple instances of Prisma Client in development
 declare global {

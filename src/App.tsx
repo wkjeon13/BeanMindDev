@@ -19,6 +19,7 @@ const ClubList = React.lazy(() => import('./pages/ClubList'));
 const ClubDetail = React.lazy(() => import('./pages/ClubDetail'));
 const TastingNoteWizard = React.lazy(() => import('./pages/TastingNoteWizard'));
 const TourRouteWizard = React.lazy(() => import('./pages/TourRouteWizard'));
+const HostWebDashboard = React.lazy(() => import('./pages/HostWebDashboard'));
 import { useTranslation } from 'react-i18next';
 
 // Bottom Navigation Component
@@ -58,7 +59,7 @@ const BottomNav = () => {
   }, []);
 
   // Hide bottom nav on specific pages
-  if (currentPath.startsWith('/register') || currentPath.startsWith('/admin')) return null;
+  if (currentPath.startsWith('/register') || currentPath.startsWith('/admin') || currentPath.startsWith('/profile/host-web')) return null;
 
   const handleNavClick = (e: React.MouseEvent, targetPath: string) => {
     // If clicking the current tab, trigger scroll to top
@@ -108,7 +109,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const hideBottomNav = location.pathname.startsWith('/register') || location.pathname.startsWith('/admin');
+  const hideBottomNav = location.pathname.startsWith('/register') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/profile/host-web');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
@@ -272,6 +273,7 @@ export default function App() {
           <Route path="/profile/manage-shop" element={<ManageShop />} />
           <Route path="/profile/points" element={<PointHistory />} />
           <Route path="/register" element={<RegisterShop />} />
+          <Route path="/profile/host-web" element={<HostWebDashboard />} />
 
 
             </Routes>

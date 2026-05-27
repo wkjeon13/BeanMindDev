@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { User, LogIn, Store, ShieldCheck, ChevronRight, ChevronUp, ChevronDown, Mail, Lock, Shield, Users, Globe, Send, Inbox, Coffee, Database, MapPin, Share2, Trash2, KeyRound, Image as ImageIcon } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useGoogleLogin, GoogleLogin } from '@react-oauth/google';
 import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
 import { App as CapApp } from '@capacitor/app';
@@ -13,6 +13,7 @@ import { Share } from '@capacitor/share';
 import { useTranslation } from 'react-i18next';
 import HostAdDashboard from '../components/HostAdDashboard';
 import PrescriptionTicket from '../components/PrescriptionTicket';
+import HostQRScannerModal from '../components/community/HostQRScannerModal';
 import { COFFEE_BEANS, BRANDS } from '../data/coffeeData';
 import IAPPaymentModal from '../components/points/IAPPaymentModal';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
@@ -23,6 +24,7 @@ import { compressImage } from '../utils/imageUtils';
 export default function Profile() {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     // JWT auth state
     const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem('token'));
@@ -42,6 +44,15 @@ export default function Profile() {
     const [authError, setAuthError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [pointBalance, setPointBalance] = useState(0);
+
+    // Stamp O2O States
+    const [myStampCards, setMyStampCards] = useState<any[]>([]);
+    const [myStampCoupons, setMyStampCoupons] = useState<any[]>([]);
+    const [activeStampTab, setActiveStampTab] = useState<'REGULAR' | 'PROMOTION' | 'COUPON'>('REGULAR');
+    const [isStampModalOpen, setIsStampModalOpen] = useState(false);
+    const [isHostScannerOpen, setIsHostScannerOpen] = useState(false);
+    const [currentCouponForQR, setCurrentCouponForQR] = useState<any>(null);
+    const [isCouponQRModalOpen, setIsCouponQRModalOpen] = useState(false);
 
     // Clear sensitive form state when modal closes or view changes
     React.useEffect(() => {
@@ -244,6 +255,30 @@ export default function Profile() {
         }
     }, []);
 
+    const fetchStampData = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        try {
+            const cardRes = await fetch(`${API_BASE}/api/stamps/cards/my`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (cardRes.ok) {
+                const cardData = await cardRes.json();
+                setMyStampCards(cardData);
+            }
+            
+            const couponRes = await fetch(`${API_BASE}/api/stamps/coupons/my`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (couponRes.ok) {
+                const couponData = await couponRes.json();
+                setMyStampCoupons(couponData);
+            }
+        } catch (err) {
+            console.error("Failed to fetch stamps or coupons", err);
+        }
+    };
+
     const navigateToAdmin = (path: string) => {
         const container = document.getElementById('profile-scroll-container');
         if (container) sessionStorage.setItem('profileScrollY', container.scrollTop.toString());
@@ -252,6 +287,11 @@ export default function Profile() {
 
     React.useEffect(() => {
         if (isAuthenticated) {
+            fetchStampData();
+            if (location.state?.openStampQR) {
+                setIsStampModalOpen(true);
+                try { navigate(location.pathname, { replace: true, state: {} }); } catch (e) {}
+            }
             const token = localStorage.getItem('token');
             if (token) {
                 // Fetch latest user data to keep role and info in sync
@@ -1887,7 +1927,7 @@ export default function Profile() {
                                                         onChange={(e) => setTastePref({ ...tastePref, [key]: parseFloat(e.target.value) })}
                                                         className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-espresso-800"
                                                         style={{ 
-                                                            background: `linear-gradient(to right, #f59e0b 0%, #d97706 ${(tastePref[key as keyof typeof tastePref]/5)*100}%, #27272a ${(tastePref[key as keyof typeof tastePref]/5)*100}%, #27272a 100%)` 
+                                                            background: `linear-gradient(to right, #f59e0b 0%, #d97706 ${(Number(tastePref[key as keyof typeof tastePref])/5)*100}%, #27272a ${(Number(tastePref[key as keyof typeof tastePref])/5)*100}%, #27272a 100%)` 
                                                         }}
                                                     />
                                                     <div className="flex justify-between px-1 mt-1">
@@ -1979,6 +2019,147 @@ export default function Profile() {
                         </section>
                     )}
 
+
+                    {/* 🎫 BeanStamp 스탬프 지갑 */}
+                    {isAuthenticated && (
+                        <section className="bg-gradient-to-br from-espresso-900 to-[#1b120c] rounded-[2rem] border border-amber-900/30 overflow-hidden relative shadow-2xl p-6">
+                            <div className="flex justify-between items-center mb-4">
+                                <div>
+                                    <h3 className="text-lg font-serif font-black text-amber-500 tracking-tight flex items-center gap-1.5">
+                                        🎫 BeanStamp 지갑
+                                    </h3>
+                                    <p className="text-[11px] text-espresso-200">단골 매장 도장판 및 적립용 QR</p>
+                                </div>
+                                
+                                {/* 적립용 QR 생성 버튼 */}
+                                <button 
+                                    onClick={() => setIsStampModalOpen(true)}
+                                    className="bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 text-xs font-bold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1 shadow-sm active:scale-95 cursor-pointer"
+                                >
+                                    <Share2 size={13} /> 내 QR 코드
+                                </button>
+                            </div>
+
+                            {/* 탭 헤더 */}
+                            <div className="flex bg-espresso-950/60 rounded-xl p-1 mb-4 border border-espresso-800">
+                                <button 
+                                    onClick={() => setActiveStampTab('REGULAR')}
+                                    className={`flex-1 text-center py-2 text-[12px] font-bold rounded-lg transition-all ${activeStampTab === 'REGULAR' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/10'}`}
+                                >
+                                    일반 음료
+                                </button>
+                                <button 
+                                    onClick={() => setActiveStampTab('PROMOTION')}
+                                    className={`flex-1 text-center py-2 text-[12px] font-bold rounded-lg transition-all ${activeStampTab === 'PROMOTION' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/10'}`}
+                                >
+                                    프로모션
+                                </button>
+                                <button 
+                                    onClick={() => setActiveStampTab('COUPON')}
+                                    className={`flex-1 text-center py-2 text-[12px] font-bold rounded-lg transition-all ${activeStampTab === 'COUPON' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/10'} flex justify-center items-center gap-1.5`}
+                                >
+                                    무료 쿠폰
+                                    {myStampCoupons.length > 0 && (
+                                        <span className="bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center font-mono">
+                                            {myStampCoupons.length}
+                                        </span>
+                                    )}
+                                </button>
+                            </div>
+
+                            {/* 탭 바디 */}
+                            {activeStampTab === 'REGULAR' || activeStampTab === 'PROMOTION' ? (
+                                <div className="space-y-4">
+                                    {myStampCards.filter(c => c.cardType === activeStampTab).length > 0 ? (
+                                        myStampCards.filter(c => c.cardType === activeStampTab).map((card) => {
+                                            const dots = Array.from({ length: card.maxStamps }, (_, i) => i < card.currentStamps);
+                                            
+                                            return (
+                                                <div key={card.id} className="bg-espresso-950/40 p-4 rounded-2xl border border-espresso-800 space-y-3">
+                                                    <div className="flex justify-between items-center">
+                                                        <div className="flex items-center gap-2">
+                                                            {card.storeLogo ? (
+                                                                <img src={`${API_BASE}${card.storeLogo}`} className="w-8 h-8 rounded-full border border-espresso-700" alt={card.storeName} />
+                                                            ) : (
+                                                                <div className="w-8 h-8 rounded-full bg-espresso-800 border border-espresso-700 flex items-center justify-center text-espresso-200 text-xs">☕</div>
+                                                            )}
+                                                            <div>
+                                                                <h4 className="font-bold text-[14px] text-espresso-50 leading-tight">{card.storeName}</h4>
+                                                                <p className="text-[10px] text-espresso-300">{card.cardTitle}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right">
+                                                            <span className="font-mono font-black text-amber-500 text-[16px]">{card.currentStamps}</span>
+                                                            <span className="font-mono text-espresso-300 text-[12px]"> / {card.maxStamps}</span>
+                                                            <p className="text-[9px] text-[#D4AF37] font-bold mt-0.5">완성 시: {card.rewardDesc}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* 도장판 그리드 */}
+                                                    <div className="grid grid-cols-5 gap-2.5 pt-2">
+                                                        {dots.map((isStamped, dIdx) => (
+                                                            <div 
+                                                                key={dIdx} 
+                                                                className={`aspect-square rounded-full border flex items-center justify-center transition-all ${isStamped ? 'bg-gradient-to-br from-amber-500 to-amber-700 border-amber-400 shadow-md shadow-amber-500/10 scale-105' : 'border-dashed border-espresso-700 bg-espresso-900/30'}`}
+                                                            >
+                                                                {isStamped ? (
+                                                                    <span className="text-espresso-950 font-black text-[13px]">☕</span>
+                                                                ) : (
+                                                                    <span className="text-[11px] font-mono text-espresso-700 font-bold">{dIdx + 1}</span>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <div className="text-right pt-1">
+                                                        <span className="text-[10px] text-espresso-300">완성 횟수: <span className="text-amber-500 font-bold">{card.completedCount}회</span></span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="text-center py-8 text-espresso-300 text-xs opacity-75">
+                                            적립된 {activeStampTab === 'REGULAR' ? '일반' : '시즌 프로모션'} 스탬프 카드가 없습니다.
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                // 무료 쿠폰함
+                                <div className="space-y-3">
+                                    {myStampCoupons.length > 0 ? (
+                                        myStampCoupons.map((coupon) => (
+                                            <div key={coupon.id} className="bg-gradient-to-r from-amber-900/30 to-espresso-900 p-4 rounded-2xl border border-amber-500/10 flex justify-between items-center relative overflow-hidden ticket-cutout">
+                                                <div className="absolute right-0 top-0 bg-amber-500 text-espresso-950 text-[9px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">
+                                                    FREE
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <h4 className="font-bold text-[14px] text-espresso-50">{coupon.storeName} 무료 혜택</h4>
+                                                    <p className="text-[11px] text-[#D4AF37] font-bold">쿠폰 코드: {coupon.couponCode}</p>
+                                                    <p className="text-[10px] text-espresso-300">
+                                                        만료일: {new Date(coupon.expiresAt).toLocaleDateString()}
+                                                    </p>
+                                                </div>
+                                                <button 
+                                                    onClick={() => {
+                                                        setCurrentCouponForQR(coupon);
+                                                        setIsCouponQRModalOpen(true);
+                                                    }}
+                                                    className="bg-amber-500 text-espresso-950 font-black text-xs px-3.5 py-2 rounded-xl active:scale-95 transition-all shadow-sm shrink-0 cursor-pointer"
+                                                >
+                                                    사용하기
+                                                </button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-8 text-espresso-300 text-xs opacity-75">
+                                            사용 가능한 무료 쿠폰이 없습니다.
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </section>
+                    )}
+
+                    <div className="my-6"></div>
 
                     {/* COFFEE PASSPORT (My Prescriptions) */}
                     {isAuthenticated && (
@@ -2350,6 +2531,26 @@ export default function Profile() {
                                 </button>
                             </div>
 
+                            {/* B2B Web Dashboard & Host QR Stamp Scanner */}
+                            <div className="grid grid-cols-2 gap-3 mt-2">
+                                <button 
+                                    onClick={() => navigate('/profile/host-web')} 
+                                    className="flex flex-col items-center justify-center p-5 bg-gradient-to-br from-amber-950/20 to-espresso-900 border border-amber-500/20 rounded-2xl active:scale-[0.98] transition-all hover:bg-espresso-850 cursor-pointer text-left w-full"
+                                >
+                                    <Database size={22} className="text-amber-400 mb-2" />
+                                    <span className="font-bold text-[13px] text-espresso-50">웹 POS 대시보드</span>
+                                    <span className="text-[10px] text-espresso-300 mt-1">정책설정 & B2B 통계</span>
+                                </button>
+                                <button 
+                                    onClick={() => setIsHostScannerOpen(true)} 
+                                    className="flex flex-col items-center justify-center p-5 bg-gradient-to-br from-amber-950/20 to-espresso-900 border border-amber-500/20 rounded-2xl active:scale-[0.98] transition-all hover:bg-espresso-850 cursor-pointer text-left w-full"
+                                >
+                                    <Coffee size={22} className="text-amber-400 mb-2" />
+                                    <span className="font-bold text-[13px] text-espresso-50">점주용 QR 스캐너</span>
+                                    <span className="text-[10px] text-espresso-300 mt-1">스탬프 적립 및 취소</span>
+                                </button>
+                            </div>
+
                             {/* Add New Shop */}
                             <section className="pt-2 pb-6">
                                 <button
@@ -2394,6 +2595,134 @@ export default function Profile() {
 
                 </div>
             </div>
+
+            {/* 🎫 User Stamp QR Code Modal */}
+            <AnimatePresence>
+                {isStampModalOpen && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            onClick={() => setIsStampModalOpen(false)}
+                            className="fixed inset-0 bg-espresso-950/80 backdrop-blur-sm z-[110]"
+                        />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-gradient-to-br from-espresso-900 to-[#1b120c] rounded-3xl border border-amber-900/40 p-6 z-[120] text-center shadow-2xl space-y-6"
+                        >
+                            <div>
+                                <h3 className="font-serif font-black text-xl text-amber-500">단골 적립용 QR</h3>
+                                <p className="text-xs text-espresso-200 mt-1">매장 점주에게 이 QR 코드를 보여주세요.</p>
+                            </div>
+
+                            <div className="bg-white p-4 rounded-2xl inline-block shadow-inner mx-auto border-2 border-amber-500/20">
+                                <img 
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${currentUser.id}&color=0f172a`} 
+                                    alt="User Stamp QR" 
+                                    className="w-48 h-48 mx-auto"
+                                />
+                            </div>
+
+                            <div className="space-y-1 bg-espresso-950/60 py-3 px-4 rounded-2xl border border-espresso-800">
+                                <span className="text-xs text-espresso-300 font-bold">고유 식별코드</span>
+                                <p className="font-mono text-xs font-black text-amber-400 select-all truncate">{currentUser.id}</p>
+                            </div>
+
+                            <button 
+                                onClick={() => setIsStampModalOpen(false)}
+                                className="w-full py-3 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-[14px] rounded-xl active:scale-95 transition-all shadow-md cursor-pointer"
+                            >
+                                닫기
+                            </button>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* 🎫 User Coupon QR Code Modal */}
+            <AnimatePresence>
+                {isCouponQRModalOpen && currentCouponForQR && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                            onClick={() => setIsCouponQRModalOpen(false)}
+                            className="fixed inset-0 bg-espresso-950/80 backdrop-blur-sm z-[110]"
+                        />
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-gradient-to-br from-espresso-900 to-[#1b120c] rounded-3xl border border-amber-900/40 p-6 z-[120] text-center shadow-2xl space-y-6"
+                        >
+                            <div>
+                                <span className="bg-amber-500 text-espresso-950 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">COUPON</span>
+                                <h3 className="font-serif font-black text-lg text-espresso-50 mt-2">{currentCouponForQR.storeName}</h3>
+                                <p className="text-[11px] text-amber-400 font-bold mt-0.5">무료 쿠폰 사용하기</p>
+                                <p className="text-xs text-espresso-200 mt-1 break-keep">매장 직원에게 제시하여 혜택을 받으세요.</p>
+                            </div>
+
+                            <div className="bg-white p-4 rounded-2xl inline-block shadow-inner mx-auto border-2 border-amber-500/20">
+                                <img 
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${currentCouponForQR.id}&color=0f172a`} 
+                                    alt="Coupon QR" 
+                                    className="w-48 h-48 mx-auto"
+                                />
+                            </div>
+
+                            <div className="space-y-1 bg-espresso-950/60 py-3 px-4 rounded-2xl border border-espresso-800">
+                                <span className="text-xs text-espresso-300 font-bold">쿠폰 코드</span>
+                                <p className="font-mono text-xs font-black text-amber-400 select-all">{currentCouponForQR.couponCode}</p>
+                            </div>
+
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={async () => {
+                                        // 수동 모바일 사용 처리 지원
+                                        if (window.confirm("쿠폰을 지금 사용 처리하시겠습니까?")) {
+                                            try {
+                                                const token = localStorage.getItem('token');
+                                                const res = await fetch(`${API_BASE}/api/stamps/coupons/${currentCouponForQR.id}/use`, {
+                                                    method: 'POST',
+                                                    headers: { 'Authorization': `Bearer ${token}` }
+                                                });
+                                                if (res.ok) {
+                                                    alert("쿠폰 사용이 완료되었습니다! 🎉");
+                                                    setIsCouponQRModalOpen(false);
+                                                    fetchStampData();
+                                                } else {
+                                                    const err = await res.json();
+                                                    alert(err.message || "쿠폰 사용에 실패했습니다.");
+                                                }
+                                            } catch (err) {
+                                                alert("오류가 발생했습니다.");
+                                            }
+                                        }
+                                    }}
+                                    className="flex-1 py-3 bg-[#1e1e21] border border-amber-500/50 text-amber-500 font-black text-[14px] rounded-xl active:scale-95 transition-all cursor-pointer"
+                                >
+                                    수동 사용하기
+                                </button>
+                                <button 
+                                    onClick={() => setIsCouponQRModalOpen(false)}
+                                    className="flex-1 py-3 bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-[14px] rounded-xl active:scale-95 transition-all cursor-pointer"
+                                >
+                                    닫기
+                                </button>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* 🎫 Host QR Stamp Scanner Modal */}
+            <AnimatePresence>
+                {isHostScannerOpen && (
+                    <HostQRScannerModal 
+                        isOpen={isHostScannerOpen} 
+                        onClose={() => {
+                            setIsHostScannerOpen(false);
+                            fetchStampData(); // 스캔 완료 후 유저 데이터 갱신 지원
+                        }}
+                    />
+                )}
+            </AnimatePresence>
 
             {/* Login Modal */}
             <AnimatePresence>

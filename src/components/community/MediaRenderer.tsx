@@ -22,7 +22,8 @@ export default function MediaRenderer({ src, className = '', autoPlay = true, on
   let displaySrc = src && src.startsWith('/') && !src.startsWith('//') ? `${API_BASE}${src}` : src;
   
   // Fix for native devices: If the DB stored an absolute localhost URL, rewrite it to the actual API_BASE
-  if (displaySrc && typeof displaySrc === 'string') {
+  // Exclude client-side Blob URLs generated for local preview
+  if (displaySrc && typeof displaySrc === 'string' && !displaySrc.startsWith('blob:')) {
       if (displaySrc.includes('localhost') && !API_BASE.includes('localhost')) {
           displaySrc = displaySrc.replace(/https?:\/\/localhost:\d+/, API_BASE);
       }

@@ -1641,7 +1641,7 @@ Format EXACTLY like this example:
                                                 </div>
 
                                                 {/* Match Rate (Right) */}
-                                                <div className="flex flex-col items-center justify-center pl-3 ml-1 shrink-0 border-l border-espresso-800/50 min-w-[56px] relative">
+                                                <div className="flex flex-col items-center justify-between pl-3 ml-1 shrink-0 border-l border-espresso-800/50 min-w-[64px] relative py-1">
                                                     <div className="flex flex-col items-center">
                                                         <div className="text-[9px] text-amber-500/70 font-bold uppercase tracking-widest mb-0.5">Match</div>
                                                         {shop.matchRate != null && shop.matchRate > 0 ? (
@@ -1654,6 +1654,17 @@ Format EXACTLY like this example:
                                                             </div>
                                                         )}
                                                     </div>
+
+                                                    {/* 🎫 적립 단추 바로가기 */}
+                                                    <button 
+                                                        onClick={(e) => { 
+                                                            e.stopPropagation(); 
+                                                            navigate('/profile', { state: { openStampQR: true } }); 
+                                                        }} 
+                                                        className="mt-2 w-full bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-[9px] py-1 px-1 rounded-lg active:scale-95 transition-all shadow-sm flex items-center justify-center gap-0.5 cursor-pointer shrink-0"
+                                                    >
+                                                        🎫 적립
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
