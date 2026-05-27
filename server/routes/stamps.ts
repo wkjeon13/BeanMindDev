@@ -648,6 +648,43 @@ router.get('/user/:userId/cards', authenticateToken, async (req: any, res: any) 
             select: { id: true, nickname: true, email: true }
         });
 
+        // 💡 만약 스캔된 식별자가 유저 ID가 아니면, 쿠폰 ID인지 한 번 더 검사해주는 영리한 폴백!
+        if (!user) {
+            const coupon = await prisma.stampCoupon.findUnique({
+                where: { id: userId }
+            });
+            
+            if (coupon) {
+                // 이 쿠폰을 소유한 유저 정보 획득
+                const couponUser = await prisma.user.findUnique({
+                    where: { id: coupon.userId },
+                    select: { id: true, nickname: true, email: true }
+                });
+                
+                // 해당 쿠폰의 스탬프 혜택 명칭 등을 함께 붙여서 반환
+                let rewardDesc = "무료 혜택 무료 쿠폰";
+                if (coupon.configId) {
+                    const config = await prisma.storeStampConfig.findUnique({
+                        where: { id: coupon.configId },
+                        select: { rewardDesc: true }
+                    });
+                    if (config?.rewardDesc) {
+                        rewardDesc = config.rewardDesc;
+                    }
+                }
+                
+                return res.status(200).json({
+                    isCoupon: true,
+                    coupon: {
+                        ...coupon,
+                        userNickname: couponUser?.nickname || "단골 고객",
+                        userEmail: couponUser?.email || "unknown@test.com",
+                        rewardDesc
+                    }
+                });
+            }
+        }
+
         // 💡 미가입 유저 차단 가드: 스캔된 ID가 실제 가입 회원이 아닐 경우 오적립을 원천 차단하고 에러 반환!
         if (!user) {
             return res.status(404).json({ 

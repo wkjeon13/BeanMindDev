@@ -11,9 +11,10 @@ interface HostQRScannerModalProps {
 
 export default function HostQRScannerModal({ isOpen, onClose, onScanSuccess }: HostQRScannerModalProps) {
     const { t } = useTranslation();
-    const [scanStep, setScanStep] = useState<'SCANNING' | 'EARNING' | 'SUCCESS'>('SCANNING');
+    const [scanStep, setScanStep] = useState<'SCANNING' | 'EARNING' | 'COUPON_USE' | 'SUCCESS'>('SCANNING');
     const [scannedUserId, setScannedUserId] = useState('');
     const [scannedUser, setScannedUser] = useState<any>(null);
+    const [scannedCoupon, setScannedCoupon] = useState<any>(null);
     const [storeId, setStoreId] = useState('');
     const [stampConfigs, setStampConfigs] = useState<any[]>([]);
     const [selectedConfigId, setSelectedConfigId] = useState('');
@@ -399,6 +400,15 @@ export default function HostQRScannerModal({ isOpen, onClose, onScanSuccess }: H
             });
             if (res.ok) {
                 const data = await res.json();
+                
+                // 💡 만약 스캔된 대상이 이용자 ID가 아니라 무료 쿠폰 QR 코드(StampCoupon ID)인 경우 감지 처리
+                if (data.isCoupon) {
+                    setScannedCoupon(data.coupon);
+                    setScanStep('COUPON_USE');
+                    setIsLoading(false);
+                    return;
+                }
+
                 setScannedUser(data.user);
                 setScannedUserId(userId);
                 
@@ -411,10 +421,44 @@ export default function HostQRScannerModal({ isOpen, onClose, onScanSuccess }: H
                 }
                 setScanStep('EARNING');
             } else {
-                setErrorMessage(`존재하지 않는 유저입니다. (스캔값: "${userId}")`);
+                const errData = await res.json().catch(() => ({}));
+                const errDetail = errData.message || errData.error || "서버 응답 거부(400/500)";
+                setErrorMessage(`존재하지 않거나 올바르지 않은 유저 QR 코드 식별자입니다. (스캔된 값: "${userId}", 원인: ${errDetail})`);
             }
         } catch (err) {
             setErrorMessage("통신 장애가 발생했습니다.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // 💡 쿠폰 실시간 수동 사용 완료 처리 API 호출
+    const handleUseCoupon = async () => {
+        if (!scannedCoupon || !scannedCoupon.id) return;
+        
+        setIsLoading(true);
+        setErrorMessage('');
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/stamps/coupons/${scannedCoupon.id}/use`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (res.ok) {
+                const useData = await res.json();
+                setSuccessData({
+                    isCouponUse: true,
+                    coupon: useData.coupon,
+                    userNickname: scannedCoupon.userNickname
+                });
+                setScanStep('SUCCESS');
+            } else {
+                const err = await res.json();
+                setErrorMessage(err.message || "쿠폰 사용 완료 처리 중 오류가 발생했습니다.");
+            }
+        } catch (err) {
+            setErrorMessage("쿠폰 사용 통신 에러가 발생했습니다.");
         } finally {
             setIsLoading(false);
         }
@@ -701,55 +745,133 @@ export default function HostQRScannerModal({ isOpen, onClose, onScanSuccess }: H
                                 </div>
                             )}
 
-                            {scanStep === 'SUCCESS' && successData && (
+                            {scanStep === 'COUPON_USE' && scannedCoupon && (
                                 <div className="space-y-5 text-center py-4">
-                                    <div className="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 flex items-center justify-center mx-auto mb-3">
-                                        <CheckCircle size={24} />
+                                    <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 flex items-center justify-center mx-auto mb-3 animate-pulse">
+                                        <Coffee size={24} />
                                     </div>
                                     <div>
-                                        <h4 className="font-serif font-black text-base text-green-400">{t('host_scanner.success_title', '도장 적립 전송이 완료되었습니다!')}</h4>
+                                        <span className="bg-amber-500 text-espresso-950 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">FREE COUPON</span>
+                                        <h4 className="font-serif font-black text-base text-espresso-50 mt-2">{t('host_scanner.coupon_confirm_title', '무료 혜택 쿠폰이 감지되었습니다!')}</h4>
                                         <p className="text-[10px] text-espresso-400 mt-1 leading-relaxed">
-                                            {t('host_scanner.success_desc', '단골 고객님의 스탬프 지갑에 안전하게 적립 내역이 실시간 동기화되었습니다.')}
+                                            {t('host_scanner.coupon_confirm_desc', { name: scannedCoupon.userNickname, defaultValue: `${scannedCoupon.userNickname} 단골 고객님의 무료 쿠폰입니다.` })}
                                         </p>
                                     </div>
 
-                                    {/* 영수증 카드 */}
+                                    {/* 쿠폰 영수증 카드 */}
                                     <div className="bg-espresso-950/60 p-4.5 rounded-2xl border border-espresso-850 text-left space-y-2 text-[11px] leading-relaxed max-w-[340px] mx-auto font-mono relative ticket-cutout">
                                         <div className="flex justify-between">
-                                            <span className="text-espresso-400">{t('host_scanner.receipt_customer', '적립 고객')}:</span>
-                                            <span className="font-bold text-espresso-50">{scannedUser.nickname}</span>
+                                            <span className="text-espresso-400">소유 고객:</span>
+                                            <span className="font-bold text-espresso-50">{scannedCoupon.userNickname} ({scannedCoupon.userEmail})</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-espresso-400">{t('host_scanner.receipt_card', '도장판')}:</span>
-                                            <span className="font-bold text-espresso-50 truncate max-w-[200px]">
-                                                {t(successData.configTitle, successData.configTitle) as string}
-                                            </span>
+                                            <span className="text-espresso-400">혜택 리워드:</span>
+                                            <span className="font-bold text-amber-400">{scannedCoupon.rewardDesc}</span>
                                         </div>
                                         <div className="flex justify-between">
-                                            <span className="text-espresso-400">{t('host_scanner.receipt_earned', '이번 적립량')}:</span>
-                                            <span className="font-bold text-amber-500">+{successData.earnedAmount}스탬프</span>
+                                            <span className="text-espresso-400">쿠폰 코드:</span>
+                                            <span className="font-bold text-espresso-50">{scannedCoupon.couponCode}</span>
                                         </div>
-                                        <div className="flex justify-between pt-1.5 border-t border-dashed border-espresso-800">
-                                            <span className="text-espresso-400">{t('host_scanner.receipt_total', '누적 스탬프')}:</span>
-                                            <span className="font-bold text-[#D4AF37]">{successData.currentStamps} / {successData.maxStamps}</span>
+                                        <div className="flex justify-between">
+                                            <span className="text-espresso-400">유효 기간:</span>
+                                            <span className="font-bold text-red-400">{new Date(scannedCoupon.expiresAt).toLocaleDateString()} 까지</span>
                                         </div>
-
-                                        {successData.issuedCoupons && successData.issuedCoupons.length > 0 && (
-                                            <div className="mt-3.5 bg-green-950/20 border border-green-500/20 p-2.5 rounded-lg text-center text-green-400 text-[10px] animate-bounce">
-                                                🎉 {t('host_scanner.reward_coupon_issued', { count: successData.issuedCoupons.length })}
-                                            </div>
-                                        )}
                                     </div>
 
                                     <div className="flex gap-2 pt-2">
-                                        <button onClick={handleRollbackStamps} className="flex-1 py-3 bg-red-950/20 hover:bg-red-950/40 border border-red-900/30 text-red-400 font-bold rounded-xl active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1">
-                                            <RotateCcw size={12} />
-                                            {t('host_scanner.btn_rollback', '적립 전면 취소')}
+                                        <button onClick={() => { setScanStep('SCANNING'); setScannedCoupon(null); }} className="flex-1 py-3 bg-espresso-900 border border-espresso-850 hover:bg-espresso-850 rounded-xl font-bold transition-all cursor-pointer">
+                                            {t('host_scanner.btn_cancel', '취소')}
                                         </button>
-                                        <button onClick={() => { setScanStep('SCANNING'); setEarnAmount(1); }} className="flex-1 py-3 bg-espresso-850 hover:bg-espresso-800 border border-espresso-800 font-black rounded-xl active:scale-98 transition-all cursor-pointer">
-                                            {t('host_scanner.btn_next_scan', '다음 스캔 계속하기')}
+                                        <button onClick={handleUseCoupon} disabled={isLoading || scannedCoupon.status !== 'UNUSED'} className="flex-[2] py-3 bg-[#D4AF37] hover:bg-amber-500 text-espresso-950 font-black rounded-xl transition-all shadow-md active:scale-98 cursor-pointer flex justify-center items-center gap-1">
+                                            <CheckCircle size={14} />
+                                            {t('host_scanner.btn_use_coupon_complete', '무료쿠폰 즉시 사용 처리')}
                                         </button>
                                     </div>
+                                </div>
+                            )}
+
+                            {scanStep === 'SUCCESS' && successData && (
+                                <div className="space-y-5 text-center py-4">
+                                    {successData.isCouponUse ? (
+                                        <>
+                                            <div className="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 flex items-center justify-center mx-auto mb-3">
+                                                <CheckCircle size={24} />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-serif font-black text-base text-green-400">{t('host_scanner.coupon_use_success_title', '쿠폰 사용 처리가 완료되었습니다!')}</h4>
+                                                <p className="text-[10px] text-espresso-400 mt-1 leading-relaxed">
+                                                    {t('host_scanner.coupon_use_success_desc', { name: successData.userNickname, defaultValue: `${successData.userNickname} 고객님의 무료 혜택 무료 쿠폰이 성공적으로 사용 완료되었습니다.` })}
+                                                </p>
+                                            </div>
+
+                                            <div className="bg-espresso-950/60 p-4.5 rounded-2xl border border-espresso-850 text-left space-y-2 text-[11px] leading-relaxed max-w-[340px] mx-auto font-mono relative ticket-cutout">
+                                                <div className="flex justify-between">
+                                                    <span className="text-espresso-400">사용 완료 일시:</span>
+                                                    <span className="font-bold text-espresso-50">{new Date().toLocaleString()}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-espresso-400">사용된 쿠폰 코드:</span>
+                                                    <span className="font-bold text-amber-500">{successData.coupon?.couponCode}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="pt-2 max-w-[340px] mx-auto">
+                                                <button onClick={() => { setScanStep('SCANNING'); setEarnAmount(1); setSuccessData(null); setScannedCoupon(null); }} className="w-full py-3 bg-[#D4AF37] hover:bg-amber-500 text-espresso-950 font-black rounded-xl transition-all shadow-md active:scale-98 cursor-pointer">
+                                                    {t('host_scanner.btn_back_to_scan', '돌아가기')}
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/20 text-green-500 flex items-center justify-center mx-auto mb-3">
+                                                <CheckCircle size={24} />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-serif font-black text-base text-green-400">{t('host_scanner.success_title', '도장 적립 전송이 완료되었습니다!')}</h4>
+                                                <p className="text-[10px] text-espresso-400 mt-1 leading-relaxed">
+                                                    {t('host_scanner.success_desc', '단골 고객님의 스탬프 지갑에 안전하게 적립 내역이 실시간 동기화되었습니다.')}
+                                                </p>
+                                            </div>
+
+                                            {/* 영수증 카드 */}
+                                            <div className="bg-espresso-950/60 p-4.5 rounded-2xl border border-espresso-850 text-left space-y-2 text-[11px] leading-relaxed max-w-[340px] mx-auto font-mono relative ticket-cutout">
+                                                <div className="flex justify-between">
+                                                    <span className="text-espresso-400">{t('host_scanner.receipt_customer', '적립 고객')}:</span>
+                                                    <span className="font-bold text-espresso-50">{scannedUser.nickname}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-espresso-400">{t('host_scanner.receipt_card', '도장판')}:</span>
+                                                    <span className="font-bold text-espresso-50 truncate max-w-[200px]">
+                                                        {t(successData.configTitle, successData.configTitle) as string}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span className="text-espresso-400">{t('host_scanner.receipt_earned', '이번 적립량')}:</span>
+                                                    <span className="font-bold text-amber-500">+{successData.earnedAmount}스탬프</span>
+                                                </div>
+                                                <div className="flex justify-between pt-1.5 border-t border-dashed border-espresso-800">
+                                                    <span className="text-espresso-400">{t('host_scanner.receipt_total', '누적 스탬프')}:</span>
+                                                    <span className="font-bold text-[#D4AF37]">{successData.currentStamps} / {successData.maxStamps}</span>
+                                                </div>
+
+                                                {successData.issuedCoupons && successData.issuedCoupons.length > 0 && (
+                                                    <div className="mt-3.5 bg-green-950/20 border border-green-500/20 p-2.5 rounded-lg text-center text-green-400 text-[10px] animate-bounce">
+                                                        🎉 {t('host_scanner.reward_coupon_issued', { count: successData.issuedCoupons.length })}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="flex gap-2 pt-2">
+                                                <button onClick={handleRollbackStamps} className="flex-1 py-3 bg-red-950/20 hover:bg-red-950/40 border border-red-900/30 text-red-400 font-bold rounded-xl active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1">
+                                                    <RotateCcw size={12} />
+                                                    {t('host_scanner.btn_rollback', '적립 전면 취소')}
+                                                </button>
+                                                <button onClick={() => { setScanStep('SCANNING'); setEarnAmount(1); }} className="flex-1 py-3 bg-espresso-850 hover:bg-espresso-800 border border-espresso-800 font-black rounded-xl active:scale-98 transition-all cursor-pointer">
+                                                    {t('host_scanner.btn_next_scan', '다음 스캔 계속하기')}
+                                                </button>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             )}
                         </>
