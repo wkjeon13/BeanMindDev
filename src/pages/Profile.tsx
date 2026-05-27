@@ -21,6 +21,52 @@ import { MagazineAd } from '../components/ads/MagazineAd';
 import { useAdStore } from '../store/adStore';
 import { compressImage } from '../utils/imageUtils';
 
+// 지능형 품목 설정 복구 파서 (Promotion 카드 타이틀로부터 정적 품목 복원 지원)
+const getItemsConfig = (cfg: any) => {
+    if (!cfg) return null;
+    let parsed = cfg.itemsConfig;
+    if (typeof parsed === 'string') {
+        try {
+            parsed = JSON.parse(parsed);
+        } catch (e) {
+            parsed = null;
+        }
+    }
+    
+    if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+    }
+    
+    if (cfg.cardType === 'PROMOTION' && cfg.cardTitle) {
+        const tokens = cfg.cardTitle.split(/[+,]/);
+        const items: { key: string; label: string; target: number }[] = [];
+        let index = 0;
+        for (const token of tokens) {
+            const trimmed = token.trim();
+            if (!trimmed) continue;
+            
+            const match = trimmed.match(/^([^0-9]+?)\s*(\d+)\s*(?:잔|개|병|팩|개입)?$/);
+            if (match) {
+                const label = match[1].trim();
+                const target = parseInt(match[2], 10);
+                if (label && !isNaN(target)) {
+                    items.push({
+                        key: `item_${index}`,
+                        label: label,
+                        target: target
+                    });
+                    index++;
+                }
+            }
+        }
+        if (items.length > 0) {
+            return items;
+        }
+    }
+    
+    return null;
+};
+
 export default function Profile() {
     const { t, i18n } = useTranslation();
     const navigate = useNavigate();
@@ -2037,12 +2083,14 @@ export default function Profile() {
 
                                                     {/* 도장판 그리드 또는 복합 카테고리별 분할 도장판 */}
                                                     {(() => {
-                                                        const isPromotion = card.itemsConfig && card.itemsProgress;
-                                                        if (isPromotion) {
+                                                        const resolvedItemsConfig = getItemsConfig(card);
+                                                        const isPromotion = card.cardType === "PROMOTION" && resolvedItemsConfig !== null;
+                                                        if (isPromotion && resolvedItemsConfig) {
+                                                            const itemsProgress = typeof card.itemsProgress === 'string' ? JSON.parse(card.itemsProgress) : (card.itemsProgress || {});
                                                             return (
                                                                 <div className="space-y-3 pt-2">
-                                                                    {card.itemsConfig.map((item: any) => {
-                                                                        const currentVal = card.itemsProgress[item.key] || 0;
+                                                                    {resolvedItemsConfig.map((item: any) => {
+                                                                        const currentVal = itemsProgress[item.key] || 0;
                                                                         const targetVal = item.target;
                                                                         const itemDots = Array.from({ length: targetVal }, (_, i) => i < currentVal);
                                                                         return (

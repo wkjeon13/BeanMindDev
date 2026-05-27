@@ -7,6 +7,52 @@ import { ERROR_CODES } from '../utils/errorCodes.js';
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
+// 지능형 품목 설정 복구 파서 (Promotion 카드 타이틀로부터 정적 품목 복원 지원)
+const getItemsConfig = (cfg: any) => {
+    if (!cfg) return null;
+    let parsed = cfg.itemsConfig;
+    if (typeof parsed === 'string') {
+        try {
+            parsed = JSON.parse(parsed);
+        } catch (e) {
+            parsed = null;
+        }
+    }
+    
+    if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+    }
+    
+    if (cfg.cardType === 'PROMOTION' && cfg.cardTitle) {
+        const tokens = cfg.cardTitle.split(/[+,]/);
+        const items: { key: string; label: string; target: number }[] = [];
+        let index = 0;
+        for (const token of tokens) {
+            const trimmed = token.trim();
+            if (!trimmed) continue;
+            
+            const match = trimmed.match(/^([^0-9]+?)\s*(\d+)\s*(?:잔|개|병|팩|개입)?$/);
+            if (match) {
+                const label = match[1].trim();
+                const target = parseInt(match[2], 10);
+                if (label && !isNaN(target)) {
+                    items.push({
+                        key: `item_${index}`,
+                        label: label,
+                        target: target
+                    });
+                    index++;
+                }
+            }
+        }
+        if (items.length > 0) {
+            return items;
+        }
+    }
+    
+    return null;
+};
+
 // 인증 미들웨어
 const authenticateToken = (req: any, res: any, next: any) => {
     const authHeader = req.headers['authorization'];
@@ -106,7 +152,8 @@ router.post('/earn', authenticateToken, async (req: any, res: any) => {
         }
 
         const maxStamps = config.maxStamps;
-        const isPromotion = config.cardType === "PROMOTION" && (config as any).itemsConfig;
+        const resolvedItemsConfig = getItemsConfig(config);
+        const isPromotion = config.cardType === "PROMOTION" && resolvedItemsConfig !== null;
 
         const result = await prisma.$transaction(async (tx) => {
             // 유저의 기존 스탬프 카드 조회
@@ -135,9 +182,9 @@ router.post('/earn', authenticateToken, async (req: any, res: any) => {
             const createdCoupons = [];
             let updatedItemsProgress = stampCard.itemsProgress;
 
-            if (isPromotion) {
+            if (isPromotion && resolvedItemsConfig) {
                 // [복합 프로모션 도장판 적립 로직]
-                const configItems = JSON.parse((config as any).itemsConfig);
+                const configItems = resolvedItemsConfig;
                 let progress = stampCard.itemsProgress ? JSON.parse(stampCard.itemsProgress) : {};
                 const inputItems = items || {};
 
@@ -321,9 +368,10 @@ router.post('/rollback', authenticateToken, async (req: any, res: any) => {
             }
 
             // 복합 프로모션 도장판인 경우 itemsProgress도 정밀 롤백 복원
-            const isPromotion = config.cardType === "PROMOTION" && (config as any).itemsConfig;
-            if (isPromotion) {
-                const configItems = JSON.parse((config as any).itemsConfig);
+            const rollbackItemsConfig = getItemsConfig(config);
+            const isPromotion = config.cardType === "PROMOTION" && rollbackItemsConfig !== null;
+            if (isPromotion && rollbackItemsConfig) {
+                const configItems = rollbackItemsConfig;
                 let progress = stampCard.itemsProgress ? JSON.parse(stampCard.itemsProgress) : {};
                 const earnedItems = lastTxn.itemsEarned ? JSON.parse(lastTxn.itemsEarned) : {};
 
