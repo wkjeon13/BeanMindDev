@@ -627,7 +627,11 @@ export default function CoffeeTalk() {
     const container = document.getElementById('coffee-feed-container');
     const handleScroll = () => {
         if (container) {
-            lastScrollTopRef.current = container.scrollTop;
+            // 진짜 스크롤 가능한 상태일 때만 기록을 보존하고 실시간 백업
+            if (container.scrollHeight > container.clientHeight) {
+                lastScrollTopRef.current = container.scrollTop;
+                localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, container.scrollTop.toString());
+            }
         }
     };
     if (container) {
@@ -643,8 +647,6 @@ export default function CoffeeTalk() {
         window.removeEventListener('scrollToTop', handleScrollToTop);
         if (container) {
             container.removeEventListener('scroll', handleScroll);
-            // 언마운트 시(다른 탭 이동 시) 마지막 스크롤 위치 로컬 스토리지 백업!
-            localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, lastScrollTopRef.current.toString());
         }
     };
   }, []);
