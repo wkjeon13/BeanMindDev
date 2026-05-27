@@ -243,15 +243,15 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                 const errName = lastError?.name || '';
                 
                 if (window.isSecureContext === false) {
-                    setErrorMessage("실시간 QR 카메라는 HTTPS 보안 연결 환경(Secure Context) 또는 모바일 Native App에서만 활성화됩니다. 로컬 환경 테스트는 하단의 [스캔 에뮬레이터]에 고유코드를 직접 입력하거나 [나 자신을 스캔]을 터치하여 완벽히 테스트가 가능합니다!");
+                    setErrorMessage(t('host_scanner.err_secure_context', "실시간 QR 카메라는 HTTPS 보안 연결 환경(Secure Context) 또는 모바일 Native App에서만 활성화됩니다. 로컬 환경 테스트는 하단의 [스캔 에뮬레이터]에 고유코드를 직접 입력하거나 [나 자신을 스캔]을 터치하여 완벽히 테스트가 가능합니다!"));
                 } else if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError') {
-                    setErrorMessage("💡 카메라 사용 권한이 거절되었습니다. 핸드폰/기기의 시스템 설정에서 브라우저 또는 앱의 카메라 접근 권한을 '허용'해 주셔야 실시간 스캔 기능을 이용할 수 있습니다.");
+                    setErrorMessage(t('host_scanner.err_permission_denied', "💡 카메라 사용 권한이 거절되었습니다. 핸드폰/기기의 시스템 설정에서 브라우저 또는 앱의 카메라 접근 권한을 '허용'해 주셔야 실시간 스캔 기능을 이용할 수 있습니다."));
                 } else if (errName === 'NotReadableError' || errName === 'TrackStartError') {
-                    setErrorMessage("💡 카메라가 다른 앱(예: 기본 카메라, 인스타 등)에서 이미 사용 중입니다. 다른 앱들을 완전히 종료한 후 다시 시도해 주세요.");
+                    setErrorMessage(t('host_scanner.err_not_readable', "💡 카메라가 다른 앱(예: 기본 카메라, 인스타 등)에서 이미 사용 중입니다. 다른 앱들을 완전히 종료한 후 다시 시도해 주세요."));
                 } else if (errName === 'NotFoundError' || errName === 'DevicesNotFoundError') {
-                    setErrorMessage("💡 이 기기에 사용할 수 있는 카메라 하드웨어 장치를 찾을 수 없습니다.");
+                    setErrorMessage(t('host_scanner.err_no_camera', "💡 이 기기에 사용할 수 있는 카메라 하드웨어 장치를 찾을 수 없습니다."));
                 } else {
-                    setErrorMessage(`카메라 장치에 접근할 수 없습니다. (${lastError?.message || '권한 및 환경 제약'}) 하단의 '사진 촬영하여 스캔' 버튼을 눌러 카메라 촬영본으로 스캔을 진행하거나 스캔 에뮬레이터를 이용해 주세요!`);
+                    setErrorMessage(t('host_scanner.err_camera_fallback', "카메라 장치에 접근할 수 없습니다. ({{error}}) 하단의 '사진 촬영하여 스캔' 버튼을 눌러 카메라 촬영본으로 스캔을 진행하거나 스캔 에뮬레이터를 이용해 주세요!", { error: lastError?.message || '권한 및 환경 제약' }));
                 }
             }
         };
