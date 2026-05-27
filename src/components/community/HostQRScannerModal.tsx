@@ -403,11 +403,14 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                 }
                 setScanStep('EARNING');
             } else {
-                setErrorMessage(`존재하지 않거나 올바르지 않은 유저 QR 코드 식별자입니다. (스캔된 값: "${userIdToScan}")`);
+                // 백엔드가 제공한 구체적인 에러 원인 메시지를 파싱하여 점주에게 직관적으로 제시
+                const errData = await res.json().catch(() => ({}));
+                const errDetail = errData.message || errData.error || "서버 응답 거부(400/500)";
+                setErrorMessage(`존재하지 않거나 올바르지 않은 유저 QR 코드 식별자입니다. (스캔된 값: "${userIdToScan}", 원인: ${errDetail})`);
                 setScanStep('SCANNING'); // 되돌아가기
             }
-        } catch (err) {
-            setErrorMessage("통신 에러가 발생했습니다.");
+        } catch (err: any) {
+            setErrorMessage(`네트워크 통신 에러가 발생했습니다. (${err?.message || '연결 끊김'})`);
             setScanStep('SCANNING');
         } finally {
             setIsLoading(false);
