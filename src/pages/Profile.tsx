@@ -409,6 +409,21 @@ export default function Profile() {
         };
     }, [isStampModalOpen, isCouponQRModalOpen, isAuthenticated]);
 
+    // 💡 실시간 O2O 지갑 상시 동기화: 로그인 상태인 동안 5초 주기로 스탬프와 쿠폰만 가볍게 백그라운드 리페치
+    React.useEffect(() => {
+        let intervalId: any;
+        if (isAuthenticated) {
+            intervalId = setInterval(() => {
+                fetchStampData();
+            }, 5000);
+        }
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        };
+    }, [isAuthenticated]);
+
     // Badge Logic
     const getBadgeTier = (count: number) => {
         if (count >= 50) return { name: t('profile.badge_master', 'Master Roaster'), icon: '☕', next: null, progress: 100 };
