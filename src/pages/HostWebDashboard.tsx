@@ -46,7 +46,7 @@ export default function HostWebDashboard() {
         setIsLoading(true);
         try {
             // 내 매장 정보 찾기
-            const shopsRes = await fetch(`${API_BASE}/api/shops`, {
+            const shopsRes = await fetch(`${API_BASE}/api/shops/my`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (shopsRes.ok) {
@@ -254,7 +254,10 @@ export default function HostWebDashboard() {
     return (
         <div className="min-h-screen bg-espresso-950 text-espresso-50 flex flex-col font-sans select-none antialiased">
             {/* 상단 네비게이션 헤더 */}
-            <header className="bg-espresso-900 border-b border-espresso-800/80 px-6 py-4 flex items-center justify-between shadow-md shrink-0">
+            <header 
+                className="bg-espresso-900 border-b border-espresso-800/80 px-6 pb-4 flex items-center justify-between shadow-md shrink-0"
+                style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
+            >
                 <div className="flex items-center gap-3">
                     <button 
                         onClick={() => navigate('/profile')}
