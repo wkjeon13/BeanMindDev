@@ -101,15 +101,28 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
         } catch (ae) {}
     };
 
-    // 2. 실시간 카메라 스트림 활성화 및 해제 수명주기 제어
+    // 2. 실시간 카메라 스트림 활성화 및 해제 수명주기 제어 (일시정지 및 재개 모델)
     useEffect(() => {
         let activeStream: MediaStream | null = null;
         let detectionInterval: any = null;
 
         const startCamera = async () => {
-            if (scanStep !== 'SCANNING' || !isOpen) return;
+            if (!isOpen) return;
             setErrorMessage('');
             
+            // 💡 스트림이 이미 존재한다면 (재스캔 등) 하드웨어를 재작동시키지 않고 비디오 엘리먼트 바인딩만 즉시 복원
+            if (videoStream) {
+                setIsCameraSupported(true);
+                setIsScanningActive(true);
+                setTimeout(() => {
+                    const videoEl = document.getElementById('host-scanner-video') as HTMLVideoElement;
+                    if (videoEl && videoEl.srcObject !== videoStream) {
+                        videoEl.srcObject = videoStream;
+                    }
+                }, 100);
+                return;
+            }
+
             // 점진적인 카메라 획득 constraints 설정 (기기 호환성 극대화)
             const constraintsList = [
                 {
@@ -152,61 +165,6 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                         videoEl.srcObject = stream;
                     }
                 }, 100);
-
-                // 300ms 주기적 실시간 QR 스캔 루프 (jsQR + BarcodeDetector 듀얼 모드 병렬 운용)
-                detectionInterval = setInterval(async () => {
-                    const videoEl = document.getElementById('host-scanner-video') as HTMLVideoElement;
-                    if (videoEl && videoEl.readyState >= 2) {
-                        // [우선 순위 1] 순수 JS 기반 jsQR 분석 구동 (아이폰 사파리 등 대다수 모바일 환경 100% 대응)
-                        const jsQRDecoder = (window as any).jsQR;
-                        if (jsQRDecoder) {
-                            try {
-                                const canvas = document.createElement('canvas');
-                                const context = canvas.getContext('2d');
-                                if (context) {
-                                    canvas.width = videoEl.videoWidth || 640;
-                                    canvas.height = videoEl.videoHeight || 480;
-                                    context.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-                                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-                                    const code = jsQRDecoder(imageData.data, imageData.width, imageData.height, {
-                                        inversionAttempts: "dontInvert",
-                                    });
-                                    if (code && code.data) {
-                                        clearInterval(detectionInterval);
-                                        triggerBeep();
-                                        handleSimulateScan(code.data);
-                                        return; // 성공 시 루프 조기 탈출
-                                    }
-                                }
-                            } catch (err) {
-                                console.error("jsQR processing failed:", err);
-                            }
-                        }
-
-                        // [우선 순위 2] 브라우저 내장 BarcodeDetector 지원 시 보조 병렬 구동
-                        if ('BarcodeDetector' in window) {
-                            const BarcodeDetectorClass = (window as any).BarcodeDetector;
-                            try {
-                                const supportedFormats = await BarcodeDetectorClass.getSupportedFormats();
-                                if (supportedFormats.includes('qr_code')) {
-                                    const detector = new BarcodeDetectorClass({ formats: ['qr_code'] });
-                                    const barcodes = await detector.detect(videoEl);
-                                    if (barcodes.length > 0) {
-                                        const detectedValue = barcodes[0].rawValue;
-                                        if (detectedValue) {
-                                            clearInterval(detectionInterval);
-                                            triggerBeep();
-                                            handleSimulateScan(detectedValue);
-                                            return;
-                                        }
-                                    }
-                                }
-                            } catch (err) {
-                                console.error("BarcodeDetector detection error:", err);
-                            }
-                        }
-                    }
-                }, 300);
             } else {
                 console.error("All camera constraints failed:", lastError);
                 setIsCameraSupported(false);
@@ -226,22 +184,83 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
             }
         };
 
-        if (isOpen && scanStep === 'SCANNING') {
+        // 300ms 주기적 실시간 QR 스캔 루프 (jsQR + BarcodeDetector 듀얼 모드 병렬 운용)
+        if (isOpen) {
             startCamera();
+
+            detectionInterval = setInterval(async () => {
+                // 💡 일시정지(Pause) 플래그: 스캔 대기 상태(SCANNING)가 아닐 때는 프레임 픽셀 해독 연산을 건너뜁니다!
+                if (scanStep !== 'SCANNING') return;
+
+                const videoEl = document.getElementById('host-scanner-video') as HTMLVideoElement;
+                if (videoEl && videoEl.readyState >= 2) {
+                    // [우선 순위 1] 순수 JS 기반 jsQR 분석 구동 (아이폰 사파리 등 대다수 모바일 환경 100% 대응)
+                    const jsQRDecoder = (window as any).jsQR;
+                    if (jsQRDecoder) {
+                        try {
+                            const canvas = document.createElement('canvas');
+                            const context = canvas.getContext('2d');
+                            if (context) {
+                                canvas.width = videoEl.videoWidth || 640;
+                                canvas.height = videoEl.videoHeight || 480;
+                                context.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+                                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                                const code = jsQRDecoder(imageData.data, imageData.width, imageData.height, {
+                                    inversionAttempts: "dontInvert",
+                                });
+                                if (code && code.data && code.data.trim()) {
+                                    triggerBeep();
+                                    handleSimulateScan(code.data);
+                                    return; // 성공 시 루프 조기 탈출
+                                }
+                            }
+                        } catch (err) {
+                            console.error("jsQR processing failed:", err);
+                        }
+                    }
+
+                    // [우선 순위 2] 브라우저 내장 BarcodeDetector 지원 시 보조 병렬 구동
+                    if ('BarcodeDetector' in window) {
+                        const BarcodeDetectorClass = (window as any).BarcodeDetector;
+                        try {
+                            const supportedFormats = await BarcodeDetectorClass.getSupportedFormats();
+                            if (supportedFormats.includes('qr_code')) {
+                                const detector = new BarcodeDetectorClass({ formats: ['qr_code'] });
+                                const barcodes = await detector.detect(videoEl);
+                                if (barcodes.length > 0) {
+                                    const detectedValue = barcodes[0].rawValue;
+                                    if (detectedValue && detectedValue.trim()) {
+                                        triggerBeep();
+                                        handleSimulateScan(detectedValue);
+                                        return;
+                                    }
+                                }
+                            }
+                        } catch (err) {
+                            console.error("BarcodeDetector detection error:", err);
+                        }
+                    }
+                }
+            }, 300);
         }
 
-        // Cleanup: 카메라 소스 릴리즈 및 루프 해제
+        // Cleanup: 모달 닫힐 때만 카메라 하드웨어를 릴리즈하고 리소스를 반납합니다.
         return () => {
-            if (activeStream) {
-                activeStream.getTracks().forEach(track => track.stop());
-                setVideoStream(null);
-            }
             if (detectionInterval) {
                 clearInterval(detectionInterval);
             }
-            setIsScanningActive(false);
+            if (!isOpen) {
+                if (activeStream) {
+                    activeStream.getTracks().forEach(track => track.stop());
+                }
+                if (videoStream) {
+                    videoStream.getTracks().forEach(track => track.stop());
+                }
+                setVideoStream(null);
+                setIsScanningActive(false);
+            }
         };
-    }, [isOpen, scanStep, isJsQrLoaded]);
+    }, [isOpen, scanStep, isJsQrLoaded, videoStream]);
 
     // 2-2. 모바일 카메라 사진 촬영 / 이미지 파일 업로드 기반 QR 스캔 폴백
     const handleImageCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -336,12 +355,6 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
         setIsLoading(true);
         setErrorMessage('');
         
-        // 스캔 스트림 잠시 중단
-        if (videoStream) {
-            videoStream.getTracks().forEach(track => track.stop());
-            setVideoStream(null);
-        }
-
         try {
             const token = localStorage.getItem('token');
             const res = await fetch(`${API_BASE}/api/stamps/user/${userIdToScan}/cards?storeId=${storeId}`, {
@@ -361,7 +374,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                 }
                 setScanStep('EARNING');
             } else {
-                setErrorMessage("존재하지 않거나 올바르지 않은 유저 QR 코드 식별자입니다.");
+                setErrorMessage(`존재하지 않거나 올바르지 않은 유저 QR 코드 식별자입니다. (스캔된 값: "${userIdToScan}")`);
                 setScanStep('SCANNING'); // 되돌아가기
             }
         } catch (err) {
