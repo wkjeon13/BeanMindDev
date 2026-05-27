@@ -159,7 +159,8 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
         let detectionInterval: any = null;
 
         const startCamera = async () => {
-            if (!isOpen) return;
+            // 💡 매장 로딩이 완료되어 비디오 DOM 엘리먼트가 완전히 렌더링된 후에만 카메라 디바이스 구동 개시!
+            if (isStoreLoading || !isOpen) return;
             setErrorMessage('');
             
             // 💡 스트림이 이미 존재한다면 (재스캔 등) 하드웨어를 재작동시키지 않고 비디오 엘리먼트 바인딩만 즉시 복원
@@ -312,7 +313,7 @@ export default function HostQRScannerModal({ isOpen, onClose }: HostQRScannerMod
                 setIsScanningActive(false);
             }
         };
-    }, [isOpen, scanStep, isJsQrLoaded, videoStream]);
+    }, [isOpen, scanStep, isJsQrLoaded, videoStream, isStoreLoading]);
 
     // 2-2. 모바일 카메라 사진 촬영 / 이미지 파일 업로드 기반 QR 스캔 폴백
     const handleImageCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
