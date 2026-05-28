@@ -77,32 +77,42 @@ router.post('/configs', authenticateToken, async (req: any, res: any) => {
             return res.status(400).json({ error: "INVALID_INPUT", message: "필수 입력 항목이 누락되었습니다." });
         }
 
-        // 기존에 동일 매장 & 카드타입에 대해 활성화된 정책이 있는지 체크
-        const existingConfig = await prisma.storeStampConfig.findFirst({
-            where: { storeId, cardType, isActive: true }
-        });
+        const resolvedCardType = cardType || "REGULAR";
 
         // 기존 활성 정책 비활성화 (새 정책으로 교체하는 개념)
-        if (existingConfig) {
-            await prisma.storeStampConfig.update({
-                where: { id: existingConfig.id },
-                data: { isActive: false }
-            });
-        }
+        // 💡 윈도우 환경 SQLite의 고질적인 EPERM 파일 잠금 방지 및 원자적 실행 보장을 위해 단일 로우 UPDATE SQL을 실행합니다.
+        await prisma.$executeRawUnsafe(
+            `UPDATE StoreStampConfig SET isActive = 0 WHERE storeId = ? AND cardType = ? AND isActive = 1`,
+            storeId, resolvedCardType
+        );
 
-        const newConfig = await prisma.storeStampConfig.create({
-            data: {
-                storeId,
-                cardType: cardType || "REGULAR",
-                cardTitle,
-                maxStamps: maxStamps ? parseInt(maxStamps, 10) : 10,
-                targetMenu: targetMenu || null,
-                rewardDesc,
-                validDays: validDays ? parseInt(validDays, 10) : 90,
-                isActive: true,
-                itemsConfig: itemsConfig ? JSON.stringify(itemsConfig) : null
-            } as any
-        });
+        const id = uuidv4();
+        const parsedMaxStamps = maxStamps ? parseInt(maxStamps, 10) : 10;
+        const parsedValidDays = validDays ? parseInt(validDays, 10) : 90;
+        const finalMaxStamps = isNaN(parsedMaxStamps) ? 10 : parsedMaxStamps;
+        const finalValidDays = isNaN(parsedValidDays) ? 90 : parsedValidDays;
+        const finalItemsConfig = itemsConfig ? JSON.stringify(itemsConfig) : null;
+        const finalTargetMenu = targetMenu || null;
+
+        // 💡 SQLite 잠금 회피 및 성능 최적화를 위해 원자적인 단일 INSERT 로우 SQL을 비행합니다.
+        await prisma.$executeRawUnsafe(
+            `INSERT INTO StoreStampConfig (id, storeId, cardType, cardTitle, maxStamps, targetMenu, rewardDesc, validDays, isActive, itemsConfig, createdAt) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, datetime('now'))`,
+            id, storeId, resolvedCardType, cardTitle, finalMaxStamps, finalTargetMenu, rewardDesc, finalValidDays, finalItemsConfig
+        );
+
+        const newConfig = {
+            id,
+            storeId,
+            cardType: resolvedCardType,
+            cardTitle,
+            maxStamps: finalMaxStamps,
+            targetMenu: finalTargetMenu,
+            rewardDesc,
+            validDays: finalValidDays,
+            isActive: true,
+            itemsConfig: finalItemsConfig ? JSON.parse(finalItemsConfig) : null
+        };
 
         res.status(200).json(newConfig);
     } catch (error) {

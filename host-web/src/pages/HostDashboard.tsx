@@ -393,10 +393,22 @@ export default function HostDashboard() {
     // 4. 새로운 스탬프/프로모션 정책 등록
     const handleCreateConfig = async (e: React.FormEvent) => {
         e.preventDefault();
+        e.stopPropagation();
+
+        const storeId = storeInfo?.id;
+        if (!storeId) {
+            setErrorMessage(t('host_dashboard.err_no_store', '등록된 내 매장을 찾을 수 없습니다. 마이페이지에서 매장 추가를 먼저 진행해주세요.'));
+            return;
+        }
+
         if (!cardTitle || !rewardDesc) {
             setErrorMessage(t('host_dashboard.err_empty_fields', '정책명과 리워드 보상 설명은 필수입니다.'));
             return;
         }
+
+        const finalMaxStamps = isNaN(maxStamps) || maxStamps <= 0 ? 10 : maxStamps;
+        const finalValidDays = isNaN(validDays) || validDays <= 0 ? 90 : validDays;
+
         setIsLoading(true);
         setErrorMessage('');
         setSuccessMessage('');
@@ -408,13 +420,13 @@ export default function HostDashboard() {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    storeId: storeInfo?.id,
+                    storeId,
                     cardType,
                     cardTitle,
-                    maxStamps,
+                    maxStamps: finalMaxStamps,
                     targetMenu: targetMenu || null,
                     rewardDesc,
-                    validDays
+                    validDays: finalValidDays
                 })
             });
 
