@@ -117,6 +117,17 @@ export default function HostWebDashboard() {
         );
     };
 
+    const getStoreImageUrl = (url: string | null | undefined) => {
+        if (!url) return '';
+        if (url.startsWith('http')) return url;
+        // Vite proxy(/uploads)가 설정되어 있으므로 상대 경로를 그대로 사용하는 것이 안전하며,
+        // HTTPS 환경에서의 Mixed Content (HTTP 이미지 차단) 에러를 완벽하게 예방합니다.
+        if (url.startsWith('/uploads')) {
+            return url;
+        }
+        return url;
+    };
+
     // selectedConfigId가 바뀔 때 earnItems 초기화
     useEffect(() => {
         if (selectedConfigId && storeConfigs.length > 0) {
@@ -418,6 +429,32 @@ export default function HostWebDashboard() {
                     >
                         <ChevronLeft size={20} />
                     </button>
+
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#D4AF37]/20 to-amber-500/10 border border-[#D4AF37]/30 flex items-center justify-center text-amber-500 overflow-hidden relative shrink-0">
+                        {storeInfo?.mainImageUrl ? (
+                            <>
+                                <img 
+                                    src={getStoreImageUrl(storeInfo.mainImageUrl)} 
+                                    alt={storeInfo.name || "Store"} 
+                                    className="w-full h-full object-cover z-10"
+                                    onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                        const sibling = e.currentTarget.nextElementSibling;
+                                        if (sibling) {
+                                            sibling.classList.remove('hidden');
+                                            sibling.classList.add('flex');
+                                        }
+                                    }}
+                                />
+                                <div className="absolute inset-0 hidden items-center justify-center bg-gradient-to-tr from-[#D4AF37]/20 to-amber-500/10 z-0">
+                                    <Store size={20} />
+                                </div>
+                            </>
+                        ) : (
+                            <Store size={20} />
+                        )}
+                    </div>
+
                     <div>
                         <div className="flex items-center gap-1.5">
                             <h1 className="font-serif font-black text-lg text-amber-500">

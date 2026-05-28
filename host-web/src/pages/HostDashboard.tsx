@@ -153,8 +153,10 @@ export default function HostDashboard() {
     const getStoreImageUrl = (url: string | null | undefined) => {
         if (!url) return '';
         if (url.startsWith('http')) return url;
+        // Vite proxy(/uploads)가 설정되어 있으므로 상대 경로를 그대로 사용하는 것이 안전하며,
+        // HTTPS 환경에서의 Mixed Content (HTTP 이미지 차단) 에러를 완벽하게 예방합니다.
         if (url.startsWith('/uploads')) {
-            return `http://localhost:3001${url}`;
+            return url;
         }
         return url;
     };
