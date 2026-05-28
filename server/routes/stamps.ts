@@ -67,6 +67,28 @@ const authenticateToken = (req: any, res: any, next: any) => {
     });
 };
 
+// 💡 윈도우 환경 SQLite 파일 락(EPERM) 및 동시성 busy 잠금에 유연하게 대응하기 위해
+// Prisma ORM 메서드를 최대 3회 재시도(Retry)하는 지능형 실행 헬퍼 함수
+const runWithRetry = async (fn: () => Promise<any>, retries = 3, delay = 100): Promise<any> => {
+    try {
+        return await fn();
+    } catch (error: any) {
+        const isLockError = error.message && (
+            error.message.includes('EPERM') || 
+            error.message.includes('busy') || 
+            error.message.includes('lock') ||
+            error.message.includes('P2010') ||
+            error.message.includes('P2034')
+        );
+        if (isLockError && retries > 0) {
+            console.warn(`[SQLite Lock] Retrying Prisma operation in ${delay}ms... (Left: ${retries})`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return runWithRetry(fn, retries - 1, delay * 2);
+        }
+        throw error;
+    }
+};
+
 // 1. 매장별 스탬프 발급 정책 생성 및 변경 (일반 및 프로모션 다중 Config 등록 지원)
 // POST /api/stamps/configs
 router.post('/configs', authenticateToken, async (req: any, res: any) => {
@@ -80,13 +102,19 @@ router.post('/configs', authenticateToken, async (req: any, res: any) => {
         const resolvedCardType = cardType || "REGULAR";
 
         // 기존 활성 정책 비활성화 (새 정책으로 교체하는 개념)
-        // 💡 윈도우 환경 SQLite의 고질적인 EPERM 파일 잠금 방지 및 원자적 실행 보장을 위해 단일 로우 UPDATE SQL을 실행합니다.
-        await prisma.$executeRawUnsafe(
-            `UPDATE StoreStampConfig SET isActive = 0 WHERE storeId = ? AND cardType = ? AND isActive = 1`,
-            storeId, resolvedCardType
-        );
+        // 💡 SQLite 잠금 회피 및 원자적 정합성 처리를 위해 백오프 재시도 함수를 이용해 Prisma Update를 실행합니다.
+        await runWithRetry(async () => {
+            const existingConfig = await prisma.storeStampConfig.findFirst({
+                where: { storeId, cardType: resolvedCardType, isActive: true }
+            });
+            if (existingConfig) {
+                await prisma.storeStampConfig.update({
+                    where: { id: existingConfig.id },
+                    data: { isActive: false }
+                });
+            }
+        });
 
-        const id = uuidv4();
         const parsedMaxStamps = maxStamps ? parseInt(maxStamps, 10) : 10;
         const parsedValidDays = validDays ? parseInt(validDays, 10) : 90;
         const finalMaxStamps = isNaN(parsedMaxStamps) ? 10 : parsedMaxStamps;
@@ -94,27 +122,30 @@ router.post('/configs', authenticateToken, async (req: any, res: any) => {
         const finalItemsConfig = itemsConfig ? JSON.stringify(itemsConfig) : null;
         const finalTargetMenu = targetMenu || null;
 
-        // 💡 SQLite 잠금 회피 및 성능 최적화를 위해 원자적인 단일 INSERT 로우 SQL을 비행합니다.
-        await prisma.$executeRawUnsafe(
-            `INSERT INTO StoreStampConfig (id, storeId, cardType, cardTitle, maxStamps, targetMenu, rewardDesc, validDays, isActive, itemsConfig, createdAt) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, datetime('now'))`,
-            id, storeId, resolvedCardType, cardTitle, finalMaxStamps, finalTargetMenu, rewardDesc, finalValidDays, finalItemsConfig
-        );
+        // 💡 100% 무결한 스키마 타입 적합성 보장 및 락 회피를 위해 Prisma ORM create에 백오프 재시도를 결합해 신규 정책을 등록합니다.
+        const newConfig = await runWithRetry(async () => {
+            return await prisma.storeStampConfig.create({
+                data: {
+                    storeId,
+                    cardType: resolvedCardType,
+                    cardTitle,
+                    maxStamps: finalMaxStamps,
+                    targetMenu: finalTargetMenu,
+                    rewardDesc,
+                    validDays: finalValidDays,
+                    isActive: true,
+                    itemsConfig: finalItemsConfig
+                } as any
+            });
+        });
 
-        const newConfig = {
-            id,
-            storeId,
-            cardType: resolvedCardType,
-            cardTitle,
-            maxStamps: finalMaxStamps,
-            targetMenu: finalTargetMenu,
-            rewardDesc,
-            validDays: finalValidDays,
-            isActive: true,
-            itemsConfig: finalItemsConfig ? JSON.parse(finalItemsConfig) : null
+        // 프론트엔드가 JSON 타입으로 기대하므로 JSON parsing 정합성 복원
+        const responseData = {
+            ...newConfig,
+            itemsConfig: newConfig.itemsConfig ? JSON.parse(newConfig.itemsConfig) : null
         };
 
-        res.status(200).json(newConfig);
+        res.status(200).json(responseData);
     } catch (error) {
         console.error("Create stamp config error:", error);
         res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "정책 생성 중 오류가 발생했습니다." });
