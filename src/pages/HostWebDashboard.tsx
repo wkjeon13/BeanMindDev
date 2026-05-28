@@ -76,6 +76,47 @@ export default function HostWebDashboard() {
         return null;
     };
 
+    const renderItemsEarnedDetail = (txn: any) => {
+        if (txn.cardType !== 'PROMOTION') return null;
+        
+        let itemsConfig: any[] | null = null;
+        if (txn.itemsConfig) {
+            try {
+                itemsConfig = typeof txn.itemsConfig === 'string' ? JSON.parse(txn.itemsConfig) : txn.itemsConfig;
+            } catch (e) {
+                itemsConfig = null;
+            }
+        }
+        
+        if (!itemsConfig && txn.cardTitle) {
+            itemsConfig = getItemsConfig({ cardType: 'PROMOTION', cardTitle: txn.cardTitle });
+        }
+        
+        if (!itemsConfig || !Array.isArray(itemsConfig)) return null;
+        
+        let itemsEarned: Record<string, number> = {};
+        if (txn.itemsEarned) {
+            try {
+                itemsEarned = typeof txn.itemsEarned === 'string' ? JSON.parse(txn.itemsEarned) : txn.itemsEarned;
+            } catch (e) {
+                itemsEarned = {};
+            }
+        }
+        
+        const formatted = itemsConfig
+            .map((item: any) => {
+                const qty = itemsEarned[item.key] || 0;
+                return `${item.label} ${qty}`;
+            })
+            .join(', ');
+            
+        return (
+            <p className="text-[10px] text-amber-500 font-bold mt-0.5">
+                {formatted}
+            </p>
+        );
+    };
+
     // selectedConfigId가 바뀔 때 earnItems 초기화
     useEffect(() => {
         if (selectedConfigId && storeConfigs.length > 0) {
@@ -643,6 +684,7 @@ export default function HostWebDashboard() {
                                                         </span>
                                                     </div>
                                                     <p className="text-[10px] text-espresso-300">{t(txn.cardTitle, txn.cardTitle) as string}</p>
+                                                    {renderItemsEarnedDetail(txn)}
                                                     <span className="text-[9px] text-espresso-400 block font-mono">{new Date(txn.createdAt).toLocaleString()}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">

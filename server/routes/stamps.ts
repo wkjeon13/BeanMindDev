@@ -119,7 +119,12 @@ router.post('/configs', authenticateToken, async (req: any, res: any) => {
         const parsedValidDays = validDays ? parseInt(validDays, 10) : 90;
         const finalMaxStamps = isNaN(parsedMaxStamps) ? 10 : parsedMaxStamps;
         const finalValidDays = isNaN(parsedValidDays) ? 90 : parsedValidDays;
-        const finalItemsConfig = itemsConfig ? JSON.stringify(itemsConfig) : null;
+        // Properly handle itemsConfig: if it's already a JSON string, store as is; otherwise stringify the object.
+        const finalItemsConfig = itemsConfig
+            ? typeof itemsConfig === 'string'
+                ? itemsConfig
+                : JSON.stringify(itemsConfig)
+            : null;
         const finalTargetMenu = targetMenu || null;
 
         // 💡 100% 무결한 스키마 타입 적합성 보장 및 락 회피를 위해 Prisma ORM create에 백오프 재시도를 결합해 신규 정책을 등록합니다.
@@ -148,6 +153,7 @@ router.post('/configs', authenticateToken, async (req: any, res: any) => {
         res.status(200).json(responseData);
     } catch (error) {
         console.error("Create stamp config error:", error);
+        console.error(error.stack);
         res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "정책 생성 중 오류가 발생했습니다." });
     }
 });
@@ -328,7 +334,6 @@ router.post('/earn', authenticateToken, async (req: any, res: any) => {
                 } as any
             });
 
-            const resolvedItemsConfig = getItemsConfig(config);
             return { 
                 card: updatedCard, 
                 coupons: createdCoupons, 
