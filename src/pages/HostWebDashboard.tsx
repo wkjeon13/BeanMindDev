@@ -458,7 +458,7 @@ export default function HostWebDashboard() {
                 </aside>
 
                 {/* 콘텐츠 영역 */}
-                <main className="flex-1 p-6 overflow-y-auto max-h-[calc(100vh-140px)] lg:max-h-[calc(100vh-180px)] space-y-6 scrollbar-thin touch-pan-y">
+                <main className="flex-1 p-6 pb-28 overflow-y-auto max-h-[calc(100vh-145px)] lg:max-h-[calc(100vh-180px)] space-y-6 scrollbar-thin touch-pan-y">
                     {/* 모바일 화면 전용 메인 통계 그리드 (스크롤하여 위로 올릴 수 있음) */}
                     {stats && (
                         <section className="grid lg:hidden grid-cols-2 gap-4 bg-espresso-900/10 p-4 rounded-2xl border border-espresso-850/50 shadow-sm shrink-0 mb-2">
