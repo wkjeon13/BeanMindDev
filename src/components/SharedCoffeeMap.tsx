@@ -402,21 +402,6 @@ export default function SharedCoffeeMap({
             handleMapMouseDown(e);
         }));
 
-        // 2. mouseup
-        apiListeners.push(map.addListener('mouseup', () => {
-            handleMapMouseUpOrDrag();
-        }));
-
-        // 3. dragstart
-        apiListeners.push(map.addListener('dragstart', () => {
-            handleMapMouseUpOrDrag();
-        }));
-
-        // 4. zoom_changed
-        apiListeners.push(map.addListener('zoom_changed', () => {
-            handleMapMouseUpOrDrag();
-        }));
-
         // Native DOM touch handler for drag canceling & micro-shake filter
         const handleDOMTouchStart = (e: TouchEvent) => {
             if (e.touches.length > 1) {
@@ -427,7 +412,8 @@ export default function SharedCoffeeMap({
             touchStartRef.current = { x: touch.screenX, y: touch.screenY };
         };
 
-        const handleDOMTouchMove = (e: TouchEvent) => {
+        // Window-level capturing handlers to bypass any stopPropagation inside Maps canvas
+        const handleWindowTouchMove = (e: TouchEvent) => {
             if (touchStartRef.current) {
                 const touch = e.touches[0];
                 const dx = touch.screenX - touchStartRef.current.x;
@@ -441,7 +427,7 @@ export default function SharedCoffeeMap({
             }
         };
 
-        const handleDOMTouchEnd = () => {
+        const handleWindowMouseUpOrEnd = () => {
             handleMapMouseUpOrDrag();
         };
 
@@ -450,21 +436,26 @@ export default function SharedCoffeeMap({
             e.preventDefault();
         };
 
-        // Attach native listeners
-        mapDiv.addEventListener('touchstart', handleDOMTouchStart, { passive: true });
-        mapDiv.addEventListener('touchmove', handleDOMTouchMove, { passive: true });
-        mapDiv.addEventListener('touchend', handleDOMTouchEnd, { passive: true });
-        mapDiv.addEventListener('touchcancel', handleDOMTouchEnd, { passive: true });
-        mapDiv.addEventListener('contextmenu', handleContextMenu, { passive: false });
+        // Attach touchstart and contextmenu directly to the map container with capturing
+        mapDiv.addEventListener('touchstart', handleDOMTouchStart, { passive: true, capture: true });
+        mapDiv.addEventListener('contextmenu', handleContextMenu, { passive: false, capture: true });
+
+        // Attach cancelers to the window capturing phase to guarantee they fire despite canvas stops
+        window.addEventListener('touchmove', handleWindowTouchMove, { passive: true, capture: true });
+        window.addEventListener('touchend', handleWindowMouseUpOrEnd, { passive: true, capture: true });
+        window.addEventListener('touchcancel', handleWindowMouseUpOrEnd, { passive: true, capture: true });
+        window.addEventListener('mouseup', handleWindowMouseUpOrEnd, { passive: true, capture: true });
 
         // Save reference for cleanups
         (mapDiv as any)._cleanupTouchListeners = () => {
             apiListeners.forEach(l => google.maps.event.removeListener(l));
-            mapDiv.removeEventListener('touchstart', handleDOMTouchStart);
-            mapDiv.removeEventListener('touchmove', handleDOMTouchMove);
-            mapDiv.removeEventListener('touchend', handleDOMTouchEnd);
-            mapDiv.removeEventListener('touchcancel', handleDOMTouchEnd);
-            mapDiv.removeEventListener('contextmenu', handleContextMenu);
+            mapDiv.removeEventListener('touchstart', handleDOMTouchStart, { capture: true });
+            mapDiv.removeEventListener('contextmenu', handleContextMenu, { capture: true });
+            
+            window.removeEventListener('touchmove', handleWindowTouchMove, { capture: true });
+            window.removeEventListener('touchend', handleWindowMouseUpOrEnd, { capture: true });
+            window.removeEventListener('touchcancel', handleWindowMouseUpOrEnd, { capture: true });
+            window.removeEventListener('mouseup', handleWindowMouseUpOrEnd, { capture: true });
         };
     }, [handleMapMouseDown, handleMapMouseUpOrDrag]);
 
