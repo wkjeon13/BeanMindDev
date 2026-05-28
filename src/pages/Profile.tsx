@@ -3553,7 +3553,7 @@ export default function Profile() {
                 {selectedPrescription && (
                     <motion.div 
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
-                        className="fixed inset-0 z-[300] bg-espresso-950/80 backdrop-blur-md flex flex-col pt-safe px-0 pb-6 overflow-y-auto hide-scrollbar"
+                        className="fixed inset-0 z-[300] bg-espresso-950/80 backdrop-blur-md flex flex-col pt-safe px-0 pb-6 overflow-y-auto overflow-x-hidden hide-scrollbar w-full h-full"
                         onClick={() => setSelectedPrescription(null)}
                     >
                         <div className="flex justify-end pt-4 pb-2 px-4 w-full max-w-sm mx-auto sticky top-0 z-[310]" onClick={(e) => e.stopPropagation()}>
@@ -3564,7 +3564,7 @@ export default function Profile() {
                                 ✕
                             </button>
                         </div>
-                        <div className="w-full max-w-sm mx-auto flex-1 flex flex-col items-center justify-center pt-2 pb-12 cursor-default" onClick={(e) => e.stopPropagation()}>
+                        <div className="w-full max-w-sm px-4 mx-auto flex-1 flex flex-col items-center justify-center pt-2 pb-12 cursor-default overflow-x-hidden" onClick={(e) => e.stopPropagation()}>
                             <PrescriptionTicket
                                 recommendation={{
                                     bean: (() => {
