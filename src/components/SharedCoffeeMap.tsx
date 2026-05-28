@@ -682,12 +682,7 @@ export default function SharedCoffeeMap({
                     <p className="font-bold text-[13px] text-espresso-100">{t('shared_map.msg_no_shops', '??지?????록??매장???습?다.')}</p>
                 </div>
             )}
-            {isRefreshing && (
-                <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[2000] bg-espresso-900/90 text-amber-500 px-4 py-2 rounded-full shadow-lg border border-amber-500/30 flex items-center gap-2 text-sm font-bold backdrop-blur-md">
-                    <div className="w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-                    {t('map.msg_loading_shops')}
-                </div>
-            )}
+
         </div>
     );
 }
