@@ -212,34 +212,41 @@ router.get('/posts', async (req, res) => {
 
         if (filter === 'following_story') {
             if (!currentUserId) return res.status(401).json({ error: ERROR_CODES.UNAUTHORIZED });
+            
+            // 1) 로그인한 유저가 팔로우(StoreFollow)한 매장 ID 목록 수집
             const followedStores = await (prisma as any).storeFollow.findMany({
                 where: { userId: currentUserId },
                 select: { storeId: true }
             });
             const followedStoreIds = followedStores.map((f: any) => f.storeId);
-            const ownedStores = await (prisma as any).store.findMany({
-                where: { ownerId: currentUserId },
-                select: { id: true }
+
+            // 2) 로그인한 유저가 좋아요(Bookmark)를 누른 매장 ID 목록 수집
+            const bookmarkedStores = await (prisma as any).bookmark.findMany({
+                where: { userId: currentUserId },
+                select: { storeId: true }
             });
-            const ownedStoreIds = ownedStores.map((s: any) => s.id);
-            const allRelevantStoreIds = [...followedStoreIds, ...ownedStoreIds];
-            
-            const followedUsers = await (prisma as any).userFollow.findMany({
-                where: { followerId: currentUserId },
-                select: { followingId: true }
+            const bookmarkedStoreIds = bookmarkedStores.map((b: any) => b.storeId);
+
+            // 3) 둘을 병합하여 고유 매장 ID 목록 생성
+            const targetStoreIds = [...new Set([...followedStoreIds, ...bookmarkedStoreIds])];
+
+            // 4) 대상 매장의 점주(ownerId) 정보 조회
+            const stores = await (prisma as any).store.findMany({
+                where: { id: { in: targetStoreIds } },
+                select: { id: true, ownerId: true }
             });
-            const followedUserIds = followedUsers.map((f: any) => f.followingId);
 
             whereClause.postType = { in: ['NORMAL', 'ANNOUNCEMENT', 'EVENT'] };
-            whereClause.OR = [
-                { authorId: currentUserId },
-                { store: { ownerId: currentUserId } }
-            ];
-            if (allRelevantStoreIds.length > 0) {
-                whereClause.OR.push({ storeId: { in: allRelevantStoreIds } });
-            }
-            if (followedUserIds.length > 0) {
-                whereClause.OR.push({ authorId: { in: followedUserIds } });
+
+            if (stores.length > 0) {
+                // 매장에서 생성한 피드 및 공지 (즉, 해당 매장의 점주가 쓴 글만 매칭)
+                whereClause.OR = stores.map((s: any) => ({
+                    storeId: s.id,
+                    authorId: s.ownerId
+                }));
+            } else {
+                // 대상 매장이 없는 경우 아무 피드도 반환하지 않음
+                whereClause.id = 'non-existent-id';
             }
         } else if (filter === 'shorts') {
             whereClause.OR = [
