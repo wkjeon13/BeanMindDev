@@ -1725,7 +1725,7 @@ export default function Profile() {
                 <div className="flex-1 px-6 space-y-3 flex flex-col">
 
                     {/* User Profile & Account Settings Container */}
-                    <section className="bg-espresso-900 rounded-[2rem] shadow-sm border border-amber-500/60 flex flex-col overflow-hidden">
+                    <section className="bg-espresso-900 rounded-[2rem] shadow-sm border border-white/20 flex flex-col overflow-hidden">
                         {/* User Profile / Login Card */}
                         <div className={`p-6 flex items-center justify-between ${isAuthenticated ? 'border-b border-espresso-700' : ''}`}>
                             {isAuthenticated ? (
@@ -1939,7 +1939,7 @@ export default function Profile() {
 
                     {/* STORE & ADS MANAGEMENT (Host Only) */}
                     {isAuthenticated && currentUser?.role === 'OWNER' && (
-                        <div className="space-y-4 mt-6 p-6 bg-gradient-to-br from-espresso-900 to-[#150f0b] rounded-[2rem] border border-amber-500/40 relative shadow-2xl">
+                        <div className="space-y-4 p-6 bg-gradient-to-br from-espresso-900 to-[#150f0b] rounded-[2rem] border border-white/20 relative shadow-2xl">
                             <div className="flex items-center justify-between mb-2">
                                 <div>
                                     <h3 className="text-lg font-serif font-black text-amber-500 tracking-tight flex items-center gap-1.5">
@@ -2008,7 +2008,7 @@ export default function Profile() {
 
                     {/* 🎫 BeanStamp 스탬프 지갑 */}
                     {isAuthenticated && (
-                        <section className="bg-gradient-to-br from-espresso-900 to-[#1b120c] rounded-[2rem] border border-amber-500/60 overflow-hidden relative shadow-2xl p-6">
+                        <section className="bg-gradient-to-br from-espresso-900 to-[#1b120c] rounded-[2rem] border border-white/20 overflow-hidden relative shadow-2xl p-6">
                             <div className="flex justify-between items-center mb-4">
                                 <div>
                                     <h3 className="text-lg font-serif font-black text-amber-500 tracking-tight flex items-center gap-1.5">
@@ -2266,7 +2266,7 @@ export default function Profile() {
 
                     {/* Taste Matrix (Radar Chart) */}
                     {isAuthenticated && tasteMatrix && (
-                        <section className="bg-[#1e1e21] rounded-2xl border border-amber-500/60 overflow-hidden relative shadow-lg">
+                        <section className="bg-[#1e1e21] rounded-2xl border border-white/20 overflow-hidden relative shadow-lg">
                             <div className="px-5 py-4 flex items-center justify-between border-b border-espresso-700">
                                 <div className="flex items-center gap-2">
                                     <span className="text-amber-500 font-serif font-bold text-lg pt-0.5" style={{lineHeight: 1}}>✨</span>
@@ -2321,7 +2321,7 @@ export default function Profile() {
 
                     {/* Taste Profile Editor */}
                     {isAuthenticated && (
-                        <section className="bg-espresso-900 rounded-2xl border border-amber-500/60 overflow-hidden">
+                        <section className="bg-espresso-900 rounded-2xl border border-white/20 overflow-hidden">
                             <button 
                                 onClick={() => setIsTasteProfileOpen(!isTasteProfileOpen)} 
                                 className="w-full px-5 py-4 flex items-center justify-between active:bg-espresso-950 transition-colors"
@@ -2455,7 +2455,7 @@ export default function Profile() {
 
                     {/* COFFEE PASSPORT (My Prescriptions) */}
                     {isAuthenticated && (
-                        <section className="bg-coffee-900 rounded-[2rem] border border-amber-500/60 overflow-hidden relative shadow-2xl">
+                        <section className="bg-coffee-900 rounded-[2rem] border border-white/20 overflow-hidden relative shadow-2xl">
                             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=1000&auto=format&fit=crop')] opacity-10 mix-blend-overlay pointer-events-none"></div>
                             
                             <div className="px-6 py-5 relative z-10 flex justify-between items-center">
@@ -2509,7 +2509,7 @@ export default function Profile() {
 
                     {/* PILGRIMAGE PASSPORT */}
                     {isAuthenticated && (
-                        <section className="bg-espresso-900 rounded-[2rem] border border-espresso-700 overflow-hidden relative shadow-2xl mt-6">
+                        <section className="bg-espresso-900 rounded-[2rem] border border-white/20 overflow-hidden relative shadow-2xl">
                             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1507133750070-4ed0b28e62d4?q=80&w=1000&auto=format&fit=crop')] opacity-10 mix-blend-overlay pointer-events-none"></div>
                             
                             <div 
@@ -2664,7 +2664,7 @@ export default function Profile() {
 
                     {/* PILGRIMAGE COURSES */}
                     {isAuthenticated && (
-                        <section className="bg-[#121215] rounded-[2rem] border border-espresso-700 overflow-hidden relative shadow-2xl mt-6">
+                        <section className="bg-[#121215] rounded-[2rem] border border-white/20 overflow-hidden relative shadow-2xl">
                             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none"></div>
                             
                             <div className="px-6 py-5 relative z-10">
@@ -2780,7 +2780,7 @@ export default function Profile() {
                     )}
 
                     {/* User History Menu */}
-                    <section className="bg-espresso-900 rounded-2xl border border-espresso-700 overflow-hidden divide-y divide-espresso-700">
+                    <section className="bg-espresso-900 rounded-2xl border border-white/20 overflow-hidden divide-y divide-white/10">
                         <button onClick={() => isAuthenticated ? navigate('/profile/activity') : setIsLoginModalOpen(true)} className="w-full px-5 py-4 flex items-center justify-between active:bg-espresso-950 transition-colors">
                             <span className="font-bold text-[15px] text-espresso-50">{t('profile.menu_activity', '내 활동 내역')}</span>
                             <ChevronRight size={18} className="text-espresso-300" />
