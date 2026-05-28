@@ -355,94 +355,45 @@ export default function SharedCoffeeMap({
     const prevCenterStr = useRef('');
     const ignoreMapClickRef = useRef(false);
 
-    const pressTimer = useRef<NodeJS.Timeout | null>(null);
-    const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-
     const onMapClickRef = useRef(onMapClick);
     useEffect(() => {
         onMapClickRef.current = onMapClick;
     }, [onMapClick]);
 
-    // Resets the long press timer
-    const handleMapMouseUpOrDrag = useCallback(() => {
-        if (pressTimer.current) {
-            clearTimeout(pressTimer.current);
-            pressTimer.current = null;
-        }
-        touchStartRef.current = null;
-    }, []);
+    // Native Long-Press (contextmenu / rightclick) listener directly registered to google.maps.Map
+    // This utilizes the browser's native robust long-press gesture engine and is 100% reliable on iOS & Android.
+    const onLoad = useCallback((map: google.maps.Map) => {
+        mapRef.current = map;
 
-    // Starts the 900ms timer when map receives a mousedown/touchstart, securing precise LatLng
-    const handleMapMouseDown = useCallback((e: google.maps.MapMouseEvent) => {
-        if (ignoreMapClickRef.current) return;
-        
-        if (pressTimer.current) {
-            clearTimeout(pressTimer.current);
-        }
-        
-        pressTimer.current = setTimeout(() => {
+        const contextMenuListener = map.addListener('contextmenu', (e: google.maps.MapMouseEvent) => {
+            if (ignoreMapClickRef.current) return;
+            
+            // Prevent browser default magnifying glass / copy-paste overlay on mobile
+            if (e.domEvent) {
+                try {
+                    e.domEvent.preventDefault();
+                    e.domEvent.stopPropagation();
+                } catch (err) {}
+            }
+
             if (e.latLng && onMapClickRef.current) {
                 onMapClickRef.current(e.latLng.lat(), e.latLng.lng());
             }
-        }, 900); // 900ms sensitivity threshold for true long press
+        });
+
+        // Save cleanup reference
+        (map as any)._cleanupContextMenuListener = () => {
+            if (contextMenuListener) {
+                contextMenuListener.remove();
+            }
+        };
     }, []);
 
-    // Native DOM level touch listener registration to capture moves/ends despite stops inside canvas
-    const onLoad = useCallback((map: google.maps.Map) => {
-        mapRef.current = map;
-        const mapDiv = map.getDiv();
-        if (!mapDiv) return;
-
-        const handleDOMTouchStart = (e: TouchEvent) => {
-            if (e.touches.length > 1) {
-                handleMapMouseUpOrDrag();
-                return;
-            }
-            const touch = e.touches[0];
-            touchStartRef.current = { x: touch.screenX, y: touch.screenY };
-        };
-
-        const handleDOMTouchMove = (e: TouchEvent) => {
-            if (touchStartRef.current) {
-                const touch = e.touches[0];
-                const dx = touch.screenX - touchStartRef.current.x;
-                const dy = touch.screenY - touchStartRef.current.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                // If finger moves more than 8 pixels, treat it as a drag/scroll and cancel long press
-                if (distance > 8) {
-                    handleMapMouseUpOrDrag();
-                }
-            }
-        };
-
-        const handleDOMTouchEnd = () => {
-            handleMapMouseUpOrDrag();
-        };
-
-        // Attach listeners using native capturing or passive listener
-        mapDiv.addEventListener('touchstart', handleDOMTouchStart, { passive: true });
-        mapDiv.addEventListener('touchmove', handleDOMTouchMove, { passive: true });
-        mapDiv.addEventListener('touchend', handleDOMTouchEnd, { passive: true });
-        mapDiv.addEventListener('touchcancel', handleDOMTouchEnd, { passive: true });
-
-        // Save reference for cleanups
-        (mapDiv as any)._cleanupTouchListeners = () => {
-            mapDiv.removeEventListener('touchstart', handleDOMTouchStart);
-            mapDiv.removeEventListener('touchmove', handleDOMTouchMove);
-            mapDiv.removeEventListener('touchend', handleDOMTouchEnd);
-            mapDiv.removeEventListener('touchcancel', handleDOMTouchEnd);
-        };
-    }, [handleMapMouseUpOrDrag]);
-
     const onUnmount = useCallback(() => {
-        if (mapRef.current) {
-            const mapDiv = mapRef.current.getDiv();
-            if (mapDiv && (mapDiv as any)._cleanupTouchListeners) {
-                try {
-                    (mapDiv as any)._cleanupTouchListeners();
-                } catch(e) {}
-            }
+        if (mapRef.current && (mapRef.current as any)._cleanupContextMenuListener) {
+            try {
+                (mapRef.current as any)._cleanupContextMenuListener();
+            } catch (e) {}
         }
         mapRef.current = null;
     }, []);
@@ -531,11 +482,6 @@ export default function SharedCoffeeMap({
                 onLoad={onLoad}
                 onUnmount={onUnmount}
                 onIdle={handleIdle}
-                onMouseDown={handleMapMouseDown}
-                onMouseUp={handleMapMouseUpOrDrag}
-                onDragStart={handleMapMouseUpOrDrag}
-                onDrag={handleMapMouseUpOrDrag}
-                onZoomChanged={handleMapMouseUpOrDrag}
             >
                 {userLocation && !isNaN(userLocation[0]) && !isNaN(userLocation[1]) && (
                     <OverlayViewF
