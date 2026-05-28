@@ -235,25 +235,23 @@ router.get('/posts', async (req, res) => {
             });
             const storeOwnerIds = stores.map((s: any) => s.ownerId);
 
-            // 3) 로그인한 유저가 이웃 팔로우(UserFollow)한 점주(OWNER)의 ID 목록 수집
+            // 3) 로그인한 유저가 이웃 팔로우(UserFollow)한 모든 유저(점주 + 일반 유저)의 ID 목록 수집
             const followedUsers = await (prisma as any).userFollow.findMany({
                 where: { followerId: currentUserId },
-                include: { following: { select: { id: true, role: true } } }
+                select: { followingId: true }
             });
-            const followedOwnerIds = followedUsers
-                .filter((f: any) => f.following?.role === 'OWNER')
-                .map((f: any) => f.following.id);
+            const followedUserIds = followedUsers.map((f: any) => f.followingId);
 
-            // 4) 세 그룹의 점주 ID 목록을 고유값으로 병합
-            const ownerIds = [...new Set([...storeOwnerIds, ...followedOwnerIds])];
+            // 4) 단골/찜 매장의 점주 ID와 내가 팔로우한 이웃 유저 ID 목록을 고유값으로 병합
+            const targetAuthorIds = [...new Set([...storeOwnerIds, ...followedUserIds])];
 
             whereClause.postType = { in: ['NORMAL', 'ANNOUNCEMENT', 'EVENT'] };
 
-            if (ownerIds.length > 0) {
-                // 팔로우/좋아요 한 매장 및 점주(ownerIds)들이 생성한 모든 피드 및 공지 매칭
-                whereClause.authorId = { in: ownerIds };
+            if (targetAuthorIds.length > 0) {
+                // 구독(팔로우)한 매장의 점주들 및 이웃 유저들이 작성한 모든 피드 및 공지 매칭
+                whereClause.authorId = { in: targetAuthorIds };
             } else {
-                // 대상 매장이 없는 경우 아무 피드도 반환하지 않음
+                // 대상 매장이나 이웃이 없는 경우 아무 피드도 반환하지 않음
                 whereClause.id = 'non-existent-id';
             }
         } else if (filter === 'shorts') {
