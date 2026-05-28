@@ -399,9 +399,9 @@ export default function HostWebDashboard() {
                 </div>
             </header>
 
-            {/* 메인 통계 그리드 */}
+            {/* 메인 통계 그리드 (PC 화면 전용) */}
             {stats && (
-                <section className="p-6 grid grid-cols-2 lg:grid-cols-4 gap-4 bg-espresso-900/30 border-b border-espresso-850">
+                <section className="hidden lg:grid p-6 grid-cols-2 lg:grid-cols-4 gap-4 bg-espresso-900/30 border-b border-espresso-850">
                     <div className="bg-espresso-900/50 p-4 rounded-2xl border border-espresso-800/60 shadow-sm flex flex-col justify-between">
                         <span className="text-[11px] text-espresso-300 font-bold uppercase tracking-wider">{t('host_dashboard.stat_total_earn', '누적 적립 건수')}</span>
                         <div className="flex items-baseline gap-1 mt-2">
@@ -458,7 +458,41 @@ export default function HostWebDashboard() {
                 </aside>
 
                 {/* 콘텐츠 영역 */}
-                <main className="flex-1 p-6 overflow-y-auto max-h-[calc(100vh-290px)] lg:max-h-[calc(100vh-180px)] space-y-6 scrollbar-thin touch-pan-y">
+                <main className="flex-1 p-6 overflow-y-auto max-h-[calc(100vh-140px)] lg:max-h-[calc(100vh-180px)] space-y-6 scrollbar-thin touch-pan-y">
+                    {/* 모바일 화면 전용 메인 통계 그리드 (스크롤하여 위로 올릴 수 있음) */}
+                    {stats && (
+                        <section className="grid lg:hidden grid-cols-2 gap-4 bg-espresso-900/10 p-4 rounded-2xl border border-espresso-850/50 shadow-sm shrink-0 mb-2">
+                            <div className="bg-espresso-900/50 p-4 rounded-2xl border border-espresso-800/60 shadow-sm flex flex-col justify-between">
+                                <span className="text-[11px] text-espresso-300 font-bold uppercase tracking-wider">{t('host_dashboard.stat_total_earn', '누적 적립 건수')}</span>
+                                <div className="flex items-baseline gap-1 mt-2">
+                                    <span className="font-mono text-2xl font-black text-espresso-50">{stats.totalEarnCount}</span>
+                                    <span className="text-xs text-espresso-300">{t('host_dashboard.unit_count', '건')}</span>
+                                </div>
+                            </div>
+                            <div className="bg-espresso-900/50 p-4 rounded-2xl border border-espresso-800/60 shadow-sm flex flex-col justify-between">
+                                <span className="text-[11px] text-amber-500 font-bold uppercase tracking-wider">{t('host_dashboard.stat_today_earn', '오늘 신규 적립')}</span>
+                                <div className="flex items-baseline gap-1 mt-2">
+                                    <span className="font-mono text-2xl font-black text-amber-400">{stats.todayEarnCount}</span>
+                                    <span className="text-xs text-amber-500/80">{t('host_dashboard.unit_count', '건')}</span>
+                                </div>
+                            </div>
+                            <div className="bg-espresso-900/50 p-4 rounded-2xl border border-espresso-800/60 shadow-sm flex flex-col justify-between">
+                                <span className="text-[11px] text-espresso-300 font-bold uppercase tracking-wider">{t('host_dashboard.stat_issued_coupons', '발행된 무료 쿠폰')}</span>
+                                <div className="flex items-baseline gap-1 mt-2">
+                                    <span className="font-mono text-2xl font-black text-espresso-50">{stats.totalIssuedCoupons}</span>
+                                    <span className="text-xs text-espresso-300">{t('host_dashboard.unit_sheets', '장')}</span>
+                                </div>
+                            </div>
+                            <div className="bg-espresso-900/50 p-4 rounded-2xl border border-espresso-800/60 shadow-sm flex flex-col justify-between">
+                                <span className="text-[11px] text-green-400 font-bold uppercase tracking-wider">{t('host_dashboard.stat_used_coupons', '사용된 무료 쿠폰')}</span>
+                                <div className="flex items-baseline gap-1 mt-2">
+                                    <span className="font-mono text-2xl font-black text-green-400">{stats.totalUsedCoupons}</span>
+                                    <span className="text-xs text-green-400/80">{t('host_dashboard.unit_sheets', '장')}</span>
+                                </div>
+                            </div>
+                        </section>
+                    )}
+
                     {errorMessage && (
                         <div className="bg-red-950/40 border border-red-500/30 text-red-400 p-4 rounded-2xl text-xs">
                             {errorMessage}
