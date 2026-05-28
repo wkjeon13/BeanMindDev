@@ -336,6 +336,7 @@ export default function SharedCoffeeMap({
     isCourseMode = false,
     courseShops,
     onMapClick,
+    onMapInteraction,
     isRefreshing = false,
     bottomPadding,
     mapAds = []
@@ -361,9 +362,14 @@ export default function SharedCoffeeMap({
     const savedLatLng = useRef<{ lat: number; lng: number } | null>(null);
 
     const onMapClickRef = useRef(onMapClick);
+    const onMapInteractionRef = useRef(onMapInteraction);
     useEffect(() => {
         onMapClickRef.current = onMapClick;
     }, [onMapClick]);
+
+    useEffect(() => {
+        onMapInteractionRef.current = onMapInteraction;
+    }, [onMapInteraction]);
 
     // Resets the long press timer
     const handleMapMouseUpOrDrag = useCallback(() => {
@@ -406,6 +412,13 @@ export default function SharedCoffeeMap({
         // 1. mousedown (covers both PC click & Mobile touch start normalized by maps API)
         apiListeners.push(map.addListener('mousedown', (e: google.maps.MapMouseEvent) => {
             handleMapMouseDown(e);
+        }));
+
+        // 2. click (지도의 빈 공간을 클릭했을 때 포커스 해제)
+        apiListeners.push(map.addListener('click', () => {
+            if (onMapInteractionRef.current) {
+                onMapInteractionRef.current();
+            }
         }));
 
         // Native DOM touch handler for drag canceling & micro-shake filter

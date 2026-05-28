@@ -1411,7 +1411,11 @@ Format EXACTLY like this example:
                                 setSelectedShop(shop);
                                 setIsDetailModalOpen(true);
                             } else {
-                                setFocusedShopId(shop.id);
+                                if (focusedShopId === shop.id) {
+                                    setFocusedShopId(null);
+                                } else {
+                                    setFocusedShopId(shop.id);
+                                }
                             }
                         }}
                         onPopupClick={(shop) => {
@@ -1424,6 +1428,7 @@ Format EXACTLY like this example:
                         isLocating={isLocating}
                         isCourseMode={isCourseMode}
                         onMapClick={handleMapClick}
+                        onMapInteraction={() => setFocusedShopId(null)}
                     />
 
                     {/* Floating AI Auto Extract Toggle Button */}
