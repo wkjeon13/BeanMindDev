@@ -101,7 +101,6 @@ export default function HostDashboard() {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
-    const [imgError, setImgError] = useState(false);
 
     const token = localStorage.getItem('token');
 
@@ -149,6 +148,15 @@ export default function HostDashboard() {
         }
         
         return null;
+    };
+
+    const getStoreImageUrl = (url: string | null | undefined) => {
+        if (!url) return '';
+        if (url.startsWith('http')) return url;
+        if (url.startsWith('/uploads')) {
+            return `http://localhost:3001${url}`;
+        }
+        return url;
     };
 
     const renderItemsEarnedDetail = (txn: any) => {
@@ -223,7 +231,6 @@ export default function HostDashboard() {
                 if (stores && stores.length > 0) {
                     const myStore = stores[0];
                     setStoreInfo(myStore);
-                    setImgError(false);
                     
                     // 폼 바인딩
                     setEditData({
@@ -704,14 +711,26 @@ export default function HostDashboard() {
             {/* 상단 네비게이션 헤더 */}
             <header className="bg-espresso-900/60 backdrop-blur-md border-b border-espresso-800/80 px-8 py-4 flex items-center justify-between shadow-lg sticky top-0 z-50 shrink-0">
                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#D4AF37]/20 to-amber-500/10 border border-[#D4AF37]/30 flex items-center justify-center text-amber-500 overflow-hidden">
-                        {storeInfo?.mainImageUrl && !imgError ? (
-                            <img 
-                                src={storeInfo.mainImageUrl} 
-                                alt={storeInfo.name || "Store"} 
-                                className="w-full h-full object-cover"
-                                onError={() => setImgError(true)}
-                            />
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#D4AF37]/20 to-amber-500/10 border border-[#D4AF37]/30 flex items-center justify-center text-amber-500 overflow-hidden relative">
+                        {storeInfo?.mainImageUrl ? (
+                            <>
+                                <img 
+                                    src={getStoreImageUrl(storeInfo.mainImageUrl)} 
+                                    alt={storeInfo.name || "Store"} 
+                                    className="w-full h-full object-cover z-10"
+                                    onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                        const sibling = e.currentTarget.nextElementSibling;
+                                        if (sibling) {
+                                            sibling.classList.remove('hidden');
+                                            sibling.classList.add('flex');
+                                        }
+                                    }}
+                                />
+                                <div className="absolute inset-0 hidden items-center justify-center bg-gradient-to-tr from-[#D4AF37]/20 to-amber-500/10 z-0">
+                                    <Store size={20} />
+                                </div>
+                            </>
                         ) : (
                             <Store size={20} />
                         )}
