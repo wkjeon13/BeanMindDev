@@ -233,17 +233,15 @@ router.get('/posts', async (req, res) => {
             // 4) 대상 매장의 점주(ownerId) 정보 조회
             const stores = await (prisma as any).store.findMany({
                 where: { id: { in: targetStoreIds } },
-                select: { id: true, ownerId: true }
+                select: { ownerId: true }
             });
+            const ownerIds = stores.map((s: any) => s.ownerId);
 
             whereClause.postType = { in: ['NORMAL', 'ANNOUNCEMENT', 'EVENT'] };
 
-            if (stores.length > 0) {
-                // 매장에서 생성한 피드 및 공지 (즉, 해당 매장의 점주가 쓴 글만 매칭)
-                whereClause.OR = stores.map((s: any) => ({
-                    storeId: s.id,
-                    authorId: s.ownerId
-                }));
+            if (ownerIds.length > 0) {
+                // 팔로우/좋아요 한 매장의 점주(ownerId)들이 생성한 모든 피드 및 공지 매칭
+                whereClause.authorId = { in: ownerIds };
             } else {
                 // 대상 매장이 없는 경우 아무 피드도 반환하지 않음
                 whereClause.id = 'non-existent-id';
