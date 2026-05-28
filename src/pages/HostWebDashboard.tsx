@@ -364,7 +364,7 @@ export default function HostWebDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-espresso-950 text-espresso-50 flex flex-col font-sans select-none antialiased">
+        <div className="min-h-screen bg-espresso-950 text-espresso-50 flex flex-col font-sans antialiased">
             {/* 상단 네비게이션 헤더 */}
             <header 
                 className="bg-espresso-900 border-b border-espresso-800/80 px-6 pb-4 flex items-center justify-between shadow-md shrink-0"
@@ -458,7 +458,7 @@ export default function HostWebDashboard() {
                 </aside>
 
                 {/* 콘텐츠 영역 */}
-                <main className="flex-1 p-6 lg:overflow-y-auto lg:max-h-[calc(100vh-180px)] space-y-6">
+                <main className="flex-1 p-6 overflow-y-auto max-h-[calc(100vh-290px)] lg:max-h-[calc(100vh-180px)] space-y-6 scrollbar-thin touch-pan-y">
                     {errorMessage && (
                         <div className="bg-red-950/40 border border-red-500/30 text-red-400 p-4 rounded-2xl text-xs">
                             {errorMessage}

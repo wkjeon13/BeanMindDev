@@ -653,7 +653,7 @@ export default function HostDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-espresso-950 text-espresso-50 flex flex-col font-sans select-none antialiased relative overflow-hidden">
+        <div className="min-h-screen bg-espresso-950 text-espresso-50 flex flex-col font-sans antialiased relative overflow-hidden">
             {/* 백그라운드 프리미엄 골드/브라운 그라데이션 광원 */}
             <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#D4AF37]/3 rounded-full filter blur-[150px] pointer-events-none" />
             <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#8c8c73]/3 rounded-full filter blur-[150px] pointer-events-none" />
