@@ -2061,7 +2061,7 @@ export default function Profile() {
                                             const dots = Array.from({ length: card.maxStamps }, (_, i) => i < card.currentStamps);
                                             
                                             return (
-                                                <div key={card.id} className="bg-espresso-950/40 p-4 rounded-2xl border border-espresso-800 space-y-3">
+                                                <div key={card.id} className="bg-espresso-950/40 p-4 rounded-2xl border border-espresso-700 space-y-3">
                                                     <div className="flex justify-between items-center gap-2">
                                                         <div className="flex items-center gap-2 flex-1 min-w-0">
                                                             {card.storeLogo ? (
@@ -2104,7 +2104,7 @@ export default function Profile() {
                                                                         const targetVal = item.target;
                                                                         const itemDots = Array.from({ length: targetVal }, (_, i) => i < currentVal);
                                                                         return (
-                                                                            <div key={item.key} className="space-y-1 bg-espresso-950/20 p-2.5 rounded-xl border border-espresso-800/30">
+                                                                            <div key={item.key} className="space-y-1 bg-espresso-950/20 p-2.5 rounded-xl border border-espresso-700/60">
                                                                                 <div className="flex justify-between items-center text-[10px] font-bold">
                                                                                     <span className="text-espresso-100">{t('profile.lbl_stamp_card_title', { label: item.label, defaultValue: `${item.label} 도장판` })}</span>
                                                                                     <span className="font-mono text-[#D4AF37]">{currentVal} / {t('profile.unit_stamps', { count: targetVal, defaultValue: `${targetVal}개` })}</span>
@@ -2113,12 +2113,12 @@ export default function Profile() {
                                                                                     {itemDots.map((isStamped, dIdx) => (
                                                                                         <div 
                                                                                             key={dIdx} 
-                                                                                            className={`aspect-square rounded-lg border flex items-center justify-center transition-all ${isStamped ? 'bg-gradient-to-br from-amber-500 to-amber-700 border-amber-400 shadow-md shadow-amber-500/10 scale-105' : 'border-dashed border-espresso-750 bg-espresso-900/20'}`}
+                                                                                            className={`aspect-square rounded-lg border flex items-center justify-center transition-all ${isStamped ? 'bg-gradient-to-br from-amber-500 to-amber-700 border-amber-400 shadow-md shadow-amber-500/10 scale-105' : 'border-dashed border-espresso-500 bg-espresso-900/40'}`}
                                                                                         >
                                                                                             {isStamped ? (
                                                                                                 <span className="text-espresso-950 font-black text-[10px]">☕</span>
                                                                                             ) : (
-                                                                                                <span className="text-[9px] font-mono text-espresso-750 font-bold">{dIdx + 1}</span>
+                                                                                                <span className="text-[9px] font-mono text-espresso-400 font-bold">{dIdx + 1}</span>
                                                                                             )}
                                                                                         </div>
                                                                                     ))}
@@ -2136,12 +2136,12 @@ export default function Profile() {
                                                                 {dots.map((isStamped, dIdx) => (
                                                                     <div 
                                                                         key={dIdx} 
-                                                                        className={`aspect-square rounded-full border flex items-center justify-center transition-all ${isStamped ? 'bg-gradient-to-br from-amber-500 to-amber-700 border-amber-400 shadow-md shadow-amber-500/10 scale-105' : 'border-dashed border-espresso-700 bg-espresso-900/30'}`}
+                                                                        className={`aspect-square rounded-full border flex items-center justify-center transition-all ${isStamped ? 'bg-gradient-to-br from-amber-500 to-amber-700 border-amber-400 shadow-md shadow-amber-500/10 scale-105' : 'border-dashed border-espresso-500 bg-espresso-900/50'}`}
                                                                     >
                                                                         {isStamped ? (
                                                                             <span className="text-espresso-950 font-black text-[13px]">☕</span>
                                                                         ) : (
-                                                                            <span className="text-[11px] font-mono text-espresso-700 font-bold">{dIdx + 1}</span>
+                                                                            <span className="text-[11px] font-mono text-espresso-400 font-bold">{dIdx + 1}</span>
                                                                         )}
                                                                     </div>
                                                                 ))}
