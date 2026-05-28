@@ -101,6 +101,7 @@ export default function HostDashboard() {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const [imgError, setImgError] = useState(false);
 
     const token = localStorage.getItem('token');
 
@@ -222,6 +223,7 @@ export default function HostDashboard() {
                 if (stores && stores.length > 0) {
                     const myStore = stores[0];
                     setStoreInfo(myStore);
+                    setImgError(false);
                     
                     // 폼 바인딩
                     setEditData({
@@ -702,8 +704,17 @@ export default function HostDashboard() {
             {/* 상단 네비게이션 헤더 */}
             <header className="bg-espresso-900/60 backdrop-blur-md border-b border-espresso-800/80 px-8 py-4 flex items-center justify-between shadow-lg sticky top-0 z-50 shrink-0">
                 <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#D4AF37]/20 to-amber-500/10 border border-[#D4AF37]/30 flex items-center justify-center text-amber-500">
-                        <Store size={20} />
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#D4AF37]/20 to-amber-500/10 border border-[#D4AF37]/30 flex items-center justify-center text-amber-500 overflow-hidden">
+                        {storeInfo?.mainImageUrl && !imgError ? (
+                            <img 
+                                src={storeInfo.mainImageUrl} 
+                                alt={storeInfo.name || "Store"} 
+                                className="w-full h-full object-cover"
+                                onError={() => setImgError(true)}
+                            />
+                        ) : (
+                            <Store size={20} />
+                        )}
                     </div>
                     <div>
                         <div className="flex items-center gap-2">
