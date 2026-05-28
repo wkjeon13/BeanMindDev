@@ -2895,6 +2895,24 @@ export default function CoffeeTalk() {
           }}
           onBookmark={() => activeCommentPostId && setCollectionPostId(activeCommentPostId)}
           onShare={() => activeCommentPostId && handleShare(activeCommentPostId)}
+          onCommentCountChange={(postId, newCount) => {
+              setPosts(prev => prev.map(p => {
+                  if (p.id === postId) {
+                      return { ...p, comments: newCount };
+                  }
+                  return p;
+              }));
+              
+              const cacheKey = activeFilter + '_' + sortOption;
+              if (globalFeedCache[cacheKey]) {
+                  globalFeedCache[cacheKey].posts = globalFeedCache[cacheKey].posts.map((p: any) => {
+                      if (p.id === postId) {
+                          return { ...p, comments: newCount };
+                      }
+                      return p;
+                  });
+              }
+          }}
           onClose={() => {
               setActiveCommentPostId(null);
                // Option to trigger a refetch of post to update comment count

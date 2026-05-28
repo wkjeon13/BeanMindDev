@@ -61,6 +61,7 @@ interface CommentSheetProps {
     onLike?: () => void;
     onBookmark?: () => void;
     onShare?: () => void;
+    onCommentCountChange?: (postId: string, newCount: number) => void;
 }
 
 const renderWithLinks = (text: string | undefined): React.ReactNode => {
@@ -85,7 +86,7 @@ const renderWithLinks = (text: string | undefined): React.ReactNode => {
     });
 };
 
-export default function CommentSheet({ postId, isOpen, onClose, post, isInline, isEmbedded, isLiked, isBookmarked, onLike, onBookmark, onShare }: CommentSheetProps) {
+export default function CommentSheet({ postId, isOpen, onClose, post, isInline, isEmbedded, isLiked, isBookmarked, onLike, onBookmark, onShare, onCommentCountChange }: CommentSheetProps) {
   const { t } = useTranslation(['translation']);
     const [comments, setComments] = useState<Comment[]>([]);
     const [newComment, setNewComment] = useState('');
@@ -182,6 +183,12 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
         fetchComments();
         fetchRewardTiers();
     }, [postId, isOpen]);
+
+    useEffect(() => {
+        if (onCommentCountChange) {
+            onCommentCountChange(postId, comments.length);
+        }
+    }, [comments.length, postId, onCommentCountChange]);
 
     const removeImage = (index: number) => {
         setImagePreviews(prev => {
@@ -766,14 +773,14 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
 
                             {/* Geo Tag */}
                             {post.cafeName && (
-                                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 flex items-center gap-3 mb-4 shadow-sm w-max cursor-pointer hover:bg-amber-500/20 transition-colors"
+                                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 flex items-center gap-3 mb-4 shadow-sm w-full cursor-pointer hover:bg-amber-500/20 transition-colors"
                                      onClick={() => navigate('/map', { state: { targetLat: post.cafeLat, targetLng: post.cafeLng, targetName: post.cafeName } })}
                                 >
                                     <div className="bg-amber-500/20 p-2 rounded-full shrink-0">
                                         <MapPin size={16} className="text-amber-400" />
                                     </div>
-                                    <div>
-                                        <p className="text-[12px] font-bold text-amber-500 leading-tight">{post.cafeName}</p>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-[12px] font-bold text-amber-500 leading-tight break-all whitespace-normal">{post.cafeName}</p>
                                         <p className="text-[10px] text-espresso-200 mt-0.5 whitespace-normal pr-2">{t('community_comments.lbl_view_map', '매장 위치 확인하기')}</p>
                                     </div>
                                 </div>
