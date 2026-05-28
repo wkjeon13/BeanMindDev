@@ -151,7 +151,9 @@ export default function Profile() {
     const [uploadingCourseId, setUploadingCourseId] = useState<string | null>(null);
     const courseImageInputRef = React.useRef<HTMLInputElement>(null);
     const [tasteMatrix, setTasteMatrix] = useState<any>(null);
-    const [isPassportExpanded, setIsPassportExpanded] = useState(true);
+    const [isPassportExpanded, setIsPassportExpanded] = useState(false);
+    const [isStampWalletExpanded, setIsStampWalletExpanded] = useState(false);
+    const [isCoursesExpanded, setIsCoursesExpanded] = useState(false);
     
     // Ads State
     const [magazineAd, setMagazineAd] = useState<any>(null);
@@ -2008,23 +2010,38 @@ export default function Profile() {
 
                     {/* 🎫 BeanStamp 스탬프 지갑 */}
                     {isAuthenticated && (
-                        <section className="bg-gradient-to-br from-espresso-900 to-[#1b120c] rounded-[2rem] border border-white/20 overflow-hidden relative shadow-2xl p-6">
-                            <div className="flex justify-between items-center mb-4">
-                                <div>
-                                    <h3 className="text-lg font-serif font-black text-amber-500 tracking-tight flex items-center gap-1.5">
+                        <section className="bg-gradient-to-br from-espresso-900 to-[#1b120c] rounded-[2rem] border border-white/20 overflow-hidden relative shadow-2xl">
+                            <div 
+                                className="px-6 py-5 relative z-10 flex justify-between items-center bg-espresso-950/40 gap-4 cursor-pointer active:bg-espresso-900/50 transition-colors"
+                                onClick={() => setIsStampWalletExpanded(!isStampWalletExpanded)}
+                            >
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="text-lg font-serif font-black text-amber-500 tracking-tight flex items-center gap-1.5 truncate">
                                         {t('profile.beanstamp_title', '🎫 BeanStamp 지갑')}
+                                        {isStampWalletExpanded ? <ChevronUp size={20} className="text-espresso-400 shrink-0" /> : <ChevronDown size={20} className="text-espresso-400 shrink-0" />}
                                     </h3>
-                                    <p className="text-[11px] text-espresso-200">{t('profile.beanstamp_subtitle', '단골 매장 도장판 및 적립용 QR')}</p>
+                                    <p className="text-[11px] text-espresso-200 mt-1 font-medium truncate">{t('profile.beanstamp_subtitle', '단골 매장 도장판 및 적립용 QR')}</p>
                                 </div>
                                 
                                 {/* 적립용 QR 생성 버튼 */}
                                 <button 
-                                    onClick={() => setIsStampModalOpen(true)}
-                                    className="bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 text-xs font-bold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1 shadow-sm active:scale-95 cursor-pointer"
+                                    onClick={(e) => { e.stopPropagation(); setIsStampModalOpen(true); }}
+                                    className="bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 text-xs font-bold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1 shadow-sm active:scale-95 cursor-pointer shrink-0"
                                 >
                                     <Share2 size={13} /> {t('profile.btn_my_qr', '내 QR 코드')}
                                 </button>
                             </div>
+
+                            {/* Expandable Body */}
+                            <AnimatePresence>
+                                {isStampWalletExpanded && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                                        className="overflow-hidden p-6 pt-4"
+                                    >
 
                             {/* 탭 헤더 */}
                             <div className="flex bg-espresso-950/60 rounded-xl p-1 mb-4 border border-espresso-800">
@@ -2261,6 +2278,9 @@ export default function Profile() {
                                     )}
                                 </div>
                             )}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </section>
                     )}
 
@@ -2667,27 +2687,32 @@ export default function Profile() {
                         <section className="bg-[#121215] rounded-[2rem] border border-white/20 overflow-hidden relative shadow-2xl">
                             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none"></div>
                             
-                            <div className="px-6 py-5 relative z-10">
-                                <div className="flex justify-between items-center mb-4">
-                                    <div>
-                                        <h3 className="text-xl font-serif font-black text-amber-400 tracking-tight flex items-center gap-2">
-                                            <Globe size={20} className="opacity-80" /> {t('profile.title_my_courses')}
-                                        </h3>
-                                        <p className="text-xs text-espresso-200 mt-1 font-medium">{t('profile.desc_my_courses')}</p>
-                                    </div>
-                                    <div className="bg-espresso-800/50 px-3 py-1 rounded-full border border-espresso-700">
-                                        <span className="text-espresso-200 font-mono text-sm font-bold">{myCourses.length}</span>
-                                    </div>
+                            <div 
+                                className="px-6 py-5 relative z-10 flex justify-between items-center bg-espresso-950/40 gap-4 cursor-pointer active:bg-espresso-900/50 transition-colors"
+                                onClick={() => setIsCoursesExpanded(!isCoursesExpanded)}
+                            >
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="text-xl font-serif font-black text-amber-400 tracking-tight flex items-center gap-2 truncate">
+                                        <Globe size={20} className="opacity-80 shrink-0" /> {t('profile.title_my_courses')}
+                                        {isCoursesExpanded ? <ChevronUp size={20} className="text-espresso-400 shrink-0" /> : <ChevronDown size={20} className="text-espresso-400 shrink-0" />}
+                                    </h3>
+                                    <p className="text-xs text-espresso-200 mt-1 font-medium truncate">{t('profile.desc_my_courses')}</p>
                                 </div>
-                                {/*
-                                <button
-                                    onClick={() => navigate('/profile/tour-wizard')}
-                                    className="w-full py-3 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 border border-amber-500/30 font-bold text-[14px] rounded-xl active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm"
-                                >
-                                    <span style={{ fontSize: '16px' }}>✨</span> {t('profile.btn_ai_tour_generator', 'AI 성지순례 투어 코스 자동 생성기')}
-                                </button>
-                                */}
+                                <div className="bg-espresso-800/50 px-3 py-1 rounded-full border border-espresso-700 shrink-0">
+                                    <span className="text-espresso-200 font-mono text-sm font-bold">{myCourses.length}</span>
+                                </div>
                             </div>
+
+                            {/* Expandable Body */}
+                            <AnimatePresence>
+                                {isCoursesExpanded && (
+                                    <motion.div
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: 'auto', opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                                        className="overflow-hidden p-6 pt-4"
+                                    >
 
                             {myCourses.length > 0 ? (
                                 <div className="px-6 pb-6 overflow-x-auto hide-scrollbar flex gap-4 snap-x snap-mandatory relative z-10">
@@ -2776,6 +2801,9 @@ export default function Profile() {
                                     <p className="text-xs text-espresso-300 font-medium leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: t('profile.desc_no_courses') }}></p>
                                 </div>
                             )}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </section>
                     )}
 
