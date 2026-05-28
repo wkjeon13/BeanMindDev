@@ -363,63 +363,18 @@ export default function SharedCoffeeMap({
         mapRef.current = null;
     }, []);
 
-    const pressTimer = useRef<NodeJS.Timeout | null>(null);
-    const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-
     const onMapClickRef = useRef(onMapClick);
     useEffect(() => {
         onMapClickRef.current = onMapClick;
     }, [onMapClick]);
 
-    const handleMapMouseDown = useCallback((e: google.maps.MapMouseEvent) => {
+    // Native Long-Press (contextmenu / rightclick) handler for Mobile (iOS & Android) and PC
+    const handleMapRightClick = useCallback((e: google.maps.MapMouseEvent) => {
         if (ignoreMapClickRef.current) return;
-        
-        if (pressTimer.current) {
-            clearTimeout(pressTimer.current);
-        }
-        
-        pressTimer.current = setTimeout(() => {
-            if (e.latLng && onMapClickRef.current) {
-                onMapClickRef.current(e.latLng.lat(), e.latLng.lng());
-            }
-        }, 950); // 950ms sensitivity threshold for true long press
-    }, []);
-
-    const handleMapMouseUpOrDrag = useCallback(() => {
-        if (pressTimer.current) {
-            clearTimeout(pressTimer.current);
-            pressTimer.current = null;
+        if (e.latLng && onMapClickRef.current) {
+            onMapClickRef.current(e.latLng.lat(), e.latLng.lng());
         }
     }, []);
-
-    // Custom touch handling to cancel longpress on drag, zoom or quick taps
-    const handleTouchStart = useCallback((e: React.TouchEvent) => {
-        if (e.touches.length > 1) {
-            handleMapMouseUpOrDrag();
-            return;
-        }
-        const touch = e.touches[0];
-        touchStartRef.current = { x: touch.screenX, y: touch.screenY };
-    }, [handleMapMouseUpOrDrag]);
-
-    const handleTouchMove = useCallback((e: React.TouchEvent) => {
-        if (touchStartRef.current) {
-            const touch = e.touches[0];
-            const dx = touch.screenX - touchStartRef.current.x;
-            const dy = touch.screenY - touchStartRef.current.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            
-            // Cancel long press if the finger moves more than 8 pixels (scroll / drag action)
-            if (distance > 8) {
-                handleMapMouseUpOrDrag();
-            }
-        }
-    }, [handleMapMouseUpOrDrag]);
-
-    const handleTouchEnd = useCallback(() => {
-        touchStartRef.current = null;
-        handleMapMouseUpOrDrag();
-    }, [handleMapMouseUpOrDrag]);
 
     // Handle Drag / Move
     const handleIdle = useCallback(() => {
@@ -496,14 +451,7 @@ export default function SharedCoffeeMap({
     }
 
     return (
-        <div 
-            className="absolute inset-0 w-full h-full" 
-            style={{ touchAction: 'none', minHeight: '100%' }}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onTouchCancel={handleTouchEnd}
-        >
+        <div className="absolute inset-0 w-full h-full" style={{ touchAction: 'none', minHeight: '100%' }}>
             <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={defaultCenter}
@@ -512,11 +460,7 @@ export default function SharedCoffeeMap({
                 onLoad={onLoad}
                 onUnmount={onUnmount}
                 onIdle={handleIdle}
-                onMouseDown={handleMapMouseDown}
-                onMouseUp={handleMapMouseUpOrDrag}
-                onDragStart={handleMapMouseUpOrDrag}
-                onDrag={handleMapMouseUpOrDrag}
-                onZoomChanged={handleMapMouseUpOrDrag}
+                onRightClick={handleMapRightClick}
             >
                 {userLocation && !isNaN(userLocation[0]) && !isNaN(userLocation[1]) && (
                     <OverlayViewF
