@@ -1694,7 +1694,7 @@ export default function Profile() {
             <div className="max-w-md md:max-w-2xl mx-auto relative flex flex-col min-h-full">
 
                 {/* Header Options */}
-                <header className="px-6 py-8 pb-4 pt-safe mt-4 shrink-0 flex justify-between items-center">
+                <header className="px-6 py-3 pb-2 shrink-0 flex justify-between items-center">
                     <h1 className="text-3xl font-serif font-bold text-espresso-50 tracking-tight">{t('profile.title', '내 정보')}</h1>
                     <button 
                         onClick={() => {
