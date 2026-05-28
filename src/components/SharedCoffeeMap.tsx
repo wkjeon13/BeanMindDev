@@ -357,6 +357,8 @@ export default function SharedCoffeeMap({
 
     const pressTimer = useRef<NodeJS.Timeout | null>(null);
     const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+    const longPressTriggered = useRef<boolean>(false);
+    const savedLatLng = useRef<{ lat: number; lng: number } | null>(null);
 
     const onMapClickRef = useRef(onMapClick);
     useEffect(() => {
@@ -369,6 +371,7 @@ export default function SharedCoffeeMap({
             clearTimeout(pressTimer.current);
             pressTimer.current = null;
         }
+        longPressTriggered.current = false;
         touchStartRef.current = null;
     }, []);
 
@@ -379,11 +382,14 @@ export default function SharedCoffeeMap({
         if (pressTimer.current) {
             clearTimeout(pressTimer.current);
         }
+        longPressTriggered.current = false;
+        
+        if (e.latLng) {
+            savedLatLng.current = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+        }
         
         pressTimer.current = setTimeout(() => {
-            if (e.latLng && onMapClickRef.current) {
-                onMapClickRef.current(e.latLng.lat(), e.latLng.lng());
-            }
+            longPressTriggered.current = true;
             pressTimer.current = null;
         }, 900); // 900ms sensitivity threshold for true long press
     }, []);
@@ -428,6 +434,12 @@ export default function SharedCoffeeMap({
         };
 
         const handleWindowMouseUpOrEnd = () => {
+            if (longPressTriggered.current) {
+                if (savedLatLng.current && onMapClickRef.current) {
+                    onMapClickRef.current(savedLatLng.current.lat, savedLatLng.current.lng);
+                }
+                longPressTriggered.current = false;
+            }
             handleMapMouseUpOrDrag();
         };
 
