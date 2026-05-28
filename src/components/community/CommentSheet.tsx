@@ -138,6 +138,13 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const navigate = useNavigate();
 
+    const isFirstLoadRef = useRef(true);
+    const onCommentCountChangeRef = useRef(onCommentCountChange);
+
+    useEffect(() => {
+        onCommentCountChangeRef.current = onCommentCountChange;
+    }, [onCommentCountChange]);
+
     useEffect(() => {
         const handleClickOutside = () => setActivePickerId(null);
         document.addEventListener('click', handleClickOutside);
@@ -146,7 +153,10 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
 
     // Fetch comments when sheet opens
     useEffect(() => {
-        if (!isOpen) return;
+        if (!isOpen) {
+            isFirstLoadRef.current = true;
+            return;
+        }
 
         const fetchComments = async () => {
             setIsLoading(true);
@@ -185,10 +195,20 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
     }, [postId, isOpen]);
 
     useEffect(() => {
-        if (onCommentCountChange) {
-            onCommentCountChange(postId, comments.length);
+        // 비동기 댓글 로딩이 진행 중인 경우에는 부모 연동을 건너뜁니다.
+        if (isLoading) return;
+        
+        // 최초 마운트 후 첫 댓글 로드 완료 시점에는 
+        // 부모의 기존 댓글수를 무작정 덮어쓰는 행위를 완벽히 스킵(보호)합니다.
+        if (isFirstLoadRef.current) {
+            isFirstLoadRef.current = false;
+            return;
         }
-    }, [comments.length, postId, onCommentCountChange]);
+
+        if (onCommentCountChangeRef.current) {
+            onCommentCountChangeRef.current(postId, comments.length);
+        }
+    }, [comments.length, postId, isLoading]);
 
     const removeImage = (index: number) => {
         setImagePreviews(prev => {
