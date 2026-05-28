@@ -384,6 +384,7 @@ export default function SharedCoffeeMap({
             if (e.latLng && onMapClickRef.current) {
                 onMapClickRef.current(e.latLng.lat(), e.latLng.lng());
             }
+            pressTimer.current = null;
         }, 900); // 900ms sensitivity threshold for true long press
     }, []);
 
@@ -393,6 +394,30 @@ export default function SharedCoffeeMap({
         const mapDiv = map.getDiv();
         if (!mapDiv) return;
 
+        // Register Google Maps API normalized event listeners
+        const apiListeners: google.maps.MapsEventListener[] = [];
+
+        // 1. mousedown (covers both PC click & Mobile touch start normalized by maps API)
+        apiListeners.push(map.addListener('mousedown', (e: google.maps.MapMouseEvent) => {
+            handleMapMouseDown(e);
+        }));
+
+        // 2. mouseup
+        apiListeners.push(map.addListener('mouseup', () => {
+            handleMapMouseUpOrDrag();
+        }));
+
+        // 3. dragstart
+        apiListeners.push(map.addListener('dragstart', () => {
+            handleMapMouseUpOrDrag();
+        }));
+
+        // 4. zoom_changed
+        apiListeners.push(map.addListener('zoom_changed', () => {
+            handleMapMouseUpOrDrag();
+        }));
+
+        // Native DOM touch handler for drag canceling & micro-shake filter
         const handleDOMTouchStart = (e: TouchEvent) => {
             if (e.touches.length > 1) {
                 handleMapMouseUpOrDrag();
@@ -409,8 +434,8 @@ export default function SharedCoffeeMap({
                 const dy = touch.screenY - touchStartRef.current.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 
-                // If finger moves more than 8 pixels, treat it as a drag/scroll and cancel long press
-                if (distance > 8) {
+                // If finger moves more than 10 pixels, treat it as a drag/scroll and cancel long press
+                if (distance > 10) {
                     handleMapMouseUpOrDrag();
                 }
             }
@@ -420,20 +445,28 @@ export default function SharedCoffeeMap({
             handleMapMouseUpOrDrag();
         };
 
-        // Attach listeners using native capturing or passive listener
+        // Prevent native context menu from popping up on long-press (vital for Safari magnifying glass & selection)
+        const handleContextMenu = (e: Event) => {
+            e.preventDefault();
+        };
+
+        // Attach native listeners
         mapDiv.addEventListener('touchstart', handleDOMTouchStart, { passive: true });
         mapDiv.addEventListener('touchmove', handleDOMTouchMove, { passive: true });
         mapDiv.addEventListener('touchend', handleDOMTouchEnd, { passive: true });
         mapDiv.addEventListener('touchcancel', handleDOMTouchEnd, { passive: true });
+        mapDiv.addEventListener('contextmenu', handleContextMenu, { passive: false });
 
         // Save reference for cleanups
         (mapDiv as any)._cleanupTouchListeners = () => {
+            apiListeners.forEach(l => google.maps.event.removeListener(l));
             mapDiv.removeEventListener('touchstart', handleDOMTouchStart);
             mapDiv.removeEventListener('touchmove', handleDOMTouchMove);
             mapDiv.removeEventListener('touchend', handleDOMTouchEnd);
             mapDiv.removeEventListener('touchcancel', handleDOMTouchEnd);
+            mapDiv.removeEventListener('contextmenu', handleContextMenu);
         };
-    }, [handleMapMouseUpOrDrag]);
+    }, [handleMapMouseDown, handleMapMouseUpOrDrag]);
 
     const onUnmount = useCallback(() => {
         if (mapRef.current) {
@@ -522,7 +555,7 @@ export default function SharedCoffeeMap({
     }
 
     return (
-        <div className="absolute inset-0 w-full h-full" style={{ touchAction: 'none', minHeight: '100%' }}>
+        <div className="absolute inset-0 w-full h-full" style={{ touchAction: 'none', minHeight: '100%', WebkitTouchCallout: 'none', WebkitUserSelect: 'none', userSelect: 'none' }}>
             <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={defaultCenter}
@@ -531,11 +564,6 @@ export default function SharedCoffeeMap({
                 onLoad={onLoad}
                 onUnmount={onUnmount}
                 onIdle={handleIdle}
-                onMouseDown={handleMapMouseDown}
-                onMouseUp={handleMapMouseUpOrDrag}
-                onDragStart={handleMapMouseUpOrDrag}
-                onDrag={handleMapMouseUpOrDrag}
-                onZoomChanged={handleMapMouseUpOrDrag}
             >
                 {userLocation && !isNaN(userLocation[0]) && !isNaN(userLocation[1]) && (
                     <OverlayViewF
