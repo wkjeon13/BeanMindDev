@@ -1266,6 +1266,12 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, upload.array('images'
         
         const imageField = imageUrls.length > 0 ? JSON.stringify(imageUrls) : null;
 
+        // If there's an existing poll, and we want to update it or remove it,
+        // we can safely delete the old one first to avoid nested upsert Prisma validation issues.
+        if (post.poll && (req.body.pollData || req.body.removePoll === 'true')) {
+            await (prisma as any).poll.delete({ where: { postId } });
+        }
+
         const updatedPost = await (prisma as any).post.update({
             where: { id: postId },
             data: {
@@ -1285,34 +1291,22 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, upload.array('images'
                 equipmentTag: req.body.equipmentTag ? String(req.body.equipmentTag) : null,
                 recipeData: recipeData || null,
                 attachedCourseId: attachedCourseId !== undefined ? (attachedCourseId || null) : undefined,
-                ...((() => {
-                    let pollOp: any = {};
-                    if (req.body.pollData) {
-                        try {
-                            const parsed = JSON.parse(req.body.pollData);
-                            pollOp = {
-                                upsert: {
-                                    create: {
-                                        question: parsed.question,
-                                        expiresAt: parsed.durationHours ? new Date(Date.now() + parsed.durationHours * 60 * 60 * 1000) : null,
-                                        options: { create: parsed.options.map((opt: string) => ({ text: opt })) }
-                                    },
-                                    update: {
-                                        question: parsed.question,
-                                        expiresAt: parsed.durationHours ? new Date(Date.now() + parsed.durationHours * 60 * 60 * 1000) : null,
-                                        options: {
-                                            deleteMany: {},
-                                            create: parsed.options.map((opt: string) => ({ text: opt }))
-                                        }
+                ...(req.body.pollData ? (() => {
+                    try {
+                        const parsed = JSON.parse(req.body.pollData);
+                        return {
+                            poll: {
+                                create: {
+                                    question: parsed.question,
+                                    expiresAt: parsed.durationHours ? new Date(Date.now() + parsed.durationHours * 60 * 60 * 1000) : null,
+                                    options: {
+                                        create: parsed.options.map((opt: string) => ({ text: opt }))
                                     }
                                 }
-                            };
-                        } catch(e) {}
-                    } else if (req.body.removePoll === 'true' && post.poll) {
-                        pollOp = { delete: true };
-                    }
-                    return Object.keys(pollOp).length > 0 ? { poll: pollOp } : {};
-                })())
+                            }
+                        };
+                    } catch(e) { return {}; }
+                })() : {})
             },
             include: {
                 author: { select: { nickname: true, profileImageUrl: true, role: true , stores: { select: { name: true } }} },
