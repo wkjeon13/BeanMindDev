@@ -622,7 +622,10 @@ router.post('/posts', authenticateToken, uploadLimiter, postUploadMiddleware, as
                                 }
                             }
                         };
-                    } catch(e) { return {}; }
+                    } catch(e) { 
+                        console.error("POLL CREATE ERROR IN POST:", e);
+                        return {}; 
+                    }
                 })() : {})
             },
             include: {
@@ -1305,7 +1308,10 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, upload.array('images'
                                 }
                             }
                         };
-                    } catch(e) { return {}; }
+                    } catch(e) { 
+                        console.error("POLL CREATE ERROR IN PUT:", e);
+                        return {}; 
+                    }
                 })() : {})
             },
             include: {

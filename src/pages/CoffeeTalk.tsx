@@ -968,10 +968,10 @@ export default function CoffeeTalk() {
             formData.append('recipeData', JSON.stringify(recipeData));
         }
         
-        if (hasPoll && pollDraft.question.trim() && pollDraft.options.filter(o => o.trim()).length >= 2) {
+        if (hasPoll && pollDraft.question?.trim() && pollDraft.options.filter(o => typeof o === 'string' && o.trim()).length >= 2) {
             formData.append('pollData', JSON.stringify({
                  question: pollDraft.question.trim(),
-                 options: pollDraft.options.filter(o => o.trim()),
+                 options: pollDraft.options.filter(o => typeof o === 'string' && o.trim()),
                  durationHours: pollDraft.durationHours
             }));
         } else if (editPostId && !hasPoll) {
@@ -2775,7 +2775,7 @@ export default function CoffeeTalk() {
                                         <input 
                                             type="text"
                                             placeholder={t('coffee_talk.ph_poll_option', '항목 {{count}}', {count: idx + 1})}
-                                            value={opt}
+                                            value={opt || ''}
                                             onChange={e => {
                                                 const newOpts = [...pollDraft.options];
                                                 newOpts[idx] = e.target.value;
