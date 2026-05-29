@@ -2763,11 +2763,10 @@ export default function CoffeeTalk() {
                         <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-2xl p-4 space-y-4 mb-4">
                             <input 
                                 type="text"
-                                disabled={!!editPostId}
                                 placeholder={t('coffee_talk.ph_poll_question', '투표 질문을 입력하세요 (예: 이 원두 어떠셨나요?)')}
                                 value={pollDraft.question}
                                 onChange={e => setPollDraft({...pollDraft, question: e.target.value})}
-                                className={`w-full bg-espresso-950 border border-espresso-700 rounded-xl px-4 py-3 text-sm font-bold text-espresso-50 placeholder:text-espresso-300 focus:border-indigo-500 focus:outline-none ${!!editPostId ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                className="w-full bg-espresso-950 border border-espresso-700 rounded-xl px-4 py-3 text-sm font-bold text-espresso-50 placeholder:text-espresso-300 focus:border-indigo-500 focus:outline-none"
                             />
                             <div className="space-y-2">
                                 {pollDraft.options.map((opt, idx) => (
@@ -2775,7 +2774,6 @@ export default function CoffeeTalk() {
                                         <div className="w-6 h-6 rounded-full bg-espresso-800 flex items-center justify-center text-xs text-espresso-200 shrink-0">{idx + 1}</div>
                                         <input 
                                             type="text"
-                                            disabled={!!editPostId}
                                             placeholder={t('coffee_talk.ph_poll_option', '항목 {{count}}', {count: idx + 1})}
                                             value={opt}
                                             onChange={e => {
@@ -2783,9 +2781,9 @@ export default function CoffeeTalk() {
                                                 newOpts[idx] = e.target.value;
                                                 setPollDraft({...pollDraft, options: newOpts});
                                             }}
-                                            className={`flex-1 bg-espresso-950 border border-espresso-700 rounded-xl px-3 py-2 text-sm text-espresso-50 focus:border-indigo-500 focus:outline-none ${!!editPostId ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                            className="flex-1 bg-espresso-950 border border-espresso-700 rounded-xl px-3 py-2 text-sm text-espresso-50 focus:border-indigo-500 focus:outline-none"
                                         />
-                                        {pollDraft.options.length > 2 && !editPostId && (
+                                        {pollDraft.options.length > 2 && (
                                             <button 
                                                 onClick={() => {
                                                     const newOpts = pollDraft.options.filter((_, i) => i !== idx);
@@ -2812,7 +2810,7 @@ export default function CoffeeTalk() {
                                     <option value={168}>{t('coffee_talk.poll_opt_7d', '7일 뒤 종료')}</option>
                                 </select>
 
-                                {pollDraft.options.length < 5 && !editPostId && (
+                                {pollDraft.options.length < 10 && (
                                     <button 
                                         onClick={() => setPollDraft(prev => ({...prev, options: [...prev.options, '']}))}
                                         className="py-2 px-4 flex items-center justify-center gap-1.5 text-xs font-bold text-indigo-400 bg-indigo-500/10 rounded-xl hover:bg-indigo-500/20 transition-colors"

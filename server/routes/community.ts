@@ -1298,7 +1298,12 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, upload.array('images'
                                         options: { create: parsed.options.map((opt: string) => ({ text: opt })) }
                                     },
                                     update: {
-                                        expiresAt: parsed.durationHours ? new Date(Date.now() + parsed.durationHours * 60 * 60 * 1000) : null
+                                        question: parsed.question,
+                                        expiresAt: parsed.durationHours ? new Date(Date.now() + parsed.durationHours * 60 * 60 * 1000) : null,
+                                        options: {
+                                            deleteMany: {},
+                                            create: parsed.options.map((opt: string) => ({ text: opt }))
+                                        }
                                     }
                                 }
                             };
