@@ -642,6 +642,9 @@ router.post('/posts', authenticateToken, uploadLimiter, postUploadMiddleware, as
                     include: {
                         options: { include: { _count: { select: { votes: true } }, votes: { select: { userId: true } } } }
                     }
+                },
+                attachedCourse: {
+                    select: { id: true, name: true, isPilgrimageCourse: true, _count: { select: { items: true } } }
                 }
             }
         });
@@ -1220,7 +1223,7 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, upload.array('images'
     try {
         const postId = req.params.id;
         const userId = (req as any).user.id;
-        const { content, cafeName, cafeLocation, cafeLat, cafeLng, acidity, sweetness, body, bitterness, aroma, taggedBean, recipeData, existingImages, storeId } = req.body;
+        const { content, cafeName, cafeLocation, cafeLat, cafeLng, acidity, sweetness, body, bitterness, aroma, taggedBean, recipeData, existingImages, storeId, attachedCourseId } = req.body;
 
         const post = await (prisma as any).post.findUnique({ where: { id: postId }, include: { poll: true } });
         if (!post) return res.status(404).json({ error: ERROR_CODES.POST_NOT_FOUND });
@@ -1281,6 +1284,7 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, upload.array('images'
                 shortsCategory: req.body.shortsCategory ? String(req.body.shortsCategory) : null,
                 equipmentTag: req.body.equipmentTag ? String(req.body.equipmentTag) : null,
                 recipeData: recipeData || null,
+                attachedCourseId: attachedCourseId !== undefined ? (attachedCourseId || null) : undefined,
                 ...((() => {
                     let pollOp: any = {};
                     if (req.body.pollData) {
@@ -1312,6 +1316,9 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, upload.array('images'
                     include: {
                         options: { include: { _count: { select: { votes: true } }, votes: { select: { userId: true } } } }
                     }
+                },
+                attachedCourse: {
+                    select: { id: true, name: true, isPilgrimageCourse: true, _count: { select: { items: true } } }
                 }
             }
         });

@@ -986,7 +986,9 @@ export default function CoffeeTalk() {
             formData.append('isPilgrimageLedger', 'true');
         }
         
-        if (attachedCourseId) {
+        if (editPostId) {
+            formData.append('attachedCourseId', attachedCourseId || '');
+        } else if (attachedCourseId) {
             formData.append('attachedCourseId', attachedCourseId);
         }
 
@@ -1163,6 +1165,10 @@ export default function CoffeeTalk() {
           bitterness: post.tastingNote?.bitterness || 0,
           aroma: post.tastingNote?.aroma || 0
       });
+      setAttachedCourseId(post.attachedCourseId || null);
+      if (post.attachedCourseId) {
+          setIsCourseSelectorOpen(true);
+      }
       setIsWriteModalOpen(true);
   };
 
