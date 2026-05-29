@@ -201,12 +201,14 @@ const MemoizedMapMarker = React.memo(({
                             const isVideo = typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'));
 
                             return (
-                                <div className={`transition-all duration-300 rounded-full border-[3px] ${borderColor} overflow-hidden bg-[#f3f0ea] shadow-md relative ${isFocused || isPremium ? 'shadow-[0_0_15px_rgba(251,191,36,0.6)]' : ''}`} style={{ width: size, height: size }}>
-                                    {isVideo ? (
-                                        <video src={getFullImageUrl(mainImageSrc as string)} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-                                    ) : (
-                                        <img src={getFullImageUrl(mainImageSrc as string)} alt={shop.name} className="w-full h-full object-cover" />
-                                    )}
+                                <div className={`transition-all duration-300 rounded-full border-[3px] ${borderColor} bg-[#f3f0ea] shadow-md relative ${isFocused || isPremium ? 'shadow-[0_0_15px_rgba(251,191,36,0.6)]' : ''}`} style={{ width: size, height: size }}>
+                                    <div className="w-full h-full rounded-full overflow-hidden">
+                                        {isVideo ? (
+                                            <video src={getFullImageUrl(mainImageSrc as string)} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                                        ) : (
+                                            <img src={getFullImageUrl(mainImageSrc as string)} alt={shop.name} className="w-full h-full object-cover" />
+                                        )}
+                                    </div>
                                     {courseBadge}
                                     {isSearched && !isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm">{t('shared_map.lbl_searched_shop', '검?된 매장')}</div>}
                                     {isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-amber-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm z-10">{t('shared_map.lbl_selected_shop', '?택??매장')}</div>}
