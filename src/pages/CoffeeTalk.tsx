@@ -2785,7 +2785,10 @@ export default function CoffeeTalk() {
                                         />
                                         {pollDraft.options.length > 2 && (
                                             <button 
-                                                onClick={() => {
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
                                                     const newOpts = pollDraft.options.filter((_, i) => i !== idx);
                                                     setPollDraft({...pollDraft, options: newOpts});
                                                 }}
@@ -2812,7 +2815,12 @@ export default function CoffeeTalk() {
 
                                 {pollDraft.options.length < 10 && (
                                     <button 
-                                        onClick={() => setPollDraft(prev => ({...prev, options: [...prev.options, '']}))}
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            setPollDraft(prev => ({...prev, options: [...prev.options, '']}));
+                                        }}
                                         className="py-2 px-4 flex items-center justify-center gap-1.5 text-xs font-bold text-indigo-400 bg-indigo-500/10 rounded-xl hover:bg-indigo-500/20 transition-colors"
                                     >
                                         <Plus size={14} /> {t('coffee_talk.btn_add_poll_option', '항목 추가')}
