@@ -9,9 +9,10 @@ interface MediaRendererProps {
   onClick?: () => void;
   forceVideo?: boolean;
   hideControls?: boolean;
+  disablePauseOnClick?: boolean;
 }
 
-export default function MediaRenderer({ src, className = '', autoPlay = true, onClick, forceVideo = false, hideControls = false }: MediaRendererProps) {
+export default function MediaRenderer({ src, className = '', autoPlay = true, onClick, forceVideo = false, hideControls = false, disablePauseOnClick = false }: MediaRendererProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isReady, setIsReady] = useState(false); // Track if video has buffered first frame
@@ -74,7 +75,7 @@ export default function MediaRenderer({ src, className = '', autoPlay = true, on
 
   const handleVideoClick = (e: React.MouseEvent) => {
       e.stopPropagation(); // prevent post bubbling if used in feed
-      if (videoRef.current) {
+      if (videoRef.current && !disablePauseOnClick) {
           if (videoRef.current.paused) {
               manuallyPaused.current = false;
               videoRef.current.play().then(() => setIsPlaying(true)).catch(e => console.log('Manual play blocked', e));
@@ -164,7 +165,7 @@ export default function MediaRenderer({ src, className = '', autoPlay = true, on
                   onClick={toggleMute}
                   onPointerDown={(e) => { e.stopPropagation(); }}
                   onTouchEnd={(e) => { e.stopPropagation(); }}
-                  className="absolute top-2 right-2 z-10 bg-black/60 p-3.5 rounded-full backdrop-blur-sm shadow-sm transition-transform active:scale-90 flex items-center justify-center cursor-pointer"
+                  className="absolute top-2 right-2 z-30 bg-black/60 p-3.5 rounded-full backdrop-blur-sm shadow-sm transition-transform active:scale-90 flex items-center justify-center cursor-pointer"
               >
                   {isMuted ? (
                       <VolumeX size={24} className="text-white opacity-100 drop-shadow-md" />

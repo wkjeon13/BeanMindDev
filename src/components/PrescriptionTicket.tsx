@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Coffee, Share, Save, Lock, ChevronRight, Star } from 'lucide-react';
+import { Coffee, Share, Save, Lock, ChevronRight, Star, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useTranslation } from 'react-i18next';
 import { CoffeeBean, Brand } from '../types';
@@ -18,6 +18,8 @@ interface PrescriptionTicketProps {
     onShare?: () => void;
     onShareCoffeeTalk?: () => void;
     onGoToLogin?: () => void;
+    onDelete?: () => void;
+    isDeleting?: boolean;
 }
 
 export default function PrescriptionTicket({
@@ -33,11 +35,20 @@ export default function PrescriptionTicket({
     onSave,
     onShare,
     onShareCoffeeTalk,
-    onGoToLogin
+    onGoToLogin,
+    onDelete,
+    isDeleting = false
 }: PrescriptionTicketProps) {
     const { t } = useTranslation();
     const displayDate = date || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     const ticketId = useMemo(() => Math.random().toString().substring(2, 10), []);
+
+    const displayExplanation = useMemo(() => {
+        if (hideSave && aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다...") {
+            return `고객님의 취향에 최적화된 **${recommendation.bean.name}** 원두 처방전입니다.\n\n해당 처방전은 생성 도중 이탈되었거나 에세이 작성이 완료되지 않은 상태로 저장되었습니다. 아래의 상세 커피 프로필 정보(산미, 단맛, 쓴맛, 바디감)를 참고해 주세요!`;
+        }
+        return aiExplanation;
+    }, [aiExplanation, hideSave, recommendation.bean.name]);
 
     return (
         <div className="w-full relative">
@@ -114,7 +125,7 @@ export default function PrescriptionTicket({
                         <div className="relative">
                             <h3 className="text-[13px] font-bold text-espresso-300 uppercase tracking-[0.2em] mb-5">Curator's Note</h3>
                             <div className={`prose prose-sm max-w-none text-coffee-200 leading-relaxed font-medium ${!isLoggedIn ? 'max-h-[220px] overflow-hidden' : ''}`}>
-                                {aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다..." ? (
+                                {displayExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다..." ? (
                                     <div className="flex flex-col items-center justify-center py-6 bg-coffee-900/20 rounded-xl border border-coffee-800/50 relative overflow-hidden">
                                         <div className="absolute inset-0 bg-amber-500/5 animate-pulse" />
                                         <div className="w-8 h-8 mb-4 rounded-full border-t-[3px] border-amber-400 border-r-[3px] border-r-transparent animate-spin relative z-10" />
@@ -148,7 +159,7 @@ export default function PrescriptionTicket({
                                             }
                                         }}
                                     >
-                                        {aiExplanation ? aiExplanation.replace(/<!-- BEANDATA:.*?-->/gs, '').trim() : ''}
+                                        {displayExplanation ? displayExplanation.replace(/<!-- BEANDATA:.*?-->/gs, '').trim() : ''}
                                     </ReactMarkdown>
                                 )}
                             </div>
@@ -191,30 +202,41 @@ export default function PrescriptionTicket({
 
                 {/* Footer Actions & Barcode */}
                 <div className="bg-coffee-900 pt-8 pb-10 px-6 receipt-bottom relative border-t-2 border-dashed border-coffee-800 shrink-0">
-                    <div className="flex gap-3 relative z-20">
-                        {isLoggedIn && !hideSave && (
+                    <div className="flex flex-col gap-3 relative z-20">
+                        <div className="flex gap-3 w-full">
+                            {isLoggedIn && !hideSave && (
+                                <button 
+                                    onClick={onSave}
+                                    disabled={isSaving}
+                                    className="flex-1 bg-coffee-800 text-coffee-50 py-4 rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg hover:bg-coffee-700 disabled:opacity-70 border border-coffee-700"
+                                >
+                                    <Save size={18} /> {isSaving ? t('curator.status_saving', '저장 중...') : t('curator.save_prescription', '처방전 저장')}
+                                </button>
+                            )}
+                            {onShareCoffeeTalk && (
+                                <button 
+                                    onClick={onShareCoffeeTalk}
+                                    className="flex-1 bg-gradient-to-tr from-amber-700 to-amber-500 text-espresso-50 py-4 rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] border border-amber-600/50"
+                                >
+                                    <Coffee size={18} className="text-espresso-50/80" /> {t('curator.share_coffeetalk', '커피톡 공유')}
+                                </button>
+                            )}
                             <button 
-                                onClick={onSave}
-                                disabled={isSaving}
-                                className="flex-1 bg-coffee-800 text-coffee-50 py-4 rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg hover:bg-coffee-700 disabled:opacity-70 border border-coffee-700"
+                                onClick={onShare}
+                                className={`py-4 px-6 bg-coffee-800 border border-coffee-700 text-coffee-200 font-bold rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all hover:bg-coffee-700 ${(!isLoggedIn || hideSave) && !onShareCoffeeTalk ? 'flex-1' : ''}`}
                             >
-                                <Save size={18} /> {isSaving ? t('curator.status_saving', '저장 중...') : t('curator.save_prescription', '처방전 저장')}
+                                <Share size={18} /> {t('shared.btn_share', '외부 공유')}
+                            </button>
+                        </div>
+                        {onDelete && (
+                            <button 
+                                onClick={onDelete}
+                                disabled={isDeleting}
+                                className="w-full bg-rose-950/20 hover:bg-rose-950/40 text-rose-400 border border-rose-900/40 py-4 rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-50"
+                            >
+                                <Trash2 size={18} className="text-rose-400/80" /> {isDeleting ? '삭제 중...' : '처방전 삭제'}
                             </button>
                         )}
-                        {onShareCoffeeTalk && (
-                            <button 
-                                onClick={onShareCoffeeTalk}
-                                className="flex-1 bg-gradient-to-tr from-amber-700 to-amber-500 text-espresso-50 py-4 rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 active:scale-95 transition-all shadow-lg hover:shadow-[0_0_15px_rgba(245,158,11,0.2)] border border-amber-600/50"
-                            >
-                                <Coffee size={18} className="text-espresso-50/80" /> {t('curator.share_coffeetalk', '커피톡 공유')}
-                            </button>
-                        )}
-                        <button 
-                            onClick={onShare}
-                            className={`py-4 px-6 bg-coffee-800 border border-coffee-700 text-coffee-200 font-bold rounded-xl flex items-center justify-center gap-2 active:scale-95 transition-all hover:bg-coffee-700 ${(!isLoggedIn || hideSave) && !onShareCoffeeTalk ? 'flex-1' : ''}`}
-                        >
-                            <Share size={18} /> {t('shared.btn_share', '외부 공유')}
-                        </button>
                     </div>
 
                     {/* Fake Barcode Graphic */}

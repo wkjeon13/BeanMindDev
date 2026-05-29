@@ -2802,16 +2802,42 @@ export default function CoffeeTalk() {
                             </div>
                             
                             <div className="flex items-center justify-between">
-                                <select 
-                                    value={pollDraft.durationHours}
-                                    onChange={(e) => setPollDraft({...pollDraft, durationHours: Number(e.target.value)})}
-                                    className="bg-espresso-950 border border-espresso-700 rounded-xl px-3 py-2 text-xs font-bold text-espresso-200 focus:outline-none focus:border-indigo-500 appearance-none"
-                                >
-                                    <option value={1}>{t('coffee_talk.poll_opt_1h', '1시간 뒤 종료')}</option>
-                                    <option value={24}>{t('coffee_talk.poll_opt_1d', '1일 뒤 종료')}</option>
-                                    <option value={72}>{t('coffee_talk.poll_opt_3d', '3일 뒤 종료')}</option>
-                                    <option value={168}>{t('coffee_talk.poll_opt_7d', '7일 뒤 종료')}</option>
-                                </select>
+                                {(() => {
+                                    const getPollExpiresAtString = (hours: number) => {
+                                        const date = new Date(Date.now() + hours * 60 * 60 * 1000);
+                                        const offset = date.getTimezoneOffset() * 60000;
+                                        return (new Date(date.getTime() - offset)).toISOString().slice(0, 16);
+                                    };
+                                    const handlePollDateChange = (val: string) => {
+                                        if (!val) return;
+                                        const selectedDate = new Date(val);
+                                        const diffMs = selectedDate.getTime() - Date.now();
+                                        if (diffMs <= 0) {
+                                            alert("종료일은 현재 시간보다 미래여야 합니다.");
+                                            return;
+                                        }
+                                        const hours = Math.ceil(diffMs / (1000 * 60 * 60));
+                                        setPollDraft(prev => ({ ...prev, durationHours: hours }));
+                                    };
+                                    return (
+                                        <div className="relative flex items-center bg-espresso-950 border border-espresso-700 rounded-xl px-3 py-2 text-xs font-bold text-espresso-200">
+                                            <Calendar size={14} className="text-indigo-400 mr-2 shrink-0" />
+                                            <input 
+                                                type="datetime-local"
+                                                value={getPollExpiresAtString(pollDraft.durationHours)}
+                                                min={new Date().toISOString().slice(0, 16)}
+                                                onChange={(e) => handlePollDateChange(e.target.value)}
+                                                className="bg-transparent text-espresso-100 outline-none cursor-pointer border-none p-0 text-[11px] font-bold select-none focus:ring-0 focus:outline-none"
+                                                style={{ colorScheme: 'dark' }}
+                                            />
+                                            <span className="ml-2 text-[10px] text-indigo-400 font-bold shrink-0">
+                                                ({pollDraft.durationHours >= 24 
+                                                    ? `${Math.floor(pollDraft.durationHours / 24)}일 뒤 종료` 
+                                                    : `${pollDraft.durationHours}시간 뒤 종료`})
+                                            </span>
+                                        </div>
+                                    );
+                                })()}
 
                                 {pollDraft.options.length < 10 && (
                                     <button 

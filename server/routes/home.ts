@@ -86,7 +86,18 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                     include: {
                         author: { select: { id: true, nickname: true, profileImageUrl: true } },
                         store: { select: { id: true, name: true, address: true } },
-                        _count: { select: { comments: true, likes: true } }
+                        _count: { select: { comments: true, likes: true } },
+                        poll: {
+                            include: {
+                                options: {
+                                    orderBy: { id: 'asc' },
+                                    include: {
+                                        _count: { select: { votes: true } },
+                                        votes: { select: { userId: true } }
+                                    }
+                                }
+                            }
+                        }
                     }
                 });
             }
@@ -110,7 +121,18 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             take: 50,
             include: {
                 author: { select: { id: true, nickname: true, profileImageUrl: true } },
-                _count: { select: { likes: true, comments: true } }
+                _count: { select: { likes: true, comments: true } },
+                poll: {
+                    include: {
+                        options: {
+                            orderBy: { id: 'asc' },
+                            include: {
+                                _count: { select: { votes: true } },
+                                votes: { select: { userId: true } }
+                            }
+                        }
+                    }
+                }
             }
         });
 
@@ -195,7 +217,18 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                 include: {
                     author: { select: { id: true, nickname: true, profileImageUrl: true } },
                     club: { select: { id: true, name: true, coverImageUrl: true, isRecruiting: true, locationName: true } },
-                    _count: { select: { likes: true, comments: true } }
+                    _count: { select: { likes: true, comments: true } },
+                    poll: {
+                        include: {
+                            options: {
+                                orderBy: { id: 'asc' },
+                                include: {
+                                    _count: { select: { votes: true } },
+                                    votes: { select: { userId: true } }
+                                }
+                            }
+                        }
+                    }
                 }
             });
             // Filter to keep only the latest 1 post per club
@@ -322,7 +355,18 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             take: 100, // Fetch up to 100 recent posts
             include: {
                 author: { select: { nickname: true, profileImageUrl: true } },
-                _count: { select: { likes: true, comments: true } }
+                _count: { select: { likes: true, comments: true } },
+                poll: {
+                    include: {
+                        options: {
+                            orderBy: { id: 'asc' },
+                            include: {
+                                _count: { select: { votes: true } },
+                                votes: { select: { userId: true } }
+                            }
+                        }
+                    }
+                }
             }
         });
         
@@ -346,7 +390,18 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             take: 2,
             include: {
                 author: { select: { nickname: true, profileImageUrl: true } },
-                _count: { select: { likes: true, comments: true } }
+                _count: { select: { likes: true, comments: true } },
+                poll: {
+                    include: {
+                        options: {
+                            orderBy: { id: 'asc' },
+                            include: {
+                                _count: { select: { votes: true } },
+                                votes: { select: { userId: true } }
+                            }
+                        }
+                    }
+                }
             }
         });
 

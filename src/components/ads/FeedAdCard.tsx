@@ -4,6 +4,7 @@ import { AdMobFallback } from './AdMobFallback';
 import { API_BASE } from '../../utils/apiConfig';
 import { useTranslation } from 'react-i18next';
 import { getLocalizedAdText } from '../../utils/adUtils';
+import MediaRenderer from '../community/MediaRenderer';
 
 interface FeedAdCardProps {
     adData?: any; // The matched direct ad from backend
@@ -114,10 +115,27 @@ export const FeedAdCard: React.FC<FeedAdCardProps> = ({ adData }) => {
                         />
                     ) : (
                         <>
-                            <img 
+                            <MediaRenderer 
                                 src={imageUrl || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800'} 
-                                alt="Ad Creative"
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 relative z-30"
+                                autoPlay={true}
+                                disablePauseOnClick={true}
+                                onClick={() => {
+                                    if (adData.linkUrl) {
+                                        fetch(`${API_BASE}/api/ads/track`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+                                            },
+                                            body: JSON.stringify({
+                                                creativeId: adData.id,
+                                                actionType: 'CLICK'
+                                            })
+                                        }).catch(e => console.error('Failed to track click', e));
+                                        window.open(adData.linkUrl, '_blank', 'noopener,noreferrer');
+                                    }
+                                }}
                             />
                             {adData.overlayText && (
                                 <div className={`absolute inset-0 flex ${adSize === 'SMALL' ? 'p-3' : 'p-5'} bg-black/20 ${getOverlayPositionClasses(adData.overlayPosition, adSize)}`}>

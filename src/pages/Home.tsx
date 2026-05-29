@@ -256,23 +256,36 @@ const HomeLayoutEditor = ({
     }));
   };
 
-  const moveItem = (index: number, direction: 'up' | 'down') => {
-    if (direction === 'up' && index > 0) {
+  const moveItem = (id: string, direction: 'up' | 'down') => {
+    const visibleItems = layout.filter(item => !hiddenSectionIds.includes(item.id));
+    const indexInVisible = visibleItems.findIndex(item => item.id === id);
+    
+    if (direction === 'up' && indexInVisible > 0) {
+      const targetId = visibleItems[indexInVisible - 1].id;
       const newLayout = [...layout];
-      const temp = newLayout[index];
-      newLayout[index] = newLayout[index - 1];
-      newLayout[index - 1] = temp;
+      const idxA = newLayout.findIndex(item => item.id === id);
+      const idxB = newLayout.findIndex(item => item.id === targetId);
+      
+      const temp = newLayout[idxA];
+      newLayout[idxA] = newLayout[idxB];
+      newLayout[idxB] = temp;
       newLayout.forEach((item, i) => item.order = i + 1);
       React_useState(newLayout);
-    } else if (direction === 'down' && index < layout.length - 1) {
+    } else if (direction === 'down' && indexInVisible < visibleItems.length - 1) {
+      const targetId = visibleItems[indexInVisible + 1].id;
       const newLayout = [...layout];
-      const temp = newLayout[index];
-      newLayout[index] = newLayout[index + 1];
-      newLayout[index + 1] = temp;
+      const idxA = newLayout.findIndex(item => item.id === id);
+      const idxB = newLayout.findIndex(item => item.id === targetId);
+      
+      const temp = newLayout[idxA];
+      newLayout[idxA] = newLayout[idxB];
+      newLayout[idxB] = temp;
       newLayout.forEach((item, i) => item.order = i + 1);
       React_useState(newLayout);
     }
   };
+
+  const visibleItems = layout.filter(item => !hiddenSectionIds.includes(item.id));
 
   return (
     <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
@@ -284,11 +297,11 @@ const HomeLayoutEditor = ({
         <div className="p-5 flex-1 overflow-y-auto">
           <p className="text-[13px] text-espresso-300 mb-4">{t('home.layoutEditor.subtitle')}</p>
           <div className="space-y-3">
-            {layout.filter(item => !hiddenSectionIds.includes(item.id)).map((item, idx) => (
+            {visibleItems.map((item, idx) => (
               <div key={item.id} className="flex items-center gap-3 bg-espresso-800/50 p-3 rounded-xl border border-espresso-800">
                 <div className="flex flex-col gap-1">
-                  <button disabled={idx === 0} onClick={() => moveItem(idx, 'up')} className="text-espresso-400 hover:text-white disabled:opacity-30"><ArrowUp size={16} /></button>
-                  <button disabled={idx === layout.length - 1} onClick={() => moveItem(idx, 'down')} className="text-espresso-400 hover:text-white disabled:opacity-30"><ArrowDown size={16} /></button>
+                  <button disabled={idx === 0} onClick={() => moveItem(item.id, 'up')} className="text-espresso-400 hover:text-white disabled:opacity-30"><ArrowUp size={16} /></button>
+                  <button disabled={idx === visibleItems.length - 1} onClick={() => moveItem(item.id, 'down')} className="text-espresso-400 hover:text-white disabled:opacity-30"><ArrowDown size={16} /></button>
                 </div>
                 <div className="flex-1 font-medium text-[14px] text-espresso-50">
                   {t(item.name)} {item.isFixed && <span className="text-[10px] bg-espresso-950 px-1.5 py-0.5 rounded text-amber-500 ml-2">{t('home.layoutEditor.fixed')}</span>}

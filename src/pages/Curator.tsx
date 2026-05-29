@@ -121,8 +121,8 @@ export default function App() {
               step: 4
             });
             
-            // If they are logged in, auto-save to their account history
-            if (isLoggedIn && token && !parsed.alreadyAlerted) {
+            // If they are logged in, auto-save to their account history (only if complete)
+            if (isLoggedIn && token && !parsed.alreadyAlerted && parsed.aiExplanation && parsed.aiExplanation !== "☕ 특별한 커피 에세이를 작성하는 중입니다...") {
                 // Consume it only if we're successfully saving it
                 localStorage.removeItem('bm_sync_presc'); 
                 try {
@@ -268,6 +268,11 @@ export default function App() {
   const executeSave = async (usePoints = false) => {
     const token = localStorage.getItem('token');
     if (!token || !recommendation) return;
+
+    if (aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다..." || !aiExplanation) {
+      alert(t('curator.alert_essay_generating', "AI 커피 에세이가 아직 작성 중입니다. 작성이 완료된 후 저장해 주세요!"));
+      return;
+    }
 
     setIsSaving(true);
     try {

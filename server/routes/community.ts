@@ -336,6 +336,7 @@ router.get('/posts', async (req, res) => {
                 poll: {
                     include: {
                         options: {
+                            orderBy: { id: 'asc' },
                             include: {
                                 _count: { select: { votes: true } },
                                 votes: currentUserId ? {
@@ -464,6 +465,7 @@ router.get('/posts/:id', async (req, res) => {
                 poll: {
                     include: {
                         options: {
+                            orderBy: { id: 'asc' },
                             include: {
                                 _count: { select: { votes: true } },
                                 votes: { select: { userId: true } }
@@ -610,14 +612,17 @@ router.post('/posts', authenticateToken, uploadLimiter, postUploadMiddleware, as
                 isShorts: req.body.isShorts === 'true' || req.body.isShorts === true,
                 ...(pollData ? (() => {
                     try {
-                        const parsed = JSON.parse(pollData);
+                        const parsed = typeof pollData === 'string' ? JSON.parse(pollData) : pollData;
                         return {
                             poll: {
                                 create: {
                                     question: parsed.question,
                                     expiresAt: parsed.durationHours ? new Date(Date.now() + parsed.durationHours * 60 * 60 * 1000) : null,
                                     options: {
-                                        create: parsed.options.map((opt: string) => ({ text: opt }))
+                                        create: parsed.options.map((opt: string, idx: number) => ({
+                                            id: `pollopt-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 9)}`,
+                                            text: opt
+                                        }))
                                     }
                                 }
                             }
@@ -643,7 +648,10 @@ router.post('/posts', authenticateToken, uploadLimiter, postUploadMiddleware, as
                 },
                 poll: {
                     include: {
-                        options: { include: { _count: { select: { votes: true } }, votes: { select: { userId: true } } } }
+                        options: {
+                            orderBy: { id: 'asc' },
+                            include: { _count: { select: { votes: true } }, votes: { select: { userId: true } } }
+                        }
                     }
                 },
                 attachedCourse: {
@@ -1222,7 +1230,7 @@ router.delete('/posts/:id', authenticateToken, async (req, res) => {
 });
 
 // PUT: // PUT: Update an existing Post
-router.put('/posts/:id', authenticateToken, uploadLimiter, upload.array('images', 5), async (req, res) => {
+router.put('/posts/:id', authenticateToken, uploadLimiter, postUploadMiddleware, async (req, res) => {
     try {
         const postId = req.params.id;
         const userId = (req as any).user.id;
@@ -1235,7 +1243,7 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, upload.array('images'
         // Parse existing images that the user kept
         let imageUrls: string[] = [];
         if (existingImages) {
-            const parsedExisting = JSON.parse(existingImages);
+            const parsedExisting = typeof existingImages === 'string' ? JSON.parse(existingImages) : existingImages;
             imageUrls = Array.isArray(parsedExisting) ? parsedExisting : [];
         }
 
@@ -1296,14 +1304,17 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, upload.array('images'
                 attachedCourseId: attachedCourseId !== undefined ? (attachedCourseId || null) : undefined,
                 ...(req.body.pollData ? (() => {
                     try {
-                        const parsed = JSON.parse(req.body.pollData);
+                        const parsed = typeof req.body.pollData === 'string' ? JSON.parse(req.body.pollData) : req.body.pollData;
                         return {
                             poll: {
                                 create: {
                                     question: parsed.question,
                                     expiresAt: parsed.durationHours ? new Date(Date.now() + parsed.durationHours * 60 * 60 * 1000) : null,
                                     options: {
-                                        create: parsed.options.map((opt: string) => ({ text: opt }))
+                                        create: parsed.options.map((opt: string, idx: number) => ({
+                                            id: `pollopt-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 9)}`,
+                                            text: opt
+                                        }))
                                     }
                                 }
                             }
@@ -1319,7 +1330,10 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, upload.array('images'
                 _count: { select: { likes: true, comments: true, bookmarks: true } },
                 poll: {
                     include: {
-                        options: { include: { _count: { select: { votes: true } }, votes: { select: { userId: true } } } }
+                        options: {
+                            orderBy: { id: 'asc' },
+                            include: { _count: { select: { votes: true } }, votes: { select: { userId: true } } }
+                        }
                     }
                 },
                 attachedCourse: {

@@ -146,6 +146,7 @@ export default function Profile() {
     // Coffee Passport States
     const [prescriptions, setPrescriptions] = useState<any[]>([]);
     const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
+    const [isDeletingPrescription, setIsDeletingPrescription] = useState(false);
     const [passportCheckins, setPassportCheckins] = useState<any[]>([]);
     const [myCourses, setMyCourses] = useState<any[]>([]);
     const [uploadingCourseId, setUploadingCourseId] = useState<string | null>(null);
@@ -889,6 +890,33 @@ export default function Profile() {
             console.error(e);
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleDeletePrescription = async (prescriptionId: string) => {
+        if (!window.confirm(t('profile.confirm_delete_prescription', '이 AI 커피 처방전을 정말로 삭제하시겠습니까?\n삭제된 처방전은 복구할 수 없습니다.'))) {
+            return;
+        }
+        setIsDeletingPrescription(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_BASE}/api/users/prescriptions/${prescriptionId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                alert(t('profile.alert_delete_prescription_success', '처방전이 성공적으로 삭제되었습니다.'));
+                setPrescriptions(prev => prev.filter(p => p.id !== prescriptionId));
+                setSelectedPrescription(null);
+            } else {
+                console.error("Failed to delete prescription");
+                alert(t('profile.alert_delete_prescription_fail', '처방전을 삭제하지 못했습니다. 다시 시도해 주세요.'));
+            }
+        } catch (e) {
+            console.error("Delete prescription catch error:", e);
+            alert(t('profile.alert_delete_prescription_error', '네트워크 오류가 발생했습니다.'));
+        } finally {
+            setIsDeletingPrescription(false);
         }
     };
 
@@ -3592,7 +3620,7 @@ export default function Profile() {
                                 ✕
                             </button>
                         </div>
-                        <div className="w-full max-w-sm px-4 mx-auto flex-1 flex flex-col items-center justify-center pt-2 pb-12 cursor-default overflow-x-hidden" onClick={(e) => e.stopPropagation()}>
+                        <div className="w-full max-w-sm px-4 mx-auto flex-1 flex flex-col items-center justify-start pt-4 pb-12 cursor-default overflow-x-hidden" onClick={(e) => e.stopPropagation()}>
                             <PrescriptionTicket
                                 recommendation={{
                                     bean: (() => {
@@ -3623,6 +3651,8 @@ export default function Profile() {
                                         }
                                     }
                                 }}
+                                onDelete={() => handleDeletePrescription(selectedPrescription.id)}
+                                isDeleting={isDeletingPrescription}
                             />
                         </div>
                     </motion.div>
