@@ -20,11 +20,12 @@ if (!isNative) {
                 // 1. 에뮬레이터 환경에서는 PC 로컬 백엔드 서버(10.0.2.2:3001)로 직결
                 apiBase = `http://10.0.2.2:3001`;
             } else {
-                // 2. 실제 안드로이드 스마트폰 기기에서는 보안 구성을 기반으로 호스트 PC IP(http://192.168.0.29:3001)로 직결하여 완벽한 DB 접속 성공!
-                apiBase = `http://192.168.0.29:3001`;
+                // 2. 실제 안드로이드 스마트폰 기기에서는 공인 프로덕션 API 서버로 직결
+                apiBase = import.meta.env.VITE_API_BASE_URL || 'https://www.beanmindcurator.com';
+                apiBase = apiBase.replace(/\/$/, '');
             }
         } else {
-            // iOS 및 기타 네이티브 환경은 기존의 안전 룰 유지
+            // iOS 및 기타 네이티브 환경은 공인 프로덕션 혹은 기존 설정 유지
             if (apiBase) {
                 if (apiBase.includes('192.168.') || apiBase.includes('10.0.') || apiBase.includes('127.0.0.1') || apiBase.includes('.nip.io')) {
                     let cleanBase = apiBase.replace('https://', 'http://').replace('.nip.io', '');
@@ -33,11 +34,12 @@ if (!isNative) {
                     apiBase = apiBase.replace(/\/$/, '');
                 }
             } else {
-                apiBase = `http://192.168.0.29:3001`;
+                apiBase = 'https://www.beanmindcurator.com';
             }
         }
     } catch (e) {
-        apiBase = `http://192.168.0.29:3001`;
+        apiBase = import.meta.env.VITE_API_BASE_URL || 'https://www.beanmindcurator.com';
+        apiBase = apiBase.replace(/\/$/, '');
     }
 }
 export const API_BASE = apiBase;
