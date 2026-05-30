@@ -21,7 +21,7 @@ if (!isNative) {
                 apiBase = `http://10.0.2.2:3001`;
             } else {
                 // 2. 실제 안드로이드 스마트폰 기기에서는 공인 프로덕션 API 서버로 직결
-                apiBase = import.meta.env.VITE_API_BASE_URL || 'https://www.beanmindcurator.com';
+                apiBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:3001';
                 apiBase = apiBase.replace(/\/$/, '');
             }
         } else {
@@ -34,11 +34,11 @@ if (!isNative) {
                     apiBase = apiBase.replace(/\/$/, '');
                 }
             } else {
-                apiBase = 'https://www.beanmindcurator.com';
+                apiBase = 'http://www.beanmindcurator.com:3001';
             }
         }
     } catch (e) {
-        apiBase = import.meta.env.VITE_API_BASE_URL || 'https://www.beanmindcurator.com';
+        apiBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:3001';
         apiBase = apiBase.replace(/\/$/, '');
     }
 }
