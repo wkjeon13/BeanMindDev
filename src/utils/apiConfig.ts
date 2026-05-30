@@ -21,25 +21,26 @@ if (!isNative) {
                 apiBase = `http://10.0.2.2:3001`;
             } else {
                 // 2. 실제 안드로이드 스마트폰 기기에서는 공인 프로덕션 API 서버로 직결
-                apiBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:3001';
-                apiBase = apiBase.replace(/\/$/, '');
+                let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:3001';
+                if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
+                    rawBase = 'http://www.beanmindcurator.com:3001';
+                }
+                apiBase = rawBase.replace(/\/$/, '');
             }
         } else {
             // iOS 및 기타 네이티브 환경은 공인 프로덕션 혹은 기존 설정 유지
-            if (apiBase) {
-                if (apiBase.includes('192.168.') || apiBase.includes('10.0.') || apiBase.includes('127.0.0.1') || apiBase.includes('.nip.io')) {
-                    let cleanBase = apiBase.replace('https://', 'http://').replace('.nip.io', '');
-                    apiBase = cleanBase.replace(/\/$/, '');
-                } else {
-                    apiBase = apiBase.replace(/\/$/, '');
-                }
-            } else {
-                apiBase = 'http://www.beanmindcurator.com:3001';
+            let rawBase = apiBase || 'http://www.beanmindcurator.com:3001';
+            if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
+                rawBase = 'http://www.beanmindcurator.com:3001';
             }
+            apiBase = rawBase.replace(/\/$/, '');
         }
     } catch (e) {
-        apiBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:3001';
-        apiBase = apiBase.replace(/\/$/, '');
+        let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:3001';
+        if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
+            rawBase = 'http://www.beanmindcurator.com:3001';
+        }
+        apiBase = rawBase.replace(/\/$/, '');
     }
 }
 export const API_BASE = apiBase;

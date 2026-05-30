@@ -150,7 +150,7 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
     // [PRE-FLIGHT CHECK] Does the user have enough points to burn expensive LLM tokens?
     if (token) {
         try {
-            const eligRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/users/ai-eligibility`, {
+            const eligRes = await fetch(`${API_BASE}/api/users/ai-eligibility`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (eligRes.status === 403) {
