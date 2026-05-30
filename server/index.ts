@@ -47,6 +47,7 @@ const app = express();
 const port = 3001; // API server running on 3001 (Vite frontend on 3002)
 
 // 1. CORS Hardening (Must be first to allow cross-origin static assets in Capacitor)
+app.options('*', cors());
 app.use(cors({
     origin: function (origin, callback) {
         // Allows requests with no origin (e.g. Mobile Apps/Capacitor, server-to-server Vite Proxy)
@@ -58,7 +59,7 @@ app.use(cors({
         }
         
         // Explicit overrides for Native Mobile Webviews
-        if (origin === 'capacitor://localhost' || origin === 'ionic://localhost') {
+        if (origin === 'capacitor://localhost' || origin === 'ionic://localhost' || origin === 'http://localhost') {
             return callback(null, true);
         }
         

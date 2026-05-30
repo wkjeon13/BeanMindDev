@@ -7,19 +7,25 @@ let apiBase = import.meta.env.VITE_API_BASE_URL || '';
 if (!isNative) {
     apiBase = ''; // Force relative paths on Web to completely avoid CORS/SSL mismatch across different IPs
 } else if (isNative) {
-    // Extract the public IP or domain safely without using the URL constructor,
-    // which is known to throw TypeErrors on some older Android WebViews causing it to fall into the catch block.
     try {
-        if (apiBase) {
-            if (apiBase.includes('192.168.') || apiBase.includes('10.0.') || apiBase.includes('127.0.0.1') || apiBase.includes('.nip.io')) {
-                // Remove nip.io if present, and force HTTP for local IPs
-                let cleanBase = apiBase.replace('https://', 'http://').replace('.nip.io', '');
-                apiBase = cleanBase.replace(/\/$/, ''); // remove trailing slash
-            } else {
-                apiBase = apiBase.replace(/\/$/, ''); // remove trailing slash
-            }
+        const cap = (window as any).Capacitor;
+        const isAndroid = cap && cap.getPlatform && cap.getPlatform() === 'android';
+
+        if (isAndroid) {
+            // 안드로이드 에뮬레이터/기기 개발 환경에서는 DNS 및 SSL 오류 우회를 위해 10.0.2.2:3001 평문 포트로 직결
+            apiBase = `http://10.0.2.2:3001`;
         } else {
-            apiBase = `http://192.168.0.29:3001`; // Safe fallback
+            // iOS 및 기타 네이티브 환경은 기존의 안전 룰 유지
+            if (apiBase) {
+                if (apiBase.includes('192.168.') || apiBase.includes('10.0.') || apiBase.includes('127.0.0.1') || apiBase.includes('.nip.io')) {
+                    let cleanBase = apiBase.replace('https://', 'http://').replace('.nip.io', '');
+                    apiBase = cleanBase.replace(/\/$/, '');
+                } else {
+                    apiBase = apiBase.replace(/\/$/, '');
+                }
+            } else {
+                apiBase = `http://192.168.0.29:3001`;
+            }
         }
     } catch (e) {
         apiBase = `http://192.168.0.29:3001`;

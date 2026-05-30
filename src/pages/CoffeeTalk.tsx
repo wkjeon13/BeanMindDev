@@ -1208,7 +1208,7 @@ export default function CoffeeTalk() {
                   return p;
               }));
           } else {
-              alert(data.error || '투표 실패');
+              alert(t(`api_error.${data.error}`, data.error || '투표 실패'));
           }
       } catch(e) { console.error('Vote error:', e); }
   };
@@ -2223,7 +2223,7 @@ export default function CoffeeTalk() {
                         <div className="space-y-2">
                             {(() => {
                                 const totalVotes = post.poll.options.reduce((sum: number, o: any) => sum + o._count.votes, 0);
-                                const userVotedOptionId = post.poll.options.find((o: any) => o.votes.some((v: any) => v.userId === currentUserId))?.id;
+                                const userVotedOptionId = post.poll.options.find((o: any) => o.votes?.some((v: any) => v.userId === currentUserId))?.id;
                                 const isExpired = post.poll.expiresAt ? new Date() > new Date(post.poll.expiresAt) : false;
 
                                 // Find max votes to highlight winner if expired
