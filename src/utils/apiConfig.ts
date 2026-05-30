@@ -12,8 +12,21 @@ if (!isNative) {
         const isAndroid = cap && cap.getPlatform && cap.getPlatform() === 'android';
 
         if (isAndroid) {
-            // 안드로이드 에뮬레이터/기기 개발 환경에서는 DNS 및 SSL 오류 우회를 위해 10.0.2.2:3001 평문 포트로 직결
-            apiBase = `http://10.0.2.2:3001`;
+            // User Agent 분석을 통해 에뮬레이터와 실제 핸드폰 스마트폰 기기를 정밀 분별
+            const ua = navigator.userAgent.toLowerCase();
+            const isEmulator = ua.includes('sdk') || ua.includes('emulator') || ua.includes('goldfish') || ua.includes('x86') || ua.includes('google_sdk');
+
+            if (isEmulator) {
+                // 1. 에뮬레이터 환경에서는 PC 로컬 백엔드 서버(10.0.2.2:3001)로 직결
+                apiBase = `http://10.0.2.2:3001`;
+            } else {
+                // 2. 실제 안드로이드 기기에서는 아이폰과 동일하게 공인 도메인을 훼손 없이 100% 안전하게 전송
+                if (apiBase) {
+                    apiBase = apiBase.replace(/\/$/, ''); // trailing slash만 정리
+                } else {
+                    apiBase = `http://192.168.0.29:3001`; // fallback
+                }
+            }
         } else {
             // iOS 및 기타 네이티브 환경은 기존의 안전 룰 유지
             if (apiBase) {
