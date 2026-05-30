@@ -14,7 +14,7 @@ if (!isNative) {
         if (isAndroid) {
             // User Agent 분석을 통해 에뮬레이터와 실제 핸드폰 스마트폰 기기를 정밀 분별
             const ua = navigator.userAgent.toLowerCase();
-            const isEmulator = ua.includes('sdk') || ua.includes('emulator') || ua.includes('goldfish') || ua.includes('x86') || ua.includes('google_sdk');
+            const isEmulator = ua.includes('sdk_gphone') || ua.includes('emulator') || ua.includes('goldfish') || ua.includes('google_sdk') || ua.includes('ranchu');
 
             if (isEmulator) {
                 // 1. 에뮬레이터 환경에서는 PC 로컬 백엔드 서버(10.0.2.2:3001)로 직결
