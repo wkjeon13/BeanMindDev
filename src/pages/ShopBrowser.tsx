@@ -747,6 +747,12 @@ export default function ShopBrowser() {
                 setUserLocation([lat, lng]);
                 setMapCenter([lat, lng]);
                 sortAnchor.current = [lat, lng]; 
+                
+                // PREVENT RACE CONDITION: Instantly populate bm_shops with an empty array.
+                // This ensures that when history.replaceState triggers the next render,
+                // the Normal Load section does NOT run locateUser() which overrides/clears curator markers.
+                sessionStorage.setItem('bm_shops', JSON.stringify([]));
+
                 fetchShopsAndBookmarks(lat, lng);
                 
                 const cacheLat = lat.toFixed(2);
