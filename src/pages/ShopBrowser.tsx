@@ -272,8 +272,8 @@ export default function ShopBrowser() {
     const [isComposing, setIsComposing] = useState(false);
     
     // Filter states
-    const [sourceFilter, setSourceFilter] = useState<'ALL' | 'DB' | 'AI'>('ALL');
-    const [isSourceFilterOpen, setIsSourceFilterOpen] = useState(false);
+    const sourceFilter = 'ALL';
+    const isSourceFilterOpen = false;
     const [curatorPickOnly, setCuratorPickOnly] = useState(false);
 
     // Modal & Scroll states
@@ -382,8 +382,8 @@ export default function ShopBrowser() {
         }
 
         if (focusedShopId && !isSearching && !isLoading && !isAiLoading) {
-            const displayShops = sourceFilter === 'AI' ? [] : shops;
-            const displayAiShops = sourceFilter === 'DB' ? [] : aiShops;
+            const displayShops = shops;
+            const displayAiShops = aiShops;
             const allAvailableShops = [...displayShops, ...displayAiShops];
             
             const shopToPan = allAvailableShops.find(s => s.id === focusedShopId);
@@ -1241,7 +1241,7 @@ Format EXACTLY like this example:
         return !isUnclaimed;
     };
 
-    const displayShops = sourceFilter === 'AI' ? [] : (() => {
+    const displayShops = (() => {
         // Fetch curated shop names from session storage to dynamically tag matching DB shops
         const memStr = sessionStorage.getItem('bm_curator_shops_v3');
         let curatorNames = new Set<string>();
@@ -1268,7 +1268,7 @@ Format EXACTLY like this example:
             return 0; // maintain original relative order (e.g. distance)
         });
     })();
-    const displayAiShops = sourceFilter === 'DB' ? [] : aiShops;
+    const displayAiShops = aiShops;
 
     // Deduplicate: Hide transient AI Search pins (blue) if a permanent DB pin (red) already exists with a similar name
     const normalizedDbNames = displayShops.map(s => (s.name || '').replace(/\s+/g, '').toLowerCase());
