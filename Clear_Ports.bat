@@ -26,7 +26,13 @@ timeout /t 2 >nul
 net start nginx
 
 echo.
-echo 3. Configuring Windows Firewall for Ports 3001, 3005, 3002, 3307...
+echo 3. Configuring Windows Firewall for Ports 3001, 3005, 3002, 3307, 80, 443...
+netsh advfirewall firewall delete rule name="BeanMind_HTTP_80" >nul 2>&1
+netsh advfirewall firewall add rule name="BeanMind_HTTP_80" dir=in action=allow protocol=TCP localport=80 >nul 2>&1
+
+netsh advfirewall firewall delete rule name="BeanMind_HTTPS_443" >nul 2>&1
+netsh advfirewall firewall add rule name="BeanMind_HTTPS_443" dir=in action=allow protocol=TCP localport=443 >nul 2>&1
+
 netsh advfirewall firewall delete rule name="BeanMind_API_3001" >nul 2>&1
 netsh advfirewall firewall add rule name="BeanMind_API_3001" dir=in action=allow protocol=TCP localport=3001 >nul 2>&1
 
