@@ -601,6 +601,7 @@ Randomization Seed: ${Math.random() * Date.now()}`;
         (window as any)._allCuratedShops = finalShops;
         
         // Fire-and-forget: Auto-Import top highly-matched curated shops into the Global Map DB
+        const validShops = finalShops.filter(s => s && s.name && s.lat && s.lng);
         if (validShops.length > 0) {
             fetch(`${API_BASE}/api/shops/ai-import`, {
                 method: 'POST',
