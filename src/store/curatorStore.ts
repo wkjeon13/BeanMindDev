@@ -199,24 +199,29 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
     // 2. Retrieve potential fallback coordinates (Default to Pangyo Station 37.4020, 127.1086)
     let fallbackLat = 37.4020;
     let fallbackLng = 127.1086;
+    let hasLoadedCoords = false;
     
-    if (state.userLocation && state.userLocation.lat && state.userLocation.lng) {
+    // 1st Priority: Read highly-accurate, fresh sessionStorage coordinates (which were locked natively in the Coffee Map)
+    try {
+        const savedLoc = sessionStorage.getItem('bm_user_loc');
+        if (savedLoc) {
+            const parsed = JSON.parse(savedLoc);
+            if (Array.isArray(parsed) && parsed.length === 2) {
+                fallbackLat = parseFloat(parsed[0]);
+                fallbackLng = parseFloat(parsed[1]);
+                hasLoadedCoords = true;
+            } else if (parsed && parsed.lat && parsed.lng) {
+                fallbackLat = parseFloat(parsed.lat);
+                fallbackLng = parseFloat(parsed.lng);
+                hasLoadedCoords = true;
+            }
+        }
+    } catch(e) {}
+    
+    // 2nd Priority: If sessionStorage was empty, fall back to historical localStorage cache
+    if (!hasLoadedCoords && state.userLocation && state.userLocation.lat && state.userLocation.lng) {
         fallbackLat = state.userLocation.lat;
         fallbackLng = state.userLocation.lng;
-    } else {
-        try {
-            const savedLoc = sessionStorage.getItem('bm_user_loc');
-            if (savedLoc) {
-                const parsed = JSON.parse(savedLoc);
-                if (Array.isArray(parsed) && parsed.length === 2) {
-                    fallbackLat = parseFloat(parsed[0]);
-                    fallbackLng = parseFloat(parsed[1]);
-                } else if (parsed && parsed.lat && parsed.lng) {
-                    fallbackLat = parseFloat(parsed.lat);
-                    fallbackLng = parseFloat(parsed.lng);
-                }
-            }
-        } catch(e) {}
     }
 
     let currentLatitude = fallbackLat;
