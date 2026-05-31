@@ -186,9 +186,19 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
 
     measure("3. 현재 위치(GPS) 및 유저 정보 확인 로직 시작");
     
-    // Retrieve potential fallback coordinates from store or session storage to prevent Seoul rollback
-    let fallbackLat = 37.5665;
-    let fallbackLng = 126.9780;
+    // 1. Force Request native location permissions upfront to trigger Android prompt
+    try {
+        const perm = await Geolocation.checkPermissions();
+        if (perm.location !== 'granted') {
+            await Geolocation.requestPermissions();
+        }
+    } catch (e) {
+        console.warn("Capacitor Location Permission Request failed:", e);
+    }
+
+    // 2. Retrieve potential fallback coordinates (Default to Pangyo Station 37.4020, 127.1086)
+    let fallbackLat = 37.4020;
+    let fallbackLng = 127.1086;
     
     if (state.userLocation && state.userLocation.lat && state.userLocation.lng) {
         fallbackLat = state.userLocation.lat;
