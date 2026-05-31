@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import ShopDetailModal from '../components/ShopDetailModal';
 import SharedCoffeeMap from '../components/SharedCoffeeMap';
 import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
+import { Geolocation } from '@capacitor/geolocation';
 
 // Cache for AI search results to prevent redundant expensive API calls across page navigations
 const getFullImageUrl = (url: string | null | undefined) => {
@@ -525,59 +526,79 @@ export default function ShopBrowser() {
 
     const [isLocating, setIsLocating] = useState(false);
 
-    const locateUser = () => {
+    const locateUser = async () => {
         setIsCourseMode(false);
         try { navigate(location.pathname, { replace: true }); } catch (e) {}
-        if (!("geolocation" in navigator)) {
-            alert(t('map.loc_not_supported'));
-            const fallbLat = 37.5665;
-            const fallbLng = 126.9780;
-            setUserLocation([fallbLat, fallbLng]);
-            setMapCenter([fallbLat, fallbLng]);
-            sortAnchor.current = [fallbLat, fallbLng];
-            setSearchQuery('');
-            setSearchedShopId(null);
-            fetchShopsAndBookmarks(fallbLat, fallbLng);
-            fetchAiShops(`latitude ${fallbLat.toFixed(2)}, longitude ${fallbLng.toFixed(2)}`);
-            return;
+        setIsLocating(true);
+
+        // 1. Force native permission checks/requests in mobile environment
+        try {
+            const perm = await Geolocation.checkPermissions();
+            if (perm.location !== 'granted') {
+                await Geolocation.requestPermissions();
+            }
+        } catch (e) {
+            console.warn("Capacitor location permission request skipped/failed:", e);
         }
 
-        setIsLocating(true);
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const coords: [number, number] = [position.coords.latitude, position.coords.longitude];
-                setUserLocation(coords);
-                setMapCenter(coords); // Center map on user
-                sortAnchor.current = coords; // CRITICAL: Release the previous search pivot!
-                activeCoffeeTalkTargetRef.current = null; // Release strict target lock
-                setSearchQuery(''); // Unbind text search query visually
-                setSearchedShopId(null); // Clear search highlight rings
-                sessionStorage.setItem('bm_user_loc', JSON.stringify(coords));
-                sessionStorage.setItem('bm_map_center', JSON.stringify(coords));
-                fetchShopsAndBookmarks(coords[0], coords[1]);
-                const cacheLat = coords[0].toFixed(2);
-                const cacheLng = coords[1].toFixed(2);
-                fetchAiShops(`latitude ${cacheLat}, longitude ${cacheLng}`);
-                setIsLocating(false);
-            },
-            (error) => {
-                console.error("Error getting location:", error);
-                if (userLocation === null) {
-                    // Only default to Seoul if we never had a location
-                    const fallbLat = 37.5665;
-                    const fallbLng = 126.9780;
-                    setUserLocation([fallbLat, fallbLng]);
-                    setMapCenter([fallbLat, fallbLng]);
-                    sortAnchor.current = [fallbLat, fallbLng];
-                    setSearchQuery('');
-                    setSearchedShopId(null);
-                    fetchShopsAndBookmarks(fallbLat, fallbLng);
-                    fetchAiShops(`latitude ${fallbLat.toFixed(2)}, longitude ${fallbLng.toFixed(2)}`);
-                }
-                setIsLocating(false);
-            },
-            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-        );
+        let coords: [number, number] | null = null;
+
+        // 2. Try Capacitor Geolocation (Mobile Native GPS)
+        try {
+            const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 6000 });
+            if (position && position.coords) {
+                coords = [position.coords.latitude, position.coords.longitude];
+                console.log("[ShopBrowser] Located user via Capacitor GPS:", coords);
+            }
+        } catch (err) {
+            console.warn("[ShopBrowser] Capacitor Geolocation failed, trying browser fallback:", err);
+        }
+
+        // 3. Fallback to Browser Geolocation API (for Desktop/Web)
+        if (!coords && "geolocation" in navigator) {
+            try {
+                const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
+                });
+                coords = [position.coords.latitude, position.coords.longitude];
+                console.log("[ShopBrowser] Located user via Navigator Geolocation:", coords);
+            } catch (err) {
+                console.warn("[ShopBrowser] Navigator Geolocation failed too:", err);
+            }
+        }
+
+        // 4. If all GPS sources failed, resolve to stable fallback (Pangyo Station 37.4020, 127.1086)
+        if (!coords) {
+            console.warn("[ShopBrowser] All geolocation attempts failed. Resolving fallback.");
+            
+            // Try to recover from cached state first to preserve previous success location
+            let cachedLoc: [number, number] | null = null;
+            try {
+                const saved = sessionStorage.getItem('bm_user_loc');
+                if (saved) cachedLoc = JSON.parse(saved);
+            } catch (e) {}
+
+            coords = cachedLoc || [37.4020, 127.1086]; // Default to Pangyo Station (never hardcode Seoul 37.5665, 126.9780)
+        }
+
+        // 5. Update state and cache
+        setUserLocation(coords);
+        setMapCenter(coords); // Center map on user
+        sortAnchor.current = coords; // Release previous search pivot
+        activeCoffeeTalkTargetRef.current = null; // Release strict target lock
+        setSearchQuery(''); // Unbind text search query visually
+        setSearchedShopId(null); // Clear search highlight rings
+        
+        sessionStorage.setItem('bm_user_loc', JSON.stringify(coords));
+        sessionStorage.setItem('bm_map_center', JSON.stringify(coords));
+
+        // Fetch new shops and AI recommended shops based on actual location
+        await fetchShopsAndBookmarks(coords[0], coords[1]);
+        const cacheLat = coords[0].toFixed(2);
+        const cacheLng = coords[1].toFixed(2);
+        await fetchAiShops(`latitude ${cacheLat}, longitude ${cacheLng}`);
+        
+        setIsLocating(false);
     };
 
     // Initialize Map and Read Navigation State (Only runs once)
