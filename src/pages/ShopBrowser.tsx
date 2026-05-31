@@ -1247,6 +1247,9 @@ Format EXACTLY like this example:
     // Deduplicate: Hide transient AI Search pins (blue) if a permanent DB pin (red) already exists with a similar name
     const normalizedDbNames = displayShops.map(s => (s.name || '').replace(/\s+/g, '').toLowerCase());
     const filteredAiShops = displayAiShops.filter(aiShop => {
+        // AMNESTY FOR CURATOR MEMORY SHOPS: Never deduplicate curator recommended shops!
+        if (aiShop.isMem || aiShop.id?.includes('curator') || aiShop.id?.includes('mem')) return true;
+
         const aiName = (aiShop.name || '').replace(/\s+/g, '').toLowerCase();
         if (!aiName) return false;
         // If the AI name is a substring of a DB name, or a DB name is a substring of the AI name, treat as duplicate
@@ -1260,6 +1263,9 @@ Format EXACTLY like this example:
     if (sortAnchor.current && !isCourseMode) {
         const pivot = sortAnchor.current;
         combinedShops = combinedShops.filter(shop => {
+            // AMNESTY FOR CURATOR MEMORY SHOPS: Never filter out curator recommended shops by distance!
+            if (shop.isMem || shop.id?.includes('curator') || shop.id?.includes('mem')) return true;
+
             const lat = typeof shop.lat === 'number' ? shop.lat : parseFloat(shop.lat as any) || 0;
             const lng = typeof shop.lng === 'number' ? shop.lng : parseFloat(shop.lng as any) || 0;
             // AMNESTY FIX:
