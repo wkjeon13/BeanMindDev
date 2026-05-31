@@ -179,19 +179,40 @@ const MemoizedMapMarker = React.memo(({
                     // DB Shop Marker Rendering
                     (() => {
                         const isUnclaimed = !shop.mainImageUrl && !shop.markerImageUrl && (!shop.media || shop.media.length === 0);
+                        const isCuratorHighlight = !!shop.isCuratorShop;
+                        
                         if (isUnclaimed) {
                             const size = isFocused ? 54 : 39;
+                            const markerBg = isHighlighted 
+                                ? 'bg-red-500' 
+                                : (isCuratorHighlight 
+                                    ? 'bg-amber-500 text-espresso-950 font-bold' 
+                                    : 'bg-gray-500'
+                                  );
+                            const markerBorder = isCuratorHighlight ? 'border-amber-300' : 'border-white';
+                            
                             return (
-                                <div className={`transition-all duration-300 flex items-center justify-center rounded-full border-[2.5px] border-white text-white ${isHighlighted ? 'bg-red-500' : 'bg-gray-500'} ${isFocused ? 'shadow-[0_0_15px_rgba(239,68,68,0.6)]' : 'shadow-md'}`} style={{ width: size, height: size }}>
+                                <div className={`transition-all duration-300 flex items-center justify-center rounded-full border-[2.5px] ${markerBorder} text-white ${markerBg} ${isFocused || isCuratorHighlight ? 'shadow-[0_0_15px_rgba(251,191,36,0.6)]' : 'shadow-md'}`} style={{ width: size, height: size }}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width={isFocused ? 27 : 21} height={isFocused ? 27 : 21} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><line x1="6" x2="6" y1="2" y2="4"></line><line x1="10" x2="10" y1="2" y2="4"></line><line x1="14" x2="14" y1="2" y2="4"></line></svg>
                                     {courseBadge}
-                                    {isSearched && !isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm">{t('shared_map.lbl_searched_shop', '검?된 매장')}</div>}
-                                    {isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm z-10">{t('shared_map.lbl_selected_shop', '?택??매장')}</div>}
+                                    {isCuratorHighlight && !isFocused && (
+                                        <div className="absolute -top-[16px] left-1/2 -translate-x-1/2 bg-amber-500 text-espresso-950 px-1.5 py-0.5 rounded-md text-[9px] font-black whitespace-nowrap shadow-sm border border-amber-300 z-20 flex items-center gap-0.5">
+                                            <span>★</span>
+                                            <span>Curator</span>
+                                        </div>
+                                    )}
+                                    {isSearched && !isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm">{t('shared_map.lbl_searched_shop', '검색된 매장')}</div>}
+                                    {isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm z-10">{t('shared_map.lbl_selected_shop', '선택된 매장')}</div>}
                                 </div>
                             );
                         } else {
                             const size = isFocused ? 64 : 48;
-                            const borderColor = isFocused ? 'border-amber-500' : (isSearched ? 'border-red-500' : (isPremium ? 'border-amber-500' : 'border-white'));
+                            const borderColor = isFocused 
+                                ? 'border-amber-500' 
+                                : (isCuratorHighlight 
+                                    ? 'border-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.6)]' 
+                                    : (isSearched ? 'border-red-500' : (isPremium ? 'border-amber-500' : 'border-white'))
+                                  );
                             
                             let mainImageSrc = shop.markerImageUrl || shop.mainImageUrl;
                             if (typeof mainImageSrc === 'string' && mainImageSrc.startsWith('[')) {
@@ -201,7 +222,7 @@ const MemoizedMapMarker = React.memo(({
                             const isVideo = typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'));
 
                             return (
-                                <div className={`transition-all duration-300 rounded-full border-[3px] ${borderColor} bg-[#f3f0ea] shadow-md relative ${isFocused || isPremium ? 'shadow-[0_0_15px_rgba(251,191,36,0.6)]' : ''}`} style={{ width: size, height: size }}>
+                                <div className={`transition-all duration-300 rounded-full border-[3px] ${borderColor} bg-[#f3f0ea] shadow-md relative ${isFocused || isPremium || isCuratorHighlight ? 'shadow-[0_0_15px_rgba(251,191,36,0.6)]' : ''}`} style={{ width: size, height: size }}>
                                     <div className="w-full h-full rounded-full overflow-hidden">
                                         {isVideo ? (
                                             <video src={getFullImageUrl(mainImageSrc as string)} autoPlay loop muted playsInline className="w-full h-full object-cover" />
@@ -210,9 +231,15 @@ const MemoizedMapMarker = React.memo(({
                                         )}
                                     </div>
                                     {courseBadge}
-                                    {isSearched && !isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm">{t('shared_map.lbl_searched_shop', '검?된 매장')}</div>}
-                                    {isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-amber-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm z-10">{t('shared_map.lbl_selected_shop', '?택??매장')}</div>}
-                                    {isPremium && !isHighlighted && <div className="absolute -top-[18px] -right-[8px] text-[24px] rotate-[15deg] drop-shadow-md">?</div>}
+                                    {isCuratorHighlight && !isFocused && (
+                                        <div className="absolute -top-[16px] left-1/2 -translate-x-1/2 bg-amber-500 text-espresso-950 px-1.5 py-0.5 rounded-md text-[9px] font-black whitespace-nowrap shadow-sm border border-amber-300 z-20 flex items-center gap-0.5">
+                                            <span>★</span>
+                                            <span>Curator</span>
+                                        </div>
+                                    )}
+                                    {isSearched && !isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm">{t('shared_map.lbl_searched_shop', '검색된 매장')}</div>}
+                                    {isFocused && <div className="absolute -top-[30px] left-1/2 -translate-x-1/2 bg-amber-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm z-10">{t('shared_map.lbl_selected_shop', '선택된 매장')}</div>}
+                                    {isPremium && !isHighlighted && <div className="absolute -top-[18px] -right-[8px] text-[24px] rotate-[15deg] drop-shadow-md">👑</div>}
                                 </div>
                             );
                         }

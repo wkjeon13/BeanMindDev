@@ -846,7 +846,13 @@ export default function ShopBrowser() {
                         });
                         
                         // 2. Build the ideal memory shops array with guaranteed spread offsets and stable IDs
-                        const idealMemShops = curated.map((cs: any, idx: number) => {
+                        // ONLY generate virtual pins if they do NOT exist in the local DB shops array (shops)!
+                        const dbNames = new Set(shops.map(s => s.name.toLowerCase().replace(/\s+/g, '')));
+
+                        const idealMemShops = curated.filter((cs: any) => {
+                            const normName = cs.name.toLowerCase().replace(/\s+/g, '');
+                            return !dbNames.has(normName); // Skip generating virtual pin if already registered in local DB
+                        }).map((cs: any, idx: number) => {
                             const latOffset = idx * 0.0002;
                             const lngOffset = (idx % 2 === 0 ? 1 : -1) * (idx * 0.0002);
                             return {
@@ -880,7 +886,7 @@ export default function ShopBrowser() {
         } catch (e) {
             console.warn("Global Memory Append Failed", e);
         }
-    }, [aiShops]); // Run it whenever aiShops changes, the deduplication guarantees it halts
+    }, [aiShops, shops]); // Run it when aiShops or shops changes to filter out DB duplicates dynamically
 
     const toggleBookmark = async (storeId: string) => {
         if (!isLoggedIn) {
@@ -1235,13 +1241,33 @@ Format EXACTLY like this example:
         return !isUnclaimed;
     };
 
-    const displayShops = sourceFilter === 'AI' ? [] : [...shops].sort((a, b) => {
-        const aClaimed = checkDbClaimed(a);
-        const bClaimed = checkDbClaimed(b);
-        if (aClaimed && !bClaimed) return -1;
-        if (!aClaimed && bClaimed) return 1;
-        return 0; // maintain original relative order (e.g. distance)
-    });
+    const displayShops = sourceFilter === 'AI' ? [] : (() => {
+        // Fetch curated shop names from session storage to dynamically tag matching DB shops
+        const memStr = sessionStorage.getItem('bm_curator_shops_v3');
+        let curatorNames = new Set<string>();
+        if (memStr) {
+            try {
+                const curated = JSON.parse(memStr);
+                if (Array.isArray(curated)) {
+                    curatorNames = new Set(curated.map((c: any) => c.name.toLowerCase().replace(/\s+/g, '')));
+                }
+            } catch(e) {}
+        }
+
+        return [...shops].map(shop => {
+            const normName = (shop.name || '').toLowerCase().replace(/\s+/g, '');
+            if (curatorNames.has(normName)) {
+                return { ...shop, isCuratorShop: true };
+            }
+            return shop;
+        }).sort((a, b) => {
+            const aClaimed = checkDbClaimed(a);
+            const bClaimed = checkDbClaimed(b);
+            if (aClaimed && !bClaimed) return -1;
+            if (!aClaimed && bClaimed) return 1;
+            return 0; // maintain original relative order (e.g. distance)
+        });
+    })();
     const displayAiShops = sourceFilter === 'DB' ? [] : aiShops;
 
     // Deduplicate: Hide transient AI Search pins (blue) if a permanent DB pin (red) already exists with a similar name
