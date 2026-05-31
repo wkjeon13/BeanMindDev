@@ -1441,27 +1441,7 @@ Format EXACTLY like this example:
                         80%+ Match
                     </button>
                     
-                    <button 
-                        onClick={() => setIsSourceFilterOpen(!isSourceFilterOpen)}
-                        className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border transition-colors shadow-sm ${isSourceFilterOpen || sourceFilter !== 'ALL' ? 'bg-amber-900/40 border-amber-600/50 text-amber-500' : 'bg-[#1c1c21] border-white/10 text-espresso-200 hover:text-espresso-50 hover:border-white/20'}`}
-                    >
-                        <SlidersHorizontal size={18} />
-                    </button>
-                    
-                    <AnimatePresence>
-                        {isSourceFilterOpen && (
-                            <motion.div 
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                className="absolute right-0 top-14 w-48 bg-[#1f1f23] border border-espresso-600/50 rounded-xl shadow-2xl z-[100] py-1 flex flex-col overflow-hidden"
-                            >
-                                <button onClick={() => { setSourceFilter('ALL'); setIsSourceFilterOpen(false); }} className={`px-4 py-3 text-left text-sm font-medium hover:bg-espresso-800 ${sourceFilter === 'ALL' ? 'text-amber-500' : 'text-espresso-50'}`}>{t('map.filter_all')}</button>
-                                <button onClick={() => { setSourceFilter('DB'); setIsSourceFilterOpen(false); }} className={`px-4 py-3 text-left text-sm font-medium hover:bg-espresso-800 border-t border-espresso-700 ${sourceFilter === 'DB' ? 'text-amber-500' : 'text-espresso-50'}`}>{t('map.filter_db')}</button>
-                                <button onClick={() => { setSourceFilter('AI'); setIsSourceFilterOpen(false); }} className={`px-4 py-3 text-left text-sm font-medium hover:bg-espresso-800 border-t border-espresso-700 ${sourceFilter === 'AI' ? 'text-amber-500' : 'text-espresso-50'}`}>{t('map.filter_ai')}</button>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+
                 </div>
             </header>
 
