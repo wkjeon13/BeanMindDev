@@ -17,6 +17,9 @@ taskkill /f /im tsx.exe >nul 2>&1
 taskkill /f /im nodemon.exe >nul 2>&1
 taskkill /f /im nginx.exe >nul 2>&1
 
+echo 1.5. Cleaning up obsolete hosts file mapping (39.118.249.241)...
+powershell -NoProfile -Command "(Get-Content C:\Windows\System32\drivers\etc\hosts) | Where-Object {$_ -notmatch '39.118.249.241'} | Set-Content C:\Windows\System32\drivers\etc\hosts"
+
 echo 2. Restarting Nginx Service on standard ports (80 / 443)...
 net stop nginx >nul 2>&1
 timeout /t 2 >nul
