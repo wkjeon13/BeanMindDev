@@ -204,16 +204,16 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
       }
     })();
 
-    const timeoutPromise = new Promise<{lat: number, lng: number} | null>((resolve) => setTimeout(() => resolve(null), 2000));
+    const timeoutPromise = new Promise<{lat: number, lng: number} | null>((resolve) => setTimeout(() => resolve(null), 5000));
     
     const fastPos = await Promise.race([posPromise, timeoutPromise]);
     if (fastPos) {
       currentLatitude = fastPos.lat;
       currentLongitude = fastPos.lng;
     } else {
-      console.warn("Location took >2s, falling back to default for AI generation.");
+      console.warn("Location took >5s, falling back to default for AI generation.");
     }
-    measure("4. 단기 GPS (2s Timeout Race) 완료");
+    measure("4. 단기 GPS (5s Timeout Race) 완료");
     
     set({ userLocation: { lat: currentLatitude, lng: currentLongitude } });
     saveLocal('coffee_loc', { lat: currentLatitude, lng: currentLongitude });
@@ -438,7 +438,10 @@ Randomization Seed: ${Math.random() * Date.now()}`;
               method: 'POST',
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                  promptStr: mapPrompt
+                  promptStr: mapPrompt,
+                  currentLatitude: currentLatitude,
+                  currentLongitude: currentLongitude,
+                  language: language
               })
           });
           
