@@ -53,12 +53,20 @@ export default function ShopBrowser() {
 
     const [userLocation, setUserLocation] = useState<[number, number] | null>(() => {
         try {
+            const state = location.state as any;
+            if (state && state.autoLocateLat && state.autoLocateLng) {
+                return [parseFloat(state.autoLocateLat), parseFloat(state.autoLocateLng)];
+            }
             const saved = sessionStorage.getItem('bm_user_loc');
             return saved ? JSON.parse(saved) : null;
         } catch { return null; }
     });
     const [mapCenter, setMapCenter] = useState<[number, number]>(() => {
         try {
+            const state = location.state as any;
+            if (state && state.autoLocateLat && state.autoLocateLng) {
+                return [parseFloat(state.autoLocateLat), parseFloat(state.autoLocateLng)];
+            }
             const saved = sessionStorage.getItem('bm_map_center');
             return saved ? JSON.parse(saved) : [37.5665, 126.9780];
         } catch { return [37.5665, 126.9780]; }

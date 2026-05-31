@@ -353,6 +353,7 @@ export default function SharedCoffeeMap({
         language: 'en'
     });
 
+    const [mapInst, setMapInst] = useState<google.maps.Map | null>(null);
     const mapRef = useRef<google.maps.Map | null>(null);
     const prevBoundsTs = useRef(0);
     const prevCenterStr = useRef('');
@@ -405,6 +406,12 @@ export default function SharedCoffeeMap({
     // Native DOM level touch listener registration to capture moves/ends despite stops inside canvas
     const onLoad = useCallback((map: google.maps.Map) => {
         mapRef.current = map;
+        setMapInst(map);
+        
+        if (mapCenter && !isNaN(mapCenter[0]) && !isNaN(mapCenter[1])) {
+            map.setCenter({ lat: mapCenter[0], lng: mapCenter[1] });
+        }
+        
         const mapDiv = map.getDiv();
         if (!mapDiv) return;
 
@@ -484,7 +491,7 @@ export default function SharedCoffeeMap({
             window.removeEventListener('touchcancel', handleWindowMouseUpOrEnd, { capture: true });
             window.removeEventListener('mouseup', handleWindowMouseUpOrEnd, { capture: true });
         };
-    }, [handleMapMouseDown, handleMapMouseUpOrDrag]);
+    }, [handleMapMouseDown, handleMapMouseUpOrDrag, mapCenter]);
 
     const onUnmount = useCallback(() => {
         if (mapRef.current) {
@@ -496,6 +503,7 @@ export default function SharedCoffeeMap({
             }
         }
         mapRef.current = null;
+        setMapInst(null);
     }, []);
 
     // Handle Drag / Move
@@ -524,7 +532,8 @@ export default function SharedCoffeeMap({
 
     // Handle bounds to fit & centering
     useEffect(() => {
-        if (!mapRef.current || mode !== 'explore') return;
+        const map = mapInst || mapRef.current;
+        if (!map || mode !== 'explore') return;
         const currentCenterStr = mapCenter ? `${mapCenter[0]},${mapCenter[1]}` : '';
 
         if (boundsToFit && boundsToFit.ts !== prevBoundsTs.current) {
@@ -532,7 +541,7 @@ export default function SharedCoffeeMap({
             prevCenterStr.current = currentCenterStr;
             
             if (!isNaN(boundsToFit.minLat)) {
-                mapRef.current.fitBounds({
+                map.fitBounds({
                     north: boundsToFit.maxLat,
                     south: boundsToFit.minLat,
                     east: boundsToFit.maxLng,
@@ -542,22 +551,23 @@ export default function SharedCoffeeMap({
         } else if (mapCenter && currentCenterStr !== prevCenterStr.current) {
             prevCenterStr.current = currentCenterStr;
             if (Array.isArray(mapCenter) && !isNaN(mapCenter[0])) {
-                mapRef.current.panTo({ lat: mapCenter[0], lng: mapCenter[1] });
+                map.panTo({ lat: mapCenter[0], lng: mapCenter[1] });
             }
         }
-    }, [mapCenter, boundsToFit, mode]);
+    }, [mapCenter, boundsToFit, mode, mapInst]);
 
     // Prescription mode bounds
     useEffect(() => {
-        if (mapRef.current && mode === 'prescription' && userLocation && shops.length > 0) {
+        const map = mapInst || mapRef.current;
+        if (map && mode === 'prescription' && userLocation && shops.length > 0) {
             const bounds = new google.maps.LatLngBounds();
             bounds.extend({ lat: userLocation[0], lng: userLocation[1] });
             shops.forEach(s => {
                 if (s.lat && s.lng) bounds.extend({ lat: s.lat, lng: s.lng });
             });
-            mapRef.current.fitBounds(bounds, 50);
+            map.fitBounds(bounds, 50);
         }
-    }, [mode, userLocation, shops, isLoaded]);
+    }, [mode, userLocation, shops, isLoaded, mapInst]);
 
     const initialCenter = mapCenter || userLocation || [37.5665, 126.9780];
     const [defaultCenter] = useState({ lat: initialCenter[0], lng: initialCenter[1] });
