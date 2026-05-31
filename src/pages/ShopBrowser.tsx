@@ -778,8 +778,17 @@ export default function ShopBrowser() {
         const urlParams = new URLSearchParams(location.search);
         if (isCourseMode || urlParams.get('courseId')) return; // Disable automatic background fetching while viewing a specific course route
         
+        // Prevent background refetch from hijacking the recommended shops when navigating from AI Curator results
+        const isFromCuratorResult = location.state && ((location.state as any).curatorShops || (location.state as any).autoLocateLat);
+        const hasJustNavigated = isFirstRender.current || (isFromCuratorResult && (Date.now() - userInteractionRef.current > 3000));
+
         const isActiveSearch = searchQuery.trim().length > 0;
         if (mapCenter && !isFirstRender.current && !isSearching && !isLoading && !isAutoPanningRef.current && !isActiveSearch) {
+            if (isFromCuratorResult && hasJustNavigated) {
+                console.log("[ShopBrowser] Background refetch skipped to preserve curator results.");
+                return;
+            }
+
             const timeoutId = setTimeout(() => {
                 if (!isAutoPanningRef.current) {
                     const coffeeTalkTarget = activeCoffeeTalkTargetRef.current || undefined;
@@ -788,7 +797,7 @@ export default function ShopBrowser() {
             }, 500);
             return () => clearTimeout(timeoutId);
         }
-    }, [mapCenter, mapBounds, isCourseMode, location.search]);
+    }, [mapCenter, mapBounds, isCourseMode, location.search, location.state]);
 
     // Force Curator shops to persist globally across ALL aiShops lists 
     // even during cache hits
