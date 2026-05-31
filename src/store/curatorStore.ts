@@ -463,35 +463,89 @@ Randomization Seed: ${Math.random() * Date.now()}`;
             }
         }
 
-        const shops: any[] = [];
-        parsedData.forEach(shop => {
-          let uri = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(shop.name)}`;
+        // 1. Fetch nearby DB shops first to prioritize partner stores
+        let dbShops: any[] = [];
+        try {
+            const currentLang = language.startsWith('en') ? 'en' : 'ko';
+            const dbRes = await fetch(`${API_BASE}/api/shops?lat=${currentLatitude}&lng=${currentLongitude}&lang=${currentLang}`);
+            if (dbRes.ok) {
+                dbShops = await dbRes.json();
+            }
+        } catch (e) {
+            console.warn("Failed to fetch nearby DB shops for curator:", e);
+        }
+
+        // Process DB shops to uniform UI format
+        const processedDbShops = dbShops.map(s => {
+            const lat = s.lat !== undefined && s.lat !== null ? parseFloat(s.lat) : currentLatitude;
+            const lng = s.lng !== undefined && s.lng !== null ? parseFloat(s.lng) : currentLongitude;
+            const distance = getDistanceFromLatLonInKm(currentLatitude, currentLongitude, lat, lng);
+            return {
+                id: s.id,
+                name: s.name,
+                lat,
+                lng,
+                distance,
+                uri: `/map?shopId=${s.id}`,
+                isDb: true
+            };
+        });
+
+        // Sort DB shops by distance (closest first)
+        processedDbShops.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+
+        // Filter DB shops within a reasonable 3km radius to ensure meaningful recommendations
+        const nearbyDbShops = processedDbShops.filter(s => s.distance <= 3.0);
+
+        // 2. Parse Gemini AI recommended shops
+        const aiRecommendedShops: any[] = [];
+        parsedData.forEach((shop, idx) => {
           let finalLat = shop.lat !== undefined ? shop.lat : shop.latitude;
           let finalLng = shop.lng !== undefined ? shop.lng : shop.longitude;
           
           if (finalLat === undefined || isNaN(parseFloat(finalLat))) finalLat = anchorLat;
           if (finalLng === undefined || isNaN(parseFloat(finalLng))) finalLng = anchorLng;
 
-          shops.push({ name: shop.name, lat: finalLat, lng: finalLng, uri });
+          const latNum = parseFloat(finalLat);
+          const lngNum = parseFloat(finalLng);
+          const distance = getDistanceFromLatLonInKm(currentLatitude, currentLongitude, latNum, lngNum);
+          const uri = `/map?targetLat=${latNum}&targetLng=${lngNum}&targetName=${encodeURIComponent(shop.name)}`;
+
+          aiRecommendedShops.push({
+              id: `ai-curator-${idx}-${Date.now()}`,
+              name: shop.name,
+              lat: latNum,
+              lng: lngNum,
+              distance,
+              uri,
+              isGeneric: true
+          });
         });
 
-        let validShops = shops.map(s => ({ ...s, lat: parseFloat(s.lat), lng: parseFloat(s.lng) }));
-        validShops = validShops.map(s => {
-            const distance = getDistanceFromLatLonInKm(currentLatitude, currentLongitude, s.lat, s.lng);
-            return { ...s, distance };
-        });
+        // 3. Hybrid Merge: Prioritize DB stores and fill the rest up to 5 with AI stores
+        let finalShops: any[] = [...nearbyDbShops];
+        
+        if (finalShops.length < 5) {
+            // Prevent duplicates (AI recommendations having the same name as DB stores)
+            const dbNames = new Set(finalShops.map(s => s.name.toLowerCase().replace(/\s+/g, '')));
+            const filteredAi = aiRecommendedShops.filter(s => !dbNames.has(s.name.toLowerCase().replace(/\s+/g, '')));
+            
+            const neededCount = 5 - finalShops.length;
+            const paddedAi = filteredAi.slice(0, neededCount);
+            finalShops = [...finalShops, ...paddedAi];
+        } else {
+            finalShops = finalShops.slice(0, 5);
+        }
 
-        let finalShops = validShops.slice(0, 5);  
-
-        // [FAIL-SAFE] API Timeout or Parsing Failure Fallback
+        // [FAIL-SAFE] If both sources returned absolutely zero shops, populate with custom defaults
         if (!finalShops || finalShops.length === 0) {
-            console.warn("AI Map Fetch returned empty. Using robust fallback.");
+            console.warn("AI and DB Map Fetch returned empty. Using robust fallback.");
             const fallbackShops = [
-                { name: "Blue Bottle Coffee", lat: currentLatitude + 0.001, lng: currentLongitude + 0.001, uri: "https://maps.google.com/?q=Blue+Bottle+Coffee" },
-                { name: "Anthracite Coffee", lat: currentLatitude - 0.002, lng: currentLongitude + 0.001, uri: "https://maps.google.com/?q=Anthracite+Coffee" },
-                { name: "Terarosa Coffee", lat: currentLatitude + 0.003, lng: currentLongitude - 0.002, uri: "https://maps.google.com/?q=Terarosa+Coffee" },
-                { name: "Coffee Libre", lat: currentLatitude + 0.002, lng: currentLongitude - 0.003, uri: "https://maps.google.com/?q=Coffee+Libre" },
-                { name: "Fritz Coffee Company", lat: currentLatitude - 0.003, lng: currentLongitude - 0.001, uri: "https://maps.google.com/?q=Fritz+Coffee+Company" }
+                { name: "Blue Bottle Coffee", lat: currentLatitude + 0.001, lng: currentLongitude + 0.001, uri: "/map?targetLat=" + (currentLatitude + 0.001) + "&targetLng=" + (currentLongitude + 0.001) + "&targetName=Blue%20Bottle%20Coffee" },
+                { name: "Anthracite Coffee", lat: currentLatitude - 0.002, lng: currentLongitude + 0.001, uri: "/map?targetLat=" + (currentLatitude - 0.002) + "&targetLng=" + (currentLongitude + 0.001) + "&targetName=Anthracite%20Coffee" },
+                { name: "Terarosa Coffee", lat: currentLatitude + 0.003, lng: currentLongitude - 0.002, uri: "/map?targetLat=" + (currentLatitude + 0.003) + "&targetLng=" + (currentLongitude - 0.002) + "&targetName=Terarosa%20Coffee" },
+                { name: "Coffee Libre", lat: currentLatitude + 0.002, lng: currentLongitude - 0.003, uri: "/map?targetLat=" + (currentLatitude + 0.002) + "&targetLng=" + (currentLongitude - 0.003) + "&targetName=Coffee%20Libre" },
+                { name: "Fritz Coffee Company", lat: currentLatitude - 0.003, lng: currentLongitude - 0.001, uri: "/map?targetLat=" + (currentLatitude - 0.003) + "&targetLng=" + (currentLongitude - 0.001) + "&targetName=Fritz%20Coffee%20Company" }
             ].map(s => ({ ...s, distance: getDistanceFromLatLonInKm(currentLatitude, currentLongitude, s.lat, s.lng) }));
             finalShops = fallbackShops;
         }

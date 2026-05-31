@@ -227,14 +227,36 @@ const MemoizedMapMarker = React.memo(({
                                 {t('shared_map.lbl_search_center', '검??중심')}
                             </div>
                         </div>
-                    ) : (
-                        <div className="relative flex justify-center items-center w-[28px] h-[41px] drop-shadow-md">
-                            {isHighlighted && <div className="absolute -top-[25px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm z-10">{t('shared_map.lbl_selected_loc', '?택???치')}</div>}
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="28" height="41" fill={isHighlighted ? '#ef4444' : '#3b82f6'}>
-                                <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
-                            </svg>
-                        </div>
-                    )
+                    ) : (() => {
+                        const isCuratorShop = shop.id.includes('curator') || shop.id.includes('mem');
+                        const markerColor = isHighlighted ? '#ef4444' : (isCuratorShop ? '#f59e0b' : '#3b82f6');
+                        const sizeWidth = isCuratorShop ? 32 : 28;
+                        const sizeHeight = isCuratorShop ? 45 : 41;
+
+                        return (
+                            <div className="relative flex justify-center items-center drop-shadow-md" style={{ width: sizeWidth, height: sizeHeight }}>
+                                {isHighlighted && (
+                                    <div className="absolute -top-[25px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm z-10">
+                                        {t('shared_map.lbl_selected_loc', '선택된 위치')}
+                                    </div>
+                                )}
+                                {isCuratorShop && !isHighlighted && (
+                                    <div className="absolute -top-[16px] left-1/2 -translate-x-1/2 bg-amber-500 text-espresso-950 px-1.5 py-0.5 rounded-md text-[9px] font-black whitespace-nowrap shadow-sm border border-amber-300 z-20 flex items-center gap-0.5">
+                                        <span>★</span>
+                                        <span>Curator</span>
+                                    </div>
+                                )}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width={sizeWidth} height={sizeHeight} fill={markerColor}>
+                                    <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
+                                </svg>
+                                {isCuratorShop && (
+                                    <div className="absolute top-[8px] text-[10px] text-white font-black pointer-events-none">
+                                        ★
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()
                 )}
 
                 {/* Focused Shop Popup Overlay (similar to Leaflet Popup) */}

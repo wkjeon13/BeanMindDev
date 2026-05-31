@@ -902,19 +902,47 @@ export default function App() {
                                  </h3>
                                  <div className="space-y-3 mb-6">
                                    {nearbyShops.slice(0, 5).map((shop: any, i: number) => (
-                                     <a key={i} href={shop.uri} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-blue-900/10 hover:bg-blue-900/30 rounded-xl border border-blue-800/30 transition-colors">
+                                     <div 
+                                       key={i} 
+                                       onClick={() => {
+                                           if (shop.isDb) {
+                                               navigate('/map', {
+                                                   state: {
+                                                       targetShopId: shop.id,
+                                                       targetLat: shop.lat,
+                                                       targetLng: shop.lng,
+                                                       targetName: shop.name
+                                                   }
+                                               });
+                                           } else {
+                                               navigate('/map', {
+                                                   state: {
+                                                       targetLat: shop.lat,
+                                                       targetLng: shop.lng,
+                                                       targetName: shop.name
+                                                   }
+                                               });
+                                           }
+                                       }}
+                                       className="flex items-center justify-between p-3 bg-blue-900/10 hover:bg-blue-900/30 rounded-xl border border-blue-800/30 transition-all cursor-pointer active:scale-[0.99] select-none"
+                                     >
                                        <div className="min-w-0 pr-4">
                                          <div className="font-medium text-espresso-50 truncate">{shop.name}</div>
-                                         <div className="text-[11px] text-espresso-300">
+                                         <div className="text-[11px] text-espresso-300 flex items-center gap-2">
                                            {shop.distance !== undefined && shop.distance !== null ? (
                                              shop.distance < 1 
                                              ? t('curator.distance_m', {value: Math.round(shop.distance * 1000)})
                                              : t('curator.distance_km', {value: shop.distance.toFixed(1)})
                                            ) : ""}
+                                           {shop.isDb && (
+                                             <span className="text-amber-500 font-bold text-[9px] bg-amber-500/10 px-1 py-0.5 rounded border border-amber-500/20">
+                                               BeanMind Partner
+                                             </span>
+                                           )}
                                          </div>
                                        </div>
-                                       <ExternalLink size={16} className="text-blue-500 shrink-0" />
-                                     </a>
+                                       <ChevronRight size={18} className="text-blue-400 shrink-0" />
+                                     </div>
                                    ))}
                                  </div>
                                  <button 
