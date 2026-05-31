@@ -185,8 +185,32 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
       }).catch(() => localStorage.removeItem('bm_curation_ad'));
 
     measure("3. 현재 위치(GPS) 및 유저 정보 확인 로직 시작");
-    let currentLatitude = 37.5665;
-    let currentLongitude = 126.9780;
+    
+    // Retrieve potential fallback coordinates from store or session storage to prevent Seoul rollback
+    let fallbackLat = 37.5665;
+    let fallbackLng = 126.9780;
+    
+    if (state.userLocation && state.userLocation.lat && state.userLocation.lng) {
+        fallbackLat = state.userLocation.lat;
+        fallbackLng = state.userLocation.lng;
+    } else {
+        try {
+            const savedLoc = sessionStorage.getItem('bm_user_loc');
+            if (savedLoc) {
+                const parsed = JSON.parse(savedLoc);
+                if (Array.isArray(parsed) && parsed.length === 2) {
+                    fallbackLat = parseFloat(parsed[0]);
+                    fallbackLng = parseFloat(parsed[1]);
+                } else if (parsed && parsed.lat && parsed.lng) {
+                    fallbackLat = parseFloat(parsed.lat);
+                    fallbackLng = parseFloat(parsed.lng);
+                }
+            }
+        } catch(e) {}
+    }
+
+    let currentLatitude = fallbackLat;
+    let currentLongitude = fallbackLng;
     
     const userObj = localStorage.getItem('user');
     const userProfile = userObj ? JSON.parse(userObj) : null;
@@ -211,7 +235,7 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
       currentLatitude = fastPos.lat;
       currentLongitude = fastPos.lng;
     } else {
-      console.warn("Location took >5s, falling back to default for AI generation.");
+      console.warn("Location took >5s, falling back to store/session cached coords:", currentLatitude, currentLongitude);
     }
     measure("4. 단기 GPS (5s Timeout Race) 완료");
     
