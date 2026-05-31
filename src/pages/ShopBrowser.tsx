@@ -825,7 +825,7 @@ export default function ShopBrowser() {
     useEffect(() => {
         try {
             const memStr = sessionStorage.getItem('bm_curator_shops_v3');
-            if (memStr && aiShops && aiShops.length > 0) {
+            if (memStr && aiShops) {
                 const curated = JSON.parse(memStr);
                 if (Array.isArray(curated) && curated.length > 0) {
                     setAiShops((prev: any[]) => {
