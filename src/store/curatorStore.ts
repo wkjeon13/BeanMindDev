@@ -218,15 +218,23 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
     const userGender = userProfile?.gender || "알 수 없음";
     const userFavCafe = userProfile?.favoriteCafe || "없음";
 
-    const posPromise = (async () => {
-      try {
-        const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 10000 });
-        return { lat: position.coords.latitude, lng: position.coords.longitude };
-      } catch (err) {
-        console.warn("Geolocation failed:", err);
-        return null;
+    const posPromise = new Promise<{lat: number, lng: number} | null>((resolve) => {
+      if (!("geolocation" in navigator)) {
+        console.warn("navigator.geolocation not supported");
+        resolve(null);
+        return;
       }
-    })();
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({ lat: position.coords.latitude, lng: position.coords.longitude });
+        },
+        (error) => {
+          console.warn("navigator.geolocation failed:", error);
+          resolve(null);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    });
 
     const timeoutPromise = new Promise<{lat: number, lng: number} | null>((resolve) => setTimeout(() => resolve(null), 5000));
     
@@ -234,6 +242,11 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
     if (fastPos) {
       currentLatitude = fastPos.lat;
       currentLongitude = fastPos.lng;
+      
+      // Update store and session cache immediately for seamless coordination across map and curator
+      set({ userLocation: { lat: currentLatitude, lng: currentLongitude } });
+      saveLocal('coffee_loc', { lat: currentLatitude, lng: currentLongitude });
+      sessionStorage.setItem('bm_user_loc', JSON.stringify([currentLatitude, currentLongitude]));
     } else {
       console.warn("Location took >5s, falling back to store/session cached coords:", currentLatitude, currentLongitude);
     }
