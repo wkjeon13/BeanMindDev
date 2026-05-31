@@ -228,23 +228,15 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
     const userGender = userProfile?.gender || "알 수 없음";
     const userFavCafe = userProfile?.favoriteCafe || "없음";
 
-    const posPromise = new Promise<{lat: number, lng: number} | null>((resolve) => {
-      if (!("geolocation" in navigator)) {
-        console.warn("navigator.geolocation not supported");
-        resolve(null);
-        return;
+    const posPromise = (async () => {
+      try {
+        const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 10000 });
+        return { lat: position.coords.latitude, lng: position.coords.longitude };
+      } catch (err) {
+        console.warn("Capacitor Geolocation failed:", err);
+        return null;
       }
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          resolve({ lat: position.coords.latitude, lng: position.coords.longitude });
-        },
-        (error) => {
-          console.warn("navigator.geolocation failed:", error);
-          resolve(null);
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
-    });
+    })();
 
     const timeoutPromise = new Promise<{lat: number, lng: number} | null>((resolve) => setTimeout(() => resolve(null), 5000));
     
