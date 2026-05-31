@@ -121,8 +121,12 @@ router.get('/serve', optionalAuth, async (req: any, res) => {
                     let isTabMatch = false;
                     
                     if (targetPlacement) {
-                        // Strict placement matching if requested
-                        if (placementKey === targetPlacement) isTabMatch = true;
+                        // Strict placement matching if requested with fallback for GLOBAL
+                        if (placementKey === targetPlacement) {
+                            isTabMatch = true;
+                        } else if (targetPlacement === 'GLOBAL' && placementKey === 'FEED_CLUB_PREMIUM') {
+                            isTabMatch = true;
+                        }
                     } else {
                         if (tab === 'FEED' && (placementKey.includes('FEED') || !placementKey)) isTabMatch = true;
                         if (tab === 'SHORTS' && (placementKey.includes('SHORTS') || c.type === 'VIDEO')) isTabMatch = true;

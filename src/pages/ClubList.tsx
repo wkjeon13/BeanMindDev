@@ -162,7 +162,7 @@ export default function ClubList() {
             }
 
             try {
-                const resPremium = await fetch(`${API_BASE}/api/ads/serve?tab=FEED&placementKey=GLOBAL&lang=${i18n.language || 'en'}`, {
+                const resPremium = await fetch(`${API_BASE}/api/ads/serve?tab=FEED&placementKey=FEED_CLUB_PREMIUM&lang=${i18n.language || 'en'}`, {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
                 });
                 if (resPremium.ok) {
