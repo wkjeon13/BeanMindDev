@@ -109,6 +109,7 @@ interface SharedCoffeeMapProps {
     isRefreshing?: boolean;
     bottomPadding?: string;
     mapAds?: any[];
+    hideFocusedPopup?: boolean;
 }
 
 const mapContainerStyle = {
@@ -136,7 +137,7 @@ const defaultGetPixelPositionOffset = (w: number, h: number, isDbShop: boolean, 
 };
 
 const MemoizedMapMarker = React.memo(({ 
-    shop, lat, lng, isDbShop, isFocused, isSearched, isHighlighted, isPremium, isTargetRegion, zIndexOffset, courseIdx, ignoreMapClickRef, onShopClick, onPopupClick, bookmarkedIds, onBookmarkToggle, getFullImageUrl, t 
+    shop, lat, lng, isDbShop, isFocused, isSearched, isHighlighted, isPremium, isTargetRegion, zIndexOffset, courseIdx, ignoreMapClickRef, onShopClick, onPopupClick, bookmarkedIds, onBookmarkToggle, getFullImageUrl, t, hideFocusedPopup
 }: any) => {
     const focusTimeRef = useRef<number>(0);
     useEffect(() => {
@@ -287,7 +288,7 @@ const MemoizedMapMarker = React.memo(({
                 )}
 
                 {/* Focused Shop Popup Overlay (similar to Leaflet Popup) */}
-                {!shop.isGeneric && (
+                {!shop.isGeneric && !hideFocusedPopup && (
                     <StopPropagationWrapper 
                         className={`absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 bg-white flex p-3 gap-3 items-center hover:bg-zinc-50 transition-all duration-200 w-auto min-w-[260px] max-w-[60vw] rounded-xl shadow-lg border border-zinc-200/60 font-sans z-50 cursor-pointer origin-bottom ${isFocused ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
                         onIntercept={() => {
@@ -364,6 +365,7 @@ const MemoizedMapMarker = React.memo(({
         prevProps.isTargetRegion === nextProps.isTargetRegion &&
         prevProps.zIndexOffset === nextProps.zIndexOffset &&
         prevProps.courseIdx === nextProps.courseIdx &&
+        prevProps.hideFocusedPopup === nextProps.hideFocusedPopup &&
         prevProps.bookmarkedIds.has(prevProps.shop.id) === nextProps.bookmarkedIds.has(nextProps.shop.id)
     );
 });
@@ -390,7 +392,8 @@ export default function SharedCoffeeMap({
     onMapInteraction,
     isRefreshing = false,
     bottomPadding,
-    mapAds = []
+    mapAds = [],
+    hideFocusedPopup = false
 }: SharedCoffeeMapProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -720,6 +723,7 @@ export default function SharedCoffeeMap({
                             onBookmarkToggle={onBookmarkToggle}
                             getFullImageUrl={getFullImageUrl}
                             t={t}
+                            hideFocusedPopup={hideFocusedPopup}
                         />
                     );
                 })}

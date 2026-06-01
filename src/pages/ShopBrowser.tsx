@@ -1535,6 +1535,7 @@ Format EXACTLY like this example:
                         isRefreshing={isRefreshing}
                         mapAds={mapAds}
                         bottomPadding={isCourseMode ? '10.5rem' : (focusedShopId && combinedShops.find(s => s.id === focusedShopId) ? '10.5rem' : '3.5rem')}
+                        hideFocusedPopup={showFloatingList}
                         onShopClick={(shop) => { 
                             if (isCourseMode) {
                                 setSelectedShop(shop);
