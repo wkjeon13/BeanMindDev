@@ -18,9 +18,29 @@ const authLimiter = rateLimit({
 });
 
 import prisma from '../utils/prisma.js';
+import fs from 'fs';
+import path from 'path';
+
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+const POLICY_FILE = path.join(process.cwd(), 'data', 'policy.json');
+const getRegistrationWelcomePolicy = () => {
+    try {
+        if (fs.existsSync(POLICY_FILE)) {
+            const data = fs.readFileSync(POLICY_FILE, 'utf-8');
+            const policy = JSON.parse(data);
+            return {
+                welcomeBeans: policy.welcomeBeans !== undefined ? parseInt(policy.welcomeBeans) : 0,
+                welcomeFreePrescriptions: policy.welcomeFreePrescriptions !== undefined ? parseInt(policy.welcomeFreePrescriptions) : 3
+            };
+        }
+    } catch (e) {
+        console.error("Failed to read welcome policy:", e);
+    }
+    return { welcomeBeans: 0, welcomeFreePrescriptions: 3 };
+};
 
 // Helper to generate a 6-digit OTP
 const generateOTP = () => {
@@ -93,6 +113,7 @@ router.post('/register', authLimiter, async (req, res) => {
                 }
             });
         } else {
+            const welcomePolicy = getRegistrationWelcomePolicy();
             newUser = await prisma.user.create({
                 data: {
                     email,
@@ -106,7 +127,9 @@ router.post('/register', authLimiter, async (req, res) => {
                     preferredLanguage: preferredLanguage || 'ko',
                     isEmailVerified: isTestAccount,
                     verificationCode: otp,
-                    verificationExpires: expires
+                    verificationExpires: expires,
+                    aiPrescriptionLimit: welcomePolicy.welcomeFreePrescriptions,
+                    pointBalance: welcomePolicy.welcomeBeans
                 }
             });
         }
@@ -366,6 +389,7 @@ router.post('/google/register', authLimiter, async (req, res) => {
             return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
         }
 
+        const welcomePolicy = getRegistrationWelcomePolicy();
         const user = await prisma.user.create({
             data: {
                 email,
@@ -378,7 +402,9 @@ router.post('/google/register', authLimiter, async (req, res) => {
                 gender,
                 favoriteCafe,
                 countryCode: countryCode || 'KR',
-                preferredLanguage: preferredLanguage || 'ko'
+                preferredLanguage: preferredLanguage || 'ko',
+                aiPrescriptionLimit: welcomePolicy.welcomeFreePrescriptions,
+                pointBalance: welcomePolicy.welcomeBeans
             }
         });
 
@@ -589,6 +615,7 @@ router.post('/apple/register', authLimiter, async (req, res) => {
             return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
         }
 
+        const welcomePolicy = getRegistrationWelcomePolicy();
         const user = await prisma.user.create({
             data: {
                 email: email || `${appleId}@apple.user.local`, // Apple might hide email
@@ -601,7 +628,9 @@ router.post('/apple/register', authLimiter, async (req, res) => {
                 gender,
                 favoriteCafe,
                 countryCode: countryCode || 'KR',
-                preferredLanguage: preferredLanguage || 'ko'
+                preferredLanguage: preferredLanguage || 'ko',
+                aiPrescriptionLimit: welcomePolicy.welcomeFreePrescriptions,
+                pointBalance: welcomePolicy.welcomeBeans
             }
         });
 
@@ -1016,6 +1045,7 @@ router.post('/naver/register', authLimiter, async (req, res) => {
             return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
         }
 
+        const welcomePolicy = getRegistrationWelcomePolicy();
         const user = await prisma.user.create({
             data: {
                 email: email || `${naverId}@naver.user.local`,
@@ -1029,7 +1059,9 @@ router.post('/naver/register', authLimiter, async (req, res) => {
                 gender,
                 favoriteCafe,
                 countryCode: countryCode || 'KR',
-                preferredLanguage: preferredLanguage || 'ko'
+                preferredLanguage: preferredLanguage || 'ko',
+                aiPrescriptionLimit: welcomePolicy.welcomeFreePrescriptions,
+                pointBalance: welcomePolicy.welcomeBeans
             }
         });
 
