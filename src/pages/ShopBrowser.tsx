@@ -1343,7 +1343,7 @@ Format EXACTLY like this example:
         const pivot = sortAnchor.current;
         combinedShops = combinedShops.filter(shop => {
             // AMNESTY FOR CURATOR MEMORY SHOPS: Never filter out curator recommended shops by distance!
-            if (shop.isMem || shop.id?.includes('curator') || shop.id?.includes('mem')) return true;
+            if (shop.isMem || shop.id?.includes('curator') || shop.id?.includes('mem') || (showFloatingList && !shop.isGeneric)) return true;
 
             const lat = typeof shop.lat === 'number' ? shop.lat : parseFloat(shop.lat as any) || 0;
             const lng = typeof shop.lng === 'number' ? shop.lng : parseFloat(shop.lng as any) || 0;
