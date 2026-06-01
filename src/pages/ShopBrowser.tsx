@@ -410,7 +410,7 @@ export default function ShopBrowser() {
                     // 개별 매장이 선택되어 하단 팝업이 활성화되었는지 여부에 따라 카메라 위도 보정값을 가변 적용합니다.
                     // (포커싱 활성화 시 하단 점유 스페이스가 늘어나므로 오프셋을 +0.0038로 컴팩트하게 축소하여 핀을 상단으로 올립니다.)
                     const adjustedLat = showFloatingList && searchedDbShops.length > 0
-                        ? (focusedShopId ? parsedLat + 0.0038 : parsedLat + 0.0105)
+                        ? (focusedShopId ? parsedLat + 0.0038 : parsedLat + 0.0078)
                         : parsedLat;
                         
                     setMapCenter([adjustedLat, parsedLng]);
@@ -1159,9 +1159,9 @@ export default function ShopBrowser() {
                 if (dbShops.length > 0) {
                     setShowFloatingList(true);
                     // 검색 리스트가 활성화되는 순간이므로 첫 번째 매장의 포커싱 및 
-                    // 리스트 아래 빈 지도 영역의 한가운데로 카메라 오프셋 보정(+0.0105)을 적용합니다.
+                    // 리스트 아래 빈 지도 영역의 한가운데로 카메라 오프셋 보정(+0.0078)을 적용합니다.
                     if (centerToUse && centerToUse.length >= 2) {
-                        centerToUse = [centerToUse[0] + 0.0105, centerToUse[1]];
+                        centerToUse = [centerToUse[0] + 0.0078, centerToUse[1]];
                     }
                 } else {
                     setShowFloatingList(false);
