@@ -439,7 +439,20 @@ Randomization Seed: ${Math.random() * Date.now()}`;
       if (localStorage.getItem('token')) {
         fetch(`${API_BASE}/api/users/ai-usage`, {
           method: 'POST', headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        }).catch(e => console.warn(e));
+        })
+        .then(async (res) => {
+          if (res.ok) {
+            const meRes = await fetch(`${API_BASE}/api/users/me`, {
+              headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            if (meRes.ok) {
+              const meData = await meRes.json();
+              localStorage.setItem('user', JSON.stringify(meData));
+              clearHomeCache();
+            }
+          }
+        })
+        .catch(e => console.warn(e));
       } else {
         const vId = localStorage.getItem('visitor_id');
         if (vId) {
