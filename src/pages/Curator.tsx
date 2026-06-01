@@ -246,6 +246,50 @@ export default function App() {
   }, [step, recommendation, prefs.flavorNotes, i18n.language]);
 
   const startSurvey = () => { setDirection(1); setStep(1); };
+  
+  const handleStartClick = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      startSurvey();
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/users/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error("Failed to fetch user");
+      
+      const user = await res.json();
+      const aiUsageCount = user.aiUsageCount || 0;
+      const aiPrescriptionLimit = user.aiPrescriptionLimit || 0;
+      const pointBalance = user.pointBalance || 0;
+
+      const cost = 100;
+
+      const hasFreeLimitExceeded = aiUsageCount >= aiPrescriptionLimit;
+
+      if (hasFreeLimitExceeded) {
+        if (pointBalance < cost) {
+          alert("보유한 커피콩(포인트)이 부족하여 AI 추천을 진행할 수 없습니다.");
+          return;
+        }
+
+        const confirmProceed = window.confirm(
+          `무료 추천받기가 모두 소진되었습니다. 커피콩(${cost}콩)을 사용하여 AI 추천을 진행하시겠습니까?`
+        );
+
+        if (!confirmProceed) {
+          return;
+        }
+      }
+      
+      startSurvey();
+    } catch (error) {
+      console.error("Failed to check start eligibility:", error);
+      startSurvey();
+    }
+  };
   const nextStep = () => { setDirection(1); setStep(prev => prev + 1); };
   const prevStep = () => { setDirection(-1); setStep(prev => prev - 1); };
 
@@ -401,7 +445,7 @@ export default function App() {
                 <GlobalAdBanner placement="HOME_HERO" className="mb-6 max-w-xs md:max-w-md mx-auto w-full" />
                 
                 <div className="w-full max-w-xs md:max-w-sm flex flex-col gap-3">
-                  <button onClick={startSurvey} className="bg-gradient-to-r from-amber-500 to-blue-500 text-espresso-50 w-full text-lg font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] py-5 rounded-2xl active:scale-95 transition-transform uppercase tracking-widest">
+                  <button onClick={handleStartClick} className="bg-gradient-to-r from-amber-500 to-blue-500 text-espresso-50 w-full text-lg font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] py-5 rounded-2xl active:scale-95 transition-transform uppercase tracking-widest">
                     {t('curator.intro_start') || "START"}
                   </button>
                   
