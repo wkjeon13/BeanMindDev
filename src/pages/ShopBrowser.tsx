@@ -398,7 +398,14 @@ export default function ShopBrowser() {
                 
                 if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
                     isAutoPanningRef.current = true;
-                    setMapCenter([parsedLat, parsedLng]);
+                    
+                    // 2단계: 상단 리스트가 열린 추천 매장 검색 결과 상태라면, 
+                    // 핀이 오버레이 상자 아래의 지도의 중간(가용 화면 정중앙)에 오도록 북쪽으로 위도 카메라 오프셋 보정(+0.0045)을 적용합니다.
+                    const adjustedLat = showFloatingList && searchedDbShops.length > 0
+                        ? parsedLat + 0.0045
+                        : parsedLat;
+                        
+                    setMapCenter([adjustedLat, parsedLng]);
                     
                     lastPannedShopId.current = focusedShopId;
                     
@@ -408,7 +415,7 @@ export default function ShopBrowser() {
                 }
             }
         }
-    }, [focusedShopId, sourceFilter, shops, aiShops]); // Deliberately lightweight dep array
+    }, [focusedShopId, sourceFilter, shops, aiShops, showFloatingList, searchedDbShops]); // Deliberately lightweight dep array
 
         // Save persist state continuously
     useEffect(() => {
@@ -920,6 +927,21 @@ export default function ShopBrowser() {
             alert(t('map.bookmark_fail'));
         }
     };
+
+    const handleSliderScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+        const container = e.currentTarget;
+        const scrollLeft = container.scrollLeft;
+        const cardWidth = 252; // 카드 w-[240px] + gap-3(12px) = 252px
+        
+        const activeIndex = Math.round(scrollLeft / cardWidth);
+        if (activeIndex >= 0 && activeIndex < searchedDbShops.length) {
+            const activeShop = searchedDbShops[activeIndex];
+            if (activeShop && activeShop.id !== focusedShopId && !isAutoPanningRef.current) {
+                setFocusedShopId(activeShop.id);
+                setSearchedShopId(activeShop.id);
+            }
+        }
+    }, [searchedDbShops, focusedShopId]);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -1495,7 +1517,11 @@ Format EXACTLY like this example:
                                 <X size={12} />
                             </button>
                         </div>
-                        <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-none" style={{ WebkitOverflowScrolling: 'touch' }}>
+                        <div 
+                            onScroll={handleSliderScroll}
+                            className="flex gap-3 overflow-x-auto pb-1 scrollbar-none" 
+                            style={{ WebkitOverflowScrolling: 'touch' }}
+                        >
                             {searchedDbShops.map((shop: any) => {
                                 let mainImageSrc = shop.markerImageUrl || shop.mainImageUrl;
                                 if (typeof mainImageSrc === 'string' && mainImageSrc.startsWith('[')) {
