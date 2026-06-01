@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Bell } from 'lucide-react';
+import { Bell, X } from 'lucide-react';
 import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
 import { useTranslation } from 'react-i18next';
 
@@ -76,8 +76,17 @@ export default function SystemNoticePopup() {
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.98, opacity: 0, y: -15 }}
                         transition={{ type: "tween", duration: 0.2, ease: "easeOut" }}
-                        className="w-full max-w-[320px] bg-[#1a1a1a] border border-white/10 rounded-2xl p-5 flex flex-col shadow-2xl"
+                        className="relative w-full max-w-[320px] max-h-[80dvh] bg-[#1a1a1a] border border-white/10 rounded-2xl p-5 flex flex-col shadow-2xl"
                     >
+                        {/* 3단계: 우측 상단 플로팅 X 닫기 버튼 */}
+                        <button 
+                            onClick={handleClose}
+                            className="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors p-1 bg-white/5 hover:bg-white/10 rounded-full z-10"
+                            title={t('system_notice.btn_close', '닫기')}
+                        >
+                            <X size={16} />
+                        </button>
+
                         {/* Header */}
                         <div className="flex items-center justify-center gap-2 mb-4 shrink-0 select-none">
                             <Bell className="w-5 h-5 text-white stroke-[1.5]" />
