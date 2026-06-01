@@ -108,6 +108,8 @@ export default function ShopBrowser() {
     
     const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem('bm_search_query') || '');
     const [isSearching, setIsSearching] = useState(false);
+    const [searchedDbShops, setSearchedDbShops] = useState<any[]>([]);
+    const [showFloatingList, setShowFloatingList] = useState(false);
     const [isCourseMode, setIsCourseMode] = useState(() => {
         const urlParams = new URLSearchParams(location.search);
         return !!urlParams.get('courseId');
@@ -528,6 +530,8 @@ export default function ShopBrowser() {
 
     const locateUser = async () => {
         setIsCourseMode(false);
+        setShowFloatingList(false);
+        setSearchedDbShops([]);
         try { navigate(location.pathname, { replace: true }); } catch (e) {}
         setIsLocating(true);
 
@@ -1109,6 +1113,33 @@ export default function ShopBrowser() {
             sortAnchor.current = centerToUse; // Update the stable sort anchor on active search!
             // DO NOT immediately fire mapBounds effect; let the animation end via SharedCoffeeMap pan bounds.
             
+            // 2단계: DB 추천 매장만 필터링 및 현재 위치(또는 검색 위치) 기준 거리순 정렬
+            const anchor = userLocation || centerToUse || mapCenter;
+            if (anchor && Array.isArray(anchor) && anchor.length >= 2) {
+                const dbShops = finalShops
+                    .filter((s: any) => !s.isGeneric && s.lat && s.lng)
+                    .map((s: any) => {
+                        const dist = getDistanceFromLatLonInKm(
+                            anchor[0],
+                            anchor[1],
+                            parseFloat(s.lat),
+                            parseFloat(s.lng)
+                        );
+                        return { ...s, distanceInKm: dist };
+                    })
+                    .sort((a: any, b: any) => a.distanceInKm - b.distanceInKm);
+                
+                setSearchedDbShops(dbShops);
+                if (dbShops.length > 0) {
+                    setShowFloatingList(true);
+                } else {
+                    setShowFloatingList(false);
+                }
+            } else {
+                setSearchedDbShops([]);
+                setShowFloatingList(false);
+            }
+
             // Always trigger AI search for the region even if local DB returned 0 shops.
             // If OSM failed too, centerToUse relies on the AI reverse-centering.
             const isOsmFailure = !foundTextMatch && centerToUse === mapCenter;
@@ -1417,6 +1448,8 @@ Format EXACTLY like this example:
                                 onClick={(e) => {
                                     e.preventDefault();
                                     setSearchQuery('');
+                                    setShowFloatingList(false);
+                                    setSearchedDbShops([]);
                                     locateUser();
                                 }}
                                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-espresso-400 hover:text-amber-500 transition-colors p-1 bg-espresso-800/50 rounded-full"
@@ -1441,8 +1474,88 @@ Format EXACTLY like this example:
                         80%+ Match
                     </button>
                     
-
                 </div>
+
+                {/* 3단계 & 4단계: 검색된 DB 추천 매장 플로팅 가로 슬라이더 리스트 */}
+                {showFloatingList && searchedDbShops.length > 0 && (
+                    <div className="absolute top-[135px] left-6 right-6 bg-[#18181b]/95 backdrop-blur-md border border-amber-500/20 rounded-2xl p-4 shadow-2xl z-[1000] animate-in fade-in slide-in-from-top-4 duration-300 pointer-events-auto">
+                        <div className="flex justify-between items-center mb-3">
+                            <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[14px]">
+                                <Sparkles size={14} className="animate-pulse" />
+                                <span>{t('map.curator_recommend', 'BeanMind 추천 매장')}</span>
+                                <span className="bg-amber-500/10 text-amber-400 text-[10px] px-1.5 py-0.5 rounded-md ml-1">{searchedDbShops.length}</span>
+                            </div>
+                            <button 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowFloatingList(false);
+                                }}
+                                className="text-espresso-400 hover:text-espresso-200 transition-colors p-1 bg-espresso-800/30 rounded-full"
+                            >
+                                <X size={12} />
+                            </button>
+                        </div>
+                        <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-none" style={{ WebkitOverflowScrolling: 'touch' }}>
+                            {searchedDbShops.map((shop: any) => {
+                                let mainImageSrc = shop.markerImageUrl || shop.mainImageUrl;
+                                if (typeof mainImageSrc === 'string' && mainImageSrc.startsWith('[')) {
+                                    try { mainImageSrc = JSON.parse(mainImageSrc)[0]; } catch(e){}
+                                }
+                                if (!mainImageSrc) mainImageSrc = 'https://images.unsplash.com/photo-1554118811-1e0d58224f24';
+                                
+                                const distanceText = shop.distanceInKm !== undefined 
+                                    ? (shop.distanceInKm < 1 
+                                        ? `${Math.round(shop.distanceInKm * 1000)}m` 
+                                        : `${shop.distanceInKm.toFixed(1)}km`)
+                                    : '';
+
+                                return (
+                                    <div 
+                                        key={`floating-${shop.id}`}
+                                        onClick={() => {
+                                            if (shop.lat && shop.lng) {
+                                                const latVal = parseFloat(shop.lat);
+                                                const lngVal = parseFloat(shop.lng);
+                                                setMapCenter([latVal, lngVal]);
+                                                setFocusedShopId(shop.id);
+                                                setSearchedShopId(shop.id);
+                                                setSelectedShop(shop);
+                                                setIsDetailModalOpen(true);
+                                                setShowFloatingList(false); // 터치 시 닫기
+                                            }
+                                        }}
+                                        className="flex-shrink-0 w-[240px] bg-[#242429]/60 border border-white/5 rounded-xl p-2.5 cursor-pointer active:scale-[0.98] transition-all hover:bg-[#242429]/95 flex flex-col gap-2 pointer-events-auto"
+                                    >
+                                        <div className="relative w-full h-[100px] rounded-lg overflow-hidden bg-espresso-950">
+                                            <img 
+                                                src={getFullImageUrl(mainImageSrc)} 
+                                                alt={shop.name} 
+                                                className="w-full h-full object-cover" 
+                                            />
+                                            <div className="absolute top-1.5 right-1.5 bg-amber-500 text-espresso-950 px-1.5 py-0.5 rounded-md text-[8px] font-black whitespace-nowrap shadow-sm border border-amber-300 flex items-center gap-0.5">
+                                                <span>🏆</span>
+                                                <span>Curator Pick</span>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col text-left">
+                                            <h4 className="font-bold text-[13px] text-espresso-50 truncate mb-0.5">{shop.name}</h4>
+                                            <div className="flex items-center justify-between text-[11px]">
+                                                <div className="flex items-center gap-1 text-amber-500 font-bold">
+                                                    <span>★</span>
+                                                    <span>{shop.averageRating?.toFixed(1) || '0.0'}</span>
+                                                    <span className="text-espresso-400 font-normal">({shop.reviewCount || 0})</span>
+                                                </div>
+                                                {distanceText && (
+                                                    <span className="text-amber-400 font-semibold">{distanceText}</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
             </header>
 
             <div className={`flex-1 relative overflow-hidden block bg-espresso-950 transition-none`}>
@@ -1484,7 +1597,10 @@ Format EXACTLY like this example:
                         isLocating={isLocating}
                         isCourseMode={isCourseMode}
                         onMapClick={handleMapClick}
-                        onMapInteraction={() => setFocusedShopId(null)}
+                        onMapInteraction={() => {
+                            setFocusedShopId(null);
+                            setShowFloatingList(false);
+                        }}
                     />
 
                     {/* Floating AI Auto Extract Toggle Button */}
