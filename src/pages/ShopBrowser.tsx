@@ -375,11 +375,15 @@ export default function ShopBrowser() {
     const isAutoPanningRef = React.useRef(false);
     const autoPanTimerRef = React.useRef<any>(null);
     const lastPannedShopId = React.useRef<string | null>(null);
+    const lastShowFloatingListRef = React.useRef(showFloatingList);
 
     // Auto-pan map when a new shop becomes focused via scroll or click
     useEffect(() => {
+        const showFloatingListChanged = lastShowFloatingListRef.current !== showFloatingList;
+        lastShowFloatingListRef.current = showFloatingList;
+
         // If we already panned to this exact shop, do not pan again just because 'shops' array updated (e.g. from user dragging the map)
-        if (focusedShopId && focusedShopId === lastPannedShopId.current) return;
+        if (focusedShopId && focusedShopId === lastPannedShopId.current && !showFloatingListChanged) return;
         
         if (!focusedShopId) {
             lastPannedShopId.current = null;
@@ -403,9 +407,9 @@ export default function ShopBrowser() {
                     isAutoPanningRef.current = true;
                     
                     // 2단계: 상단 리스트가 열린 추천 매장 검색 결과 상태라면, 
-                    // 핀이 오버레이 상자 아래의 지도의 중간(가용 화면 정중앙)에 오도록 북쪽으로 위도 카메라 오프셋 보정(+0.0045)을 적용합니다.
+                    // 핀이 오버레이 상자 아래의 지도의 중간(가용 화면 정중앙)에 오도록 북쪽으로 위도 카메라 오프셋 보정(+0.0068)을 적용합니다.
                     const adjustedLat = showFloatingList && searchedDbShops.length > 0
-                        ? parsedLat + 0.0045
+                        ? parsedLat + 0.0068
                         : parsedLat;
                         
                     setMapCenter([adjustedLat, parsedLng]);
@@ -1506,91 +1510,6 @@ Format EXACTLY like this example:
                     
                 </div>
 
-                {/* 3단계 & 4단계: 검색된 DB 추천 매장 플로팅 가로 슬라이더 리스트 */}
-                {showFloatingList && searchedDbShops.length > 0 && (
-                    <div className="absolute top-[135px] left-6 right-6 bg-[#18181b]/95 backdrop-blur-md border border-amber-500/20 rounded-2xl p-4 shadow-2xl z-[1000] animate-in fade-in slide-in-from-top-4 duration-300 pointer-events-auto">
-                        <div className="flex justify-between items-center mb-3">
-                            <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[14px]">
-                                <Sparkles size={14} className="animate-pulse" />
-                                <span>{t('map.curator_recommend', 'BeanMind 추천 매장')}</span>
-                                <span className="bg-amber-500/10 text-amber-400 text-[10px] px-1.5 py-0.5 rounded-md ml-1">{searchedDbShops.length}</span>
-                            </div>
-                            <button 
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowFloatingList(false);
-                                }}
-                                className="text-espresso-400 hover:text-espresso-200 transition-colors p-1 bg-espresso-800/30 rounded-full"
-                            >
-                                <X size={12} />
-                            </button>
-                        </div>
-                        <div 
-                            onScroll={handleSliderScroll}
-                            className="flex gap-3 overflow-x-auto pb-1 scrollbar-none" 
-                            style={{ WebkitOverflowScrolling: 'touch' }}
-                        >
-                            {searchedDbShops.map((shop: any) => {
-                                let mainImageSrc = shop.markerImageUrl || shop.mainImageUrl;
-                                if (typeof mainImageSrc === 'string' && mainImageSrc.startsWith('[')) {
-                                    try { mainImageSrc = JSON.parse(mainImageSrc)[0]; } catch(e){}
-                                }
-                                if (!mainImageSrc) mainImageSrc = 'https://images.unsplash.com/photo-1554118811-1e0d58224f24';
-                                
-                                const distanceText = shop.distanceInKm !== undefined 
-                                    ? (shop.distanceInKm < 1 
-                                        ? `${Math.round(shop.distanceInKm * 1000)}m` 
-                                        : `${shop.distanceInKm.toFixed(1)}km`)
-                                    : '';
-
-                                return (
-                                    <div 
-                                        key={`floating-${shop.id}`}
-                                        onClick={() => {
-                                            if (shop.lat && shop.lng) {
-                                                const latVal = parseFloat(shop.lat);
-                                                const lngVal = parseFloat(shop.lng);
-                                                
-                                                // 리스트 박스에 가려지지 않도록 카메라 위도를 북쪽(+0.0045)으로 정교하게 보정
-                                                const adjustedLat = latVal + 0.0045;
-                                                
-                                                setMapCenter([adjustedLat, lngVal]);
-                                                setFocusedShopId(shop.id);
-                                                setSearchedShopId(shop.id);
-                                            }
-                                        }}
-                                        className="flex-shrink-0 w-[240px] bg-[#242429]/60 border border-white/5 rounded-xl p-2.5 cursor-pointer active:scale-[0.98] transition-all hover:bg-[#242429]/95 flex flex-col gap-2 pointer-events-auto"
-                                    >
-                                        <div className="relative w-full h-[100px] rounded-lg overflow-hidden bg-espresso-950">
-                                            <img 
-                                                src={getFullImageUrl(mainImageSrc)} 
-                                                alt={shop.name} 
-                                                className="w-full h-full object-cover" 
-                                            />
-                                            <div className="absolute top-1.5 right-1.5 bg-amber-500 text-espresso-950 px-1.5 py-0.5 rounded-md text-[8px] font-black whitespace-nowrap shadow-sm border border-amber-300 flex items-center gap-0.5">
-                                                <span>🏆</span>
-                                                <span>Curator Pick</span>
-                                            </div>
-                                        </div>
-                                        <div className="flex flex-col text-left">
-                                            <h4 className="font-bold text-[13px] text-espresso-50 truncate mb-0.5">{shop.name}</h4>
-                                            <div className="flex items-center justify-between text-[11px]">
-                                                <div className="flex items-center gap-1 text-amber-500 font-bold">
-                                                    <span>★</span>
-                                                    <span>{shop.averageRating?.toFixed(1) || '0.0'}</span>
-                                                    <span className="text-espresso-400 font-normal">({shop.reviewCount || 0})</span>
-                                                </div>
-                                                {distanceText && (
-                                                    <span className="text-amber-400 font-semibold">{distanceText}</span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </div>
-                )}
             </header>
 
             <div className={`flex-1 relative overflow-hidden block bg-espresso-950 transition-none`}>
@@ -1637,6 +1556,92 @@ Format EXACTLY like this example:
                             setShowFloatingList(false);
                         }}
                     />
+
+                    {/* 3단계 & 4단계: 검색된 DB 추천 매장 플로팅 가로 슬라이더 리스트 */}
+                    {showFloatingList && searchedDbShops.length > 0 && (
+                        <div className="absolute top-4 left-4 right-4 bg-[#18181b]/95 backdrop-blur-md border border-amber-500/20 rounded-2xl p-4 shadow-2xl z-[40] animate-in fade-in slide-in-from-top-4 duration-300 pointer-events-auto">
+                            <div className="flex justify-between items-center mb-3">
+                                <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[14px]">
+                                    <Sparkles size={14} className="animate-pulse" />
+                                    <span>{t('map.curator_recommend', 'BeanMind 추천 매장')}</span>
+                                    <span className="bg-amber-500/10 text-amber-400 text-[10px] px-1.5 py-0.5 rounded-md ml-1">{searchedDbShops.length}</span>
+                                </div>
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowFloatingList(false);
+                                    }}
+                                    className="text-espresso-400 hover:text-espresso-200 transition-colors p-1 bg-espresso-800/30 rounded-full"
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                            <div 
+                                onScroll={handleSliderScroll}
+                                className="flex gap-3 overflow-x-auto pb-1 scrollbar-none" 
+                                style={{ WebkitOverflowScrolling: 'touch' }}
+                            >
+                                {searchedDbShops.map((shop: any) => {
+                                    let mainImageSrc = shop.markerImageUrl || shop.mainImageUrl;
+                                    if (typeof mainImageSrc === 'string' && mainImageSrc.startsWith('[')) {
+                                        try { mainImageSrc = JSON.parse(mainImageSrc)[0]; } catch(e){}
+                                    }
+                                    if (!mainImageSrc) mainImageSrc = 'https://images.unsplash.com/photo-1554118811-1e0d58224f24';
+                                    
+                                    const distanceText = shop.distanceInKm !== undefined 
+                                        ? (shop.distanceInKm < 1 
+                                            ? `${Math.round(shop.distanceInKm * 1000)}m` 
+                                            : `${shop.distanceInKm.toFixed(1)}km`)
+                                        : '';
+
+                                    return (
+                                        <div 
+                                            key={`floating-${shop.id}`}
+                                            onClick={() => {
+                                                if (shop.lat && shop.lng) {
+                                                    const latVal = parseFloat(shop.lat);
+                                                    const lngVal = parseFloat(shop.lng);
+                                                    
+                                                    // 리스트 박스에 가려지지 않도록 카메라 위도를 북쪽(+0.0068)으로 정교하게 보정
+                                                    const adjustedLat = latVal + 0.0068;
+                                                    
+                                                    setMapCenter([adjustedLat, lngVal]);
+                                                    setFocusedShopId(shop.id);
+                                                    setSearchedShopId(shop.id);
+                                                }
+                                            }}
+                                            className="flex-shrink-0 w-[240px] bg-[#242429]/60 border border-white/5 rounded-xl p-2.5 cursor-pointer active:scale-[0.98] transition-all hover:bg-[#242429]/95 flex flex-col gap-2 pointer-events-auto"
+                                        >
+                                            <div className="relative w-full h-[100px] rounded-lg overflow-hidden bg-espresso-950">
+                                                <img 
+                                                    src={getFullImageUrl(mainImageSrc)} 
+                                                    alt={shop.name} 
+                                                    className="w-full h-full object-cover" 
+                                                />
+                                                <div className="absolute top-1.5 right-1.5 bg-amber-500 text-espresso-950 px-1.5 py-0.5 rounded-md text-[8px] font-black whitespace-nowrap shadow-sm border border-amber-300 flex items-center gap-0.5">
+                                                    <span>🏆</span>
+                                                    <span>Curator Pick</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col text-left">
+                                                <h4 className="font-bold text-[13px] text-espresso-50 truncate mb-0.5">{shop.name}</h4>
+                                                <div className="flex items-center justify-between text-[11px]">
+                                                    <div className="flex items-center gap-1 text-amber-500 font-bold">
+                                                        <span>★</span>
+                                                        <span>{shop.averageRating?.toFixed(1) || '0.0'}</span>
+                                                        <span className="text-espresso-400 font-normal">({shop.reviewCount || 0})</span>
+                                                    </div>
+                                                    {distanceText && (
+                                                        <span className="text-amber-400 font-semibold">{distanceText}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Floating AI Auto Extract Toggle Button */}
                     {!isCourseMode && (
