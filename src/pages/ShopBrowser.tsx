@@ -407,9 +407,9 @@ export default function ShopBrowser() {
                     isAutoPanningRef.current = true;
                     
                     // 2단계: 상단 리스트가 열린 추천 매장 검색 결과 상태라면, 
-                    // 핀이 오버레이 상자 아래의 지도의 중간(가용 화면 정중앙)에 오도록 북쪽으로 위도 카메라 오프셋 보정(+0.0068)을 적용합니다.
+                    // 핀이 오버레이 상자 아래의 지도의 중간(가용 화면 정중앙)에 오도록 북쪽으로 위도 카메라 오프셋 보정(+0.0105)을 적용합니다.
                     const adjustedLat = showFloatingList && searchedDbShops.length > 0
-                        ? parsedLat + 0.0068
+                        ? parsedLat + 0.0105
                         : parsedLat;
                         
                     setMapCenter([adjustedLat, parsedLng]);
@@ -1602,8 +1602,8 @@ Format EXACTLY like this example:
                                                     const latVal = parseFloat(shop.lat);
                                                     const lngVal = parseFloat(shop.lng);
                                                     
-                                                    // 리스트 박스에 가려지지 않도록 카메라 위도를 북쪽(+0.0068)으로 정교하게 보정
-                                                    const adjustedLat = latVal + 0.0068;
+                                                    // 리스트 박스에 가려지지 않도록 카메라 위도를 북쪽(+0.0105)으로 정교하게 보정
+                                                    const adjustedLat = latVal + 0.0105;
                                                     
                                                     setMapCenter([adjustedLat, lngVal]);
                                                     setFocusedShopId(shop.id);
