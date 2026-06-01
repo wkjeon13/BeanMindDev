@@ -35,6 +35,24 @@ export default function App() {
   const [showLimitWarning, setShowLimitWarning] = useState(false);
   const [hideLimitWarningNextTime, setHideLimitWarningNextTime] = useState(false);
   const [prescriptionTitle, setPrescriptionTitle] = useState('');
+  
+  // Custom Confirm/Alert Modal States for Premium Aesthetic
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [confirmModalMessage, setConfirmModalMessage] = useState('');
+  const [alertModalMessage, setAlertModalMessage] = useState('');
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
+
+  const triggerConfirm = (message: string, onConfirm: () => void) => {
+    setConfirmModalMessage(message);
+    setConfirmAction(() => onConfirm);
+    setShowConfirmModal(true);
+  };
+
+  const triggerAlert = (message: string) => {
+    setAlertModalMessage(message);
+    setShowAlertModal(true);
+  };
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Handle startFresh navigation state
@@ -271,17 +289,17 @@ export default function App() {
 
       if (hasFreeLimitExceeded) {
         if (pointBalance < cost) {
-          alert("보유한 커피콩(포인트)이 부족하여 AI 추천을 진행할 수 없습니다.");
+          triggerAlert("보유한 커피콩(포인트)이 부족하여 AI 추천을 진행할 수 없습니다.");
           return;
         }
 
-        const confirmProceed = window.confirm(
-          `무료 추천받기가 모두 소진되었습니다. 커피콩(${cost}콩)을 사용하여 AI 추천을 진행하시겠습니까?`
+        triggerConfirm(
+          `무료 추천받기가 모두 소진되었습니다. 커피콩(${cost}콩)을 사용하여 AI 추천을 진행하시겠습니까?`,
+          () => {
+            startSurvey();
+          }
         );
-
-        if (!confirmProceed) {
-          return;
-        }
+        return;
       }
       
       startSurvey();
@@ -1176,6 +1194,80 @@ export default function App() {
                     }
                     setShowLimitWarning(false);
                   }}
+                  className="w-full py-4 rounded-[1.25rem] font-bold text-[15px] letter-spacing-wide text-espresso-50 bg-espresso-800 border-2 border-espresso-600 hover:bg-espresso-700 hover:border-espresso-500 active:scale-95 transition-all"
+                >
+                  확인
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+        {/* Custom Premium confirm Modal (BeanMind Design) */}
+        {showConfirmModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-espresso-950/60 backdrop-blur-sm flex items-center justify-center p-4 px-6"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+              className="bg-espresso-900 border border-espresso-700 w-full max-w-sm rounded-[2rem] p-6 shadow-xl shadow-black/40 flex flex-col relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-600/5 to-fuchsia-500/5 pointer-events-none" />
+              
+              <div className="w-12 h-12 bg-amber-500/20 rounded-full flex items-center justify-center mb-4 relative z-10 border border-amber-500/30">
+                <Coffee size={24} className="text-amber-500" />
+              </div>
+              
+              <h3 className="text-xl font-serif font-bold text-espresso-50 mb-3 relative z-10 drop-shadow-sm">AI 추천 이용 안내</h3>
+              <p className="text-[14px] text-espresso-200 mb-6 leading-relaxed relative z-10 break-keep">
+                {confirmModalMessage}
+              </p>
+
+              <div className="flex gap-3 relative z-10">
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  className="flex-1 py-3.5 rounded-[1.25rem] font-bold text-[14px] text-espresso-200 bg-espresso-800/50 border border-espresso-600 hover:bg-espresso-800 hover:text-espresso-50 transition-all active:scale-95"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={() => {
+                    setShowConfirmModal(false);
+                    if (confirmAction) confirmAction();
+                  }}
+                  className="flex-[2] py-3.5 rounded-[1.25rem] font-bold text-[14px] text-espresso-50 bg-gradient-to-r from-amber-700 to-blue-600 hover:to-blue-500 transition-all active:scale-95 flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,211,238,0.2)]"
+                >
+                  확인
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Custom Premium Alert Modal (BeanMind Design) */}
+        {showAlertModal && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[200] bg-espresso-950/60 backdrop-blur-sm flex items-center justify-center p-4 px-6"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+              className="bg-espresso-900 border border-espresso-700 w-full max-w-sm rounded-[2rem] p-6 shadow-xl shadow-black/40 flex flex-col relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-600/5 to-fuchsia-500/5 pointer-events-none" />
+              
+              <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center mb-4 relative z-10 border border-red-500/30">
+                <Info size={24} className="text-red-500" />
+              </div>
+              
+              <h3 className="text-xl font-serif font-bold text-espresso-50 mb-3 relative z-10 drop-shadow-sm">알림</h3>
+              <p className="text-[14px] text-espresso-200 mb-6 leading-relaxed relative z-10 break-keep">
+                {alertModalMessage}
+              </p>
+
+              <div className="flex relative z-10">
+                <button
+                  onClick={() => setShowAlertModal(false)}
                   className="w-full py-4 rounded-[1.25rem] font-bold text-[15px] letter-spacing-wide text-espresso-50 bg-espresso-800 border-2 border-espresso-600 hover:bg-espresso-700 hover:border-espresso-500 active:scale-95 transition-all"
                 >
                   확인
