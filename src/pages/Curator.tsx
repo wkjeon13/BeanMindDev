@@ -273,26 +273,25 @@ export default function App() {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/users/me`, {
+      const res = await fetch(`${API_BASE}/api/users/ai-eligibility`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (!res.ok) throw new Error("Failed to fetch user");
       
-      const user = await res.json();
-      const aiUsageCount = user.aiUsageCount || 0;
-      const aiPrescriptionLimit = user.aiPrescriptionLimit || 0;
-      const pointBalance = user.pointBalance || 0;
-
-      const cost = 100;
+      if (res.status === 403) {
+        triggerAlert("보유한 커피콩(포인트)이 부족하여 AI 추천을 진행할 수 없습니다.");
+        return;
+      }
+      
+      if (!res.ok) throw new Error("Failed to check AI eligibility");
+      
+      const data = await res.json();
+      const cost = data.cost || 100;
+      const aiUsageCount = data.current || 0;
+      const aiPrescriptionLimit = data.limit || 0;
 
       const hasFreeLimitExceeded = aiUsageCount >= aiPrescriptionLimit;
 
       if (hasFreeLimitExceeded) {
-        if (pointBalance < cost) {
-          triggerAlert("보유한 커피콩(포인트)이 부족하여 AI 추천을 진행할 수 없습니다.");
-          return;
-        }
-
         triggerConfirm(
           `무료 추천받기가 모두 소진되었습니다. 커피콩(${cost}콩)을 사용하여 AI 추천을 진행하시겠습니까?`,
           () => {

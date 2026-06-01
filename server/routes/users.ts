@@ -288,7 +288,12 @@ router.get('/ai-eligibility', authenticateToken, async (req: any, res: any) => {
              });
         }
         
-        res.status(200).json({ eligible: true });
+        res.status(200).json({ 
+            eligible: true,
+            cost: prescriptionCost,
+            current: userDb.aiUsageCount,
+            limit: userDb.aiPrescriptionLimit
+        });
     } catch (error) {
         console.error("AI eligibility check error:", error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
