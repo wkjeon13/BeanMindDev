@@ -328,6 +328,9 @@ export default function ShopBrowser() {
     };
 
     const handleFeedScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        // 상단 가로 슬라이더 검색 결과 오버레이가 활성화되어 있는 동안에는 세로 피드 스크롤 간섭 완전 차단
+        if (showFloatingList) return;
+        
         // Prevent layout shifts (virtual keyboard dismiss, DOM mount) from hijacking the map bounds
         if (Date.now() - userInteractionRef.current > 1000) return;
 
@@ -1130,13 +1133,9 @@ export default function ShopBrowser() {
             // DEBUG ALERT for Android network policies
             alert(t('map.error_region_fetch') + err.message);
         } finally {
-            setShops(finalShops); // Clear previous shops if none found, or display new ones
-            setMapCenter(centerToUse);
-            sortAnchor.current = centerToUse; // Update the stable sort anchor on active search!
-            // DO NOT immediately fire mapBounds effect; let the animation end via SharedCoffeeMap pan bounds.
-            
-            // 2단계: DB 추천 매장만 필터링 및 현재 위치(또는 검색 위치) 기준 거리순 정렬
             const anchor = userLocation || centerToUse || mapCenter;
+            let sortedFinalShops = [...finalShops];
+            
             if (anchor && Array.isArray(anchor) && anchor.length >= 2) {
                 const dbShops = finalShops
                     .filter((s: any) => !s.isGeneric && s.lat && s.lng)
@@ -1157,10 +1156,19 @@ export default function ShopBrowser() {
                 } else {
                     setShowFloatingList(false);
                 }
+                
+                // 지도의 핀도 슬라이더의 거리순 정렬과 100% 똑같은 순서로 배치하여 핀과 리스트 인덱스 동기화를 보장합니다!
+                const genericShops = finalShops.filter((s: any) => s.isGeneric);
+                sortedFinalShops = [...dbShops, ...genericShops];
             } else {
                 setSearchedDbShops([]);
                 setShowFloatingList(false);
             }
+
+            setShops(sortedFinalShops); 
+            setMapCenter(centerToUse);
+            sortAnchor.current = centerToUse; // Update the stable sort anchor on active search!
+            // DO NOT immediately fire mapBounds effect; let the animation end via SharedCoffeeMap pan bounds.
 
             // Always trigger AI search for the region even if local DB returned 0 shops.
             // If OSM failed too, centerToUse relies on the AI reverse-centering.
@@ -1542,12 +1550,13 @@ Format EXACTLY like this example:
                                             if (shop.lat && shop.lng) {
                                                 const latVal = parseFloat(shop.lat);
                                                 const lngVal = parseFloat(shop.lng);
-                                                setMapCenter([latVal, lngVal]);
+                                                
+                                                // 리스트 박스에 가려지지 않도록 카메라 위도를 북쪽(+0.0045)으로 정교하게 보정
+                                                const adjustedLat = latVal + 0.0045;
+                                                
+                                                setMapCenter([adjustedLat, lngVal]);
                                                 setFocusedShopId(shop.id);
                                                 setSearchedShopId(shop.id);
-                                                setSelectedShop(shop);
-                                                setIsDetailModalOpen(true);
-                                                setShowFloatingList(false); // 터치 시 닫기
                                             }
                                         }}
                                         className="flex-shrink-0 w-[240px] bg-[#242429]/60 border border-white/5 rounded-xl p-2.5 cursor-pointer active:scale-[0.98] transition-all hover:bg-[#242429]/95 flex flex-col gap-2 pointer-events-auto"
