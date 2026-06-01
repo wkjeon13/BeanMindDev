@@ -251,15 +251,30 @@ router.put('/prescriptions/:id/rating', authenticateToken, async (req: any, res:
     }
 });
 
+const POLICY_FILE = path.join(process.cwd(), 'data', 'policy.json');
+
+const getPointPolicy = () => {
+    try {
+        if (!fs.existsSync(POLICY_FILE)) {
+            return { welcomeFreePrescriptions: 3, prescriptionCost: 100 };
+        }
+        const data = fs.readFileSync(POLICY_FILE, 'utf-8');
+        return JSON.parse(data);
+    } catch (error) {
+        return { welcomeFreePrescriptions: 3, prescriptionCost: 100 };
+    }
+};
+
 // GET: Check if user is eligible to use AI (has free tokens or enough points)
 router.get('/ai-eligibility', authenticateToken, async (req: any, res: any) => {
     try {
         const userId = req.user.id;
         const userDb = await prisma.user.findUnique({ where: { id: userId } });
-        const prescriptionCost = 100;
-        
         if (!userDb) return res.status(404).json({ error: ERROR_CODES.USER_NOT_FOUND });
 
+        const policy = getPointPolicy();
+        const prescriptionCost = policy.prescriptionCost !== undefined ? parseInt(policy.prescriptionCost) : 100;
+        
         const canUseFree = userDb.aiUsageCount < userDb.aiPrescriptionLimit;
         const hasEnoughPoints = userDb.pointBalance >= prescriptionCost;
 
@@ -284,13 +299,54 @@ router.get('/ai-eligibility', authenticateToken, async (req: any, res: any) => {
 router.post('/ai-usage', authenticateToken, async (req: any, res: any) => {
     try {
         const userId = req.user.id;
-        await prisma.user.update({
-            where: { id: userId },
-            data: { aiUsageCount: { increment: 1 } }
-        });
-        res.status(200).json({ success: true });
-    } catch (error) {
+        const userDb = await prisma.user.findUnique({ where: { id: userId } });
+        if (!userDb) return res.status(404).json({ error: ERROR_CODES.USER_NOT_FOUND });
+
+        const policy = getPointPolicy();
+        const prescriptionCost = policy.prescriptionCost !== undefined ? parseInt(policy.prescriptionCost) : 100;
+
+        const canUseFree = userDb.aiUsageCount < userDb.aiPrescriptionLimit;
+
+        if (canUseFree) {
+            // 무료 횟수가 남은 경우 -> 단순히 aiUsageCount만 증가시킴 (커피콩 소진 없음)
+            await prisma.user.update({
+                where: { id: userId },
+                data: { aiUsageCount: { increment: 1 } }
+            });
+            return res.status(200).json({ success: true, type: 'free', current: userDb.aiUsageCount + 1, limit: userDb.aiPrescriptionLimit });
+        } else {
+            // 무료 횟수 소진 완료 -> 커피콩 포인트 차감
+            if (userDb.pointBalance < prescriptionCost) {
+                return res.status(403).json({ error: ERROR_CODES.INSUFFICIENT_BEANS });
+            }
+
+            await prisma.$transaction(async (tx) => {
+                const updated = await tx.user.updateMany({
+                    where: { id: userId, pointBalance: { gte: prescriptionCost } },
+                    data: { 
+                        pointBalance: { decrement: prescriptionCost },
+                        aiUsageCount: { increment: 1 }
+                    }
+                });
+                if (updated.count === 0) throw new Error("INSUFFICIENT_BEANS");
+
+                await tx.pointTransaction.create({
+                    data: {
+                        userId,
+                        amount: -prescriptionCost,
+                        type: 'USE',
+                        description: 'AI 커피 맞춤 큐레이션'
+                    }
+                });
+            });
+
+            return res.status(200).json({ success: true, type: 'paid', current: userDb.aiUsageCount + 1, limit: userDb.aiPrescriptionLimit });
+        }
+    } catch (error: any) {
         console.error("AI usage tracking error:", error);
+        if (error.message === "INSUFFICIENT_BEANS") {
+            return res.status(400).json({ error: ERROR_CODES.INSUFFICIENT_BEANS });
+        }
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
     }
 });
