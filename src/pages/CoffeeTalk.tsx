@@ -2644,7 +2644,7 @@ export default function CoffeeTalk() {
                                   onClick={(e) => {
                                       e.preventDefault();
                                       if (newContent.includes(`#${tag}`)) {
-                                          setNewContent(newContent.replace(new RegExp(`#${tag}\\b\\s*`), '').trim());
+                                          setNewContent(newContent.replace(new RegExp(`#${tag}(?=\\s|$)\\s*`, 'g'), '').trim());
                                       } else {
                                           setNewContent((newContent + ` #${tag}`).trim());
                                       }
