@@ -130,6 +130,8 @@ const BGM_THEMES: BgmTheme[] = [
   { id: 'acoustic', title: '비오는 날 어쿠스틱 멜로디', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', label: '☔ 어쿠스틱' },
   { id: 'bossanova', title: '화창한 오후의 보사노바 리듬', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', label: '☀️ 보사노바' },
   { id: 'classic', title: '집중이 잘되는 클래식 에스프레소', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', label: '🎻 클래식' },
+  { id: 'rock', title: '감성 락 발라드 피아노 연주', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3', label: '🎸 락 발라드 피아노' },
+  { id: 'hiphop', title: '힙합 시티팝 인스트루멘탈', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3', label: '🎧 시티팝 힙합' },
   { id: 'nature', title: '숲속 치유의 오르골 & 빗소리', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', label: '🍃 자연/빗소리' }
 ];
 
@@ -161,6 +163,10 @@ const resolveAudioUrl = (input: string | undefined): string => {
     case 'jgpJVIg8DbM':
     case 'classic':
       return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3';
+    case 'rock':
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3';
+    case 'hiphop':
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3';
     case 'L8g3c-t0HjM':
     case 'NDGs9x04DkY':
     case 'nature':
