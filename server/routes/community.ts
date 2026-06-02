@@ -144,6 +144,8 @@ router.get('/hotspots', async (req, res) => {
             select: {
                 cafeLat: true,
                 cafeLng: true,
+                cafeName: true,
+                cafeLocation: true,
                 _count: {
                     select: { likes: true, comments: true }
                 }
@@ -153,6 +155,8 @@ router.get('/hotspots', async (req, res) => {
         const hotspots = recentPosts.map(p => ({
             lat: p.cafeLat,
             lng: p.cafeLng,
+            cafeName: p.cafeName,
+            cafeLocation: p.cafeLocation,
             weight: 1 + p._count.likes + p._count.comments
         }));
 

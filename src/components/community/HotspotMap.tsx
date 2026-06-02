@@ -7,6 +7,8 @@ interface Hotspot {
     lat: number;
     lng: number;
     weight: number;
+    cafeName?: string | null;
+    cafeLocation?: string | null;
 }
 
 export default function HotspotMap() {
@@ -47,6 +49,30 @@ export default function HotspotMap() {
         return () => clearInterval(intervalId);
     }, []);
 
+    const getHotspotText = () => {
+        if (hotspots.length === 0) return "최근 체크인 기록이 없습니다.";
+        const hottest = [...hotspots].sort((a, b) => b.weight - a.weight)[0];
+        
+        let areaName = "우리 동네";
+        if (hottest.cafeName) {
+            areaName = hottest.cafeName;
+        } else if (hottest.cafeLocation) {
+            const dongMatch = hottest.cafeLocation.match(/([가-힣]+동)(?=\s|$)/);
+            if (dongMatch) {
+                areaName = dongMatch[1];
+            } else {
+                const guMatch = hottest.cafeLocation.match(/([가-힣]+구)(?=\s|$)/);
+                if (guMatch) {
+                    areaName = guMatch[1];
+                } else {
+                    const parts = hottest.cafeLocation.split(' ');
+                    areaName = parts.length > 1 ? parts[1] : "우리 동네";
+                }
+            }
+        }
+        return `"오, 요즘 ${areaName}에 사람 진짜 많네. 나도 가볼까?"`;
+    };
+
     const defaultLat = location ? location.lat : 37.5665;
     const defaultLng = location ? location.lng : 126.9780;
 
@@ -60,7 +86,7 @@ export default function HotspotMap() {
                     <div>
                         <h2 className="text-[16px] font-bold text-amber-100 leading-tight">🔥 최근 뜨고 있는 핫스팟</h2>
                         <p className="text-[13px] text-espresso-200 mt-0.5 max-w-[280px]">
-                            {hotspots.length === 0 ? "최근 체크인 기록이 없습니다." : '"오, 요즘 성수동에 사람 진짜 많네. 나도 가볼까?"'}
+                            {getHotspotText()}
                         </p>
                     </div>
                 </div>
