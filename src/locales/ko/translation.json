@@ -597,7 +597,10 @@
         "fallback_tbd_hours": "추후 제공 (AI 발굴 자동 핀)",
         "fallback_tbd": "추후 제공",
         "fallback_origin_story": "빈마인드 AI 시스템이 사용자들의 커피 성향 탐색 과정에서 웹 서치를 통해 발굴해낸 스페셜티 매장입니다. 아직 점주가 직접 등록하지 않은 자동 생성 핀이며, 모달의 [Website] 버튼을 누르시면 실제 구글 지도 생생한 리뷰로 연결됩니다.",
-        "btn_earn": "🎫 적립"
+        "btn_earn": "🎫 적립",
+        "lat_lng_format": "위도 {{lat}}, 경도 {{lng}}",
+        "fallback_equipment": "기본 시설",
+        "fallback_origin_story_brief": "AI 자동 탐색을 통해 찾아낸 매장입니다. 향후 상세 정보가 업데이트될 예정입니다."
     },
     "tasting_note": {
         "err_empty_input": "커피 이름과 감상 평을 입력해주세요.",

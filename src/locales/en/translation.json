@@ -564,7 +564,10 @@
         "fallback_tbd_hours": "TBD (AI discovered auto pin)",
         "fallback_tbd": "TBD",
         "fallback_origin_story": "This is a specialty shop discovered via web search by the Beanmind AI system while exploring users' coffee preferences. It is an auto-generated pin not yet directly registered by the owner. Clicking the [Website] button will take you to real Google Maps reviews.",
-        "btn_earn": "🎫 Earn"
+        "btn_earn": "🎫 Earn",
+        "lat_lng_format": "Latitude {{lat}}, Longitude {{lng}}",
+        "fallback_equipment": "Basic Facilities",
+        "fallback_origin_story_brief": "This store was discovered through AI automatic search. Detailed information will be updated in the future."
     },
     "settings": {
         "report_block": "Report / Block User"

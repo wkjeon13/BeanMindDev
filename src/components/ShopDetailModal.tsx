@@ -40,15 +40,26 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
 
     const getFallbackTranslation = (text: string | undefined | null) => {
         if (!text) return text;
-        if (text.includes('AI 큐레이터가 발굴한 스페셜티 추천 공간') || text.includes('Specialty space recommended by AI Curator')) return t('map.fallback_ai_subtitle');
-        if (text.includes('AI가 발굴한 카페/명소입니다.') || text.includes('AI discovered cafe/attraction.')) return t('map.fallback_short_desc');
-        if (text.includes('스페셜티/시그니처 향미') || text.includes('Specialty/Signature Flavor')) return t('map.fallback_specialty');
-        if (text.includes('대표 메뉴 (상세 미정)') || text.includes('Signature Menu (TBD)')) return t('map.fallback_menu');
-        if (text.includes('추천 정보 없음') || text.includes('No Recommendation Info')) return t('map.fallback_pairing');
-        if (text.includes('임시 주소 (추후 업데이트 예정)') || text.includes('Temporary address (to be updated)')) return t('map.fallback_temp_addr');
-        if (text.includes('추후 제공 (AI 발굴') || text.includes('TBD (AI discovered')) return t('map.fallback_tbd_hours');
-        if (text.includes('추후 제공') || text.includes('TBD')) return t('map.fallback_tbd');
-        if (text.startsWith('빈마인드 AI 시스템이 사용자들의 커피 성향 탐색 과정에서') || text.startsWith('This is a specialty shop discovered via web search')) return t('map.fallback_origin_story');
+        if (typeof text === 'string') {
+            if (text.includes('위도') || text.includes('경도') || text.includes('Latitude') || text.includes('Longitude')) {
+                const coords = text.match(/-?\d+\.\d+/g);
+                if (coords && coords.length >= 2) {
+                    return t('map.lat_lng_format', '위도 {{lat}}, 경도 {{lng}}', { lat: coords[0], lng: coords[1] });
+                }
+            }
+            if (text.includes('영업시간 미정') || text.includes('Hours TBD')) return t('map.fallback_tbd_hours');
+            if (text === '기본 시설' || text === 'Basic Facilities') return t('map.fallback_equipment', '기본 시설');
+            if (text.includes('AI 자동 탐색을 통해 찾아낸 매장입니다') || text.includes('This store was discovered through AI automatic search')) return t('map.fallback_origin_story_brief');
+            if (text.includes('AI 큐레이터가 발굴한 스페셜티 추천 공간') || text.includes('Specialty space recommended by AI Curator')) return t('map.fallback_ai_subtitle');
+            if (text.includes('AI가 발굴한 카페/명소입니다.') || text.includes('AI discovered cafe/attraction.')) return t('map.fallback_short_desc');
+            if (text.includes('스페셜티/시그니처 향미') || text.includes('Specialty/Signature Flavor')) return t('map.fallback_specialty');
+            if (text.includes('대표 메뉴 (상세 미정)') || text.includes('Signature Menu (TBD)')) return t('map.fallback_menu');
+            if (text.includes('추천 정보 없음') || text.includes('No Recommendation Info')) return t('map.fallback_pairing');
+            if (text.includes('임시 주소 (추후 업데이트 예정)') || text.includes('Temporary address (to be updated)')) return t('map.fallback_temp_addr');
+            if (text.includes('추후 제공 (AI 발굴') || text.includes('TBD (AI discovered')) return t('map.fallback_tbd_hours');
+            if (text.includes('추후 제공') || text.includes('TBD')) return t('map.fallback_tbd');
+            if (text.startsWith('빈마인드 AI 시스템이 사용자들의 커피 성향 탐색 과정에서') || text.startsWith('This is a specialty shop discovered via web search')) return t('map.fallback_origin_story');
+        }
         return text;
     };
 
@@ -777,8 +788,8 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                                 )}
                                                 {shop.equipment && (
                                                     <div className="flex-none w-[220px] snap-center bg-[#1a1a1e] border border-white/5 rounded-2xl p-5 flex flex-col justify-between">
-                                                        <span className="block text-[11px] font-bold text-amber-500 uppercase tracking-widest mb-3">Equipment</span>
-                                                        <p className="text-white font-medium text-[15px] leading-relaxed break-keep">{shop.equipment}</p>
+                                                        <span className="block text-[11px] font-bold text-amber-500 uppercase tracking-widest mb-3">{t('shop_detail.lbl_equipment', 'Equipment')}</span>
+                                                        <p className="text-white font-medium text-[15px] leading-relaxed break-keep">{getFallbackTranslation(shop.equipment)}</p>
                                                     </div>
                                                 )}
                                             </div>
