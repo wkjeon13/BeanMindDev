@@ -125,19 +125,19 @@ interface BgmTheme {
 }
 
 const BGM_THEMES: BgmTheme[] = [
-  { id: 'jazz', title: '바흐 골드베르크 아리아 커피 피아노', videoId: 'https://upload.wikimedia.org/wikipedia/commons/d/de/Goldberg_Variations_Aria_Kimiko_Ishizaka.mp3', label: '☕ 아침 클래식 피아노' },
-  { id: 'lofi', title: '베토벤 월광 고요한 밤 피아노', videoId: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Moonlight_Sonata_1st_movement_by_Adolf_Albrechtson.mp3', label: '🌙 고요한 밤 피아노' },
+  { id: 'jazz', title: '바흐 골드베르크 아리아 커피 피아노', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', label: '☕ 아침 클래식 피아노' },
+  { id: 'lofi', title: '베토벤 월광 고요한 밤 피아노', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', label: '🌙 고요한 밤 피아노' },
   { id: 'acoustic', title: '비오는 날 잔잔한 어쿠스틱', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', label: '☔ 잔잔한 어쿠스틱' },
   { id: 'bossanova', title: '오후의 나른하고 편안한 보사노바', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', label: '☀️ 나른한 보사노바' },
-  { id: 'classic', title: '에릭 사티 짐노페디 1번 힐링 건반', videoId: 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Gymnopedie_No_1.mp3', label: '🎻 짐노페디 1번 피아노' },
+  { id: 'classic', title: '에릭 사티 짐노페디 1번 힐링 건반', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', label: '🎻 짐노페디 1번 피아노' },
   { id: 'rock', title: '감성 락 발라드 피아노 연주', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3', label: '🎸 락 발라드 피아노' },
   { id: 'hiphop', title: '힙합 시티팝 인스트루멘탈', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3', label: '🎧 시티팝 힙합' },
-  { id: 'nature', title: '쇼팽 녹턴 2번 명작 빗방울 음악', videoId: 'https://upload.wikimedia.org/wikipedia/commons/c/c4/Nocturne_in_E-flat_major%2C_Op._9%2C_No._2.mp3', label: '🍃 쇼팽 녹턴 피아노' },
-  { id: 'coffeetime', title: '드뷔시 베르가마스크 모음곡 달빛 피아노', videoId: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Clair_de_Lune_%28Debussy%29_Suite_bergamasque_performed_by_Laurens_Goosen.mp3', label: '☕ 커피 타임 고요한 피아노' }
+  { id: 'nature', title: '쇼팽 녹턴 2번 명작 빗방울 음악', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', label: '🍃 쇼팽 녹턴 피아노' },
+  { id: 'coffeetime', title: '드뷔시 베르가마스크 모음곡 달빛 피아노', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3', label: '☕ 커피 타임 고요한 피아노' }
 ];
 
 const resolveAudioUrl = (input: string | undefined): string => {
-  if (!input) return 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Gymnopedie_No_1.mp3'; // 기본 짐노페디
+  if (!input) return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'; // 기본 짐노페디
   
   // 이미 정상적인 HTTP 오디오 URL인 경우 그대로 반환
   if (input.startsWith('http')) return input;
@@ -147,11 +147,11 @@ const resolveAudioUrl = (input: string | undefined): string => {
     case 'tN9ecELJ5A0':
     case 'Dx5qFeM4yMc':
     case 'jazz':
-      return 'https://upload.wikimedia.org/wikipedia/commons/d/de/Goldberg_Variations_Aria_Kimiko_Ishizaka.mp3';
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
     case '811QZGDysx0':
     case 'jfKfPfyJRdk':
     case 'lofi':
-      return 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Moonlight_Sonata_1st_movement_by_Adolf_Albrechtson.mp3';
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3';
     case 'u4Z_5HapYJ0':
     case 'mnd7nUqM5v0':
     case 'acoustic':
@@ -163,7 +163,7 @@ const resolveAudioUrl = (input: string | undefined): string => {
     case '57GfJ1A5e68':
     case 'jgpJVIg8DbM':
     case 'classic':
-      return 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Gymnopedie_No_1.mp3';
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3';
     case 'rock':
       return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3';
     case 'hiphop':
@@ -171,16 +171,16 @@ const resolveAudioUrl = (input: string | undefined): string => {
     case 'L8g3c-t0HjM':
     case 'NDGs9x04DkY':
     case 'nature':
-      return 'https://upload.wikimedia.org/wikipedia/commons/c/c4/Nocturne_in_E-flat_major%2C_Op._9%2C_No._2.mp3';
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3';
     case 'coffeetime':
-      return 'https://upload.wikimedia.org/wikipedia/commons/2/28/Clair_de_Lune_%28Debussy%29_Suite_bergamasque_performed_by_Laurens_Goosen.mp3';
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3';
     default:
       // 그 외의 값은 BGM_THEMES에 부합하는 매핑 시도
       const matched = BGM_THEMES.find(t => t.id === input || t.videoId === input);
       if (matched && matched.videoId.startsWith('http')) {
         return matched.videoId;
       }
-      return 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Gymnopedie_No_1.mp3'; // 기본값 짐노페디
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'; // 기본값 짐노페디
   }
 };
 
