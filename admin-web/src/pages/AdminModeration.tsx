@@ -121,6 +121,8 @@ export default function AdminModeration() {
         if (targetType === 'STORE') actionMsg = `'${targetName}' 매장을 강제 거절(블라인드) 처리하시겠습니까?`;
         else if (targetType === 'USER') actionMsg = `'${targetName}' 유저를 이용 정지(SUSPEND) 처리하시겠습니까?`;
         else if (targetType === 'REVIEW') actionMsg = `해당 리뷰를 영구 삭제하시겠습니까?`;
+        else if (targetType === 'POST') actionMsg = `해당 커뮤니티 게시글을 강제 블라인드 처리하시겠습니까?`;
+        else if (targetType === 'COMMENT') actionMsg = `해당 커뮤니티 댓글을 강제 블라인드 처리하시겠습니까?`;
         else actionMsg = `대상을 제재 처리하시겠습니까?`;
 
         if (!window.confirm(actionMsg + '\n(신고 내역은 승인 처리되어 자동 삭제됩니다.)')) return;

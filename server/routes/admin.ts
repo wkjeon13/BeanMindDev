@@ -118,7 +118,7 @@ router.put('/moderation/blinded-content/:type/:id/restore', async (req: any, res
 router.get('/moderation/other-reports', async (req: any, res: any) => {
     try {
         const reports = await prisma.report.findMany({
-            where: { targetType: { in: ['STORE', 'USER', 'REVIEW'] } },
+            where: { targetType: { in: ['STORE', 'USER', 'REVIEW', 'POST', 'COMMENT'] } },
             orderBy: { createdAt: 'desc' },
             take: 100
         });
@@ -135,6 +135,12 @@ router.get('/moderation/other-reports', async (req: any, res: any) => {
             } else if (report.targetType === 'REVIEW') {
                 const review = await prisma.storeReview.findUnique({ where: { id: report.targetId }, select: { content: true } });
                 if (review) targetName = `리뷰 내용: ${review.content?.substring(0, 30)}...`;
+            } else if (report.targetType === 'POST') {
+                const post = await prisma.post.findUnique({ where: { id: report.targetId }, select: { content: true } });
+                targetName = `[게시글] ${post?.content?.substring(0, 30) || '사진/내용없음'}...`;
+            } else if (report.targetType === 'COMMENT') {
+                const comment = await prisma.comment.findUnique({ where: { id: report.targetId }, select: { content: true } });
+                targetName = `[댓글] ${comment?.content?.substring(0, 30)}...`;
             }
             
             const reporter = await prisma.user.findUnique({ where: { id: report.reporterId }, select: { nickname: true, email: true } });
@@ -222,6 +228,16 @@ router.put('/moderation/reports/:id/accept', async (req: any, res: any) => {
         } else if (report.targetType === 'REVIEW') {
             await prisma.storeReview.delete({
                 where: { id: report.targetId }
+            }).catch(() => {});
+        } else if (report.targetType === 'POST') {
+            await prisma.post.update({
+                where: { id: report.targetId },
+                data: { isHidden: true }
+            }).catch(() => {});
+        } else if (report.targetType === 'COMMENT') {
+            await prisma.comment.update({
+                where: { id: report.targetId },
+                data: { isHidden: true }
             }).catch(() => {});
         }
         
