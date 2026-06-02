@@ -168,7 +168,7 @@ export default function AdminCoffeeBeans() {
       </div>
 
       {/* KPI Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-5 gap-4">
         {/* Total Charges Card */}
         <div className="bg-gradient-to-br from-amber-50 to-white p-4 rounded-xl shadow-sm border border-amber-100/50 flex items-center justify-between">
           <div className="space-y-0.5">
