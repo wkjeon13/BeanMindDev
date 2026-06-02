@@ -136,11 +136,11 @@ const BGM_THEMES: BgmTheme[] = [
   { id: 'coffeetime', title: '드뷔시 베르가마스크 모음곡 달빛 피아노', videoId: 'NDGs9x04DkY', label: '☕ 커피 타임 고요한 피아노' }
 ];
 
-// 글로벌 인비디어스 인스턴스 목록 (유튜브 음원 프록시용 고가용성 서버 그룹)
+// 글로벌 인비디어스 인스턴스 목록 (유튜브 음원 프록시용 고가용성 서버 그룹 - Uptime 우선순위 재정렬)
 const INVIDIOUS_INSTANCES = [
-  'https://yewtu.be',
-  'https://iv.ggtyler.dev',
   'https://invidious.flokinet.to',
+  'https://iv.ggtyler.dev',
+  'https://yewtu.be',
   'https://invidious.lunar.icu'
 ];
 
@@ -319,10 +319,41 @@ export default function CoffeeTalk() {
           playWithFallback(currentUrl);
         } else {
           console.error("[BGM Player Critical] All public YouTube Music proxies are currently blocked. Transitioning to high-availability SoundHelix MP3 fallback...");
-          // 전 세계 인비디어스 스트리머가 모두 터진 최악의 비상사태 시 100% 가용한 SoundHelix 피아노 음악으로 전환하여 소리 안 남 현상 방지
-          const soundHelixFallback = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3';
+          
+          // 각 테마별 장르 구분을 보장하는 1:1 맞춤형 고가용성 백업 매핑
+          const fallbackMap: Record<string, string> = {
+            'tN9ecELJ5A0': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+            'jazz': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+            
+            'Dx5qFeM4yMc': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+            'lofi': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+            
+            '811QZGDysx0': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+            'acoustic': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+            
+            'jfKfPfyJRdk': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+            'bossanova': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
+            
+            '57GfJ1A5e68': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+            'classic': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
+            
+            'jgpJVIg8DbM': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
+            'rock': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
+            
+            'mnd7nUqM5v0': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
+            'hiphop': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3',
+            
+            'L8g3c-t0HjM': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+            'nature': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3',
+            
+            'NDGs9x04DkY': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3',
+            'coffeetime': 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3'
+          };
+
+          const fallbackUrl = fallbackMap[currentUrl] || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3';
+          
           if (bgmAudioRef.current) {
-            bgmAudioRef.current.src = soundHelixFallback;
+            bgmAudioRef.current.src = fallbackUrl;
             bgmAudioRef.current.play().catch(console.error);
           }
         }
