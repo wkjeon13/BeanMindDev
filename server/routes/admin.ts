@@ -1804,4 +1804,165 @@ Return the response EXACTLY in the following JSON format without any markdown bl
     }
 });
 
+// GET: Fetch all payment transactions with filters for admin
+router.get('/payments', async (req: any, res: any) => {
+    try {
+        const { search, platform, status } = req.query;
+
+        // Fetch payment transactions
+        const queryOptions: any = {
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        email: true,
+                        nickname: true,
+                        pointBalance: true
+                    }
+                }
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        };
+
+        const rawTransactions = await prisma.paymentTransaction.findMany(queryOptions);
+
+        // Fetch all cancel transactions to dynamically match cancel status
+        const cancelTransactions = await prisma.pointTransaction.findMany({
+            where: {
+                type: 'CHARGE_CANCEL'
+            }
+        });
+
+        const cancelMap = new Set(
+            cancelTransactions
+                .map(tx => {
+                    const match = tx.description.match(/ID:\s*([a-f0-9\-]+)/i);
+                    return match ? match[1] : null;
+                })
+                .filter(Boolean)
+        );
+
+        let enrichedTransactions = rawTransactions.map(tx => {
+            const isCancelled = cancelMap.has(tx.id);
+            return {
+                id: tx.id,
+                userId: tx.userId,
+                storeTransactionId: tx.storeTransactionId,
+                amount: tx.amount,
+                platform: tx.platform,
+                productId: tx.productId,
+                createdAt: tx.createdAt,
+                user: tx.user,
+                isCancelled
+            };
+        });
+
+        // Apply filters in memory
+        if (platform && platform !== 'ALL') {
+            enrichedTransactions = enrichedTransactions.filter(tx => tx.platform === platform);
+        }
+
+        if (status && status !== 'ALL') {
+            if (status === 'CANCELLED') {
+                enrichedTransactions = enrichedTransactions.filter(tx => tx.isCancelled);
+            } else if (status === 'COMPLETED') {
+                enrichedTransactions = enrichedTransactions.filter(tx => !tx.isCancelled);
+            }
+        }
+
+        if (search) {
+            const query = search.toLowerCase();
+            enrichedTransactions = enrichedTransactions.filter(tx => 
+                tx.user?.email.toLowerCase().includes(query) || 
+                tx.user?.nickname.toLowerCase().includes(query) ||
+                tx.storeTransactionId.toLowerCase().includes(query) ||
+                tx.id.toLowerCase().includes(query)
+            );
+        }
+
+        res.status(200).json(enrichedTransactions);
+    } catch (error) {
+        console.error("Fetch admin payments error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// POST: Cancel / Refund a payment transaction and revoke beans
+router.post('/payments/:id/cancel', async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+        const { force, reason } = req.body; // force: allow negative balance, reason: cancel description
+
+        const payment = await prisma.paymentTransaction.findUnique({
+            where: { id },
+            include: { user: true }
+        });
+
+        if (!payment) {
+            return res.status(404).json({ error: 'PAYMENT_NOT_FOUND' });
+        }
+
+        // Check if already cancelled
+        const cancelTx = await prisma.pointTransaction.findFirst({
+            where: {
+                type: 'CHARGE_CANCEL',
+                description: {
+                    contains: `ID: ${id}`
+                }
+            }
+        });
+
+        if (cancelTx) {
+            return res.status(400).json({ error: 'ALREADY_CANCELLED' });
+        }
+
+        const cancelAmount = payment.amount;
+        const user = payment.user;
+
+        // Check for negative balance protection
+        if (!force && user.pointBalance < cancelAmount) {
+            return res.status(400).json({ 
+                error: 'INSUFFICIENT_BALANCE_FOR_CANCEL',
+                message: `회원의 현재 커피콩 잔액(${user.pointBalance}개)이 회수할 수량(${cancelAmount}개)보다 부족합니다. 강제 진행 옵션을 켜주세요.`
+            });
+        }
+
+        const cancelReason = reason || '관리자 결제 취소 강제 회수';
+
+        const result = await prisma.$transaction(async (tx) => {
+            // Deduct pointBalance from User
+            const updatedUser = await tx.user.update({
+                where: { id: user.id },
+                data: {
+                    pointBalance: {
+                        decrement: cancelAmount
+                    }
+                },
+                select: {
+                    pointBalance: true
+                }
+            });
+
+            // Create PointTransaction logs
+            const pointTx = await tx.pointTransaction.create({
+                data: {
+                    userId: user.id,
+                    amount: -cancelAmount,
+                    type: 'CHARGE_CANCEL',
+                    description: `결제 취소 회수 [사유: ${cancelReason}] (ID: ${id})`
+                }
+            });
+
+            return { balance: updatedUser.pointBalance, transaction: pointTx };
+        });
+
+        res.status(200).json({ success: true, result });
+    } catch (error) {
+        console.error("Cancel admin payment error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
 export default router;

@@ -13,7 +13,8 @@ import AdminHomeCampaigns from './pages/AdminHomeCampaigns';
 import AdminPairings from './pages/AdminPairings';
 import AdminHeroBanner from './pages/AdminHeroBanner';
 import AdminFlashDrop from './pages/AdminFlashDrop';
-import { Settings, Users, Store, Coffee, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut, Layout, Image as ImageIcon, Zap } from 'lucide-react';
+import AdminCoffeeBeans from './pages/AdminCoffeeBeans';
+import { Settings, Users, Store, Coffee, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut, Layout, Image as ImageIcon, Zap, Coins } from 'lucide-react';
 
 const Sidebar = () => {
   const handleLogout = () => {
@@ -64,6 +65,9 @@ const Sidebar = () => {
         <Link to="/templates" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors">
           <Coffee className="w-5 h-5 mr-3" /> AI Templates
         </Link>
+        <Link to="/beans" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors">
+          <Coins className="w-5 h-5 mr-3 text-amber-500" /> Coffee Beans
+        </Link>
         <Link to="/settings" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors">
           <Settings className="w-5 h-5 mr-3" /> Settings
         </Link>
@@ -103,6 +107,7 @@ function App() {
                   <Route path="/announcements" element={<AdminAnnouncements />} />
                   <Route path="/settings" element={<AdminSettings />} />
                   <Route path="/moderation" element={<AdminModeration />} />
+                  <Route path="/beans" element={<AdminCoffeeBeans />} />
                   <Route path="/ads" element={<AdminAds />} />
                   <Route path="/ad-inquiries" element={<AdminAdInquiries />} />
                   <Route path="/home-campaigns" element={<AdminHomeCampaigns />} />
