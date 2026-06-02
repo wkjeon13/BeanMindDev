@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Heart, MessageCircle, Share2, MapPin, MoreVertical, X, Clock, Navigation, CheckCircle, Store, Send, Image as ImageIcon, Flame, TrendingUp, Droplets, Trophy, Lock, Users, Target, UserCheck, Shield, Bookmark, Edit, Trash2, Calendar, Coffee, ListChecks, Link, Globe, Info, Search, ChevronDown, Camera, Star, Map, User, Edit2, Gift, PenSquare, Scale, Thermometer, Timer, Settings, BarChart2, Plus, Minus, Crown, ChevronRight, Check, Smile, ChevronLeft, Play, Music } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MapPin, MoreVertical, X, Clock, Navigation, CheckCircle, Store, Send, Image as ImageIcon, Flame, TrendingUp, Droplets, Trophy, Lock, Users, Target, UserCheck, Shield, Bookmark, Edit, Trash2, Calendar, Coffee, ListChecks, Link, Globe, Info, Search, ChevronDown, Camera, Star, Map, User, Edit2, Gift, PenSquare, Scale, Thermometer, Timer, Settings, BarChart2, Plus, Minus, Crown, ChevronRight, Check, Smile, ChevronLeft, Play, Music, Pause } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import CommentSheet from '../components/community/CommentSheet';
