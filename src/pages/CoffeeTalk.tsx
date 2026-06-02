@@ -137,6 +137,8 @@ const BGM_THEMES: BgmTheme[] = [
   { id: 'Reggae', title: '나른한 레게 보사노바 리듬', videoId: 'reggae_search', label: '🌴 Reggae (레게)' }
 ];
 
+const getBgmGenreKey = (id: string) => id.toLowerCase().replace(/\s+/g, '').replace(/&/g, 'n').replace(/-/g, '');
+
 // 글로벌 인비디어스 인스턴스 목록 (유튜브 음원 프록시용 고가용성 서버 그룹 - Uptime 우선순위 재정렬)
 const INVIDIOUS_INSTANCES = [
   'https://invidious.flokinet.to',
@@ -464,7 +466,7 @@ export default function CoffeeTalk() {
       setSelectedBgmTheme(bestThemeId);
       
       // AI 피드백 팝업 알림 (다국어화 및 인젝션 바인딩)
-      const translatedLabel = t(`coffee_talk.bgm_genre_${bestThemeId.toLowerCase()}`, matchedTheme.label);
+      const translatedLabel = t(`coffee_talk.bgm_genre_${getBgmGenreKey(bestThemeId)}`, matchedTheme.label);
       alert(t('coffee_talk.bgm_alert_match_complete', `🪄 [BeanMind AI BGM 자동 매칭 완료]\n\n회원님이 작성하신 피드 속 감성 어휘(예: "${matchedWord}")를 정밀 분석하여,\n가장 아름답게 어울리는 배경음악 테마 「${translatedLabel}」을 찾아 자동으로 페어링해 드렸습니다!`, {
         word: matchedWord,
         label: translatedLabel
@@ -3124,7 +3126,7 @@ export default function CoffeeTalk() {
                                           }`}
                                       >
                                           <Music size={11} className={isSelected ? 'animate-pulse' : 'opacity-70'} />
-                                          {t(`coffee_talk.bgm_genre_${theme.id.toLowerCase()}`, theme.label)}
+                                          {t(`coffee_talk.bgm_genre_${getBgmGenreKey(theme.id)}`, theme.label)}
                                       </button>
                                   );
                               })}
