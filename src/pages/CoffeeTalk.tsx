@@ -380,7 +380,7 @@ export default function CoffeeTalk() {
 
   const handleAiBgmAutoMatch = () => {
     if (!newContent.trim()) {
-      alert("🪄 [BeanMind AI 사운드 매칭]\n\n피드 내용을 먼저 조금이라도 작성해 주시면, AI가 본문 감성을 분석하여 가장 잘 어울리는 BGM을 자동으로 매칭해 드립니다!");
+      alert(t('coffee_talk.bgm_alert_empty_content', '🪄 [BeanMind AI 사운드 매칭]\n\n피드 내용을 먼저 조금이라도 작성해 주시면, AI가 본문 감성을 분석하여 가장 잘 어울리는 BGM을 자동으로 매칭해 드립니다!'));
       return;
     }
 
@@ -456,15 +456,19 @@ export default function CoffeeTalk() {
     if (maxScore === 0) {
       const defaultThemes = ["Classical", "Jazz", "K-pop", "Pop", "Rock", "Hip Hop", "R&B", "EDM", "Country", "Reggae"];
       bestThemeId = defaultThemes[Math.floor(Math.random() * defaultThemes.length)];
-      matchedWord = "커피 한 잔의 여유";
+      matchedWord = t('coffee_talk.bgm_match_fallback', '커피 한 잔의 여유');
     }
 
     const matchedTheme = BGM_THEMES.find(t => t.id === bestThemeId);
     if (matchedTheme) {
       setSelectedBgmTheme(bestThemeId);
       
-      // AI 피드백 팝업 알림
-      alert(`🪄 [BeanMind AI BGM 자동 매칭 완료]\n\n회원님이 작성하신 피드 속 감성 어휘(예: "${matchedWord}")를 정밀 분석하여,\n가장 아름답게 어울리는 배경음악 테마 「${matchedTheme.label}」을 찾아 자동으로 페어링해 드렸습니다!`);
+      // AI 피드백 팝업 알림 (다국어화 및 인젝션 바인딩)
+      const translatedLabel = t(`coffee_talk.bgm_genre_${bestThemeId.toLowerCase()}`, matchedTheme.label);
+      alert(t('coffee_talk.bgm_alert_match_complete', `🪄 [BeanMind AI BGM 자동 매칭 완료]\n\n회원님이 작성하신 피드 속 감성 어휘(예: "${matchedWord}")를 정밀 분석하여,\n가장 아름답게 어울리는 배경음악 테마 「${translatedLabel}」을 찾아 자동으로 페어링해 드렸습니다!`, {
+        word: matchedWord,
+        label: translatedLabel
+      }));
     }
   };
 
@@ -3038,7 +3042,7 @@ export default function CoffeeTalk() {
                       {/* 감성 BGM 사운드 페어링 (Premium Theme Picker) */}
                       <div className="flex flex-col gap-2 p-3 bg-espresso-950/50 rounded-xl border border-amber-500/10 w-full mb-1">
                           <div className="flex items-center justify-between gap-2 mb-1">
-                              <p className="text-[11px] font-bold text-amber-500 flex items-center gap-1.5"><Music size={12}/> 🎵 AI 감성 사운드 페어링 (배경음악 지정)</p>
+                              <p className="text-[11px] font-bold text-amber-500 flex items-center gap-1.5"><Music size={12}/> {t('coffee_talk.bgm_pairing_title', '🎵 AI 감성 사운드 페어링 (배경음악 지정)')}</p>
                               <div className="flex items-center gap-1.5 shrink-0">
                                   <button
                                       type="button"
@@ -3058,7 +3062,7 @@ export default function CoffeeTalk() {
                                               : 'bg-espresso-800 hover:bg-espresso-700 text-espresso-200 border-espresso-700'
                                       }`}
                                   >
-                                      ✍️ 직접 입력
+                                      {t('coffee_talk.bgm_direct_input', '✍️ 직접 입력')}
                                   </button>
                                   <button
                                       type="button"
@@ -3071,7 +3075,7 @@ export default function CoffeeTalk() {
                                       }}
                                       className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1 active:scale-95 transition-all shadow-sm"
                                   >
-                                      <Sparkles size={10} className="text-amber-400 animate-pulse" /> AI 자동 매칭
+                                      <Sparkles size={10} className="text-amber-400 animate-pulse" /> {t('coffee_talk.bgm_ai_auto_match', 'AI 자동 매칭')}
                                   </button>
                               </div>
                           </div>
@@ -3092,7 +3096,7 @@ export default function CoffeeTalk() {
                                               setCustomBgmTitle(e.target.value);
                                               setSelectedBgmTheme(''); // 직접 입력 중일 때는 테마 선택 해제
                                           }}
-                                          placeholder="가수명 - 곡명 (예: 아이유 - 밤편지)"
+                                          placeholder={t('coffee_talk.bgm_ph_custom_title', '가수명 - 곡명 (예: 아이유 - 밤편지)')}
                                           className="w-full px-3 py-2 bg-espresso-900 border border-amber-500/30 rounded-xl text-xs font-semibold text-espresso-50 focus:border-amber-400 focus:outline-none placeholder-espresso-400 focus:ring-1 focus:ring-amber-400 transition-all shadow-inner my-1"
                                       />
                                   </motion.div>
@@ -3120,7 +3124,7 @@ export default function CoffeeTalk() {
                                           }`}
                                       >
                                           <Music size={11} className={isSelected ? 'animate-pulse' : 'opacity-70'} />
-                                          {theme.label}
+                                          {t(`coffee_talk.bgm_genre_${theme.id.toLowerCase()}`, theme.label)}
                                       </button>
                                   );
                               })}
