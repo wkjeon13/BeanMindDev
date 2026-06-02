@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, RotateCcw, CheckCircle2, XCircle, AlertTriangle, TrendingUp, Coins, DollarSign, Filter, Info, ShieldAlert, Sparkles } from 'lucide-react';
+import { Search, RotateCcw, CheckCircle2, XCircle, AlertTriangle, TrendingUp, Coins, DollarSign, Filter, Info, ShieldAlert, Sparkles, ListChecks } from 'lucide-react';
 
 interface PaymentUser {
   id: string;
@@ -160,46 +160,60 @@ export default function AdminCoffeeBeans() {
       </div>
 
       {/* KPI Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Charges Card */}
-        <div className="bg-gradient-to-br from-amber-50 to-white p-6 rounded-2xl shadow-sm border border-amber-100/50 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-amber-700 tracking-wider uppercase">정상 완료 커피콩</span>
-            <div className="text-3xl font-extrabold text-gray-900">
-              +{totalChargeBeans.toLocaleString()}<span className="text-base font-semibold text-gray-500 ml-1">알</span>
+        <div className="bg-gradient-to-br from-amber-50 to-white p-4 rounded-xl shadow-sm border border-amber-100/50 flex items-center justify-between">
+          <div className="space-y-0.5">
+            <span className="text-[10px] font-bold text-amber-700 tracking-wider uppercase">정상 완료 커피콩</span>
+            <div className="text-xl font-extrabold text-gray-900">
+              +{totalChargeBeans.toLocaleString()}<span className="text-xs font-semibold text-gray-500 ml-0.5">알</span>
             </div>
-            <p className="text-xs text-gray-500">정상적으로 유통되어 활성화된 충전량</p>
+            <p className="text-[10px] text-gray-400">정상 활성화된 충전 콩 수</p>
           </div>
-          <div className="p-3 bg-amber-500/10 rounded-2xl">
-            <Coins className="w-8 h-8 text-amber-600 animate-pulse" />
+          <div className="p-2 bg-amber-500/10 rounded-xl">
+            <Coins className="w-6 h-6 text-amber-600 animate-pulse" />
           </div>
         </div>
 
         {/* Total Cancellations Card */}
-        <div className="bg-gradient-to-br from-red-50 to-white p-6 rounded-2xl shadow-sm border border-red-100/50 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-red-700 tracking-wider uppercase">회수/취소된 커피콩</span>
-            <div className="text-3xl font-extrabold text-red-600">
-              -{totalCancelledBeans.toLocaleString()}<span className="text-base font-semibold text-gray-400 ml-1">알</span>
+        <div className="bg-gradient-to-br from-red-50 to-white p-4 rounded-xl shadow-sm border border-red-100/50 flex items-center justify-between">
+          <div className="space-y-0.5">
+            <span className="text-[10px] font-bold text-red-700 tracking-wider uppercase">회수/취소된 커피콩</span>
+            <div className="text-xl font-extrabold text-red-600">
+              -{totalCancelledBeans.toLocaleString()}<span className="text-xs font-semibold text-gray-400 ml-0.5">알</span>
             </div>
-            <p className="text-xs text-gray-500">결제 취소 처리로 회수 회계 처리된 물량</p>
+            <p className="text-[10px] text-gray-400">결제 취소로 회수된 콩 수</p>
           </div>
-          <div className="p-3 bg-red-500/10 rounded-2xl">
-            <XCircle className="w-8 h-8 text-red-600" />
+          <div className="p-2 bg-red-500/10 rounded-xl">
+            <XCircle className="w-6 h-6 text-red-600" />
           </div>
         </div>
 
         {/* Success Ratio Card */}
-        <div className="bg-gradient-to-br from-emerald-50 to-white p-6 rounded-2xl shadow-sm border border-emerald-100/50 flex items-center justify-between">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-emerald-700 tracking-wider uppercase">충전 활성 비율</span>
-            <div className="text-3xl font-extrabold text-emerald-600">
+        <div className="bg-gradient-to-br from-emerald-50 to-white p-4 rounded-xl shadow-sm border border-emerald-100/50 flex items-center justify-between">
+          <div className="space-y-0.5">
+            <span className="text-[10px] font-bold text-emerald-700 tracking-wider uppercase">충전 활성 비율</span>
+            <div className="text-xl font-extrabold text-emerald-600">
               {successRate}%
             </div>
-            <p className="text-xs text-gray-500">정상 충전 건수 / 전체 시도 건수 비율</p>
+            <p className="text-[10px] text-gray-400">전체 시도 대비 완료 비율</p>
           </div>
-          <div className="p-3 bg-emerald-500/10 rounded-2xl">
-            <TrendingUp className="w-8 h-8 text-emerald-600" />
+          <div className="p-2 bg-emerald-500/10 rounded-xl">
+            <TrendingUp className="w-6 h-6 text-emerald-600" />
+          </div>
+        </div>
+
+        {/* Charge Count Card */}
+        <div className="bg-gradient-to-br from-indigo-50 to-white p-4 rounded-xl shadow-sm border border-indigo-100/50 flex items-center justify-between">
+          <div className="space-y-0.5">
+            <span className="text-[10px] font-bold text-indigo-700 tracking-wider uppercase">총 충전 횟수</span>
+            <div className="text-xl font-extrabold text-indigo-600">
+              {activeTx.length}<span className="text-xs font-semibold text-gray-500 ml-0.5">건</span>
+            </div>
+            <p className="text-[10px] text-gray-400">시도: {transactions.length}건 / 취소: {cancelledTx.length}건</p>
+          </div>
+          <div className="p-2 bg-indigo-500/10 rounded-xl">
+            <ListChecks className="w-6 h-6 text-indigo-600" />
           </div>
         </div>
       </div>
