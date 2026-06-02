@@ -1336,6 +1336,30 @@ export default function CoffeeTalk() {
       handleOpenMap(post.store?.id || null, post.cafeLat || post.store?.lat || 37.5665, post.cafeLng || post.store?.lng || 126.9780, post.cafeName || post.store?.name || '위치 정보');
   };
 
+  // BGM unMute postMessage trigger effect for Autoplay policy bypass
+  React.useEffect(() => {
+    if (activeBgmVideoId && isBgmPlaying) {
+      const timer = setTimeout(() => {
+        const iframe = document.getElementById('youtube-bgm-player') as HTMLIFrameElement;
+        if (iframe && iframe.contentWindow) {
+          try {
+            iframe.contentWindow.postMessage(
+              JSON.stringify({ event: 'command', func: 'unMute', args: [] }),
+              '*'
+            );
+            iframe.contentWindow.postMessage(
+              JSON.stringify({ event: 'command', func: 'setVolume', args: [bgmVolume] }),
+              '*'
+            );
+          } catch (e) {
+            console.error('BGM postMessage error:', e);
+          }
+        }
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [activeBgmVideoId, isBgmPlaying, bgmVolume]);
+
   // User Profile
   React.useEffect(() => {
     const fetchUserProfile = async () => {
@@ -3352,7 +3376,7 @@ export default function CoffeeTalk() {
         <iframe
           id="youtube-bgm-player"
           className="absolute w-1 h-1 opacity-0 pointer-events-none"
-          src={`https://www.youtube.com/embed/${activeBgmVideoId}?enablejsapi=1&autoplay=1&mute=0&loop=1&playlist=${activeBgmVideoId}`}
+          src={`https://www.youtube.com/embed/${activeBgmVideoId}?enablejsapi=1&autoplay=1&mute=1&loop=1&playlist=${activeBgmVideoId}`}
           allow="autoplay; encrypted-media"
           title="BeanMind AI BGM"
         />
