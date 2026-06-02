@@ -125,63 +125,41 @@ interface BgmTheme {
 }
 
 const BGM_THEMES: BgmTheme[] = [
-  { id: 'jazz', title: '바흐 골드베르크 아리아 커피 피아노', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', label: '☕ 아침 클래식 피아노' },
-  { id: 'lofi', title: '베토벤 월광 고요한 밤 피아노', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', label: '🌙 고요한 밤 피아노' },
-  { id: 'acoustic', title: '비오는 날 잔잔한 어쿠스틱', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', label: '☔ 잔잔한 어쿠스틱' },
-  { id: 'bossanova', title: '오후의 나른하고 편안한 보사노바', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', label: '☀️ 나른한 보사노바' },
-  { id: 'classic', title: '에릭 사티 짐노페디 1번 힐링 건반', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', label: '🎻 짐노페디 1번 피아노' },
-  { id: 'rock', title: '감성 락 발라드 피아노 연주', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3', label: '🎸 락 발라드 피아노' },
-  { id: 'hiphop', title: '힙합 시티팝 인스트루멘탈', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3', label: '🎧 시티팝 힙합' },
-  { id: 'nature', title: '쇼팽 녹턴 2번 명작 빗방울 음악', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', label: '🍃 쇼팽 녹턴 피아노' },
-  { id: 'coffeetime', title: '드뷔시 베르가마스크 모음곡 달빛 피아노', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3', label: '☕ 커피 타임 고요한 피아노' }
+  { id: 'jazz', title: '바흐 골드베르크 아리아 커피 피아노', videoId: 'tN9ecELJ5A0', label: '☕ 아침 클래식 피아노' },
+  { id: 'lofi', title: '베토벤 월광 고요한 밤 피아노', videoId: 'Dx5qFeM4yMc', label: '🌙 고요한 밤 피아노' },
+  { id: 'acoustic', title: '비오는 날 잔잔한 어쿠스틱', videoId: '811QZGDysx0', label: '☔ 잔잔한 어쿠스틱' },
+  { id: 'bossanova', title: '오후의 나른하고 편안한 보사노바', videoId: 'jfKfPfyJRdk', label: '☀️ 나른한 보사노바' },
+  { id: 'classic', title: '에릭 사티 짐노페디 1번 힐링 건반', videoId: '57GfJ1A5e68', label: '🎻 짐노페디 1번 피아노' },
+  { id: 'rock', title: '감성 락 발라드 피아노 연주', videoId: 'jgpJVIg8DbM', label: '🎸 락 발라드 피아노' },
+  { id: 'hiphop', title: '힙합 시티팝 인스트루멘탈', videoId: 'mnd7nUqM5v0', label: '🎧 시티팝 힙합' },
+  { id: 'nature', title: '쇼팽 녹턴 2번 명작 빗방울 음악', videoId: 'L8g3c-t0HjM', label: '🍃 쇼팽 녹턴 피아노' },
+  { id: 'coffeetime', title: '드뷔시 베르가마스크 모음곡 달빛 피아노', videoId: 'NDGs9x04DkY', label: '☕ 커피 타임 고요한 피아노' }
 ];
 
 const resolveAudioUrl = (input: string | undefined): string => {
-  if (!input) return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'; // 기본 짐노페디
+  if (!input) return 'https://yewtu.be/latest_version?id=57GfJ1A5e68&itag=140'; // 기본 짐노페디 1번 (유튜브)
   
   // 이미 정상적인 HTTP 오디오 URL인 경우 그대로 반환
   if (input.startsWith('http')) return input;
   
-  // 옛날 유튜브 비디오 ID 또는 테마 ID인 경우 고품질 MP3 스트리밍 주소로 치환 매핑
-  switch (input) {
-    case 'tN9ecELJ5A0':
-    case 'Dx5qFeM4yMc':
-    case 'jazz':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
-    case '811QZGDysx0':
-    case 'jfKfPfyJRdk':
-    case 'lofi':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3';
-    case 'u4Z_5HapYJ0':
-    case 'mnd7nUqM5v0':
-    case 'acoustic':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3';
-    case 'g6B99n6vU-w':
-    case '30o78YPNn6w':
-    case 'bossanova':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3';
-    case '57GfJ1A5e68':
-    case 'jgpJVIg8DbM':
-    case 'classic':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3';
-    case 'rock':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3';
-    case 'hiphop':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3';
-    case 'L8g3c-t0HjM':
-    case 'NDGs9x04DkY':
-    case 'nature':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3';
-    case 'coffeetime':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3';
-    default:
-      // 그 외의 값은 BGM_THEMES에 부합하는 매핑 시도
-      const matched = BGM_THEMES.find(t => t.id === input || t.videoId === input);
-      if (matched && matched.videoId.startsWith('http')) {
-        return matched.videoId;
-      }
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'; // 기본값 짐노페디
-  }
+  // 유튜브 비디오 ID 맵핑용 사전
+  const youtubeMap: Record<string, string> = {
+    'jazz': 'tN9ecELJ5A0',
+    'lofi': 'Dx5qFeM4yMc',
+    'acoustic': '811QZGDysx0',
+    'bossanova': 'jfKfPfyJRdk',
+    'classic': '57GfJ1A5e68',
+    'rock': 'jgpJVIg8DbM',
+    'hiphop': 'mnd7nUqM5v0',
+    'nature': 'L8g3c-t0HjM',
+    'coffeetime': 'NDGs9x04DkY'
+  };
+
+  // 만약 테마 ID가 들어왔다면 유튜브 비디오 ID로 치환
+  const videoId = youtubeMap[input] || input;
+
+  // 인비디어스 고가용성 오디오 스트리밍 API 프록시 경로로 실시간 변환
+  return `https://yewtu.be/latest_version?id=${videoId}&itag=140`;
 };
 
 interface ParsedBgm {
