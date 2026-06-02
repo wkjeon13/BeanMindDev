@@ -125,12 +125,12 @@ interface BgmTheme {
 }
 
 const BGM_THEMES: BgmTheme[] = [
-  { id: 'jazz', title: '차분한 아침 카페 재즈', videoId: 'tN9ecELJ5A0', label: '☕ 아침 재즈' },
-  { id: 'lofi', title: '감성 가득 심야 로파이(Lo-Fi)', videoId: '811QZGDysx0', label: '🌙 심야 로파이' },
-  { id: 'acoustic', title: '비오는 날 어쿠스틱 멜로디', videoId: 'u4Z_5HapYJ0', label: '☔ 어쿠스틱' },
-  { id: 'bossanova', title: '화창한 오후의 보사노바 리듬', videoId: 'g6B99n6vU-w', label: '☀️ 보사노바' },
-  { id: 'classic', title: '집중이 잘되는 클래식 에스프레소', videoId: '57GfJ1A5e68', label: '🎻 클래식' },
-  { id: 'nature', title: '숲속 치유의 오르골 & 빗소리', videoId: 'L8g3c-t0HjM', label: '🍃 자연/빗소리' }
+  { id: 'jazz', title: '차분한 아침 카페 재즈', videoId: 'Dx5qFeM4yMc', label: '☕ 아침 재즈' },
+  { id: 'lofi', title: '감성 가득 심야 로파이(Lo-Fi)', videoId: 'jfKfPfyJRdk', label: '🌙 심야 로파이' },
+  { id: 'acoustic', title: '비오는 날 어쿠스틱 멜로디', videoId: 'mnd7nUqM5v0', label: '☔ 어쿠스틱' },
+  { id: 'bossanova', title: '화창한 오후의 보사노바 리듬', videoId: '30o78YPNn6w', label: '☀️ 보사노바' },
+  { id: 'classic', title: '집중이 잘되는 클래식 에스프레소', videoId: 'jgpJVIg8DbM', label: '🎻 클래식' },
+  { id: 'nature', title: '숲속 치유의 오르골 & 빗소리', videoId: 'NDGs9x04DkY', label: '🍃 자연/빗소리' }
 ];
 
 interface ParsedBgm {
@@ -3432,23 +3432,16 @@ export default function CoffeeTalk() {
               </div>
             </div>
 
-            {/* 감성 BGM 비디오 뷰포트 (Autoplay & unMute 백업 액자) */}
-            <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] rounded-xl overflow-hidden border border-amber-500/25 bg-[#0f0a05] flex items-center justify-center shrink-0 shadow-inner">
-              {activeBgmVideoId && isBgmPlaying ? (
-                <iframe
-                  id="youtube-bgm-player"
-                  className="w-full h-full object-cover"
-                  src={`https://www.youtube.com/embed/${activeBgmVideoId}?enablejsapi=1&autoplay=1&mute=1&loop=1&playlist=${activeBgmVideoId}&origin=${window.location.origin}`}
-                  allow="autoplay; encrypted-media"
-                  title="BeanMind AI BGM"
-                />
-              ) : (
-                <div className="text-espresso-400 text-[11px] font-bold flex flex-col items-center gap-1.5 opacity-80">
-                  <Music size={18} className="text-amber-500/50 animate-pulse" />
-                  <span>배경음악 재생 중단됨</span>
-                </div>
-              )}
-            </div>
+            {/* 비디오 화면은 숨김 처리 (소리만 재생) */}
+            {activeBgmVideoId && isBgmPlaying && (
+              <iframe
+                id="youtube-bgm-player"
+                className="absolute w-1 h-1 opacity-0 pointer-events-none"
+                src={`https://www.youtube.com/embed/${activeBgmVideoId}?enablejsapi=1&autoplay=1&mute=1&loop=1&playlist=${activeBgmVideoId}&origin=${window.location.origin}`}
+                allow="autoplay; encrypted-media"
+                title="BeanMind AI BGM"
+              />
+            )}
 
             {/* Volume slider (Detail Premium quality) */}
             <div className="flex items-center gap-3 bg-espresso-950/40 rounded-xl px-4 py-2 border border-espresso-800/40">
