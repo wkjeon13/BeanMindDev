@@ -125,18 +125,18 @@ interface BgmTheme {
 }
 
 const BGM_THEMES: BgmTheme[] = [
-  { id: 'jazz', title: '차분한 아침 카페 재즈', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', label: '☕ 아침 재즈' },
-  { id: 'lofi', title: '감성 가득 심야 로파이(Lo-Fi)', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', label: '🌙 심야 로파이' },
-  { id: 'acoustic', title: '비오는 날 어쿠스틱 멜로디', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', label: '☔ 어쿠스틱' },
-  { id: 'bossanova', title: '화창한 오후의 보사노바 리듬', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', label: '☀️ 보사노바' },
-  { id: 'classic', title: '집중이 잘되는 클래식 에스프레소', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', label: '🎻 클래식' },
-  { id: 'rock', title: '감성 락 발라드 피아노 연주', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3', label: '🎸 락 발라드 피아노' },
-  { id: 'hiphop', title: '힙합 시티팝 인스트루멘탈', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3', label: '🎧 시티팝 힙합' },
-  { id: 'nature', title: '숲속 치유의 오르골 & 빗소리', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', label: '🍃 자연/빗소리' }
+  { id: 'jazz', title: '바흐 평균율 전주곡 1번 다장조', videoId: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Well-Tempered_Clavier_Book_1_-_Prelude_1_in_C_Major_BWV_846.mp3', label: '☕ 아침 클래식 전주곡' },
+  { id: 'lofi', title: '베토벤 월광 소나타 1악장 고요한 건반', videoId: 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Moonlight_Sonata_1st_movement_by_Adolf_Albrechtson.mp3', label: '🌙 고요한 밤의 월광 소나타' },
+  { id: 'acoustic', title: '드뷔시 베르가마스크 모음곡 달빛 피아노', videoId: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Clair_de_Lune_%28Debussy%29_Suite_bergamasque_performed_by_Laurens_Goosen.mp3', label: '☔ 감미로운 달빛 피아노' },
+  { id: 'bossanova', title: '슈베르트 즉흥곡 3번 내림지장조 고요한 선율', videoId: 'https://upload.wikimedia.org/wikipedia/commons/d/da/Schubert_-_Impromptu_in_G_flat_major_D_899_No_3.mp3', label: '☀️ 나른한 오후의 즉흥곡' },
+  { id: 'classic', title: '에릭 사티 짐노페디 1번 힐링 건반', videoId: 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Gymnopedie_No_1.mp3', label: '🎻 에릭 사티 짐노페디 1번' },
+  { id: 'rock', title: '쇼팽 빗방울 전주곡 감성 피아노 연주', videoId: 'https://upload.wikimedia.org/wikipedia/commons/1/1b/Chopin_-_Prelude_no_15_in_D_flat_major_Raindrop.mp3', label: '🎸 쇼팽 빗방울 전주곡' },
+  { id: 'hiphop', title: '모차르트 피아노 소나타 K.545 2악장 안단테', videoId: 'https://upload.wikimedia.org/wikipedia/commons/d/df/Mozart_K545_2nd_mvt.mp3', label: '🎧 맑고 정갈한 소나타 안단테' },
+  { id: 'nature', title: '쇼팽 녹턴 2번 내림마장조 빗방울 음악', videoId: 'https://upload.wikimedia.org/wikipedia/commons/c/c4/Nocturne_in_E-flat_major%2C_Op._9%2C_No._2.mp3', label: '🍃 쇼팽의 차분한 녹턴' }
 ];
 
 const resolveAudioUrl = (input: string | undefined): string => {
-  if (!input) return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'; // 기본 lofi
+  if (!input) return 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Gymnopedie_No_1.mp3'; // 기본 짐노페디
   
   // 이미 정상적인 HTTP 오디오 URL인 경우 그대로 반환
   if (input.startsWith('http')) return input;
@@ -146,38 +146,38 @@ const resolveAudioUrl = (input: string | undefined): string => {
     case 'tN9ecELJ5A0':
     case 'Dx5qFeM4yMc':
     case 'jazz':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+      return 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Well-Tempered_Clavier_Book_1_-_Prelude_1_in_C_Major_BWV_846.mp3';
     case '811QZGDysx0':
     case 'jfKfPfyJRdk':
     case 'lofi':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3';
+      return 'https://upload.wikimedia.org/wikipedia/commons/a/ac/Moonlight_Sonata_1st_movement_by_Adolf_Albrechtson.mp3';
     case 'u4Z_5HapYJ0':
     case 'mnd7nUqM5v0':
     case 'acoustic':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3';
+      return 'https://upload.wikimedia.org/wikipedia/commons/2/28/Clair_de_Lune_%28Debussy%29_Suite_bergamasque_performed_by_Laurens_Goosen.mp3';
     case 'g6B99n6vU-w':
     case '30o78YPNn6w':
     case 'bossanova':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3';
+      return 'https://upload.wikimedia.org/wikipedia/commons/d/da/Schubert_-_Impromptu_in_G_flat_major_D_899_No_3.mp3';
     case '57GfJ1A5e68':
     case 'jgpJVIg8DbM':
     case 'classic':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3';
+      return 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Gymnopedie_No_1.mp3';
     case 'rock':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3';
+      return 'https://upload.wikimedia.org/wikipedia/commons/1/1b/Chopin_-_Prelude_no_15_in_D_flat_major_Raindrop.mp3';
     case 'hiphop':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3';
+      return 'https://upload.wikimedia.org/wikipedia/commons/d/df/Mozart_K545_2nd_mvt.mp3';
     case 'L8g3c-t0HjM':
     case 'NDGs9x04DkY':
     case 'nature':
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3';
+      return 'https://upload.wikimedia.org/wikipedia/commons/c/c4/Nocturne_in_E-flat_major%2C_Op._9%2C_No._2.mp3';
     default:
       // 그 외의 값은 BGM_THEMES에 부합하는 매핑 시도
       const matched = BGM_THEMES.find(t => t.id === input || t.videoId === input);
       if (matched && matched.videoId.startsWith('http')) {
         return matched.videoId;
       }
-      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'; // 기본값 lofi
+      return 'https://upload.wikimedia.org/wikipedia/commons/3/3b/Gymnopedie_No_1.mp3'; // 기본값 짐노페디
   }
 };
 
@@ -315,39 +315,39 @@ export default function CoffeeTalk() {
 
     const text = newContent.toLowerCase();
     
-    // 감성 매칭 스코어링 테이블
+    // 클래식 피아노 감성 매칭 스코어링 테이블
     const scoreMap: Record<string, { score: number; keywords: string[] }> = {
       jazz: { 
         score: 0, 
-        keywords: ["재즈", "jazz", "카페", "피아노", "아침", "조용한", "차분한", "독서", "에스프레소", "브런치", "모닝", "원두", "아메리카노"] 
+        keywords: ["아침", "모닝", "원두", "독서", "온화", "평화", "책", "햇살", "시작", "에스프레소", "브런치", "향기"] 
       },
       lofi: { 
         score: 0, 
-        keywords: ["로파이", "lofi", "밤", "새벽", "심야", "별", "외로운", "감성", "조명", "작업", "코딩", "방구석", "고민"] 
+        keywords: ["새벽", "밤", "고요", "사색", "조명", "심야", "눈감고", "어둠", "감성", "위로", "휴식", "힐링"] 
       },
       acoustic: { 
         score: 0, 
-        keywords: ["어쿠스틱", "기타", "어쿠스틱기타", "비", "비오는", "우산", "흐린", "쓸쓸한", "따스한", "바람", "감수성", "위로"] 
+        keywords: ["비", "비오는", "달빛", "촉촉", "쓸쓸", "다정", "위안", "은은", "감미", "피아노", "눈물", "그리움"] 
       },
       bossanova: { 
         score: 0, 
-        keywords: ["보사노바", "bossa", "오후", "햇살", "날씨", "화창한", "맑은", "바람", "봄", "여름", "바다", "여행", "휴식", "달콤", "주말"] 
+        keywords: ["오후", "나른", "여유", "차분", "나뭇잎", "그늘", "바람", "휴일", "주말", "평온", "달콤", "홍차"] 
       },
       classic: { 
         score: 0, 
-        keywords: ["클래식", "classic", "집중", "공부", "첼로", "피아노", "에스프레소", "정갈", "차분", "바이올린", "커피향", "오케스트라"] 
+        keywords: ["사티", "짐노페디", "프렌치", "모던", "정갈", "심플", "미니멀", "에스프레소", "깔끔", "집중", "공부"] 
       },
       rock: { 
         score: 0, 
-        keywords: ["락", "rock", "발라드", "락발라드", "슬픈", "아련한", "피아노연주", "기타솔로", "추억", "이별", "애틋", "그리움"] 
+        keywords: ["빗방울", "추억", "이별", "애틋", "낭만", "소나기", "구름", "기억", "바람소리", "쓸쓸함"] 
       },
       hiphop: { 
         score: 0, 
-        keywords: ["힙합", "hiphop", "비트", "트렌디", "시티팝", "도심", "힙한", "리듬", "그루브", "스트릿", "트렌디한", "신나는"] 
+        keywords: ["맑은", "정통", "소나타", "안단테", "단아", "우아", "클래식", "원두향", "균형", "깔끔한"] 
       },
       nature: { 
         score: 0, 
-        keywords: ["자연", "빗소리", "오르골", "숲", "힐링", "치유", "바다소리", "asmr", "휴식", "바람소리", "물소리", "고요"] 
+        keywords: ["녹턴", "쇼팽", "밤하늘", "은하수", "깊은", "고요함", "평화로움", "안식", "위로", "눈물", "치유"] 
       }
     };
 
@@ -385,7 +385,7 @@ export default function CoffeeTalk() {
       setSelectedBgmTheme(bestThemeId);
       
       // AI 피드백 팝업 알림
-      alert(`🪄 [BeanMind AI BGM 자동 매칭 완료]\n\n회원님이 작성하신 피드 속 감성 어휘(예: "${matchedWord}")를 정밀 분석하여,\n가장 아름답게 어울리는 배경음악 테마 「${matchedTheme.label}」을 찾아 자동으로 페어링해 드렸습니다!`);
+      alert(`🪄 [BeanMind AI BGM 자동 매칭 완료]\n\n회원님이 작성하신 피드 속 감성 어휘(예: "${matchedWord}")를 정밀 분석하여,\n가장 아름답게 어울리는 배경음악 테마 「${matchedTheme.label}」을 찾아 자동으로 페어링해 드렸습니다!\n\n※ 어쿠스틱 비트 없이 오직 마음을 정화하는 100% 고요하고 깊이 있는 정통 클래식 피아노 명곡으로, 눈을 감고 듣기 편안한 조용한 커피 타임을 선사합니다.`);
     }
   };
 
