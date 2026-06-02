@@ -234,6 +234,30 @@ export default function CoffeeTalk() {
   const [bgmVolume, setBgmVolume] = useState<number>(50);
   const [selectedBgmTheme, setSelectedBgmTheme] = useState<string>(''); // For write/edit modal
 
+  // BGM Audio Singleton Instance Ref & Control Helpers
+  const bgmAudioRef = React.useRef<HTMLAudioElement | null>(null);
+
+  const playBgmAudio = (url: string, volValue: number) => {
+    if (!bgmAudioRef.current) {
+      bgmAudioRef.current = new Audio(url);
+      bgmAudioRef.current.loop = true;
+    } else if (bgmAudioRef.current.src !== url) {
+      bgmAudioRef.current.pause();
+      bgmAudioRef.current = new Audio(url);
+      bgmAudioRef.current.loop = true;
+    }
+    bgmAudioRef.current.volume = volValue / 100;
+    bgmAudioRef.current.play().catch(err => {
+      console.error("Audio playback error:", err);
+    });
+  };
+
+  const pauseBgmAudio = () => {
+    if (bgmAudioRef.current) {
+      bgmAudioRef.current.pause();
+    }
+  };
+
   // Ads State
   const [feedAd, setFeedAd] = useState<any>(null);
   const [premiumAd, setPremiumAd] = useState<any>(null);
@@ -1336,29 +1360,21 @@ export default function CoffeeTalk() {
       handleOpenMap(post.store?.id || null, post.cafeLat || post.store?.lat || 37.5665, post.cafeLng || post.store?.lng || 126.9780, post.cafeName || post.store?.name || '위치 정보');
   };
 
-  // BGM unMute postMessage trigger effect for Autoplay policy bypass
+  // BGM Audio volume synchronization & Clean-up effect
   React.useEffect(() => {
-    if (activeBgmVideoId && isBgmPlaying) {
-      const timer = setTimeout(() => {
-        const iframe = document.getElementById('youtube-bgm-player') as HTMLIFrameElement;
-        if (iframe && iframe.contentWindow) {
-          try {
-            iframe.contentWindow.postMessage(
-              JSON.stringify({ event: 'command', func: 'unMute', args: [] }),
-              '*'
-            );
-            iframe.contentWindow.postMessage(
-              JSON.stringify({ event: 'command', func: 'setVolume', args: [bgmVolume] }),
-              '*'
-            );
-          } catch (e) {
-            console.error('BGM postMessage error:', e);
-          }
-        }
-      }, 800);
-      return () => clearTimeout(timer);
+    if (bgmAudioRef.current) {
+      bgmAudioRef.current.volume = bgmVolume / 100;
     }
-  }, [activeBgmVideoId, isBgmPlaying, bgmVolume]);
+  }, [bgmVolume]);
+
+  React.useEffect(() => {
+    return () => {
+      if (bgmAudioRef.current) {
+        bgmAudioRef.current.pause();
+        bgmAudioRef.current = null;
+      }
+    };
+  }, []);
 
   // User Profile
   React.useEffect(() => {
@@ -1825,11 +1841,13 @@ export default function CoffeeTalk() {
                                                           e.preventDefault();
                                                           if (activeBgmPostId === post.id && isBgmPlaying) {
                                                               setIsBgmPlaying(false);
+                                                              pauseBgmAudio();
                                                           } else {
                                                               setActiveBgmVideoId(bgm.videoId);
                                                               setActiveBgmTitle(bgm.title);
                                                               setActiveBgmPostId(post.id);
                                                               setIsBgmPlaying(true);
+                                                              playBgmAudio(bgm.videoId, bgmVolume);
                                                           }
                                                       }}
                                                       className={`absolute z-30 px-3 py-1.5 bg-espresso-950/85 hover:bg-espresso-900/95 backdrop-blur-md text-amber-400 border border-amber-500/30 rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-1.5 text-[11px] font-black tracking-wider bottom-4 right-4 ${activeBgmPostId === post.id && isBgmPlaying ? 'animate-pulse border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.4)]' : ''}`}
@@ -1880,11 +1898,13 @@ export default function CoffeeTalk() {
                                       e.preventDefault();
                                       if (activeBgmPostId === post.id && isBgmPlaying) {
                                           setIsBgmPlaying(false);
+                                          pauseBgmAudio();
                                       } else {
                                           setActiveBgmVideoId(bgm.videoId);
                                           setActiveBgmTitle(bgm.title);
                                           setActiveBgmPostId(post.id);
                                           setIsBgmPlaying(true);
+                                          playBgmAudio(bgm.videoId, bgmVolume);
                                       }
                                   }}
                                   className={`absolute z-[25] px-3.5 py-2 bg-black/75 hover:bg-black/90 backdrop-blur-md text-amber-400 border border-amber-500/40 rounded-xl shadow-2xl active:scale-95 transition-all flex items-center gap-1.5 text-xs font-black tracking-widest top-[140px] right-5 ${activeBgmPostId === post.id && isBgmPlaying ? 'animate-pulse border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.4)]' : ''}`}
@@ -2143,11 +2163,13 @@ export default function CoffeeTalk() {
                                             e.preventDefault();
                                             if (activeBgmPostId === post.id && isBgmPlaying) {
                                                 setIsBgmPlaying(false);
+                                                pauseBgmAudio();
                                             } else {
                                                 setActiveBgmVideoId(bgm.videoId);
                                                 setActiveBgmTitle(bgm.title);
                                                 setActiveBgmPostId(post.id);
                                                 setIsBgmPlaying(true);
+                                                playBgmAudio(bgm.videoId, bgmVolume);
                                             }
                                         }}
                                         className={`absolute z-30 px-3 py-1.5 bg-espresso-950/85 hover:bg-espresso-900/95 backdrop-blur-md text-amber-400 border border-amber-500/30 rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-1.5 text-[11px] font-black tracking-wider ${
@@ -2316,11 +2338,13 @@ export default function CoffeeTalk() {
                               e.preventDefault();
                               if (activeBgmPostId === post.id && isBgmPlaying) {
                                   setIsBgmPlaying(false);
+                                  pauseBgmAudio();
                               } else {
                                   setActiveBgmVideoId(bgm.videoId);
                                   setActiveBgmTitle(bgm.title);
                                   setActiveBgmPostId(post.id);
                                   setIsBgmPlaying(true);
+                                  playBgmAudio(bgm.videoId, bgmVolume);
                               }
                           }}
                           className={`ml-3 px-3 py-1.5 rounded-full bg-espresso-800 text-[11px] font-black border transition-all flex items-center gap-1.5 ${
@@ -3390,16 +3414,6 @@ export default function CoffeeTalk() {
               {/* Vinyl Record Visual representation */}
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div className="relative w-12 h-12 rounded-full bg-espresso-950 border-2 border-espresso-800 shadow-[0_0_15px_rgba(245,158,11,0.25)] flex items-center justify-center shrink-0 overflow-hidden">
-                  {/* Hidden iframe for BGM playing only audio, nested inside vinyl container with 0.01 opacity for 100% webview play assurance */}
-                  {activeBgmVideoId && isBgmPlaying && (
-                    <iframe
-                      id="youtube-bgm-player"
-                      className="absolute inset-0 w-full h-full opacity-[0.01] pointer-events-none rounded-full"
-                      src={`https://www.youtube.com/embed/${activeBgmVideoId}?enablejsapi=1&autoplay=1&mute=0&loop=1&playlist=${activeBgmVideoId}&origin=${window.location.origin}`}
-                      allow="autoplay; encrypted-media"
-                      title="BeanMind AI BGM"
-                    />
-                  )}
                   {/* Outer Vinyl ring */}
                   <div className={`w-full h-full rounded-full border border-espresso-800 absolute flex items-center justify-center ${isBgmPlaying ? 'animate-spin' : ''}`} style={{ animationDuration: '6s' }}>
                     <div className="w-10 h-10 rounded-full border border-espresso-900 bg-[#0f0a05] flex items-center justify-center">
@@ -3421,7 +3435,15 @@ export default function CoffeeTalk() {
               <div className="flex items-center gap-3 shrink-0">
                 {/* Play/Pause Button */}
                 <button
-                  onClick={() => setIsBgmPlaying(!isBgmPlaying)}
+                  onClick={() => {
+                    if (isBgmPlaying) {
+                      setIsBgmPlaying(false);
+                      pauseBgmAudio();
+                    } else {
+                      setIsBgmPlaying(true);
+                      if (activeBgmVideoId) playBgmAudio(activeBgmVideoId, bgmVolume);
+                    }
+                  }}
                   className="w-10 h-10 bg-amber-500 hover:bg-amber-400 text-espresso-950 rounded-full flex items-center justify-center shadow-[0_0_12px_rgba(245,158,11,0.4)] active:scale-95 transition-all focus:outline-none"
                 >
                   {isBgmPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} className="ml-0.5" fill="currentColor" />}
@@ -3434,6 +3456,7 @@ export default function CoffeeTalk() {
                     setActiveBgmVideoId(null);
                     setActiveBgmTitle(null);
                     setActiveBgmPostId(null);
+                    pauseBgmAudio();
                   }}
                   className="w-9 h-9 bg-espresso-800 hover:bg-espresso-700 text-espresso-200 hover:text-espresso-50 rounded-full flex items-center justify-center transition-all focus:outline-none active:scale-95"
                 >
@@ -3453,13 +3476,8 @@ export default function CoffeeTalk() {
                 onChange={(e) => {
                   const vol = parseInt(e.target.value);
                   setBgmVolume(vol);
-                  // Dynamic Volume adjust through iframe postMessage
-                  const iframe = document.getElementById('youtube-bgm-player') as HTMLIFrameElement;
-                  if (iframe && iframe.contentWindow) {
-                    iframe.contentWindow.postMessage(
-                      JSON.stringify({ event: 'command', func: 'setVolume', args: [vol] }),
-                      '*'
-                    );
+                  if (bgmAudioRef.current) {
+                    bgmAudioRef.current.volume = vol / 100;
                   }
                 }}
                 className="flex-1 accent-amber-500 h-1 rounded-full cursor-pointer bg-espresso-800"
