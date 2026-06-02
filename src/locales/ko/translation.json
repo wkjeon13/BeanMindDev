@@ -1379,6 +1379,7 @@
         "ph_host_search": "가입된 호스트 닉네임 또는 이메일 검색 (2자 이상)..."
     },
     "coffee_talk": {
+        "bgm_pairing_btn": "BGM 페어링",
         "bgm_pairing_title": "🎵 AI 감성 사운드 페어링 (배경음악 지정)",
         "bgm_direct_input": "✍️ 직접 입력",
         "bgm_ai_auto_match": "🪄 AI 자동 매칭",

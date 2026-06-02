@@ -2077,7 +2077,7 @@ export default function CoffeeTalk() {
                                                       className="absolute z-30 px-3 py-1.5 bg-espresso-950/85 hover:bg-espresso-900/95 backdrop-blur-md text-amber-400 border border-amber-500/30 rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-1.5 text-[11px] font-black tracking-wider bottom-4 right-4"
                                                   >
                                                       <Music size={13} />
-                                                      BGM 페어링
+                                                      {t('coffee_talk.bgm_pairing_btn', 'BGM 페어링')}
                                                   </button>
                                               )}
                                           </div>
@@ -2128,7 +2128,7 @@ export default function CoffeeTalk() {
                                   className="absolute z-[25] px-3.5 py-2 bg-black/75 hover:bg-black/90 backdrop-blur-md text-amber-400 border border-amber-500/40 rounded-xl shadow-2xl active:scale-95 transition-all flex items-center gap-1.5 text-xs font-black tracking-widest top-[140px] right-5"
                               >
                                   <Music size={14} />
-                                  BGM 페어링
+                                  {t('coffee_talk.bgm_pairing_btn', 'BGM 페어링')}
                               </button>
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none"></div>
@@ -2389,7 +2389,7 @@ export default function CoffeeTalk() {
                                         }`}
                                     >
                                         <Music size={13} />
-                                        BGM 페어링
+                                        {t('coffee_talk.bgm_pairing_btn', 'BGM 페어링')}
                                     </button>
                                 )}
 
@@ -2556,7 +2556,7 @@ export default function CoffeeTalk() {
                           className="ml-3 px-3 py-1.5 rounded-full bg-espresso-800 text-[11px] font-black border border-amber-500/20 hover:border-amber-500/50 text-amber-500/90 transition-all flex items-center gap-1.5"
                       >
                           <Music size={12} />
-                          BGM 페어링
+                          {t('coffee_talk.bgm_pairing_btn', 'BGM 페어링')}
                       </button>
                   )}
                 </div>

@@ -1346,6 +1346,7 @@
         "ph_host_search": "Search registered host nickname or email (2+ chars)..."
     },
     "coffee_talk": {
+        "bgm_pairing_btn": "BGM Pairing",
         "bgm_pairing_title": "🎵 AI Sound Pairing (Background Music)",
         "bgm_direct_input": "✍️ Custom Input",
         "bgm_ai_auto_match": "🪄 AI Auto Match",
