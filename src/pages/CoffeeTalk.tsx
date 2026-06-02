@@ -290,6 +290,8 @@ export default function CoffeeTalk() {
   const [isBgmPlaying, setIsBgmPlaying] = useState<boolean>(false);
   const [bgmVolume, setBgmVolume] = useState<number>(50);
   const [selectedBgmTheme, setSelectedBgmTheme] = useState<string>(''); // For write/edit modal
+  const [customBgmTitle, setCustomBgmTitle] = useState<string>(''); // For custom song name input
+  const [isCustomBgmInputActive, setIsCustomBgmInputActive] = useState<boolean>(false); // Show/hide custom input field
 
   // BGM Audio Singleton Instance Ref & Control Helpers
   const bgmAudioRef = React.useRef<HTMLAudioElement | null>(null);
@@ -1271,8 +1273,10 @@ export default function CoffeeTalk() {
 
         formData.append('countryCode', getDeviceCountryCode());
 
-        // BGM Theme injection
-        if (selectedBgmTheme) {
+        // BGM Theme or Custom BGM injection
+        if (customBgmTitle && customBgmTitle.trim()) {
+            formData.append('bgmTheme', JSON.stringify({ title: customBgmTitle.trim(), videoId: 'custom_search' }));
+        } else if (selectedBgmTheme) {
             const themeObj = BGM_THEMES.find(t => t.id === selectedBgmTheme);
             if (themeObj) {
                 formData.append('bgmTheme', JSON.stringify({ title: themeObj.title, videoId: themeObj.videoId }));
@@ -1299,6 +1303,8 @@ export default function CoffeeTalk() {
             setIsWriteModalOpen(false);
             setNewContent('');
             setSelectedBgmTheme('');
+            setCustomBgmTitle('');
+            setIsCustomBgmInputActive(false);
             setNewImages([]);
             setNewImagePreviews([]);
             setExistingImages([]);
@@ -1385,11 +1391,21 @@ export default function CoffeeTalk() {
       
       const { cleanContent, bgm } = parseBgmFromContent(post.content);
       setNewContent(cleanContent);
-      if (bgm && (bgm.videoId || bgm.title)) {
+      if (bgm) {
           const matchingTheme = BGM_THEMES.find(t => t.videoId === bgm.videoId || t.title === bgm.title);
-          setSelectedBgmTheme(matchingTheme ? matchingTheme.id : '');
+          if (matchingTheme) {
+              setSelectedBgmTheme(matchingTheme.id);
+              setCustomBgmTitle('');
+              setIsCustomBgmInputActive(false);
+          } else {
+              setSelectedBgmTheme('');
+              setCustomBgmTitle(bgm.title);
+              setIsCustomBgmInputActive(true);
+          }
       } else {
           setSelectedBgmTheme('');
+          setCustomBgmTitle('');
+          setIsCustomBgmInputActive(false);
       }
       
       if (post.isShorts) {
@@ -2874,7 +2890,7 @@ export default function CoffeeTalk() {
         <div className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-espresso-950/80 backdrop-blur-sm animate-in fade-in duration-200">
             <div className={`w-full max-w-lg sm:rounded-3xl rounded-t-3xl flex flex-col max-h-[90vh] animate-in slide-in-from-bottom-full sm:slide-in-from-bottom-10 overflow-hidden border ${isPilgrimageLedgerCompose ? 'bg-[#0f0a05] border-amber-500/40 shadow-[0_-20px_40px_rgba(245,158,11,0.15)]' : 'bg-espresso-950 border-espresso-700 shadow-[0_-20px_40px_rgba(0,0,0,0.5)]'}`}>
                 <div className={`flex items-center justify-between p-4 border-b ${isPilgrimageLedgerCompose ? 'border-amber-900/50 bg-[#1c1305]' : 'border-espresso-700'}`}>
-                    <button onClick={() => { setIsWriteModalOpen(false); setEditPostId(null); setNewContent(''); setNewImages([]); setNewImagePreviews([]); setExistingImages([]); setTaggedShop(null); setTaggedBean(''); setShortsCategory(''); setEquipmentTag(''); setIsRecipeMode(false); setRecipeData({dose:'',yield:'',temp:'',time:'',grinder:'',method:''}); setTastingNote({acidity:0,sweetness:0,body:0,bitterness:0,aroma:0}); setIsAnnouncement(false); setComposeMode('GENERAL'); setAttachedCourseId(null); setIsCourseSelectorOpen(false); }} className="font-medium text-[15px] text-espresso-200 hover:text-white p-2 transition-colors">{t('coffee_talk.btn_cancel', '취소')}</button>
+                    <button onClick={() => { setIsWriteModalOpen(false); setEditPostId(null); setNewContent(''); setSelectedBgmTheme(''); setCustomBgmTitle(''); setIsCustomBgmInputActive(false); setNewImages([]); setNewImagePreviews([]); setExistingImages([]); setTaggedShop(null); setTaggedBean(''); setShortsCategory(''); setEquipmentTag(''); setIsRecipeMode(false); setRecipeData({dose:'',yield:'',temp:'',time:'',grinder:'',method:''}); setTastingNote({acidity:0,sweetness:0,body:0,bitterness:0,aroma:0}); setIsAnnouncement(false); setComposeMode('GENERAL'); setAttachedCourseId(null); setIsCourseSelectorOpen(false); }} className="font-medium text-[15px] text-espresso-200 hover:text-white p-2 transition-colors">{t('coffee_talk.btn_cancel', '취소')}</button>
                     <h2 className={`text-lg font-black tracking-tight flex items-center gap-1.5 ${isPilgrimageLedgerCompose ? 'text-amber-500 font-serif' : ''}`}>
                         {isPilgrimageLedgerCompose && <Crown size={18} className="text-amber-500 mb-0.5" />}
                         {editPostId ? t('coffee_talk.title_edit_post', '게시물 수정') : (isPilgrimageLedgerCompose ? t('coffee_talk.title_pilgrimage_compose', '성지순례 방명록 남기기') : t('coffee_talk.title_new_post', '새 글 작성'))}
@@ -3023,17 +3039,66 @@ export default function CoffeeTalk() {
                       <div className="flex flex-col gap-2 p-3 bg-espresso-950/50 rounded-xl border border-amber-500/10 w-full mb-1">
                           <div className="flex items-center justify-between gap-2 mb-1">
                               <p className="text-[11px] font-bold text-amber-500 flex items-center gap-1.5"><Music size={12}/> 🎵 AI 감성 사운드 페어링 (배경음악 지정)</p>
-                              <button
-                                  type="button"
-                                  onClick={(e) => {
-                                      e.preventDefault();
-                                      handleAiBgmAutoMatch();
-                                  }}
-                                  className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1 active:scale-95 transition-all shadow-sm"
-                              >
-                                  <Sparkles size={10} className="text-amber-400 animate-pulse" /> AI 자동 매칭
-                              </button>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                  <button
+                                      type="button"
+                                      onClick={(e) => {
+                                          e.preventDefault();
+                                          const nextActive = !isCustomBgmInputActive;
+                                          setIsCustomBgmInputActive(nextActive);
+                                          if (nextActive) {
+                                              setSelectedBgmTheme(''); // 직접 입력 시 테마 선택 해제
+                                          } else {
+                                              setCustomBgmTitle('');
+                                          }
+                                      }}
+                                      className={`px-2 py-1 rounded-lg text-[10px] font-extrabold flex items-center gap-1 active:scale-95 transition-all shadow-sm border ${
+                                          isCustomBgmInputActive 
+                                              ? 'bg-amber-500 text-espresso-950 border-amber-400' 
+                                              : 'bg-espresso-800 hover:bg-espresso-700 text-espresso-200 border-espresso-700'
+                                      }`}
+                                  >
+                                      ✍️ 직접 입력
+                                  </button>
+                                  <button
+                                      type="button"
+                                      onClick={(e) => {
+                                          e.preventDefault();
+                                          handleAiBgmAutoMatch();
+                                          // AI 매칭 시 직접 입력 해제
+                                          setCustomBgmTitle('');
+                                          setIsCustomBgmInputActive(false);
+                                      }}
+                                      className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1 active:scale-95 transition-all shadow-sm"
+                                  >
+                                      <Sparkles size={10} className="text-amber-400 animate-pulse" /> AI 자동 매칭
+                                  </button>
+                              </div>
                           </div>
+
+                          <AnimatePresence>
+                              {isCustomBgmInputActive && (
+                                  <motion.div 
+                                      initial={{ opacity: 0, height: 0 }}
+                                      animate={{ opacity: 1, height: 'auto' }}
+                                      exit={{ opacity: 0, height: 0 }}
+                                      transition={{ duration: 0.2 }}
+                                      className="w-full relative overflow-hidden"
+                                  >
+                                      <input 
+                                          type="text"
+                                          value={customBgmTitle}
+                                          onChange={(e) => {
+                                              setCustomBgmTitle(e.target.value);
+                                              setSelectedBgmTheme(''); // 직접 입력 중일 때는 테마 선택 해제
+                                          }}
+                                          placeholder="가수명 - 곡명 (예: 아이유 - 밤편지)"
+                                          className="w-full px-3 py-2 bg-espresso-900 border border-amber-500/30 rounded-xl text-xs font-semibold text-espresso-50 focus:border-amber-400 focus:outline-none placeholder-espresso-400 focus:ring-1 focus:ring-amber-400 transition-all shadow-inner my-1"
+                                      />
+                                  </motion.div>
+                              )}
+                          </AnimatePresence>
+
                           <div className="flex gap-2 overflow-x-auto pb-1.5 snap-x no-scrollbar">
                               {BGM_THEMES.map(theme => {
                                   const isSelected = selectedBgmTheme === theme.id;
@@ -3044,6 +3109,9 @@ export default function CoffeeTalk() {
                                           onClick={(e) => {
                                               e.preventDefault();
                                               setSelectedBgmTheme(isSelected ? '' : theme.id);
+                                              // 장르 칩 선택 시 직접 입력 무력화
+                                              setCustomBgmTitle('');
+                                              setIsCustomBgmInputActive(false);
                                           }}
                                           className={`shrink-0 snap-center px-3 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 active:scale-95 ${
                                               isSelected 
