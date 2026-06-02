@@ -278,9 +278,9 @@ export default function AdminCoffeeBeans() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full min-w-[1100px] text-left border-collapse">
               <thead>
-                <tr className="bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <tr className="bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   <th className="px-6 py-4">회원 정보 (닉네임 / 이메일)</th>
                   <th className="px-6 py-4">플랫폼</th>
                   <th className="px-6 py-4">외부 주문 ID (영수증 ID)</th>
@@ -294,7 +294,7 @@ export default function AdminCoffeeBeans() {
                 {transactions.map((tx) => (
                   <tr key={tx.id} className="hover:bg-gray-50/50 transition-colors">
                     {/* User profile info */}
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       {tx.user ? (
                         <div className="space-y-0.5">
                           <div className="font-bold text-gray-800">{tx.user.nickname}</div>
@@ -309,8 +309,8 @@ export default function AdminCoffeeBeans() {
                     </td>
                     
                     {/* Platform */}
-                    <td className="px-6 py-4">
-                      <span className={`px-2.5 py-1 text-xs font-bold rounded-lg ${
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`px-2.5 py-1 text-xs font-bold rounded-lg whitespace-nowrap ${
                         tx.platform.includes('APPLE') ? 'bg-black text-white' :
                         tx.platform.includes('GOOGLE') ? 'bg-blue-50 text-blue-700' :
                         tx.platform.includes('REVENUE') ? 'bg-purple-50 text-purple-700' :
@@ -321,7 +321,7 @@ export default function AdminCoffeeBeans() {
                     </td>
 
                     {/* Store Receipt ID */}
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="font-mono text-xs max-w-[200px] truncate text-gray-500" title={tx.storeTransactionId}>
                         {tx.storeTransactionId}
                       </div>
@@ -329,41 +329,41 @@ export default function AdminCoffeeBeans() {
                     </td>
 
                     {/* Charge Amount */}
-                    <td className="px-6 py-4 font-bold text-gray-900">
+                    <td className="px-6 py-4 font-bold text-gray-900 whitespace-nowrap">
                       +{tx.amount.toLocaleString()} 콩
                     </td>
 
                     {/* Created Time */}
-                    <td className="px-6 py-4 text-xs text-gray-400">
+                    <td className="px-6 py-4 text-xs text-gray-400 whitespace-nowrap">
                       {new Date(tx.createdAt).toLocaleString('ko-KR')}
                     </td>
 
                     {/* Status Badge */}
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       {tx.isCancelled ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 text-red-700 text-xs font-bold rounded-full">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 text-red-700 text-xs font-bold rounded-full whitespace-nowrap">
                           <XCircle className="w-3.5 h-3.5" /> 취소/회수 완료
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full whitespace-nowrap">
                           <CheckCircle2 className="w-3.5 h-3.5" /> 충전 성공
                         </span>
                       )}
                     </td>
 
                     {/* Refund Actions */}
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-6 py-4 text-center whitespace-nowrap">
                       {tx.isCancelled ? (
                         <button 
                           disabled
-                          className="px-3 py-1.5 bg-gray-100 text-gray-400 text-xs font-semibold rounded-lg cursor-not-allowed"
+                          className="px-3 py-1.5 bg-gray-100 text-gray-400 text-xs font-semibold rounded-lg cursor-not-allowed whitespace-nowrap"
                         >
                           취소 완료됨
                         </button>
                       ) : (
                         <button 
                           onClick={() => handleOpenCancelModal(tx)}
-                          className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 active:scale-95 text-xs font-bold rounded-lg transition-all"
+                          className="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 active:scale-95 text-xs font-bold rounded-lg transition-all whitespace-nowrap"
                         >
                           결제 취소 처리
                         </button>
