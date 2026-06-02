@@ -136,8 +136,18 @@ const BGM_THEMES: BgmTheme[] = [
   { id: 'coffeetime', title: '드뷔시 베르가마스크 모음곡 달빛 피아노', videoId: 'NDGs9x04DkY', label: '☕ 커피 타임 고요한 피아노' }
 ];
 
-const resolveAudioUrl = (input: string | undefined): string => {
-  if (!input) return 'https://yewtu.be/latest_version?id=57GfJ1A5e68&itag=140'; // 기본 짐노페디 1번 (유튜브)
+// 글로벌 인비디어스 인스턴스 목록 (유튜브 음원 프록시용 고가용성 서버 그룹)
+const INVIDIOUS_INSTANCES = [
+  'https://yewtu.be',
+  'https://iv.ggtyler.dev',
+  'https://invidious.flokinet.to',
+  'https://invidious.lunar.icu'
+];
+
+const resolveAudioUrl = (input: string | undefined, instanceIndex: number = 0): string => {
+  const baseDomain = INVIDIOUS_INSTANCES[instanceIndex % INVIDIOUS_INSTANCES.length];
+  
+  if (!input) return `${baseDomain}/latest_version?id=57GfJ1A5e68&itag=140`; // 기본 짐노페디 1번 (유튜브)
   
   // 이미 정상적인 HTTP 오디오 URL인 경우 그대로 반환
   if (input.startsWith('http')) return input;
@@ -159,7 +169,7 @@ const resolveAudioUrl = (input: string | undefined): string => {
   const videoId = youtubeMap[input] || input;
 
   // 인비디어스 고가용성 오디오 스트리밍 API 프록시 경로로 실시간 변환
-  return `https://yewtu.be/latest_version?id=${videoId}&itag=140`;
+  return `${baseDomain}/latest_version?id=${videoId}&itag=140`;
 };
 
 interface ParsedBgm {
@@ -267,19 +277,48 @@ export default function CoffeeTalk() {
   const bgmAudioRef = React.useRef<HTMLAudioElement | null>(null);
 
   const playBgmAudio = (url: string, volValue: number) => {
-    const resolvedUrl = resolveAudioUrl(url);
-    if (!bgmAudioRef.current) {
-      bgmAudioRef.current = new Audio(resolvedUrl);
-      bgmAudioRef.current.loop = true;
-    } else if (bgmAudioRef.current.src !== resolvedUrl) {
-      bgmAudioRef.current.pause();
-      bgmAudioRef.current = new Audio(resolvedUrl);
-      bgmAudioRef.current.loop = true;
-    }
-    bgmAudioRef.current.volume = volValue / 100;
-    bgmAudioRef.current.play().catch(err => {
-      console.error("Audio playback error:", err);
-    });
+    let attemptIndex = 0;
+    
+    const playWithFallback = (currentUrl: string) => {
+      const resolvedUrl = resolveAudioUrl(currentUrl, attemptIndex);
+      
+      if (!bgmAudioRef.current) {
+        bgmAudioRef.current = new Audio(resolvedUrl);
+        bgmAudioRef.current.loop = true;
+      } else if (bgmAudioRef.current.src !== resolvedUrl) {
+        bgmAudioRef.current.pause();
+        bgmAudioRef.current = new Audio(resolvedUrl);
+        bgmAudioRef.current.loop = true;
+      }
+      
+      bgmAudioRef.current.volume = volValue / 100;
+      
+      // 에러 리스너 결합 (네트워크 차단, 403 Forbidden 등 소리 안 남 원천 방어)
+      bgmAudioRef.current.onerror = () => {
+        console.warn(`[BGM Player Warning] Invidious proxy ${INVIDIOUS_INSTANCES[attemptIndex % INVIDIOUS_INSTANCES.length]} failed to stream. Attempting fallback...`);
+        attemptIndex++;
+        if (attemptIndex < INVIDIOUS_INSTANCES.length) {
+          // 다음 사용 가능한 최적의 인비디어스 인스턴스로 자동 전환 재생 시도
+          playWithFallback(currentUrl);
+        } else {
+          console.error("[BGM Player Critical] All public YouTube Music proxies are currently blocked. Transitioning to high-availability SoundHelix MP3 fallback...");
+          // 전 세계 인비디어스 스트리머가 모두 터진 최악의 비상사태 시 100% 가용한 SoundHelix 피아노 음악으로 전환하여 소리 안 남 현상 방지
+          const soundHelixFallback = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3';
+          if (bgmAudioRef.current) {
+            bgmAudioRef.current.src = soundHelixFallback;
+            bgmAudioRef.current.play().catch(console.error);
+          }
+        }
+      };
+
+      bgmAudioRef.current.play().catch(err => {
+        console.error("Audio play catch error, falling back...", err);
+        // play() 동적 거부 시 에러 리스너 수동 격발
+        bgmAudioRef.current?.onerror?.(null as any);
+      });
+    };
+
+    playWithFallback(url);
   };
 
   const pauseBgmAudio = () => {
