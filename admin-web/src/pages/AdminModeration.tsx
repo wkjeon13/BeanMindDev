@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, ShieldAlert, Ban, RefreshCw, EyeOff, Search } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, Ban, RefreshCw, EyeOff, Search, HelpCircle, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { API_BASE } from '@/utils/apiConfig';
@@ -8,6 +8,7 @@ export default function AdminModeration() {
     const navigate = useNavigate();
     const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState<'SPAM' | 'BLIND' | 'REPORT'>('BLIND');
+    const [showHelp, setShowHelp] = useState(false);
     
     const [spamLogs, setSpamLogs] = useState<any[]>([]);
     const [blindedPosts, setBlindedPosts] = useState<any[]>([]);
@@ -148,17 +149,27 @@ export default function AdminModeration() {
         <div className="flex flex-col min-h-[100dvh] bg-espresso-950 font-sans pb-20">
             {/* Header */}
             <div className="bg-espresso-900 border-b border-espresso-800 p-4 sticky top-0 z-50 shadow-md">
-                <div className="flex items-center gap-3">
-                    <button 
-                        onClick={() => navigate('/profile')}
-                        className="text-coffee-200 hover:text-amber-400 transition-colors"
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                        <button 
+                            onClick={() => navigate('/profile')}
+                            className="text-coffee-200 hover:text-amber-400 transition-colors"
+                        >
+                            <ArrowLeft size={24} />
+                        </button>
+                        <h1 className="text-xl font-bold text-amber-50 truncate flex items-center gap-2">
+                            <ShieldAlert size={20} className="text-amber-500"/>
+                            신고 및 차단 내역 (Moderation)
+                        </h1>
+                    </div>
+                    
+                    <button
+                        onClick={() => setShowHelp(true)}
+                        className="text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1.5 text-[11px] sm:text-xs font-bold bg-amber-500/10 border border-amber-500/30 px-2.5 py-1.5 rounded-lg shadow-sm animate-in fade-in duration-300"
                     >
-                        <ArrowLeft size={24} />
+                        <HelpCircle size={16} />
+                        <span>도움말 (Help)</span>
                     </button>
-                    <h1 className="text-xl font-bold text-amber-50 truncate flex items-center gap-2">
-                        <ShieldAlert size={20} className="text-amber-500"/>
-                        신고 및 차단 내역 (Moderation)
-                    </h1>
                 </div>
             </div>
 
@@ -375,6 +386,76 @@ export default function AdminModeration() {
                     </>
                 )}
             </div>
+
+            {/* Help Modal */}
+            {showHelp && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-espresso-900 border border-espresso-700/80 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[85vh] overflow-y-auto flex flex-col gap-5 text-left">
+                        <button 
+                            onClick={() => setShowHelp(false)}
+                            className="absolute top-4 right-4 text-coffee-300 hover:text-amber-400 transition-colors p-1 rounded-lg"
+                        >
+                            <X size={20} />
+                        </button>
+                        
+                        <div>
+                            <h3 className="text-base sm:text-lg font-bold text-amber-100 flex items-center gap-2 border-b border-espresso-800 pb-3">
+                                <HelpCircle className="text-amber-500" size={20} />
+                                신고 및 차단 시스템 운영 가이드
+                            </h3>
+                            <p className="text-[11px] text-coffee-300 mt-2">
+                                BeanMind 커뮤니티는 스팸 도배, 불건전 활동, 유해 게시글을 차단하기 위해 유기적인 3단계 방어벽 메커니즘을 구동하고 있습니다.
+                            </p>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            {/* 1단계 */}
+                            <div className="p-4 bg-espresso-950/60 rounded-xl border border-red-500/20">
+                                <h4 className="text-xs sm:text-sm font-bold text-red-400 flex items-center gap-2 mb-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                    1단계: 도배 차단 내역 (Rate Limit)
+                                </h4>
+                                <p className="text-[11px] text-coffee-200 leading-relaxed">
+                                    단시간 내에 유저가 고의적으로 다량의 글을 등록하는 것을 **실시간 메모리 계측**을 통해 차단합니다. 1분당 최대 작성 기준치(기본 5회)를 초과할 시 작성을 원천 차단하고, 관리자 페이지에 즉각 탐지 로그를 생성합니다.
+                                </p>
+                            </div>
+                            
+                            {/* 2단계 */}
+                            <div className="p-4 bg-espresso-950/60 rounded-xl border border-orange-500/20">
+                                <h4 className="text-xs sm:text-sm font-bold text-orange-400 flex items-center gap-2 mb-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                                    2단계: 개별 접수된 신고 (Moderation Reports)
+                                </h4>
+                                <p className="text-[11px] text-coffee-200 leading-relaxed">
+                                    일반 유저들이 매장, 유저, 리뷰, 커뮤니티 게시글 및 댓글의 위험성(허위, 욕설, 유해 등)을 보고하여 **관리자가 검토하도록 접수한 원본 내역**입니다. 
+                                    관리자는 직접 **"신고 승인 및 제재"**를 눌러 즉시 차단(블라인드 및 계정 정지)하거나 **"신고 반려(허위 신고 발송)"**, **"기록 삭제"** 처리를 내릴 수 있습니다.
+                                </p>
+                            </div>
+                            
+                            {/* 3단계 */}
+                            <div className="p-4 bg-espresso-950/60 rounded-xl border border-amber-400/20">
+                                <h4 className="text-xs sm:text-sm font-bold text-amber-400 flex items-center gap-2 mb-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                    3단계: 커뮤니티 블라인드 (Auto-Blinded Content)
+                                </h4>
+                                <p className="text-[11px] text-coffee-200 leading-relaxed">
+                                    누적 유저 신고 횟수가 시스템 블라인드 임계치(기본 5회)를 넘어섰거나, 본문에 즉각 차단 금칙어(음란물, 불법 사설 등)가 매칭되어 **서버에 의해 자동 숨김(isHidden = true) 처리된 대상물**의 상태입니다. 
+                                    부당하게 숨겨진 대상이 있다면 관리자가 **"블라인드 해제 및 복구"**를 통해 즉시 정상 원복 시킬 수 있습니다.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div className="flex justify-end pt-2 border-t border-espresso-800">
+                            <button
+                                onClick={() => setShowHelp(false)}
+                                className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-espresso-950 text-xs font-bold rounded-lg transition-colors"
+                            >
+                                확인 완료
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
