@@ -252,7 +252,7 @@ const MemoizedMapMarker = React.memo(({
                             <div className="absolute w-full h-full rounded-full bg-red-500/50 animate-ping"></div>
                             <div className="w-[16px] h-[16px] bg-red-500 border-[3px] border-white rounded-full shadow-md z-10"></div>
                             <div className="absolute -top-[25px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm z-20">
-                                {t('shared_map.lbl_search_center', '검??중심')}
+                                {t('shared_map.lbl_search_center', '검색 중심')}
                             </div>
                         </div>
                     ) : (() => {
@@ -328,14 +328,16 @@ const MemoizedMapMarker = React.memo(({
                             <h3 className="font-extrabold text-[15px] font-sans text-zinc-900 leading-tight truncate w-full mb-0.5">{shop.name}</h3>
                             <div className="flex items-center gap-1 mt-1 text-[12px] text-zinc-600 w-full min-w-0 font-sans">
                                 <span className="truncate block max-w-[120px]">
-                                    {shop.shortDesc || shop.signatureBean || "Specialty Coffee"}
+                                    {typeof shop.shortDesc === 'string' && shop.shortDesc.includes('AI가 발굴한')
+                                        ? t('shared_map.ai_discovered_shop', 'AI가 발굴한 카페/명소')
+                                        : (shop.shortDesc || shop.signatureBean || t('map.fallback_specialty', 'Specialty Coffee'))}
                                 </span>
                                 <span className="shrink-0 text-zinc-300">|</span>
                                 <span className="shrink-0 text-zinc-600">
                                     {(shop.reviewCount ?? 0) > 0 ? (
                                         <span className="font-semibold text-amber-500">{shop.averageRating?.toFixed(1) || '0.0'} <span className="text-zinc-400 font-normal">({(shop.reviewCount ?? 0) >= 1000 ? ((shop.reviewCount ?? 0)/1000).toFixed(1)+'k' : shop.reviewCount})</span></span>
                                     ) : (
-                                        <span className="text-zinc-500 text-[11px]">{t('shared_map.lbl_no_review', '리뷰 ?음')}</span>
+                                        <span className="text-zinc-500 text-[11px]">{t('shared_map.lbl_no_review', '리뷰 없음')}</span>
                                     )}
                                 </span>
                             </div>
@@ -654,7 +656,7 @@ export default function SharedCoffeeMap({
                     >    <div className="relative group cursor-pointer flex items-center justify-center">
                             <div className="w-[20px] h-[20px] bg-blue-500 border-[3px] border-white rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)]"></div>
                             <div className="opacity-0 group-hover:opacity-100 absolute top-full mt-1 bg-white p-2 rounded-xl shadow-sm text-center font-bold text-[13px] text-espresso-900 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                                {t('shared_map.lbl_my_location', '?재 ???치')}
+                                {t('shared_map.lbl_my_location', '현재 내 위치')}
                             </div>
                         </div>
                     </OverlayViewF>
@@ -747,7 +749,7 @@ export default function SharedCoffeeMap({
                 <button
                     onClick={(e) => { e.preventDefault(); onLocateMe(); }}
                     disabled={isLocating}
-                    title={t('shared_map.title_find_me', '???치 찾기')}
+                    title={t('shared_map.title_find_me', '현재 위치 찾기')}
                     className="absolute right-4 z-[400] w-12 h-12 bg-espresso-900 rounded-full shadow-lg flex items-center justify-center text-blue-500 border border-blue-100 hover:bg-blue-50 transition-all duration-300 disabled:opacity-50"
                     style={{ bottom: bottomPadding || '1.5rem' }}
                 >
@@ -757,7 +759,7 @@ export default function SharedCoffeeMap({
 
             {mode === 'explore' && shops.length === 0 && (
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[400] bg-espresso-900/90 backdrop-blur-sm px-6 py-3 rounded-full shadow-lg border border-espresso-700 text-center pointer-events-none">
-                    <p className="font-bold text-[13px] text-espresso-100">{t('shared_map.msg_no_shops', '??지?????록??매장???습?다.')}</p>
+                    <p className="font-bold text-[13px] text-espresso-100">{t('shared_map.msg_no_shops', '이 지역에는 등록된 매장이 없습니다.')}</p>
                 </div>
             )}
 

@@ -1891,7 +1891,7 @@ Format EXACTLY like this example:
                                                         }} 
                                                         className="mt-2 w-full bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-[9px] py-1 px-1 rounded-lg active:scale-95 transition-all shadow-sm flex items-center justify-center gap-0.5 cursor-pointer shrink-0"
                                                     >
-                                                        🎫 적립
+                                                        {t('map.btn_earn', '🎫 적립')}
                                                     </button>
                                                 </div>
                                             </div>
