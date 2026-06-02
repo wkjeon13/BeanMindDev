@@ -3390,6 +3390,16 @@ export default function CoffeeTalk() {
               {/* Vinyl Record Visual representation */}
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div className="relative w-12 h-12 rounded-full bg-espresso-950 border-2 border-espresso-800 shadow-[0_0_15px_rgba(245,158,11,0.25)] flex items-center justify-center shrink-0 overflow-hidden">
+                  {/* Hidden iframe for BGM playing only audio, nested inside vinyl container with 0.01 opacity for 100% webview play assurance */}
+                  {activeBgmVideoId && isBgmPlaying && (
+                    <iframe
+                      id="youtube-bgm-player"
+                      className="absolute inset-0 w-full h-full opacity-[0.01] pointer-events-none rounded-full"
+                      src={`https://www.youtube.com/embed/${activeBgmVideoId}?enablejsapi=1&autoplay=1&mute=0&loop=1&playlist=${activeBgmVideoId}&origin=${window.location.origin}`}
+                      allow="autoplay; encrypted-media"
+                      title="BeanMind AI BGM"
+                    />
+                  )}
                   {/* Outer Vinyl ring */}
                   <div className={`w-full h-full rounded-full border border-espresso-800 absolute flex items-center justify-center ${isBgmPlaying ? 'animate-spin' : ''}`} style={{ animationDuration: '6s' }}>
                     <div className="w-10 h-10 rounded-full border border-espresso-900 bg-[#0f0a05] flex items-center justify-center">
@@ -3431,17 +3441,6 @@ export default function CoffeeTalk() {
                 </button>
               </div>
             </div>
-
-            {/* 비디오 화면은 숨김 처리 (소리만 재생) */}
-            {activeBgmVideoId && isBgmPlaying && (
-              <iframe
-                id="youtube-bgm-player"
-                className="absolute w-1 h-1 opacity-0 pointer-events-none"
-                src={`https://www.youtube.com/embed/${activeBgmVideoId}?enablejsapi=1&autoplay=1&mute=1&loop=1&playlist=${activeBgmVideoId}&origin=${window.location.origin}`}
-                allow="autoplay; encrypted-media"
-                title="BeanMind AI BGM"
-              />
-            )}
 
             {/* Volume slider (Detail Premium quality) */}
             <div className="flex items-center gap-3 bg-espresso-950/40 rounded-xl px-4 py-2 border border-espresso-800/40">
