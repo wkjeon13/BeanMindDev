@@ -29,6 +29,8 @@ export default function AdminCoffeeBeans() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [platformFilter, setPlatformFilter] = useState<string>('ALL');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
 
   // Cancel Modal states
   const [selectedTx, setSelectedTx] = useState<PaymentTransaction | null>(null);
@@ -45,7 +47,7 @@ export default function AdminCoffeeBeans() {
       const token = localStorage.getItem('token');
       const apiBase = import.meta.env.VITE_API_URL || '';
       
-      const res = await fetch(`${apiBase}/api/admin/payments?search=${searchQuery}&platform=${platformFilter}&status=${statusFilter}`, {
+      const res = await fetch(`${apiBase}/api/admin/payments?search=${searchQuery}&platform=${platformFilter}&status=${statusFilter}&startDate=${startDate}&endDate=${endDate}`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -67,7 +69,7 @@ export default function AdminCoffeeBeans() {
 
   useEffect(() => {
     fetchPayments();
-  }, [platformFilter, statusFilter]);
+  }, [platformFilter, statusFilter, startDate, endDate]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -233,6 +235,26 @@ export default function AdminCoffeeBeans() {
           </div>
 
           <div className="flex flex-wrap gap-3 w-full md:w-auto items-center justify-end">
+            {/* Date Range Filter */}
+            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-200">
+              <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
+              <input 
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="bg-transparent text-xs font-semibold text-gray-600 focus:outline-none cursor-pointer"
+                title="시작일"
+              />
+              <span className="text-gray-400 text-xs font-medium">~</span>
+              <input 
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="bg-transparent text-xs font-semibold text-gray-600 focus:outline-none cursor-pointer"
+                title="종료일"
+              />
+            </div>
+
             {/* Platform Filter */}
             <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-xl border border-gray-200">
               <Filter className="w-4 h-4 text-gray-400" />

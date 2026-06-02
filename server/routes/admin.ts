@@ -1807,7 +1807,7 @@ Return the response EXACTLY in the following JSON format without any markdown bl
 // GET: Fetch all payment transactions with filters for admin
 router.get('/payments', async (req: any, res: any) => {
     try {
-        const { search, platform, status } = req.query;
+        const { search, platform, status, startDate, endDate } = req.query;
 
         // Fetch payment transactions
         const queryOptions: any = {
@@ -1880,6 +1880,21 @@ router.get('/payments', async (req: any, res: any) => {
                 tx.storeTransactionId.toLowerCase().includes(query) ||
                 tx.id.toLowerCase().includes(query)
             );
+        }
+
+        // Apply Date Range Filter (KST 기준)
+        if (startDate) {
+            const start = new Date(`${startDate}T00:00:00+09:00`);
+            if (!isNaN(start.getTime())) {
+                enrichedTransactions = enrichedTransactions.filter(tx => new Date(tx.createdAt) >= start);
+            }
+        }
+
+        if (endDate) {
+            const end = new Date(`${endDate}T23:59:59.999+09:00`);
+            if (!isNaN(end.getTime())) {
+                enrichedTransactions = enrichedTransactions.filter(tx => new Date(tx.createdAt) <= end);
+            }
         }
 
         res.status(200).json(enrichedTransactions);
