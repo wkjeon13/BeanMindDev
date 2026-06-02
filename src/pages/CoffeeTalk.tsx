@@ -125,13 +125,55 @@ interface BgmTheme {
 }
 
 const BGM_THEMES: BgmTheme[] = [
-  { id: 'jazz', title: '차분한 아침 카페 재즈', videoId: 'Dx5qFeM4yMc', label: '☕ 아침 재즈' },
-  { id: 'lofi', title: '감성 가득 심야 로파이(Lo-Fi)', videoId: 'jfKfPfyJRdk', label: '🌙 심야 로파이' },
-  { id: 'acoustic', title: '비오는 날 어쿠스틱 멜로디', videoId: 'mnd7nUqM5v0', label: '☔ 어쿠스틱' },
-  { id: 'bossanova', title: '화창한 오후의 보사노바 리듬', videoId: '30o78YPNn6w', label: '☀️ 보사노바' },
-  { id: 'classic', title: '집중이 잘되는 클래식 에스프레소', videoId: 'jgpJVIg8DbM', label: '🎻 클래식' },
-  { id: 'nature', title: '숲속 치유의 오르골 & 빗소리', videoId: 'NDGs9x04DkY', label: '🍃 자연/빗소리' }
+  { id: 'jazz', title: '차분한 아침 카페 재즈', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', label: '☕ 아침 재즈' },
+  { id: 'lofi', title: '감성 가득 심야 로파이(Lo-Fi)', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', label: '🌙 심야 로파이' },
+  { id: 'acoustic', title: '비오는 날 어쿠스틱 멜로디', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', label: '☔ 어쿠스틱' },
+  { id: 'bossanova', title: '화창한 오후의 보사노바 리듬', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', label: '☀️ 보사노바' },
+  { id: 'classic', title: '집중이 잘되는 클래식 에스프레소', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', label: '🎻 클래식' },
+  { id: 'nature', title: '숲속 치유의 오르골 & 빗소리', videoId: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3', label: '🍃 자연/빗소리' }
 ];
+
+const resolveAudioUrl = (input: string | undefined): string => {
+  if (!input) return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'; // 기본 lofi
+  
+  // 이미 정상적인 HTTP 오디오 URL인 경우 그대로 반환
+  if (input.startsWith('http')) return input;
+  
+  // 옛날 유튜브 비디오 ID 또는 테마 ID인 경우 고품질 MP3 스트리밍 주소로 치환 매핑
+  switch (input) {
+    case 'tN9ecELJ5A0':
+    case 'Dx5qFeM4yMc':
+    case 'jazz':
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+    case '811QZGDysx0':
+    case 'jfKfPfyJRdk':
+    case 'lofi':
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3';
+    case 'u4Z_5HapYJ0':
+    case 'mnd7nUqM5v0':
+    case 'acoustic':
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3';
+    case 'g6B99n6vU-w':
+    case '30o78YPNn6w':
+    case 'bossanova':
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3';
+    case '57GfJ1A5e68':
+    case 'jgpJVIg8DbM':
+    case 'classic':
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3';
+    case 'L8g3c-t0HjM':
+    case 'NDGs9x04DkY':
+    case 'nature':
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3';
+    default:
+      // 그 외의 값은 BGM_THEMES에 부합하는 매핑 시도
+      const matched = BGM_THEMES.find(t => t.id === input || t.videoId === input);
+      if (matched && matched.videoId.startsWith('http')) {
+        return matched.videoId;
+      }
+      return 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'; // 기본값 lofi
+  }
+};
 
 interface ParsedBgm {
   title: string;
@@ -238,12 +280,13 @@ export default function CoffeeTalk() {
   const bgmAudioRef = React.useRef<HTMLAudioElement | null>(null);
 
   const playBgmAudio = (url: string, volValue: number) => {
+    const resolvedUrl = resolveAudioUrl(url);
     if (!bgmAudioRef.current) {
-      bgmAudioRef.current = new Audio(url);
+      bgmAudioRef.current = new Audio(resolvedUrl);
       bgmAudioRef.current.loop = true;
-    } else if (bgmAudioRef.current.src !== url) {
+    } else if (bgmAudioRef.current.src !== resolvedUrl) {
       bgmAudioRef.current.pause();
-      bgmAudioRef.current = new Audio(url);
+      bgmAudioRef.current = new Audio(resolvedUrl);
       bgmAudioRef.current.loop = true;
     }
     bgmAudioRef.current.volume = volValue / 100;
