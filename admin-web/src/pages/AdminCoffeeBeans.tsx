@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, RotateCcw, CheckCircle2, XCircle, AlertTriangle, TrendingUp, Coins, DollarSign, Filter, Info, ShieldAlert, Sparkles, ListChecks } from 'lucide-react';
+import { Search, RotateCcw, CheckCircle2, XCircle, AlertTriangle, TrendingUp, Coins, DollarSign, Filter, Info, ShieldAlert, Sparkles, ListChecks, Calendar } from 'lucide-react';
 
 interface PaymentUser {
   id: string;
@@ -135,6 +135,14 @@ export default function AdminCoffeeBeans() {
   const totalChargeBeans = activeTx.reduce((acc, t) => acc + t.amount, 0);
   const totalCancelledBeans = cancelledTx.reduce((acc, t) => acc + t.amount, 0);
   
+  // 오늘 충전 커피콩 계산 (한국 시간 KST 기준 오늘 날짜)
+  const todayStr = new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' });
+  const todayActiveTx = activeTx.filter(t => {
+    const txDateStr = new Date(t.createdAt).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' });
+    return txDateStr === todayStr;
+  });
+  const todayChargeBeans = todayActiveTx.reduce((acc, t) => acc + t.amount, 0);
+  
   const successRate = transactions.length > 0 
     ? Math.round((activeTx.length / transactions.length) * 100) 
     : 100;
@@ -160,7 +168,7 @@ export default function AdminCoffeeBeans() {
       </div>
 
       {/* KPI Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Total Charges Card */}
         <div className="bg-gradient-to-br from-amber-50 to-white p-4 rounded-xl shadow-sm border border-amber-100/50 flex items-center justify-between">
           <div className="space-y-0.5">
@@ -172,6 +180,20 @@ export default function AdminCoffeeBeans() {
           </div>
           <div className="p-2 bg-amber-500/10 rounded-xl">
             <Coins className="w-6 h-6 text-amber-600 animate-pulse" />
+          </div>
+        </div>
+
+        {/* Today Charges Card */}
+        <div className="bg-gradient-to-br from-orange-50 to-white p-4 rounded-xl shadow-sm border border-orange-100/50 flex items-center justify-between">
+          <div className="space-y-0.5">
+            <span className="text-[10px] font-bold text-orange-700 tracking-wider uppercase">오늘 충전 커피콩</span>
+            <div className="text-xl font-extrabold text-orange-600">
+              +{todayChargeBeans.toLocaleString()}<span className="text-xs font-semibold text-gray-500 ml-0.5">알</span>
+            </div>
+            <p className="text-[10px] text-gray-400">오늘 새로 충전 완료된 콩 수</p>
+          </div>
+          <div className="p-2 bg-orange-500/10 rounded-xl">
+            <Calendar className="w-6 h-6 text-orange-600" />
           </div>
         </div>
 
