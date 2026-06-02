@@ -506,7 +506,19 @@ const postUploadMiddleware = (req: any, res: any, next: any) => {
 router.post('/posts', authenticateToken, uploadLimiter, postUploadMiddleware, async (req, res) => {
     try {
         const userId = (req as any).user.id;
-        const { content } = req.body;
+        let { content } = req.body;
+
+        // BGM Theme integration (Migration-Free Double Guard)
+        if (req.body.bgmTheme) {
+            try {
+                const parsedBgm = typeof req.body.bgmTheme === 'string' ? JSON.parse(req.body.bgmTheme) : req.body.bgmTheme;
+                if (parsedBgm && parsedBgm.videoId && parsedBgm.title) {
+                    content = `${content}\n<!--BM_BGM:${JSON.stringify({ title: parsedBgm.title, videoId: parsedBgm.videoId })}-->`;
+                }
+            } catch (e) {
+                console.error("BGM parse error in backend POST:", e);
+            }
+        }
         
         if (isRateLimited(userId, 'POST', content?.substring(0, 50) || '사진/동영상 게시물')) {
             return res.status(429).json({ error: '도배 방지를 위해 1분 내의 연속 작성은 제한됩니다.' });
@@ -1238,7 +1250,23 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, postUploadMiddleware,
     try {
         const postId = req.params.id;
         const userId = (req as any).user.id;
-        const { content, cafeName, cafeLocation, cafeLat, cafeLng, acidity, sweetness, body, bitterness, aroma, taggedBean, recipeData, existingImages, storeId, attachedCourseId } = req.body;
+        let { content, cafeName, cafeLocation, cafeLat, cafeLng, acidity, sweetness, body, bitterness, aroma, taggedBean, recipeData, existingImages, storeId, attachedCourseId } = req.body;
+
+        // BGM Theme integration (Migration-Free Double Guard)
+        if (req.body.bgmTheme) {
+            try {
+                const parsedBgm = typeof req.body.bgmTheme === 'string' ? JSON.parse(req.body.bgmTheme) : req.body.bgmTheme;
+                if (parsedBgm && parsedBgm.videoId && parsedBgm.title) {
+                    // Remove existing BGM tags from content before appending new one
+                    const cleanContent = content.replace(/<!--BM_BGM:(.*?)-->/g, '').trim();
+                    content = `${cleanContent}\n<!--BM_BGM:${JSON.stringify({ title: parsedBgm.title, videoId: parsedBgm.videoId })}-->`;
+                }
+            } catch (e) {
+                console.error("BGM parse error in backend PUT:", e);
+            }
+        } else if (req.body.removeBgm === 'true' || req.body.removeBgm === true) {
+            content = content.replace(/<!--BM_BGM:(.*?)-->/g, '').trim();
+        }
 
         const post = await (prisma as any).post.findUnique({ where: { id: postId }, include: { poll: true } });
         if (!post) return res.status(404).json({ error: ERROR_CODES.POST_NOT_FOUND });
