@@ -125,15 +125,16 @@ interface BgmTheme {
 }
 
 const BGM_THEMES: BgmTheme[] = [
-  { id: 'jazz', title: '바흐 골드베르크 아리아 커피 피아노', videoId: 'tN9ecELJ5A0', label: '☕ 아침 클래식 피아노' },
-  { id: 'lofi', title: '베토벤 월광 고요한 밤 피아노', videoId: 'Dx5qFeM4yMc', label: '🌙 고요한 밤 피아노' },
-  { id: 'acoustic', title: '비오는 날 잔잔한 어쿠스틱', videoId: '811QZGDysx0', label: '☔ 잔잔한 어쿠스틱' },
-  { id: 'bossanova', title: '오후의 나른하고 편안한 보사노바', videoId: 'jfKfPfyJRdk', label: '☀️ 나른한 보사노바' },
-  { id: 'classic', title: '에릭 사티 짐노페디 1번 힐링 건반', videoId: '57GfJ1A5e68', label: '🎻 짐노페디 1번 피아노' },
-  { id: 'rock', title: '감성 락 발라드 피아노 연주', videoId: 'jgpJVIg8DbM', label: '🎸 락 발라드 피아노' },
-  { id: 'hiphop', title: '힙합 시티팝 인스트루멘탈', videoId: 'mnd7nUqM5v0', label: '🎧 시티팝 힙합' },
-  { id: 'nature', title: '쇼팽 녹턴 2번 명작 빗방울 음악', videoId: 'L8g3c-t0HjM', label: '🍃 쇼팽 녹턴 피아노' },
-  { id: 'coffeetime', title: '드뷔시 베르가마스크 모음곡 달빛 피아노', videoId: 'NDGs9x04DkY', label: '☕ 커피 타임 고요한 피아노' }
+  { id: 'Classical', title: '바흐 클래식 피아노 커피 음악', videoId: 'tN9ecELJ5A0', label: '🎻 Classical (클래식)' },
+  { id: 'Jazz', title: '잔잔한 재즈 카페 음악 플레이리스트', videoId: 'Dx5qFeM4yMc', label: '🎷 Jazz (재즈)' },
+  { id: 'K-pop', title: '어쿠스틱 케이팝 명곡 커버', videoId: '811QZGDysx0', label: '🎤 K-pop (가요)' },
+  { id: 'Pop', title: '감성 팝송 어쿠스틱 라이브', videoId: 'jfKfPfyJRdk', label: '🎵 Pop (팝송)' },
+  { id: 'Rock', title: '잔잔한 감성 락 발라드 플레이리스트', videoId: 'jgpJVIg8DbM', label: '🎸 Rock (감성 락)' },
+  { id: 'Hip Hop', title: '감성 로파이 힙합 비트 플레이리스트', videoId: 'mnd7nUqM5v0', label: '🎧 Hip Hop (힙합/로파이)' },
+  { id: 'R&B', title: '카페 어반 알앤비 소울 음악', videoId: 'L8g3c-t0HjM', label: '🎹 R&B (알앤비)' },
+  { id: 'EDM', title: '칠아웃 트로피컬 하우스 EDM', videoId: 'NDGs9x04DkY', label: '⚡ EDM (칠아웃)' },
+  { id: 'Country', title: '편안한 컨트리 포크 송 플레이리스트', videoId: 'country_search', label: '🤠 Country (컨트리)' },
+  { id: 'Reggae', title: '나른한 레게 보사노바 리듬', videoId: 'reggae_search', label: '🌴 Reggae (레게)' }
 ];
 
 // 글로벌 인비디어스 인스턴스 목록 (유튜브 음원 프록시용 고가용성 서버 그룹 - Uptime 우선순위 재정렬)
@@ -383,43 +384,47 @@ export default function CoffeeTalk() {
 
     const text = newContent.toLowerCase();
     
-    // 감성 매칭 스코어링 테이블
+    // 감성 매칭 스코어링 테이블 (처방전 노래 추천 장르 매핑)
     const scoreMap: Record<string, { score: number; keywords: string[] }> = {
-      jazz: { 
+      Classical: { 
         score: 0, 
-        keywords: ["재즈", "jazz", "카페", "피아노", "아침", "조용한", "차분한", "독서", "에스프레소", "브런치", "모닝", "원두", "아메리카노"] 
+        keywords: ["클래식", "classic", "집중", "공부", "첼로", "피아노", "에스프레소", "정갈", "차분", "바이올린", "커피향", "오케스트라", "바흐", "쇼팽", "드뷔시", "베토벤"] 
       },
-      lofi: { 
+      Jazz: { 
         score: 0, 
-        keywords: ["로파이", "lofi", "밤", "새벽", "심야", "별", "외로운", "감성", "조명", "작업", "코딩", "방구석", "고민"] 
+        keywords: ["재즈", "jazz", "카페", "조용한", "차분한", "독서", "에스프레소", "브런치", "모닝", "원두", "아메리카노", "색소폰", "그루브", "나른한"] 
       },
-      acoustic: { 
+      'K-pop': { 
         score: 0, 
-        keywords: ["어쿠스틱", "기타", "어쿠스틱기타", "비", "비오는", "우산", "흐린", "쓸쓸한", "따스한", "바람", "감수성", "위로"] 
+        keywords: ["가요", "kpop", "k-pop", "아이유", "방탄", "뉴진스", "에스파", "멜로디", "한글", "국내", "발라드", "댄스"] 
       },
-      bossanova: { 
+      Pop: { 
         score: 0, 
-        keywords: ["보사노바", "bossa", "오후", "햇살", "날씨", "화창한", "맑은", "바람", "봄", "여름", "바다", "여행", "휴식", "달콤", "주말"] 
+        keywords: ["팝송", "pop", "팝", "감성팝", "어쿠스틱팝", "빌보드", "외국", "english", "sunset", "mood", "sweet"] 
       },
-      classic: { 
+      Rock: { 
         score: 0, 
-        keywords: ["클래식", "classic", "집중", "공부", "첼로", "피아노", "에스프레소", "정갈", "차분", "바이올린", "커피향", "오케스트라"] 
+        keywords: ["락", "rock", "밴드", "기타솔로", "신나는", "시원한", "드럼", "비트", "에너지", "강렬한", "자유"] 
       },
-      rock: { 
+      'Hip Hop': { 
         score: 0, 
-        keywords: ["락", "rock", "발라드", "락발라드", "슬픈", "아련한", "피아노연주", "기타솔로", "추억", "이별", "애틋", "그리움"] 
+        keywords: ["힙합", "hiphop", "비트", "트렌디", "시티팝", "도심", "힙한", "리듬", "그루브", "스트릿", "트렌디한", "신나는", "로파이", "lofi"] 
       },
-      hiphop: { 
+      'R&B': { 
         score: 0, 
-        keywords: ["힙합", "hiphop", "비트", "트렌디", "시티팝", "도심", "힙한", "리듬", "그루브", "스트릿", "트렌디한", "신나는"] 
+        keywords: ["알앤비", "rnb", "r&b", "소울", "어반", "감성", "부드러운", "밤", "새벽", "조명", "애틋한", "그루브"] 
       },
-      nature: { 
+      EDM: { 
         score: 0, 
-        keywords: ["자연", "빗소리", "오르골", "숲", "힐링", "치유", "바다소리", "asmr", "휴식", "바람소리", "물소리", "고요"] 
+        keywords: ["edm", "일렉", "댄스", "신나는", "페스티벌", "클럽", "일렉트로닉", "하우스", "테크노", "칠아웃", "트로피컬"] 
       },
-      coffeetime: { 
+      Country: { 
         score: 0, 
-        keywords: ["조용한", "조용", "발라드", "커피타임", "잔잔한피아노", "고요한", "편안한", "눈감고", "힐링커피"] 
+        keywords: ["컨트리", "country", "포크", "folk", "기타", "어쿠스틱", "여행", "자연", "바람", "평화로운", "목가적인", "캠핑"] 
+      },
+      Reggae: { 
+        score: 0, 
+        keywords: ["레게", "reggae", "보사노바", "bossa", "라틴", "해변", "바다", "여름", "휴양지", "여유로운", "나른한", "리듬"] 
       }
     };
 
@@ -435,7 +440,7 @@ export default function CoffeeTalk() {
     });
 
     // 가장 높은 점수의 테마 선정
-    let bestThemeId = "coffeetime"; // 기본 테마
+    let bestThemeId = "Jazz"; // 기본 테마
     let maxScore = 0;
     
     Object.keys(scoreMap).forEach(themeId => {
@@ -445,9 +450,9 @@ export default function CoffeeTalk() {
       }
     });
 
-    // 만약 매칭 단어가 전혀 없다면 랜덤 매칭 혹은 기본 jazz/lofi 매칭
+    // 만약 매칭 단어가 전혀 없다면 랜덤 매칭 혹은 기본 Jazz/Pop 매칭
     if (maxScore === 0) {
-      const defaultThemes = ["jazz", "lofi", "acoustic", "bossanova", "classic", "rock", "hiphop", "nature", "coffeetime"];
+      const defaultThemes = ["Classical", "Jazz", "K-pop", "Pop", "Rock", "Hip Hop", "R&B", "EDM", "Country", "Reggae"];
       bestThemeId = defaultThemes[Math.floor(Math.random() * defaultThemes.length)];
       matchedWord = "커피 한 잔의 여유";
     }
@@ -1380,8 +1385,8 @@ export default function CoffeeTalk() {
       
       const { cleanContent, bgm } = parseBgmFromContent(post.content);
       setNewContent(cleanContent);
-      if (bgm && bgm.videoId) {
-          const matchingTheme = BGM_THEMES.find(t => t.videoId === bgm.videoId);
+      if (bgm && (bgm.videoId || bgm.title)) {
+          const matchingTheme = BGM_THEMES.find(t => t.videoId === bgm.videoId || t.title === bgm.title);
           setSelectedBgmTheme(matchingTheme ? matchingTheme.id : '');
       } else {
           setSelectedBgmTheme('');
@@ -2042,21 +2047,15 @@ export default function CoffeeTalk() {
                                                       onClick={(e) => { 
                                                           e.stopPropagation(); 
                                                           e.preventDefault();
-                                                          if (activeBgmPostId === post.id && isBgmPlaying) {
-                                                              setIsBgmPlaying(false);
-                                                              pauseBgmAudio();
-                                                          } else {
-                                                              setActiveBgmVideoId(bgm.videoId);
-                                                              setActiveBgmTitle(bgm.title);
-                                                              setActiveBgmPostId(post.id);
-                                                              setIsBgmPlaying(true);
-                                                              playBgmAudio(bgm.videoId, bgmVolume);
+                                                          if (bgm.title) {
+                                                              const searchUrl = `https://music.youtube.com/search?q=${encodeURIComponent(bgm.title)}`;
+                                                              window.open(searchUrl, '_blank');
                                                           }
                                                       }}
-                                                      className={`absolute z-30 px-3 py-1.5 bg-espresso-950/85 hover:bg-espresso-900/95 backdrop-blur-md text-amber-400 border border-amber-500/30 rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-1.5 text-[11px] font-black tracking-wider bottom-4 right-4 ${activeBgmPostId === post.id && isBgmPlaying ? 'animate-pulse border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.4)]' : ''}`}
+                                                      className="absolute z-30 px-3 py-1.5 bg-espresso-950/85 hover:bg-espresso-900/95 backdrop-blur-md text-amber-400 border border-amber-500/30 rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-1.5 text-[11px] font-black tracking-wider bottom-4 right-4"
                                                   >
-                                                      <Music size={13} className={activeBgmPostId === post.id && isBgmPlaying ? 'animate-spin' : ''} />
-                                                      {activeBgmPostId === post.id && isBgmPlaying ? 'BGM ON' : 'BGM 페어링'}
+                                                      <Music size={13} />
+                                                      BGM 페어링
                                                   </button>
                                               )}
                                           </div>
@@ -2099,21 +2098,15 @@ export default function CoffeeTalk() {
                                   onClick={(e) => { 
                                       e.stopPropagation(); 
                                       e.preventDefault();
-                                      if (activeBgmPostId === post.id && isBgmPlaying) {
-                                          setIsBgmPlaying(false);
-                                          pauseBgmAudio();
-                                      } else {
-                                          setActiveBgmVideoId(bgm.videoId);
-                                          setActiveBgmTitle(bgm.title);
-                                          setActiveBgmPostId(post.id);
-                                          setIsBgmPlaying(true);
-                                          playBgmAudio(bgm.videoId, bgmVolume);
+                                      if (bgm.title) {
+                                          const searchUrl = `https://music.youtube.com/search?q=${encodeURIComponent(bgm.title)}`;
+                                          window.open(searchUrl, '_blank');
                                       }
                                   }}
-                                  className={`absolute z-[25] px-3.5 py-2 bg-black/75 hover:bg-black/90 backdrop-blur-md text-amber-400 border border-amber-500/40 rounded-xl shadow-2xl active:scale-95 transition-all flex items-center gap-1.5 text-xs font-black tracking-widest top-[140px] right-5 ${activeBgmPostId === post.id && isBgmPlaying ? 'animate-pulse border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.4)]' : ''}`}
+                                  className="absolute z-[25] px-3.5 py-2 bg-black/75 hover:bg-black/90 backdrop-blur-md text-amber-400 border border-amber-500/40 rounded-xl shadow-2xl active:scale-95 transition-all flex items-center gap-1.5 text-xs font-black tracking-widest top-[140px] right-5"
                               >
-                                  <Music size={14} className={activeBgmPostId === post.id && isBgmPlaying ? 'animate-spin' : ''} />
-                                  {activeBgmPostId === post.id && isBgmPlaying ? 'BGM ON' : 'BGM 페어링'}
+                                  <Music size={14} />
+                                  BGM 페어링
                               </button>
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none"></div>
@@ -2364,23 +2357,17 @@ export default function CoffeeTalk() {
                                         onClick={(e) => { 
                                             e.stopPropagation(); 
                                             e.preventDefault();
-                                            if (activeBgmPostId === post.id && isBgmPlaying) {
-                                                setIsBgmPlaying(false);
-                                                pauseBgmAudio();
-                                            } else {
-                                                setActiveBgmVideoId(bgm.videoId);
-                                                setActiveBgmTitle(bgm.title);
-                                                setActiveBgmPostId(post.id);
-                                                setIsBgmPlaying(true);
-                                                playBgmAudio(bgm.videoId, bgmVolume);
+                                            if (bgm.title) {
+                                                const searchUrl = `https://music.youtube.com/search?q=${encodeURIComponent(bgm.title)}`;
+                                                window.open(searchUrl, '_blank');
                                             }
                                         }}
                                         className={`absolute z-30 px-3 py-1.5 bg-espresso-950/85 hover:bg-espresso-900/95 backdrop-blur-md text-amber-400 border border-amber-500/30 rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-1.5 text-[11px] font-black tracking-wider ${
                                             activeFilter === 'shorts' ? 'bottom-[280px] right-4' : (urls.length > 1 ? 'bottom-4 right-[96px]' : 'bottom-4 right-4')
-                                        } ${activeBgmPostId === post.id && isBgmPlaying ? 'animate-pulse border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.4)]' : ''}`}
+                                        }`}
                                     >
-                                        <Music size={13} className={activeBgmPostId === post.id && isBgmPlaying ? 'animate-spin' : ''} />
-                                        {activeBgmPostId === post.id && isBgmPlaying ? 'BGM ON' : 'BGM 페어링'}
+                                        <Music size={13} />
+                                        BGM 페어링
                                     </button>
                                 )}
 
@@ -2539,23 +2526,15 @@ export default function CoffeeTalk() {
                           onClick={(e) => { 
                               e.stopPropagation(); 
                               e.preventDefault();
-                              if (activeBgmPostId === post.id && isBgmPlaying) {
-                                  setIsBgmPlaying(false);
-                                  pauseBgmAudio();
-                              } else {
-                                  setActiveBgmVideoId(bgm.videoId);
-                                  setActiveBgmTitle(bgm.title);
-                                  setActiveBgmPostId(post.id);
-                                  setIsBgmPlaying(true);
-                                  playBgmAudio(bgm.videoId, bgmVolume);
+                              if (bgm.title) {
+                                  const searchUrl = `https://music.youtube.com/search?q=${encodeURIComponent(bgm.title)}`;
+                                  window.open(searchUrl, '_blank');
                               }
                           }}
-                          className={`ml-3 px-3 py-1.5 rounded-full bg-espresso-800 text-[11px] font-black border transition-all flex items-center gap-1.5 ${
-                              activeBgmPostId === post.id && isBgmPlaying ? 'bg-amber-500/10 text-amber-500 border-amber-500 shadow-sm animate-pulse' : 'text-amber-500/90 border-amber-500/20 hover:border-amber-500/50'
-                          }`}
+                          className="ml-3 px-3 py-1.5 rounded-full bg-espresso-800 text-[11px] font-black border border-amber-500/20 hover:border-amber-500/50 text-amber-500/90 transition-all flex items-center gap-1.5"
                       >
-                          <Music size={12} className={activeBgmPostId === post.id && isBgmPlaying ? 'animate-spin' : ''} />
-                          {activeBgmPostId === post.id && isBgmPlaying ? 'BGM ON' : 'BGM 페어링'}
+                          <Music size={12} />
+                          BGM 페어링
                       </button>
                   )}
                 </div>
@@ -3609,100 +3588,6 @@ export default function CoffeeTalk() {
           </>
         )}
       </AnimatePresence>
-
-      {/* BGM Player moved inside the controller panel to bypass autoplay policy and provide visual feedback */}
-
-      {/* Half-Sheet BGM Controller Panel */}
-      <AnimatePresence>
-        {activeBgmVideoId && (
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: "spring", stiffness: 260, damping: 26 }}
-            className="fixed bottom-0 inset-x-0 bg-gradient-to-t from-espresso-950 to-espresso-900 border-t border-amber-500/20 rounded-t-[2rem] z-[400] px-6 pt-5 pb-8 shadow-[0_-15px_30px_rgba(0,0,0,0.6)] w-full max-w-md md:max-w-2xl mx-auto flex flex-col gap-4"
-          >
-            {/* Grabber bar for sheet feel */}
-            <div className="w-12 h-1.5 bg-espresso-700 rounded-full mx-auto" />
-
-            <div className="flex items-center justify-between gap-4">
-              {/* Vinyl Record Visual representation */}
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="relative w-12 h-12 rounded-full bg-espresso-950 border-2 border-espresso-800 shadow-[0_0_15px_rgba(245,158,11,0.25)] flex items-center justify-center shrink-0 overflow-hidden">
-                  {/* Outer Vinyl ring */}
-                  <div className={`w-full h-full rounded-full border border-espresso-800 absolute flex items-center justify-center ${isBgmPlaying ? 'animate-spin' : ''}`} style={{ animationDuration: '6s' }}>
-                    <div className="w-10 h-10 rounded-full border border-espresso-900 bg-[#0f0a05] flex items-center justify-center">
-                      {/* Album cover / center label */}
-                      <div className="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center shadow-inner">
-                        <div className="w-1.5 h-1.5 rounded-full bg-espresso-950" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col min-w-0">
-                  <span className="text-[10px] font-bold text-amber-500 uppercase tracking-widest leading-none mb-1">🎵 SOUND PAIRING</span>
-                  <h4 className="text-sm font-extrabold text-espresso-50 truncate w-full">{activeBgmTitle || '기본 배경음악'}</h4>
-                </div>
-              </div>
-
-              {/* Player Controls */}
-              <div className="flex items-center gap-3 shrink-0">
-                {/* Play/Pause Button */}
-                <button
-                  onClick={() => {
-                    if (isBgmPlaying) {
-                      setIsBgmPlaying(false);
-                      pauseBgmAudio();
-                    } else {
-                      setIsBgmPlaying(true);
-                      if (activeBgmVideoId) playBgmAudio(activeBgmVideoId, bgmVolume);
-                    }
-                  }}
-                  className="w-10 h-10 bg-amber-500 hover:bg-amber-400 text-espresso-950 rounded-full flex items-center justify-center shadow-[0_0_12px_rgba(245,158,11,0.4)] active:scale-95 transition-all focus:outline-none"
-                >
-                  {isBgmPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} className="ml-0.5" fill="currentColor" />}
-                </button>
-
-                {/* Close Panel Button */}
-                <button
-                  onClick={() => {
-                    setIsBgmPlaying(false);
-                    setActiveBgmVideoId(null);
-                    setActiveBgmTitle(null);
-                    setActiveBgmPostId(null);
-                    pauseBgmAudio();
-                  }}
-                  className="w-9 h-9 bg-espresso-800 hover:bg-espresso-700 text-espresso-200 hover:text-espresso-50 rounded-full flex items-center justify-center transition-all focus:outline-none active:scale-95"
-                >
-                  <X size={18} />
-                </button>
-              </div>
-            </div>
-
-            {/* Volume slider (Detail Premium quality) */}
-            <div className="flex items-center gap-3 bg-espresso-950/40 rounded-xl px-4 py-2 border border-espresso-800/40">
-              <span className="text-[10px] text-espresso-300 font-bold tracking-wider shrink-0 uppercase">Volume</span>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={bgmVolume}
-                onChange={(e) => {
-                  const vol = parseInt(e.target.value);
-                  setBgmVolume(vol);
-                  if (bgmAudioRef.current) {
-                    bgmAudioRef.current.volume = vol / 100;
-                  }
-                }}
-                className="flex-1 accent-amber-500 h-1 rounded-full cursor-pointer bg-espresso-800"
-              />
-              <span className="text-[10px] font-mono text-espresso-200 shrink-0 font-bold">{bgmVolume}%</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
     </div>
   );
 }
