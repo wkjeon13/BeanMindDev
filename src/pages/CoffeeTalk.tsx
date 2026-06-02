@@ -149,8 +149,25 @@ const resolveAudioUrl = (input: string | undefined, instanceIndex: number = 0): 
   
   if (!input) return `${baseDomain}/latest_version?id=57GfJ1A5e68&itag=140`; // 기본 짐노페디 1번 (유튜브)
   
-  // 이미 정상적인 HTTP 오디오 URL인 경우 그대로 반환
-  if (input.startsWith('http')) return input;
+  let targetInput = input;
+
+  // 과거 DB 본문에 SoundHelix MP3 주소 자체로 저장되어 유입되는 케이스 방어막 (역매핑 세탁)
+  if (input.includes('SoundHelix-Song-')) {
+    if (input.includes('SoundHelix-Song-1.mp3')) targetInput = 'tN9ecELJ5A0';
+    else if (input.includes('SoundHelix-Song-2.mp3')) targetInput = 'Dx5qFeM4yMc';
+    else if (input.includes('SoundHelix-Song-3.mp3')) targetInput = '811QZGDysx0';
+    else if (input.includes('SoundHelix-Song-4.mp3')) targetInput = 'jfKfPfyJRdk';
+    else if (input.includes('SoundHelix-Song-5.mp3')) targetInput = '57GfJ1A5e68';
+    else if (input.includes('SoundHelix-Song-6.mp3')) targetInput = 'jgpJVIg8DbM';
+    else if (input.includes('SoundHelix-Song-7.mp3')) targetInput = 'mnd7nUqM5v0';
+    else if (input.includes('SoundHelix-Song-8.mp3')) targetInput = 'L8g3c-t0HjM';
+    else if (input.includes('SoundHelix-Song-10.mp3')) targetInput = 'NDGs9x04DkY';
+  }
+
+  // 역매핑 후에도 여전히 다른 완전한 HTTP 주소인 경우는 그대로 반환 (예: 픽사베이 등 기타 하위 호환)
+  if (targetInput.startsWith('http') && !targetInput.includes('SoundHelix-Song-')) {
+    return targetInput;
+  }
   
   // 유튜브 비디오 ID 맵핑용 사전
   const youtubeMap: Record<string, string> = {
@@ -166,7 +183,7 @@ const resolveAudioUrl = (input: string | undefined, instanceIndex: number = 0): 
   };
 
   // 만약 테마 ID가 들어왔다면 유튜브 비디오 ID로 치환
-  const videoId = youtubeMap[input] || input;
+  const videoId = youtubeMap[targetInput] || targetInput;
 
   // 인비디어스 고가용성 오디오 스트리밍 API 프록시 경로로 실시간 변환
   return `${baseDomain}/latest_version?id=${videoId}&itag=140`;
