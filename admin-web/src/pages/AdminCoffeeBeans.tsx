@@ -170,72 +170,84 @@ export default function AdminCoffeeBeans() {
       {/* KPI Stats Cards */}
       <div className="grid grid-cols-5 gap-4">
         {/* Total Charges Card */}
-        <div className="bg-gradient-to-br from-amber-50 to-white p-4 rounded-xl shadow-sm border border-amber-100/50 flex items-center justify-between">
-          <div className="space-y-0.5">
-            <span className="text-[10px] font-bold text-amber-700 tracking-wider uppercase">정상 완료 커피콩</span>
-            <div className="text-xl font-extrabold text-gray-900">
-              +{totalChargeBeans.toLocaleString()}<span className="text-xs font-semibold text-gray-500 ml-0.5">알</span>
+        <div className="bg-gradient-to-br from-amber-50 to-white py-3 px-4 rounded-xl shadow-sm border border-amber-100/50 flex items-center justify-between">
+          <div className="flex items-center gap-3 w-full">
+            <div className="p-1.5 bg-amber-500/10 rounded-lg shrink-0">
+              <Coins className="w-4 h-4 text-amber-600 animate-pulse" />
             </div>
-            <p className="text-[10px] text-gray-400">정상 활성화된 충전 콩 수</p>
-          </div>
-          <div className="p-2 bg-amber-500/10 rounded-xl">
-            <Coins className="w-6 h-6 text-amber-600 animate-pulse" />
+            <div className="flex items-center justify-between flex-1 min-w-0 gap-2">
+              <span className="text-xs font-bold text-amber-700 whitespace-nowrap">정상 완료 커피콩</span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-sm font-extrabold text-gray-900 whitespace-nowrap">+{totalChargeBeans.toLocaleString()}알</span>
+                <span className="text-[10px] text-gray-400 truncate hidden xl:inline-block">(정상 활성화된 충전 콩 수)</span>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Today Charges Card */}
-        <div className="bg-gradient-to-br from-orange-50 to-white p-4 rounded-xl shadow-sm border border-orange-100/50 flex items-center justify-between">
-          <div className="space-y-0.5">
-            <span className="text-[10px] font-bold text-orange-700 tracking-wider uppercase">오늘 충전 커피콩</span>
-            <div className="text-xl font-extrabold text-orange-600">
-              +{todayChargeBeans.toLocaleString()}<span className="text-xs font-semibold text-gray-500 ml-0.5">알</span>
+        <div className="bg-gradient-to-br from-orange-50 to-white py-3 px-4 rounded-xl shadow-sm border border-orange-100/50 flex items-center justify-between">
+          <div className="flex items-center gap-3 w-full">
+            <div className="p-1.5 bg-orange-500/10 rounded-lg shrink-0">
+              <Calendar className="w-4 h-4 text-orange-600" />
             </div>
-            <p className="text-[10px] text-gray-400">오늘 새로 충전 완료된 콩 수</p>
-          </div>
-          <div className="p-2 bg-orange-500/10 rounded-xl">
-            <Calendar className="w-6 h-6 text-orange-600" />
+            <div className="flex items-center justify-between flex-1 min-w-0 gap-2">
+              <span className="text-xs font-bold text-orange-700 whitespace-nowrap">오늘 충전 커피콩</span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-sm font-extrabold text-orange-600 whitespace-nowrap">+{todayChargeBeans.toLocaleString()}알</span>
+                <span className="text-[10px] text-gray-400 truncate hidden xl:inline-block">(오늘 새로 충전 완료된 콩 수)</span>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Total Cancellations Card */}
-        <div className="bg-gradient-to-br from-red-50 to-white p-4 rounded-xl shadow-sm border border-red-100/50 flex items-center justify-between">
-          <div className="space-y-0.5">
-            <span className="text-[10px] font-bold text-red-700 tracking-wider uppercase">회수/취소된 커피콩</span>
-            <div className="text-xl font-extrabold text-red-600">
-              -{totalCancelledBeans.toLocaleString()}<span className="text-xs font-semibold text-gray-400 ml-0.5">알</span>
+        <div className="bg-gradient-to-br from-red-50 to-white py-3 px-4 rounded-xl shadow-sm border border-red-100/50 flex items-center justify-between">
+          <div className="flex items-center gap-3 w-full">
+            <div className="p-1.5 bg-red-500/10 rounded-lg shrink-0">
+              <XCircle className="w-4 h-4 text-red-600" />
             </div>
-            <p className="text-[10px] text-gray-400">결제 취소로 회수된 콩 수</p>
-          </div>
-          <div className="p-2 bg-red-500/10 rounded-xl">
-            <XCircle className="w-6 h-6 text-red-600" />
+            <div className="flex items-center justify-between flex-1 min-w-0 gap-2">
+              <span className="text-xs font-bold text-red-700 whitespace-nowrap">회수/취소된 커피콩</span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-sm font-extrabold text-red-600 whitespace-nowrap">-{totalCancelledBeans.toLocaleString()}알</span>
+                <span className="text-[10px] text-gray-400 truncate hidden xl:inline-block">(결제 취소로 회수된 콩 수)</span>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Success Ratio Card */}
-        <div className="bg-gradient-to-br from-emerald-50 to-white p-4 rounded-xl shadow-sm border border-emerald-100/50 flex items-center justify-between">
-          <div className="space-y-0.5">
-            <span className="text-[10px] font-bold text-emerald-700 tracking-wider uppercase">충전 활성 비율</span>
-            <div className="text-xl font-extrabold text-emerald-600">
-              {successRate}%
+        <div className="bg-gradient-to-br from-emerald-50 to-white py-3 px-4 rounded-xl shadow-sm border border-emerald-100/50 flex items-center justify-between">
+          <div className="space-y-0.5 w-full flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 w-full">
+              <div className="p-1.5 bg-emerald-500/10 rounded-lg shrink-0">
+                <TrendingUp className="w-4 h-4 text-emerald-600" />
+              </div>
+              <div className="flex items-center justify-between flex-1 min-w-0 gap-2">
+                <span className="text-xs font-bold text-emerald-700 whitespace-nowrap">충전 활성 비율</span>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="text-sm font-extrabold text-emerald-600 whitespace-nowrap">{successRate}%</span>
+                  <span className="text-[10px] text-gray-400 truncate hidden xl:inline-block">(전체 시도 대비 완료 비율)</span>
+                </div>
+              </div>
             </div>
-            <p className="text-[10px] text-gray-400">전체 시도 대비 완료 비율</p>
-          </div>
-          <div className="p-2 bg-emerald-500/10 rounded-xl">
-            <TrendingUp className="w-6 h-6 text-emerald-600" />
           </div>
         </div>
 
         {/* Charge Count Card */}
-        <div className="bg-gradient-to-br from-indigo-50 to-white p-4 rounded-xl shadow-sm border border-indigo-100/50 flex items-center justify-between">
-          <div className="space-y-0.5">
-            <span className="text-[10px] font-bold text-indigo-700 tracking-wider uppercase">총 충전 횟수</span>
-            <div className="text-xl font-extrabold text-indigo-600">
-              {activeTx.length}<span className="text-xs font-semibold text-gray-500 ml-0.5">건</span>
+        <div className="bg-gradient-to-br from-indigo-50 to-white py-3 px-4 rounded-xl shadow-sm border border-indigo-100/50 flex items-center justify-between">
+          <div className="flex items-center gap-3 w-full">
+            <div className="p-1.5 bg-indigo-500/10 rounded-lg shrink-0">
+              <ListChecks className="w-4 h-4 text-indigo-600" />
             </div>
-            <p className="text-[10px] text-gray-400">시도: {transactions.length}건 / 취소: {cancelledTx.length}건</p>
-          </div>
-          <div className="p-2 bg-indigo-500/10 rounded-xl">
-            <ListChecks className="w-6 h-6 text-indigo-600" />
+            <div className="flex items-center justify-between flex-1 min-w-0 gap-2">
+              <span className="text-xs font-bold text-indigo-700 whitespace-nowrap">총 충전 횟수</span>
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-sm font-extrabold text-indigo-600 whitespace-nowrap">{activeTx.length}건</span>
+                <span className="text-[10px] text-gray-400 truncate hidden xl:inline-block">(시도: {transactions.length}건 / 취소: {cancelledTx.length}건)</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
