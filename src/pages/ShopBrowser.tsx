@@ -994,8 +994,10 @@ export default function ShopBrowser() {
                     if (firstMatch) {
                         centerToUse = [firstMatch.lat, firstMatch.lng];
                         setSearchedShopId(firstMatch.id);
+                        setFocusedShopId(firstMatch.id);
                     } else {
                         setSearchedShopId(searchResults[0].id);
+                        setFocusedShopId(searchResults[0].id);
                     }
                     foundTextMatch = true;
                 }
@@ -1113,19 +1115,21 @@ export default function ShopBrowser() {
                         setSearchedShopId(mockId);
                     }
 
-                    // Fetch regional shops by Bounding Box (Do not pass regionQuery to prevent strict address string filtering conflicts)
-                    let regionUrl = `${API_BASE}/api/shops?lat=${lat}&lng=${lng}${bboxParams}`;
-                    const currentLang = i18n.language ? i18n.language.substring(0, 2) : 'ko';
-                    regionUrl += `&lang=${currentLang}`;
+                    // Fetch regional shops by Bounding Box only if direct text match wasn't found (prevents irrelevant shop injection on brand/cafe name searches)
+                    if (!foundTextMatch) {
+                        let regionUrl = `${API_BASE}/api/shops?lat=${lat}&lng=${lng}${bboxParams}`;
+                        const currentLang = i18n.language ? i18n.language.substring(0, 2) : 'ko';
+                        regionUrl += `&lang=${currentLang}`;
 
-                    const regionRes = await fetch(regionUrl, fetchOptions);
-                    if (regionRes.ok) {
-                        const regionShops = await regionRes.json();
-                        const existingIds = new Set(finalShops.map((s: any) => s.id));
-                        for (const rs of regionShops) {
-                            if (!existingIds.has(rs.id)) {
-                                finalShops.push(rs);
-                                existingIds.add(rs.id);
+                        const regionRes = await fetch(regionUrl, fetchOptions);
+                        if (regionRes.ok) {
+                            const regionShops = await regionRes.json();
+                            const existingIds = new Set(finalShops.map((s: any) => s.id));
+                            for (const rs of regionShops) {
+                                if (!existingIds.has(rs.id)) {
+                                    finalShops.push(rs);
+                                    existingIds.add(rs.id);
+                                }
                             }
                         }
                     }
