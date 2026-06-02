@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Heart, MessageCircle, Share2, MapPin, MoreVertical, X, Clock, Navigation, CheckCircle, Store, Send, Image as ImageIcon, Flame, TrendingUp, Droplets, Trophy, Lock, Users, Target, UserCheck, Shield, Bookmark, Edit, Trash2, Calendar, Coffee, ListChecks, Link, Globe, Info, Search, ChevronDown, Camera, Star, Map, User, Edit2, Gift, PenSquare, Scale, Thermometer, Timer, Settings, BarChart2, Plus, Minus, Crown, ChevronRight, Check, Smile, ChevronLeft, Play, Music, Pause } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MapPin, MoreVertical, X, Clock, Navigation, CheckCircle, Store, Send, Image as ImageIcon, Flame, TrendingUp, Droplets, Trophy, Lock, Users, Target, UserCheck, Shield, Bookmark, Edit, Trash2, Calendar, Coffee, ListChecks, Link, Globe, Info, Search, ChevronDown, Camera, Star, Map, User, Edit2, Gift, PenSquare, Scale, Thermometer, Timer, Settings, BarChart2, Plus, Minus, Crown, ChevronRight, Check, Smile, ChevronLeft, Play, Music, Pause, Sparkles } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import CommentSheet from '../components/community/CommentSheet';
@@ -304,6 +304,88 @@ export default function CoffeeTalk() {
   const pauseBgmAudio = () => {
     if (bgmAudioRef.current) {
       bgmAudioRef.current.pause();
+    }
+  };
+
+  const handleAiBgmAutoMatch = () => {
+    if (!newContent.trim()) {
+      alert("🪄 [BeanMind AI 사운드 매칭]\n\n피드 내용을 먼저 조금이라도 작성해 주시면, AI가 본문 감성을 분석하여 가장 잘 어울리는 BGM을 자동으로 매칭해 드립니다!");
+      return;
+    }
+
+    const text = newContent.toLowerCase();
+    
+    // 감성 매칭 스코어링 테이블
+    const scoreMap: Record<string, { score: number; keywords: string[] }> = {
+      jazz: { 
+        score: 0, 
+        keywords: ["재즈", "jazz", "카페", "피아노", "아침", "조용한", "차분한", "독서", "에스프레소", "브런치", "모닝", "원두", "아메리카노"] 
+      },
+      lofi: { 
+        score: 0, 
+        keywords: ["로파이", "lofi", "밤", "새벽", "심야", "별", "외로운", "감성", "조명", "작업", "코딩", "방구석", "고민"] 
+      },
+      acoustic: { 
+        score: 0, 
+        keywords: ["어쿠스틱", "기타", "어쿠스틱기타", "비", "비오는", "우산", "흐린", "쓸쓸한", "따스한", "바람", "감수성", "위로"] 
+      },
+      bossanova: { 
+        score: 0, 
+        keywords: ["보사노바", "bossa", "오후", "햇살", "날씨", "화창한", "맑은", "바람", "봄", "여름", "바다", "여행", "휴식", "달콤", "주말"] 
+      },
+      classic: { 
+        score: 0, 
+        keywords: ["클래식", "classic", "집중", "공부", "첼로", "피아노", "에스프레소", "정갈", "차분", "바이올린", "커피향", "오케스트라"] 
+      },
+      rock: { 
+        score: 0, 
+        keywords: ["락", "rock", "발라드", "락발라드", "슬픈", "아련한", "피아노연주", "기타솔로", "추억", "이별", "애틋", "그리움"] 
+      },
+      hiphop: { 
+        score: 0, 
+        keywords: ["힙합", "hiphop", "비트", "트렌디", "시티팝", "도심", "힙한", "리듬", "그루브", "스트릿", "트렌디한", "신나는"] 
+      },
+      nature: { 
+        score: 0, 
+        keywords: ["자연", "빗소리", "오르골", "숲", "힐링", "치유", "바다소리", "asmr", "휴식", "바람소리", "물소리", "고요"] 
+      }
+    };
+
+    // 점수 채점 및 매칭 단어 색출
+    let matchedWord = "";
+    Object.keys(scoreMap).forEach(themeId => {
+      scoreMap[themeId].keywords.forEach(word => {
+        if (text.includes(word)) {
+          scoreMap[themeId].score += 2;
+          if (!matchedWord) matchedWord = word; // 최초 매칭 단어 기록
+        }
+      });
+    });
+
+    // 가장 높은 점수의 테마 선정
+    let bestThemeId = "lofi"; // 기본 테마
+    let maxScore = 0;
+    
+    Object.keys(scoreMap).forEach(themeId => {
+      if (scoreMap[themeId].score > maxScore) {
+        maxScore = scoreMap[themeId].score;
+        bestThemeId = themeId;
+      }
+    });
+
+    // 만약 매칭 단어가 전혀 없다면 랜덤 매칭 혹은 기본 jazz/lofi 매칭
+    if (maxScore === 0) {
+      const defaultThemes = ["jazz", "lofi", "acoustic", "bossanova", "classic", "rock", "hiphop", "nature"];
+      bestThemeId = defaultThemes[Math.floor(Math.random() * defaultThemes.length)];
+      matchedWord = "커피 한 잔의 여유";
+    }
+
+    const matchedTheme = BGM_THEMES.find(t => t.id === bestThemeId);
+    if (matchedTheme) {
+      setSelectedBgmTheme(bestThemeId);
+      
+      // AI 피드백 팝업 알림
+      alert(`🪄 [BeanMind AI BGM 자동 매칭 완료]\n\n회원님이 작성하신 피드 속 감성 어휘(예: "${matchedWord}")를 정밀 분석하여,\n가장 아름답게 어울리는 배경음악 테마 「${matchedTheme.label}」을 찾아 자동으로 페어링해 드렸습니다!`);
     }
   };
 
@@ -2888,7 +2970,19 @@ export default function CoffeeTalk() {
 
                       {/* 감성 BGM 사운드 페어링 (Premium Theme Picker) */}
                       <div className="flex flex-col gap-2 p-3 bg-espresso-950/50 rounded-xl border border-amber-500/10 w-full mb-1">
-                          <p className="text-[11px] font-bold text-amber-500 mb-1 flex items-center gap-1.5"><Music size={12}/> 🎵 AI 감성 사운드 페어링 (배경음악 지정)</p>
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                              <p className="text-[11px] font-bold text-amber-500 flex items-center gap-1.5"><Music size={12}/> 🎵 AI 감성 사운드 페어링 (배경음악 지정)</p>
+                              <button
+                                  type="button"
+                                  onClick={(e) => {
+                                      e.preventDefault();
+                                      handleAiBgmAutoMatch();
+                                  }}
+                                  className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1 active:scale-95 transition-all shadow-sm"
+                              >
+                                  <Sparkles size={10} className="text-amber-400 animate-pulse" /> AI 자동 매칭
+                              </button>
+                          </div>
                           <div className="flex gap-2 overflow-x-auto pb-1.5 snap-x no-scrollbar">
                               {BGM_THEMES.map(theme => {
                                   const isSelected = selectedBgmTheme === theme.id;
