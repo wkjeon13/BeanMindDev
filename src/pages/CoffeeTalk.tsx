@@ -3371,16 +3371,7 @@ export default function CoffeeTalk() {
         )}
       </AnimatePresence>
 
-      {/* Invisible YouTube IFrame Player (Autoplay via User Click Gesture) */}
-      {activeBgmVideoId && isBgmPlaying && (
-        <iframe
-          id="youtube-bgm-player"
-          className="absolute w-1 h-1 opacity-0 pointer-events-none"
-          src={`https://www.youtube.com/embed/${activeBgmVideoId}?enablejsapi=1&autoplay=1&mute=1&loop=1&playlist=${activeBgmVideoId}`}
-          allow="autoplay; encrypted-media"
-          title="BeanMind AI BGM"
-        />
-      )}
+      {/* BGM Player moved inside the controller panel to bypass autoplay policy and provide visual feedback */}
 
       {/* Half-Sheet BGM Controller Panel */}
       <AnimatePresence>
@@ -3439,6 +3430,24 @@ export default function CoffeeTalk() {
                   <X size={18} />
                 </button>
               </div>
+            </div>
+
+            {/* 감성 BGM 비디오 뷰포트 (Autoplay & unMute 백업 액자) */}
+            <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] rounded-xl overflow-hidden border border-amber-500/25 bg-[#0f0a05] flex items-center justify-center shrink-0 shadow-inner">
+              {activeBgmVideoId && isBgmPlaying ? (
+                <iframe
+                  id="youtube-bgm-player"
+                  className="w-full h-full object-cover"
+                  src={`https://www.youtube.com/embed/${activeBgmVideoId}?enablejsapi=1&autoplay=1&mute=1&loop=1&playlist=${activeBgmVideoId}&origin=${window.location.origin}`}
+                  allow="autoplay; encrypted-media"
+                  title="BeanMind AI BGM"
+                />
+              ) : (
+                <div className="text-espresso-400 text-[11px] font-bold flex flex-col items-center gap-1.5 opacity-80">
+                  <Music size={18} className="text-amber-500/50 animate-pulse" />
+                  <span>배경음악 재생 중단됨</span>
+                </div>
+              )}
             </div>
 
             {/* Volume slider (Detail Premium quality) */}
