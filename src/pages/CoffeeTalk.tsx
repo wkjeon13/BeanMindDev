@@ -1081,12 +1081,22 @@ export default function CoffeeTalk() {
         let stableCount = 0;
         let rafId: number;
 
-        const finish = () => {
+        const finish = async () => {
           if (settled) return;
           settled = true;
           cancelAnimationFrame(rafId);
-          // 스크롤 컨테이너는 항상 visible 상태이므로 scrollTop이 iOS에 정확히 커밋됨
-          // 오버레이(isScrollJumping=true div)가 덮고 있는 동안 scrollTop을 최종 확정하고 제거
+
+          // iOS WKWebView는 이미지를 lazy decode함: 이미지 src가 설정되어도
+          // 실제 디코딩(naturalHeight 반영 및 scrollHeight 확정)은 비동기로 나중에 발생.
+          // 시뮬레이터는 즉시 디코딩되어 문제 없지만, 실제 아이폰에서는
+          // 디코딩 전 scrollHeight가 너무 작아 scrollTop이 클램핑됨.
+          // img.decode()로 모든 이미지 디코딩 완료 후 scrollTop을 세팅해야 정확함.
+          const imgs = Array.from(container.querySelectorAll('img')) as HTMLImageElement[];
+          await Promise.race([
+            Promise.all(imgs.map(img => img.decode().catch(() => {}))),
+            new Promise<void>(r => setTimeout(r, 600))
+          ]);
+
           container.style.scrollBehavior = 'auto';
           container.scrollTop = scrollPos;
           requestAnimationFrame(() => {
