@@ -58,8 +58,8 @@ const BottomNav = () => {
     };
   }, []);
 
-  // Hide bottom nav on specific pages
-  if (currentPath.startsWith('/register') || currentPath.startsWith('/admin') || currentPath.startsWith('/profile/host-web')) return null;
+  // Hide bottom nav on specific pages or when virtual keyboard is active to prevent blocking input fields
+  if (isKeyboardVisible || currentPath.startsWith('/register') || currentPath.startsWith('/admin') || currentPath.startsWith('/profile/host-web') || currentPath.startsWith('/profile/tasting-note') || currentPath.startsWith('/profile/tour-wizard')) return null;
 
   const handleNavClick = (e: React.MouseEvent, targetPath: string) => {
     // If clicking the current tab, trigger scroll to top
@@ -109,7 +109,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const hideBottomNav = location.pathname.startsWith('/register') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/profile/host-web');
+  const hideBottomNav = location.pathname.startsWith('/register') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/profile/host-web') || location.pathname.startsWith('/profile/tasting-note') || location.pathname.startsWith('/profile/tour-wizard');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {

@@ -120,7 +120,7 @@ export default function TastingNoteWizard() {
 
     return (
         <div 
-            className="min-h-[100dvh] bg-black text-white p-4 pb-[50vh] md:pb-8"
+            className="h-[100dvh] overflow-y-auto bg-black text-white p-4 pb-[50vh] md:pb-8"
             style={{ paddingTop: 'max(env(safe-area-inset-top, 20px), 20px)' }}
         >
             {/* Header */}
