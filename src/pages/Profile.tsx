@@ -734,7 +734,11 @@ export default function Profile() {
                 }
             }
         };
-        const deepLinkHandlePromise = CapApp.addListener('appUrlOpen', handleDeepLink);
+        const isNativePlatform = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+        let deepLinkHandlePromise: any = null;
+        if (isNativePlatform) {
+            deepLinkHandlePromise = CapApp.addListener('appUrlOpen', handleDeepLink);
+        }
 
         // Fallback or PC check: if returning directly to URL via standard browser redirect
         const hash = window.location.hash;
@@ -799,7 +803,13 @@ export default function Profile() {
         }
         
         return () => {
-            deepLinkHandlePromise.then(h => h.remove()).catch(e => console.error("Failed to remove deep link listener:", e));
+            if (deepLinkHandlePromise) {
+                Promise.resolve(deepLinkHandlePromise).then(h => {
+                    if (h && typeof h.remove === 'function') {
+                        h.remove();
+                    }
+                }).catch(e => console.error("Failed to remove deep link listener:", e));
+            }
         };
     }, []);
 
