@@ -1005,6 +1005,11 @@ export default function CoffeeTalk() {
                 if (el && container) {
                     container.style.scrollBehavior = 'auto';
                     el.scrollIntoView({ behavior: 'auto', block: 'start' });
+                    // 프로그램 방식 스크롤 직후 즉시 동기화 처리하여 비동기 스크롤 이벤트 딜레이에 의한 백업 유실 차단
+                    lastScrollTopRef.current = container.scrollTop;
+                    try {
+                        localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, container.scrollTop.toString());
+                    } catch (e) {}
 
                     el.classList.add('ring-4', 'ring-amber-500', 'ring-offset-2', 'ring-offset-espresso-950', 'transition-all', 'duration-500');
                     setTimeout(() => {
@@ -1067,6 +1072,11 @@ export default function CoffeeTalk() {
                     ]);
                     container.style.scrollBehavior = 'auto';
                     container.scrollTop = scrollPos;
+                    // 프로그램 방식 스크롤 복원 직후 즉시 자바스크립트의 scrollTop 상태와 로컬 스토리지를 동기화합니다.
+                    lastScrollTopRef.current = container.scrollTop;
+                    try {
+                        localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, container.scrollTop.toString());
+                    } catch (e) {}
                     requestAnimationFrame(() => {
                         container.style.scrollBehavior = '';
                         setIsScrollJumping(false);
