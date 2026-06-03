@@ -547,6 +547,8 @@ export default function CoffeeTalk() {
         // Clean up location state so modal/filters don't trigger on reload
         if (location.state?.filter || location.state?.composePilgrimageLedger || location.state?.activePost) {
             window.history.replaceState({}, document.title);
+            // React Router의 내부 location.state도 완전히 비워주어 다른 탭으로 이동했다가 복귀할 때 딥링크 스크롤 조건이 오작동(재진입)하지 않도록 합니다.
+            navigate(location.pathname + location.search + location.hash, { replace: true, state: {} });
         }
     }, [location]);
 
