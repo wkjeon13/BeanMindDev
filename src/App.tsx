@@ -99,7 +99,6 @@ const BottomNav = () => {
 };
 
 import { v4 as uuidv4 } from 'uuid';
-import { App as CapApp } from '@capacitor/app';
 import { API_BASE } from './utils/apiConfig';
 import { usePushNotifications } from './hooks/usePushNotifications';
 import GlobalAdBanner from './components/GlobalAdBanner';
@@ -224,21 +223,26 @@ export default function App() {
     const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
     
     if (isNative) {
-        deepLinkHandlePromise = CapApp.addListener('appUrlOpen', (event: any) => {
-            if (event.url) {
-                try {
-                    // 예: https://www.beanmindcurator.com/?route=community&post=xxxx
-                    const parsedUrl = new URL(event.url);
-                    const params = new URLSearchParams(parsedUrl.search);
-                    const route = params.get('route');
-                    const post = params.get('post');
-                    if (route === 'community' && post) {
-                        navigate(`/community?post=${post}`, { replace: true });
+        // 웹 브라우저 환경에서의 정적 로드 에러 방지를 위해 Capacitor App 플러그인을 동적으로 임포트
+        deepLinkHandlePromise = import('@capacitor/app').then(({ App: CapApp }) => {
+            return CapApp.addListener('appUrlOpen', (event: any) => {
+                if (event.url) {
+                    try {
+                        const parsedUrl = new URL(event.url);
+                        const params = new URLSearchParams(parsedUrl.search);
+                        const route = params.get('route');
+                        const post = params.get('post');
+                        if (route === 'community' && post) {
+                            navigate(`/community?post=${post}`, { replace: true });
+                        }
+                    } catch (e) {
+                        console.error("Failed to parse appUrlOpen URL in App:", e);
                     }
-                } catch (e) {
-                    console.error("Failed to parse appUrlOpen URL in App:", e);
                 }
-            }
+            });
+        }).catch(e => {
+            console.error("Failed to load @capacitor/app dynamically:", e);
+            return null;
         });
     }
 
@@ -277,7 +281,9 @@ export default function App() {
 
     return () => {
         if (deepLinkHandlePromise) {
-            deepLinkHandlePromise.then(h => h.remove()).catch(e => console.error("Failed to remove App deep link listener:", e));
+            deepLinkHandlePromise.then(h => {
+                if (h) h.remove();
+            }).catch(e => console.error("Failed to remove App deep link listener:", e));
         }
     };
   }, [navigate]);
