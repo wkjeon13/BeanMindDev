@@ -1085,17 +1085,13 @@ export default function CoffeeTalk() {
           if (settled) return;
           settled = true;
           cancelAnimationFrame(rafId);
+          // 스크롤 컨테이너는 항상 visible 상태이므로 scrollTop이 iOS에 정확히 커밋됨
+          // 오버레이(isScrollJumping=true div)가 덮고 있는 동안 scrollTop을 최종 확정하고 제거
           container.style.scrollBehavior = 'auto';
           container.scrollTop = scrollPos;
-          // iOS WKWebView는 scrollTop을 렌더링 스레드에 비동기 커밋함.
-          // double RAF: 1차 프레임에서 커밋 요청 수신, 2차 프레임에서 올바른 위치로 페인트 완료.
-          // 그 이후에 opacity를 1로 전환해야 튀는 현상이 없음.
           requestAnimationFrame(() => {
-            container.scrollTop = scrollPos; // 1차 프레임에서 재확인 (드롭 방어)
-            requestAnimationFrame(() => {
-              container.style.scrollBehavior = '';
-              setIsScrollJumping(false);
-            });
+            container.style.scrollBehavior = '';
+            setIsScrollJumping(false);
           });
         };
 
@@ -1998,8 +1994,13 @@ export default function CoffeeTalk() {
         </div>
       </header>
 
+      {/* 스크롤 복원 중 마스킹 오버레이: opacity 대신 별도 div로 덮어 iOS WKWebView 컴포지팅 레이어 초기화 방지 */}
+      {isScrollJumping && (
+        <div className="absolute inset-0 z-40 bg-espresso-950" />
+      )}
+
       {/* Main Feed Content */}
-      <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto ${isScrollJumping ? '' : 'scroll-smooth'} ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24'}`} style={{ opacity: isScrollJumping ? 0 : 1, pointerEvents: isScrollJumping ? 'none' : 'auto' }}>
+      <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto scroll-smooth ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24'}`}>
         <div className={`mx-auto ${activeFilter === 'shorts' ? 'w-full max-w-md md:max-w-2xl h-full' : 'max-w-md md:max-w-2xl sm:px-4 sm:pb-4'}`}>
           {activeFilter === 'near_live' && <HotspotMap />}
           {isLoading && <p className="text-center text-espresso-200 mt-10">{t('coffee_talk.loading_feed', '피드를 불러오는 중입니다...')}</p>}

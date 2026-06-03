@@ -5,13 +5,12 @@ interface PullToRefreshProps {
     onRefresh: () => Promise<void>;
     children: ReactNode;
     className?: string;
-    style?: React.CSSProperties;
     disabled?: boolean;
     overlayMode?: boolean;
     id?: string;
 }
 
-export default function PullToRefresh({ onRefresh, children, className = '', style, disabled = false, overlayMode = false, id }: PullToRefreshProps) {
+export default function PullToRefresh({ onRefresh, children, className = '', disabled = false, overlayMode = false, id }: PullToRefreshProps) {
     const [pullDistance, setPullDistance] = useState(0);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const startY = useRef<number | null>(null);
@@ -67,7 +66,6 @@ export default function PullToRefresh({ onRefresh, children, className = '', sty
     return (
         <div
             className={`relative w-full h-full flex flex-col overflow-hidden bg-transparent`}
-            style={style}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
