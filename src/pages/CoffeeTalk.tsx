@@ -256,9 +256,13 @@ export default function CoffeeTalk() {
             ? `capcurator://community?activePost=${targetPostId}`
             : `capcurator://community`;
             
+        const start = Date.now();
         window.location.href = appSchema;
         
-        setTimeout(() => {
+        const storeTimer = setTimeout(() => {
+            if (document.hidden || (document as any).webkitHidden) return;
+            if (Date.now() - start > 3000) return;
+
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
             if (isIOS) {
                 window.location.href = "https://apps.apple.com/app/id6477810300";
@@ -266,6 +270,14 @@ export default function CoffeeTalk() {
                 window.location.href = "https://play.google.com/store/apps/details?id=com.beanmind.curator";
             }
         }, 2500);
+
+        const clearTimers = () => {
+            clearTimeout(storeTimer);
+            window.removeEventListener('visibilitychange', clearTimers);
+            window.removeEventListener('pagehide', clearTimers);
+        };
+        window.addEventListener('visibilitychange', clearTimers);
+        window.addEventListener('pagehide', clearTimers);
     };
     const savedLastFilter = (() => {
         try { return localStorage.getItem('coffeeTalkLastActiveFilter') || 'all'; } catch { return 'all'; }
