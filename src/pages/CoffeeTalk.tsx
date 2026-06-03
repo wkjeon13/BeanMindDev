@@ -1140,11 +1140,11 @@ export default function CoffeeTalk() {
   };
 
   const handleShare = async (id: string) => {
-      const shareUrl = `${window.location.origin}/community?post=${id}`;
+      const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+      const origin = isNative ? 'https://www.beanmindcurator.com' : window.location.origin;
+      const shareUrl = `${origin}/community?post=${id}`;
       const shareTitle = t('coffee_talk.msg_share_title', 'Beanmind Coffee Talk');
       const shareText = t('coffee_talk.msg_share_text', '이 재미있는 커피 이야기를 확인해보세요!');
-
-      const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
 
       let sharedSuccessfully = false;
 
