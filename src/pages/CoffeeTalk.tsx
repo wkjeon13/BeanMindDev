@@ -1098,8 +1098,7 @@ export default function CoffeeTalk() {
           if (settled) return;
           const h = container.scrollHeight;
           if (h !== lastScrollHeight) {
-            // 이미지/콘텐츠 로드로 높이 변화 → scrollTop 재앵커링
-            container.scrollTop = scrollPos;
+            // 높이 변화 감지 → 안정화 카운트 리셋 (scrollTop은 finish에서만 최종 세팅)
             lastScrollHeight = h;
             stableCount = 0;
           } else {
