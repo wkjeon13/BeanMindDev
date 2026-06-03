@@ -113,6 +113,61 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
+    let isMounted = true;
+    let listenerHandle: any = null;
+
+    const setupDeepLink = async () => {
+      const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+      if (!isNative) return;
+
+      try {
+        const { App: CapacitorApp } = await import('@capacitor/app');
+        
+        const launchUrl = await CapacitorApp.getLaunchUrl();
+        if (launchUrl && launchUrl.url && isMounted) {
+          handleDeepLink(launchUrl.url);
+        }
+
+        if (!isMounted) return;
+
+        listenerHandle = await CapacitorApp.addListener('appUrlOpen', (event: any) => {
+          if (isMounted) {
+            handleDeepLink(event.url);
+          }
+        });
+      } catch (err) {
+        console.error('Capacitor App deep link error:', err);
+      }
+    };
+
+    const handleDeepLink = (url: string) => {
+      try {
+        let targetUrl = url;
+        if (targetUrl.startsWith('capcurator://')) {
+          targetUrl = targetUrl.replace('capcurator://', 'http://localhost/');
+        }
+        const parsedUrl = new URL(targetUrl);
+        const activePost = parsedUrl.searchParams.get('activePost');
+        
+        if ((parsedUrl.pathname === '/community' || parsedUrl.host === 'community') && activePost) {
+          navigate('/community', { state: { activePost } });
+        }
+      } catch (err) {
+        console.error('Failed to handle deep link url:', url, err);
+      }
+    };
+
+    setupDeepLink();
+
+    return () => {
+      isMounted = false;
+      if (listenerHandle) {
+        listenerHandle.remove();
+      }
+    };
+  }, [navigate]);
+
+  useEffect(() => {
     // If user is unauthenticated and tries to access a protected route (or just whenever they open the app unauthenticated), 
     // force them to the home page (Curator) if they are not already there or on a public safe page.
     const isAuth = !!localStorage.getItem('token');

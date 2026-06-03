@@ -221,6 +221,52 @@ export default function CoffeeTalk() {
     useEffect(() => {
         setIsMobileDevice(isMobileOrTablet());
     }, []);
+
+    const [showSmartBanner, setShowSmartBanner] = useState<boolean>(false);
+    const [isBannerDismissed, setIsBannerDismissed] = useState<boolean>(() => {
+        try {
+            return sessionStorage.getItem('smartBannerDismissed') === 'true';
+        } catch {
+            return false;
+        }
+    });
+
+    useEffect(() => {
+        const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+        setShowSmartBanner(isMobileDevice && !isNative && !isBannerDismissed);
+    }, [isMobileDevice, isBannerDismissed]);
+
+    const handleDismissBanner = () => {
+        try {
+            sessionStorage.setItem('smartBannerDismissed', 'true');
+        } catch (e) {}
+        setIsBannerDismissed(true);
+    };
+
+    const handleOpenApp = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const activePost = urlParams.get('activePost');
+        
+        let targetPostId = activePost;
+        if (!targetPostId && posts.length > 0) {
+            targetPostId = posts[0].id;
+        }
+        
+        const appSchema = targetPostId 
+            ? `capcurator://community?activePost=${targetPostId}`
+            : `capcurator://community`;
+            
+        window.location.href = appSchema;
+        
+        setTimeout(() => {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+            if (isIOS) {
+                window.location.href = "https://apps.apple.com/app/id6477810300";
+            } else {
+                window.location.href = "https://play.google.com/store/apps/details?id=com.beanmind.curator";
+            }
+        }, 2500);
+    };
     const savedLastFilter = (() => {
         try { return localStorage.getItem('coffeeTalkLastActiveFilter') || 'all'; } catch { return 'all'; }
     })();
@@ -1192,7 +1238,7 @@ export default function CoffeeTalk() {
         if (isNative || origin.includes('beanmindcurator.com')) {
             origin = 'http://www.beanmindcurator.com';
         }
-        const shareUrl = `${origin}/community`;
+        const shareUrl = `${origin}/community?activePost=${id}`;
 
         const shareData = {
             title: shareTitle,
@@ -1895,6 +1941,26 @@ export default function CoffeeTalk() {
 
     return (
         <div className="absolute inset-0 bg-espresso-950 text-espresso-50 flex flex-col font-sans">
+            {/* 스마트 앱 배너 */}
+            {showSmartBanner && (
+                <div className="sticky top-0 z-[110] w-full bg-espresso-900/90 backdrop-blur-md border-b border-espresso-800/80 px-4 py-2.5 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                    <div className="flex items-center gap-3">
+                        <button onClick={handleDismissBanner} className="text-espresso-300 hover:text-espresso-50 p-1 transition-colors">
+                            <X size={16} />
+                        </button>
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center shadow-md shrink-0">
+                            <Coffee size={18} className="text-espresso-950 stroke-[2.5]" />
+                        </div>
+                        <div className="flex flex-col leading-tight">
+                            <span className="text-[12px] font-black text-espresso-50 tracking-tight">BeanMind Curator</span>
+                            <span className="text-[10px] text-amber-500/90 font-bold">{t('coffee_talk.smart_banner_desc', '앱에서 피드 바로 보기')}</span>
+                        </div>
+                    </div>
+                    <button onClick={handleOpenApp} className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-espresso-950 text-[11px] font-black rounded-xl transition-all shadow-[0_0_10px_rgba(245,158,11,0.25)]">
+                        {t('coffee_talk.btn_open_app', '앱 열기')}
+                    </button>
+                </div>
+            )}
             {/* Header (Glassmorphism) with tap-to-top */}
             <header
                 onClick={(e) => {
