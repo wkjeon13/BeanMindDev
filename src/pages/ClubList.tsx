@@ -310,52 +310,65 @@ export default function ClubList() {
                         )}
                     </div>
 
-                    <div className="flex-1 min-w-0 z-10">
-                        <div className="flex justify-between items-start mb-1">
-                            <h3 className={`font-bold text-[15px] truncate ${club.isDeleted ? 'text-espresso-400 line-through decoration-red-500/50' : 'text-espresso-50'}`}>
-                                {club.name}
-                            </h3>
-                        </div>
-                        <p className="text-[13px] text-espresso-300 line-clamp-1 mb-2">{club.isDeleted ? '紐⑥엫?μ뿉 ?섑빐 ?먯뇙???뚮え?꾩엯?덈떎.' : club.description}</p>
-                        <div className="flex items-center gap-1.5 text-[11px] font-medium mb-1 flex-nowrap overflow-x-auto hide-scrollbar pb-1">
+                    <div className="flex-1 min-w-0 z-10 flex flex-col gap-1.5">
+                        {/* Line 1: Title */}
+                        <h3 className={`font-bold text-[15px] truncate leading-tight ${club.isDeleted ? "text-espresso-400 line-through decoration-red-500/50" : "text-espresso-50"}`}>
+                            {club.name}
+                        </h3>
+
+                        {/* Line 2: Status + Location */}
+                        <div className="flex items-center gap-2 flex-wrap">
                             {club.isDeleted ? (
-                                <span className="px-2 py-0.5 bg-red-500/20 text-red-500 border border-red-500/30 rounded-full w-fit flex flex-row shrink-0 whitespace-nowrap items-center gap-1 font-bold">
-                                    ???먯뇙??
+                                <span className="px-2 py-0.5 bg-red-500/20 text-red-400 border border-red-500/30 rounded-full text-[11px] font-bold whitespace-nowrap">
+                                    삭제됨
                                 </span>
                             ) : isRecruiting ? (
-                                <span className="px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/50 rounded-full w-fit flex flex-row shrink-0 whitespace-nowrap items-center gap-1">
-                                    {t('club_list.recruiting')} {deadlineStr && `( ~${deadlineStr} )`}
+                                <span className="px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/50 rounded-full text-[11px] font-bold whitespace-nowrap">
+                                    {t("club_list.recruiting")}
                                 </span>
                             ) : (
-                                <span className="px-2 py-0.5 bg-espresso-800 text-espresso-400 border border-espresso-700/50 rounded-full w-fit flex flex-row shrink-0 whitespace-nowrap items-center gap-1">
-                                    {t('club_list.recruitment_closed')}
+                                <span className="px-2 py-0.5 bg-espresso-700 text-espresso-400 border border-espresso-600/50 rounded-full text-[11px] font-medium whitespace-nowrap">
+                                    {t("club_list.recruitment_closed")}
                                 </span>
                             )}
-                            <span className="px-2 py-0.5 bg-espresso-950 rounded-full w-fit text-amber-500/80 border border-amber-900/50 flex flex-row items-center gap-1 shrink-0 whitespace-nowrap">
-                                <Users size={12} /> {club.memberCount || 0}{t('club_list.unit_person')}
-                            </span>
                             {club.locationName && (
-                                <span className="px-2 py-0.5 bg-espresso-900 rounded-full text-espresso-300 border shrink-0 whitespace-nowrap border-espresso-800 flex items-center gap-1">
-                                    <MapPin size={10} /> {club.locationName}
+                                <span className="flex items-center gap-1 text-[12px] text-espresso-300 truncate">
+                                    <MapPin size={11} className="shrink-0 text-amber-500/70" />
+                                    <span className="truncate">{club.locationName}</span>
                                 </span>
                             )}
+                        </div>
+
+                        {/* Line 3: Owner + Members + Start Date */}
+                        <div className="flex items-center gap-3 text-[11px] text-espresso-400 flex-wrap">
                             {club.owner?.nickname && (
-                                <span className="px-2 py-0.5 bg-espresso-900 rounded-full text-espresso-300 border shrink-0 whitespace-nowrap border-espresso-800">
-                                    {t('club_list.lbl_owner')}: {club.owner.nickname}
+                                <span className="whitespace-nowrap">
+                                    {t("club_list.lbl_owner")}: <span className="text-espresso-200 font-semibold">{club.owner.nickname}</span>
+                                </span>
+                            )}
+                            <span className="flex items-center gap-1 whitespace-nowrap">
+                                <Users size={11} className="text-amber-500/70" />
+                                <span className="text-espresso-200 font-semibold">{club.memberCount || 0}</span>{t("club_list.unit_person")}
+                            </span>
+                            {club.createdAt && (
+                                <span className="whitespace-nowrap">
+                                    시작: <span className="text-espresso-200">{new Date(club.createdAt).toLocaleDateString("ko-KR", { year: "2-digit", month: "2-digit", day: "2-digit" })}</span>
                                 </span>
                             )}
                             {actualPendingCount > 0 && (
-                                <span className="px-2 py-0.5 bg-red-500/20 text-red-500 border border-red-500/50 rounded-full font-bold ml-auto flex items-center gap-1 animate-pulse shrink-0 whitespace-nowrap">
-                                    <span className="w-1.5 h-1.5 bg-red-500 rounded-full" /> {t('club_list.lbl_pending')} {actualPendingCount}{t('club_list.unit_person')}
+                                <span className="flex items-center gap-1 bg-red-500/20 text-red-400 border border-red-500/50 rounded-full px-2 py-0.5 font-bold animate-pulse whitespace-nowrap">
+                                    <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+                                    {t("club_list.lbl_pending")} {actualPendingCount}{t("club_list.unit_person")}
                                 </span>
                             )}
                         </div>
-                        {activeTab === 'MY_CLUBS' && club.members && club.members.length > 0 && (
-                            <div className="text-[10px] items-center text-espresso-400 font-medium">
-                                {club.members[0].role === 'PENDING' ? t('club_list.status_pending') : `${new Date(club.members[0].joinedAt).toLocaleDateString()} ${t('club_list.status_joined')}`}
+
+                        {activeTab === "MY_CLUBS" && club.members && club.members.length > 0 && (
+                            <div className="text-[10px] text-espresso-500 flex items-center gap-2">
+                                {club.members[0].role === "PENDING" ? t("club_list.status_pending") : `${new Date(club.members[0].joinedAt).toLocaleDateString()} ${t("club_list.status_joined")}`}
                                 {newlyApprovedClubIds.includes(club.id) && (
-                                    <span className="ml-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-2 py-0.5 rounded-full font-bold animate-pulse inline-flex items-center">
-                                        {t('club_list.alert_approved')}
+                                    <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-2 py-0.5 rounded-full font-bold animate-pulse">
+                                        {t("club_list.alert_approved")}
                                     </span>
                                 )}
                             </div>
