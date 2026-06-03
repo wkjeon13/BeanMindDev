@@ -214,11 +214,24 @@ export default function CoffeeTalk() {
     const { t, i18n } = useTranslation(['translation']);
     const navigate = useNavigate();
     const location = useLocation();
-    const initialFilter = location.state?.filter || 'all';
+    const savedLastFilter = (() => {
+        try { return localStorage.getItem('coffeeTalkLastActiveFilter') || 'all'; } catch { return 'all'; }
+    })();
+    const initialFilter = location.state?.filter || savedLastFilter;
     const [activeFilter, setActiveFilter] = useState(initialFilter);
     const [sortOption, setSortOption] = useState('latest');
     const [isDeepLinked, setIsDeepLinked] = useState(!!location.state?.activePost || !!window.location.hash);
-    const [isScrollJumping, setIsScrollJumping] = useState(!!location.state?.activePost || !!window.location.hash);
+    const [isScrollJumping, setIsScrollJumping] = useState(() => {
+        if (!!location.state?.activePost || !!window.location.hash) return true;
+        try {
+            const filter = location.state?.filter || savedLastFilter;
+            const savedScroll = localStorage.getItem(`coffeeTalkScrollTop_${filter}`);
+            if (savedScroll && parseInt(savedScroll, 10) > 0) {
+                return true;
+            }
+        } catch (e) {}
+        return false;
+    });
     const currentFilterRef = useRef(activeFilter);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -860,6 +873,9 @@ export default function CoffeeTalk() {
         }
 
         currentFilterRef.current = activeFilter;
+        try {
+            localStorage.setItem('coffeeTalkLastActiveFilter', activeFilter);
+        } catch (e) {}
         const cacheKey = activeFilter + '_' + sortOption;
 
         // 딥링크가 아닌 경우 이전 스크롤 복원 대상 확보
@@ -995,46 +1011,66 @@ export default function CoffeeTalk() {
                 }, 10);
             }
         }
-        // 2. 이전 탭 및 이력 스크롤 위치 복원 (0ms 즉시 스크롤 & 마이크로 폴링)
+        // 2. 이전 탭 및 이력 스크롤 위치 복원
         else if (posts.length > 0 && restoreScrollTop.current !== null) {
             const scrollPos = restoreScrollTop.current;
-            restoreScrollTop.current = null; // 중복 복원 즉시 해제
+            restoreScrollTop.current = null;
 
             const performScrollRestore = () => {
                 const container = document.getElementById('coffee-feed-container');
-                if (container) {
+                if (!container) return false;
+
+                container.style.scrollBehavior = 'auto';
+                container.scrollTop = scrollPos; // 초기 선점 (클램핑될 수 있지만 마스킹 중이므로 무방)
+
+                let settled = false;
+                let lastScrollHeight = container.scrollHeight;
+                let stableCount = 0;
+                let rafId: number;
+
+                const finish = async () => {
+                    if (settled) return;
+                    settled = true;
+                    cancelAnimationFrame(rafId);
+                    // iOS WKWebView lazy decode: 이미지 디코딩 완료 후 scrollHeight 확정 → scrollTop 정확 세팅
+                    const imgs = Array.from(container.querySelectorAll('img')) as HTMLImageElement[];
+                    await Promise.race([
+                        Promise.all(imgs.map(img => img.decode().catch(() => {}))),
+                        new Promise<void>(r => setTimeout(r, 600))
+                    ]);
                     container.style.scrollBehavior = 'auto';
-
-                    // 1차 즉시 강제 스크롤 복원
                     container.scrollTop = scrollPos;
-
-                    // [이미지 지연 로딩 튕김 Stopper] 이미지 렌더링에 따른 height 확장 매칭 다단계 동적 고정기 작동!
-                    const delayTimes = [30, 80, 150, 300, 500];
-                    delayTimes.forEach(delay => {
-                        setTimeout(() => {
-                            const targetContainer = document.getElementById('coffee-feed-container');
-                            if (targetContainer) {
-                                targetContainer.scrollTop = scrollPos;
-                            }
-                        }, delay);
+                    requestAnimationFrame(() => {
+                        container.style.scrollBehavior = '';
+                        setIsScrollJumping(false);
                     });
+                };
 
-                    container.style.scrollBehavior = '';
-                    setIsScrollJumping(false);
-                    return true;
-                }
-                return false;
+                // RAF 루프로 scrollHeight 안정화 감지 (Android: 이미지 로드 후 클램핑 방지)
+                const tick = () => {
+                    if (settled) return;
+                    const h = container.scrollHeight;
+                    if (h !== lastScrollHeight) {
+                        lastScrollHeight = h;
+                        stableCount = 0;
+                    } else {
+                        stableCount++;
+                        if (stableCount >= 8) { finish(); return; }
+                    }
+                    rafId = requestAnimationFrame(tick);
+                };
+                rafId = requestAnimationFrame(tick);
+                setTimeout(() => finish(), 1500); // 폴백
+                return true;
             };
 
             if (!performScrollRestore()) {
                 let attempts = 0;
-                const interval = setInterval(() => {
-                    if (performScrollRestore() || attempts > 10) {
-                        clearInterval(interval);
-                        setIsScrollJumping(false);
-                    }
-                    attempts++;
-                }, 10);
+                const retry = () => {
+                    if (performScrollRestore() || attempts++ > 10) return;
+                    requestAnimationFrame(retry);
+                };
+                requestAnimationFrame(retry);
             }
         }
     }, [posts, window.location.hash]);
@@ -1832,9 +1868,14 @@ export default function CoffeeTalk() {
                 </div>
             </header>
 
+            {/* 스크롤 복원 중 마스킹 오버레이: 스크롤 컨테이너는 항상 visible로 유지하여 iOS WKWebView 컴포지팅 레이어 초기화 방지 */}
+            {isScrollJumping && (
+                <div className="absolute inset-0 z-40 bg-espresso-950" />
+            )}
+
             {/* Main Feed Content */}
             <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto scroll-smooth ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24'}`}>
-                <div className={`mx-auto transition-opacity duration-200 ${isScrollJumping ? 'opacity-0' : 'opacity-100'} ${activeFilter === 'shorts' ? 'w-full max-w-md md:max-w-2xl h-full' : 'max-w-md md:max-w-2xl sm:px-4 sm:pb-4'}`}>
+                <div className={`mx-auto ${activeFilter === 'shorts' ? 'w-full max-w-md md:max-w-2xl h-full' : 'max-w-md md:max-w-2xl sm:px-4 sm:pb-4'}`}>
                     {activeFilter === 'near_live' && <HotspotMap />}
                     {isLoading && <p className="text-center text-espresso-200 mt-10">{t('coffee_talk.loading_feed', '피드를 불러오는 중입니다...')}</p>}
                     {!isLoading && filteredPosts.length === 0 && (
