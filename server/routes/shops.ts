@@ -265,20 +265,21 @@ router.get('/trending', optionalAuthenticate, async (req: any, res: any) => {
 
         let stores: any[] = [];
         
-        if (topStoreIds.length === 0) {
-            // Fallback: Fetch recently approved stores in that country
+        if (topStoreIds.length > 0) {
+            stores = await prisma.store.findMany({
+                where: { id: { in: topStoreIds }, status: 'APPROVED' },
+                include: { media: true }
+            });
+        }
+
+        // Fallback: If no trending shops found or they are not approved/available, fetch recently approved stores
+        if (stores.length === 0) {
             const fallbackWhere: any = { status: 'APPROVED' };
             
             stores = await prisma.store.findMany({
                 where: fallbackWhere,
                 orderBy: { createdAt: 'desc' },
                 take: 5,
-                include: { media: true }
-            });
-            if (stores.length === 0) return res.status(200).json([]);
-        } else {
-            stores = await prisma.store.findMany({
-                where: { id: { in: topStoreIds }, status: 'APPROVED' },
                 include: { media: true }
             });
         }

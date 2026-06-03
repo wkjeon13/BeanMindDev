@@ -109,7 +109,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             finalCountryCode = user.countryCode;
         }
 
-        const rawTasteFeeds = await (prisma as any).post.findMany({
+        let rawTasteFeeds = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
                 clubId: null,
@@ -135,6 +135,34 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                 }
             }
         });
+
+        if (finalCountryCode && rawTasteFeeds.length < 3) {
+            rawTasteFeeds = await (prisma as any).post.findMany({
+                where: {
+                    isHidden: false,
+                    clubId: null,
+                    postType: 'NORMAL',
+                    image: { not: null }
+                },
+                orderBy: { createdAt: 'desc' },
+                take: 50,
+                include: {
+                    author: { select: { id: true, nickname: true, profileImageUrl: true } },
+                    _count: { select: { likes: true, comments: true } },
+                    poll: {
+                        include: {
+                            options: {
+                                orderBy: { id: 'asc' },
+                                include: {
+                                    _count: { select: { votes: true } },
+                                    votes: { select: { userId: true } }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
         const userInterests = user?.interests ? user.interests.split(',').map((i: string) => i.trim().toLowerCase()) : [];
 
@@ -323,7 +351,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
 
         // 6. User Pairings (Posts with #페어링 or #Pairing based on country)
         const pairingTag = reqCountryCode === 'US' ? '#Pairing' : '#페어링';
-        const userPairings = await (prisma as any).post.findMany({
+        let userPairings = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
                 countryCode: reqCountryCode,
@@ -338,11 +366,30 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             }
         });
 
+        if (userPairings.length === 0) {
+            userPairings = await (prisma as any).post.findMany({
+                where: {
+                    isHidden: false,
+                    OR: [
+                        { content: { contains: '#Pairing' } },
+                        { content: { contains: '#페어링' } }
+                    ],
+                    image: { not: null }
+                },
+                orderBy: { createdAt: 'desc' },
+                take: 5,
+                include: {
+                    author: { select: { nickname: true } },
+                    _count: { select: { likes: true } }
+                }
+            });
+        }
+
         // 6a. Hot Coffee Talk Feeds (Last 1 month, sorted by engagement)
         const oneMonthAgo = new Date();
         oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
         
-        const recentNormalPosts = await (prisma as any).post.findMany({
+        let recentNormalPosts = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
                 clubId: null,
@@ -369,6 +416,34 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                 }
             }
         });
+
+        if (recentNormalPosts.length === 0) {
+            recentNormalPosts = await (prisma as any).post.findMany({
+                where: {
+                    isHidden: false,
+                    clubId: null,
+                    postType: 'NORMAL',
+                    isShorts: false
+                },
+                orderBy: { createdAt: 'desc' },
+                take: 100,
+                include: {
+                    author: { select: { nickname: true, profileImageUrl: true } },
+                    _count: { select: { likes: true, comments: true } },
+                    poll: {
+                        include: {
+                            options: {
+                                orderBy: { id: 'asc' },
+                                include: {
+                                    _count: { select: { votes: true } },
+                                    votes: { select: { userId: true } }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
         
         // Sort in memory by engagement (likes + comments)
         const hotCoffeeTalkFeeds = [...recentNormalPosts].sort((a: any, b: any) => {
@@ -376,9 +451,9 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             const bScore = (b._count?.likes || 0) + (b._count?.comments || 0);
             return bScore - aScore;
         }).slice(0, 4);
-
+        
         // 6b. Newest Coffee Talk Feeds
-        const newestCoffeeTalkFeeds = await (prisma as any).post.findMany({
+        let newestCoffeeTalkFeeds = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
                 clubId: null,
@@ -404,6 +479,34 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                 }
             }
         });
+
+        if (newestCoffeeTalkFeeds.length === 0) {
+            newestCoffeeTalkFeeds = await (prisma as any).post.findMany({
+                where: {
+                    isHidden: false,
+                    clubId: null,
+                    postType: 'NORMAL',
+                    isShorts: false
+                },
+                orderBy: { createdAt: 'desc' },
+                take: 2,
+                include: {
+                    author: { select: { nickname: true, profileImageUrl: true } },
+                    _count: { select: { likes: true, comments: true } },
+                    poll: {
+                        include: {
+                            options: {
+                                orderBy: { id: 'asc' },
+                                include: {
+                                    _count: { select: { votes: true } },
+                                    votes: { select: { userId: true } }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
         // 7. Native Ad
         const nativeAdSetting = await prisma.systemSetting.findUnique({ where: { key: 'HOME_NATIVE_AD' } });

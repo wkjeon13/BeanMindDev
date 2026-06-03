@@ -582,7 +582,7 @@ export default function CoffeeTalk() {
                     return {
                         id: d.id,
                         isPilgrimageLedger: d.isPilgrimageLedger,
-                        isShorts: d.isShorts,
+                        isShorts: !!d.isShorts || !!(d.image && (d.image.includes('.mp4') || d.image.includes('.mov') || d.image.includes('.webm'))),
                         author: {
                             id: d.author?.id,
                             name: d.author.role === 'OWNER' && d.author.stores && d.author.stores.length > 0 ? d.author.stores[0].name : d.author.nickname,
@@ -638,7 +638,7 @@ export default function CoffeeTalk() {
                             const singlePost = {
                                 id: d.id,
                                 isPilgrimageLedger: d.isPilgrimageLedger,
-                                isShorts: d.isShorts,
+                                isShorts: !!d.isShorts || !!(d.image && (d.image.includes('.mp4') || d.image.includes('.mov') || d.image.includes('.webm'))),
                                 author: {
                                     id: d.author?.id,
                                     name: d.author.role === 'OWNER' && d.author.stores && d.author.stores.length > 0 ? d.author.stores[0].name : d.author.nickname,
@@ -881,26 +881,30 @@ export default function CoffeeTalk() {
         // 딥링크가 아닌 경우 이전 스크롤 복원 대상 확보
         const targetId = window.location.hash ? window.location.hash.substring(1) : targetPostIdToScroll.current;
         if (!targetId) {
-            // 숏폼/ASMR 탭은 TikTok 방식이므로 항상 첫 번째 피드부터 시작 (위치 복원 안 함)
-            // 숏폼/ASMR은 항상 첫 번째 피드부터 (스크롤 복원 없음)
-            const savedScroll = activeFilter !== 'shorts'
-                ? localStorage.getItem(`coffeeTalkScrollTop_${activeFilter}`)
-                : null;
-            const savedScrollNum = savedScroll ? parseInt(savedScroll, 10) : 0;
-            if (savedScrollNum > 0) {
-                restoreScrollTop.current = savedScrollNum;
-                setIsScrollJumping(true); // 스크롤 복원 전까지 투명 마스킹
+            if (activeFilter === 'shorts') {
+                // 숏폼/ASMR 탭은 TikTok 방식이므로 항상 첫 번째 피드부터 시작하되,
+                // 리액트 DOM 렌더링 이후 이전 탭의 스크롤 위치로 강제 앵커링되거나 스냅 튀는 현상을 막기 위해
+                // restoreScrollTop.current를 0으로 강제 지정하여 렌더 완료 후 확실히 scrollTop=0으로 복원하도록 유도합니다.
+                restoreScrollTop.current = 0;
+                setIsScrollJumping(true);
             } else {
-                restoreScrollTop.current = null;
-                // 스크롤 복원 불필요: 오버레이가 켜진 상태에서 scrollTop=0 강제 설정
-                // (캐시 히트 시 setPosts([])를 거치지 않아 이전 필터의 scrollTop이 남아있을 수 있음)
-                const container = document.getElementById('coffee-feed-container');
-                if (container) {
-                    container.style.scrollBehavior = 'auto';
-                    container.scrollTop = 0;
-                    container.style.scrollBehavior = '';
+                const savedScroll = localStorage.getItem(`coffeeTalkScrollTop_${activeFilter}`);
+                const savedScrollNum = savedScroll ? parseInt(savedScroll, 10) : 0;
+                if (savedScrollNum > 0) {
+                    restoreScrollTop.current = savedScrollNum;
+                    setIsScrollJumping(true); // 스크롤 복원 전까지 투명 마스킹
+                } else {
+                    restoreScrollTop.current = null;
+                    // 스크롤 복원 불필요: 오버레이가 켜진 상태에서 scrollTop=0 강제 설정
+                    // (캐시 히트 시 setPosts([])를 거치지 않아 이전 필터의 scrollTop이 남아있을 수 있음)
+                    const container = document.getElementById('coffee-feed-container');
+                    if (container) {
+                        container.style.scrollBehavior = 'auto';
+                        container.scrollTop = 0;
+                        container.style.scrollBehavior = '';
+                    }
+                    setIsScrollJumping(false);
                 }
-                setIsScrollJumping(false);
             }
         } else {
             restoreScrollTop.current = null;

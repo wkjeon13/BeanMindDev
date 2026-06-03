@@ -258,7 +258,31 @@ router.get('/', optionalAuthenticateToken, async (req: any, res) => {
             orderBy: { createdAt: 'desc' },
             take: limit,
             ...(req.query.lastId ? { cursor: { id: req.query.lastId }, skip: 1 } : { skip: skip })
-        }).then(res => {
+        }).then(async res => {
+            if (res.length === 0 && effectiveCountryCode && effectiveCountryCode !== 'GLOBAL') {
+                const fallbackRes = await (prisma as any).club.findMany({
+                    where: { isDeleted: false },
+                    select: {
+                      id: true,
+                      name: true,
+                      coverImageUrl: true,
+                      locationName: true,
+                      isPrivate: true,
+                      isRecruiting: true,
+                      maxMembers: true,
+                      memberCount: true,
+                      createdAt: true,
+                      lat: true,
+                      lng: true,
+                      owner: { select: { nickname: true } }
+                    },
+                    orderBy: { createdAt: 'desc' },
+                    take: limit,
+                    ...(req.query.lastId ? { cursor: { id: req.query.lastId }, skip: 1 } : { skip: skip })
+                });
+                res = fallbackRes;
+            }
+
             const sanitizedRes = res.map(c => {
                 // Payload Diet: Strip bloated base64 legacy data to prevent frontend thread blocking
                 const isBloated = c.coverImageUrl && c.coverImageUrl.length > 1000;

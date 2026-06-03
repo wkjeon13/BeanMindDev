@@ -177,7 +177,7 @@ router.get('/posts', async (req, res) => {
         if (countryCode && countryCode !== 'GLOBAL') {
             whereClause.countryCode = { in: [String(countryCode), 'GLOBAL'] };
         }
-        
+
         let currentUserId: string | null = null;
         const authHeader = req.headers.authorization;
         if (authHeader) {
