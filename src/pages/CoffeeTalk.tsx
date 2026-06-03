@@ -1122,38 +1122,6 @@ export default function CoffeeTalk() {
         // 각 경로(딥링크/복원/아무것도 없음)에서 isScrollJumping을 직접 관리함.
     }, [posts, window.location.hash]);
 
-    // PC 데스크톱 접속 시 차단 UI 제공
-    if (isMobileDevice === false) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-[100dvh] w-full bg-espresso-950 text-espresso-100 p-6 text-center select-none z-[9999] relative">
-                <div className="relative mb-6">
-                    <div className="w-24 h-24 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center text-amber-500 animate-pulse">
-                        <Coffee size={48} className="stroke-[1.5]" />
-                    </div>
-                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center text-red-500">
-                        <Lock size={16} />
-                    </div>
-                </div>
-                <h1 className="text-xl font-bold text-espresso-50 mb-3">{t('app.mobile_only_title', '모바일 및 태블릿 전용 서비스입니다')}</h1>
-                <p className="text-sm text-espresso-300 max-w-xs leading-relaxed mb-8">
-                    {t('app.mobile_only_desc', '커피톡 피드는 핸드폰 또는 태블릿 기기에서만 감상하실 수 있습니다. 모바일 환경에서 접속해 주세요.')}
-                </p>
-                <div className="text-[11px] font-mono text-espresso-500 bg-espresso-900/50 px-4 py-2 rounded-xl border border-espresso-800">
-                    DEVICE: DESKTOP / LAPTOP
-                </div>
-            </div>
-        );
-    }
-
-    if (isMobileDevice === null) {
-        return (
-            <div className="min-h-[100dvh] bg-espresso-950 flex flex-col items-center justify-center">
-                <div className="w-10 h-10 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin mb-4"></div>
-                <p className="text-espresso-300 font-mono text-xs tracking-widest animate-pulse">DEVICE CHECK...</p>
-            </div>
-        );
-    }
-
     const handleLike = async (id: string, currentLikes: number) => {
         const token = localStorage.getItem('token');
         if (!token) {
@@ -1841,6 +1809,37 @@ export default function CoffeeTalk() {
             document.activeElement.blur();
         }
     };
+
+    if (isMobileDevice === null) {
+        return (
+            <div className="min-h-[100dvh] bg-espresso-950 flex flex-col items-center justify-center">
+                <div className="w-10 h-10 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin mb-4"></div>
+                <p className="text-espresso-300 font-mono text-xs tracking-widest animate-pulse">DEVICE CHECK...</p>
+            </div>
+        );
+    }
+
+    if (isMobileDevice === false) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[100dvh] w-full bg-espresso-950 text-espresso-100 p-6 text-center select-none z-[9999] relative">
+                <div className="relative mb-6">
+                    <div className="w-24 h-24 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center text-amber-500 animate-pulse">
+                        <Coffee size={48} className="stroke-[1.5]" />
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center text-red-500">
+                        <Lock size={16} />
+                    </div>
+                </div>
+                <h1 className="text-xl font-bold text-espresso-50 mb-3">{t('app.mobile_only_title', '모바일 및 태블릿 전용 서비스입니다')}</h1>
+                <p className="text-sm text-espresso-300 max-w-xs leading-relaxed mb-8">
+                    {t('app.mobile_only_desc', '커피톡 피드는 핸드폰 또는 태블릿 기기에서만 감상하실 수 있습니다. 모바일 환경에서 접속해 주세요.')}
+                </p>
+                <div className="text-[11px] font-mono text-espresso-500 bg-espresso-900/50 px-4 py-2 rounded-xl border border-espresso-800">
+                    DEVICE: DESKTOP / LAPTOP
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="absolute inset-0 bg-espresso-950 text-espresso-50 flex flex-col font-sans">

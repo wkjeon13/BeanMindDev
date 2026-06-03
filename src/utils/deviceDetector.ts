@@ -1,6 +1,6 @@
 /**
  * 모바일 및 태블릿 기기 여부를 판별하는 유틸리티 함수입니다.
- * User-Agent 및 터치 입력 지원 여부(iPadOS 대응)를 활용하여 기기를 식별합니다.
+ * User-Agent, 터치 입력 지원 여부(iPadOS 대응), 그리고 화면 너비(태블릿 이하)를 종합하여 식별합니다.
  */
 export const isMobileOrTablet = (): boolean => {
     if (typeof window === 'undefined') return true;
@@ -17,5 +17,8 @@ export const isMobileOrTablet = (): boolean => {
         /Macintosh/.test(userAgent)
     );
 
-    return mobileRegex.test(userAgent) || isIPadOS;
+    // 개발자 도구의 기기 에뮬레이션 대응 및 기기 감지 예외 방지를 위해 화면 가로폭이 1024px 이하인 경우도 허용
+    const isSmallScreen = window.innerWidth <= 1024;
+
+    return mobileRegex.test(userAgent) || isIPadOS || isSmallScreen;
 };
