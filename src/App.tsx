@@ -104,6 +104,9 @@ import { usePushNotifications } from './hooks/usePushNotifications';
 import GlobalAdBanner from './components/GlobalAdBanner';
 import SystemNoticePopup from './components/SystemNoticePopup';
 
+// Global tracking variable to prevent duplicate deep link handling
+let lastHandledLaunchUrl = '';
+
 // Root Layout Component
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { t, i18n } = useTranslation();
@@ -141,6 +144,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     };
 
     const handleDeepLink = (url: string) => {
+      if (lastHandledLaunchUrl === url) {
+        console.log('Deep link already handled, skipping:', url);
+        return;
+      }
+      lastHandledLaunchUrl = url;
+
       try {
         let targetUrl = url;
         if (targetUrl.startsWith('capcurator://')) {
