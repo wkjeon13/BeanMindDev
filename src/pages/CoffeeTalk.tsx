@@ -1203,7 +1203,6 @@ export default function CoffeeTalk() {
         let sharedSuccessfully = false;
 
         // 1단계: Capacitor Native 환경 검출 시 네이티브 Share 플러그인 우선 적용
-        const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
         if (isNative) {
             try {
                 await Share.share(shareData);
