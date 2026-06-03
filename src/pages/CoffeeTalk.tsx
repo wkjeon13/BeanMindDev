@@ -1148,7 +1148,7 @@ export default function CoffeeTalk() {
 
   const handleShare = async (id: string) => {
       const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
-      const origin = isNative ? 'https://www.beanmindcurator.com' : window.location.origin;
+      const origin = isNative ? 'https://www.beanmindcurator.com:3002' : window.location.origin;
       
       // Nginx 등 외부 웹 서버의 다이렉트 서브라우팅 유실 한계를 우회하기 위해 루트 경로 경유 쿼리 파라미터로 공유 링크 구성
       const shareUrl = `${origin}/?route=community&post=${id}`;
