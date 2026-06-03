@@ -63,6 +63,36 @@ export default function AdminCompliance() {
     const [newPolicyIsActive, setNewPolicyIsActive] = useState(false);
     const [isSavingPolicy, setIsSavingPolicy] = useState(false);
 
+    const loadLatestExistingPolicy = (type: string) => {
+        const filtered = policies.filter(p => p.policyType === type);
+        if (filtered.length === 0) {
+            setNewPolicyTitle('');
+            setNewPolicyContent('');
+            return;
+        }
+
+        // 1순위: isActive === true 인 현재 활성 버전
+        // 2순위: 등록일(createdAt)이 가장 최신인 버전
+        const activeVersion = filtered.find(p => p.isActive);
+        if (activeVersion) {
+            setNewPolicyTitle(activeVersion.title);
+            setNewPolicyContent(activeVersion.content);
+            return;
+        }
+
+        // 활성 버전이 없다면 생성일자 기준으로 정렬하여 가장 최신 것 사용
+        const sorted = [...filtered].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setNewPolicyTitle(sorted[0].title);
+        setNewPolicyContent(sorted[0].content);
+    };
+
+    // 모달이 열리거나 약관 구분이 변경될 때 최신 약관 자동 로딩
+    useEffect(() => {
+        if (isCreateModalOpen) {
+            loadLatestExistingPolicy(newPolicyType);
+        }
+    }, [isCreateModalOpen, newPolicyType, policies]);
+
     // CCPA Action Modal State
     const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
     const [actionTakenText, setActionTakenText] = useState('');
@@ -932,7 +962,18 @@ export default function AdminCompliance() {
                         <form onSubmit={handleSavePolicy} className="space-y-4 flex-1 flex flex-col overflow-hidden">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-semibold text-slate-400 mb-1.5">약관 구분</label>
+                                    <div className="flex justify-between items-center mb-1.5">
+                                        <label className="block text-xs font-semibold text-slate-400">약관 구분</label>
+                                        <button
+                                            type="button"
+                                            onClick={() => loadLatestExistingPolicy(newPolicyType)}
+                                            className="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 bg-transparent border-none cursor-pointer"
+                                            title="가장 최근에 등록된 약관 제목과 본문을 불러옵니다"
+                                        >
+                                            <RefreshCw className="w-3 h-3" />
+                                            이전 버전 불러오기
+                                        </button>
+                                    </div>
                                     <select
                                         value={newPolicyType}
                                         onChange={(e) => setNewPolicyType(e.target.value)}
