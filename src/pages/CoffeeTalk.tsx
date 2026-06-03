@@ -1077,36 +1077,46 @@ export default function CoffeeTalk() {
         container.scrollTop = scrollPos;
 
         let settled = false;
-        let lastHeight = container.scrollHeight;
+        let lastScrollHeight = container.scrollHeight;
         let stableCount = 0;
+        let rafId: number;
 
         const finish = () => {
           if (settled) return;
           settled = true;
-          observer.disconnect();
-          // scrollBehavior는 CSS scroll-smooth 클래스가 isScrollJumping=false 이후 적용되므로 인라인 스타일만 제거
+          cancelAnimationFrame(rafId);
+          // 최종 앵커: 콘텐츠 공개 직전 scrollTop 한 번 더 확정
+          container.scrollTop = scrollPos;
           container.style.scrollBehavior = '';
           setIsScrollJumping(false);
         };
 
-        // ResizeObserver: 컨테이너 높이가 변할 때마다(이미지 로드 등) scrollTop 재지정
-        const observer = new ResizeObserver(() => {
-          container.scrollTop = scrollPos;
-          const currentHeight = container.scrollHeight;
-          if (currentHeight === lastHeight) {
-            stableCount++;
-            // 연속 3프레임 동안 높이가 고정되면 레이아웃 완료로 판단
-            if (stableCount >= 3) finish();
-          } else {
-            lastHeight = currentHeight;
+        // RAF 루프로 scrollHeight(실제 콘텐츠 높이) 변화를 직접 감지
+        // ResizeObserver는 컨테이너 바운딩박스(clientHeight)만 감지하므로
+        // 이미지 로드로 인한 scrollHeight 변화를 포착하지 못함
+        const tick = () => {
+          if (settled) return;
+          const h = container.scrollHeight;
+          if (h !== lastScrollHeight) {
+            // 이미지/콘텐츠 로드로 높이 변화 → scrollTop 재앵커링
+            container.scrollTop = scrollPos;
+            lastScrollHeight = h;
             stableCount = 0;
+          } else {
+            stableCount++;
+            // 연속 8프레임(~133ms @60fps) 동안 높이 고정 → 레이아웃 완료로 판단
+            if (stableCount >= 8) {
+              finish();
+              return;
+            }
           }
-        });
+          rafId = requestAnimationFrame(tick);
+        };
 
-        observer.observe(container);
+        rafId = requestAnimationFrame(tick);
 
-        // 폴백: 최대 1초 후 강제 해제 (ResizeObserver가 트리거되지 않는 엣지케이스 대비)
-        setTimeout(() => finish(), 1000);
+        // 폴백: 최대 1.5초 후 강제 해제 (느린 네트워크 안드로이드 대비)
+        setTimeout(() => finish(), 1500);
 
         return true;
       };
