@@ -119,7 +119,8 @@
         "lbl_selected_pin": "Selected Location",
         "desc_map_instruction": "Tap the map to drop a pin.",
         "ph_search": "Search by name, location, intro...",
-        "btn_cancel": "Cancel"
+        "btn_cancel": "Cancel",
+        "start_date": "Start Date"
     },
     "app": {
         "nav_home": "Curator",

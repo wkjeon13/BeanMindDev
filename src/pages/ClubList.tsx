@@ -298,7 +298,7 @@ export default function ClubList() {
                 : 'bg-espresso-800/80 border-espresso-600 hover:bg-espresso-700 shadow-espresso-900/50'
             }`}
         >
-            <div className={`w-16 h-16 rounded-xl flex items-center justify-center shrink-0 border overflow-hidden relative ${club.isDeleted ? 'bg-espresso-900 border-red-500/20 grayscale' : 'bg-espresso-800 border-espresso-700'}`}>
+            <div className={`w-20 h-20 rounded-xl flex items-center justify-center shrink-0 border overflow-hidden relative ${club.isDeleted ? 'bg-espresso-900 border-red-500/20 grayscale' : 'bg-espresso-800 border-espresso-700'}`}>
                 {club.coverImageUrl ? (
                     <img src={parseCoverImages(club.coverImageUrl)[0]} alt="Cover" className="w-full h-full object-cover" />
                 ) : (
@@ -311,52 +311,62 @@ export default function ClubList() {
                 )}
             </div>
             
-            <div className="flex-1 min-w-0 z-10">
+            <div className="flex-1 min-w-0 z-10 flex flex-col justify-between py-0.5">
+                {/* 1줄: 제목 */}
                 <div className="flex justify-between items-start mb-1">
                     <h3 className={`font-bold text-[15px] truncate ${club.isDeleted ? 'text-espresso-400 line-through decoration-red-500/50' : 'text-espresso-50'}`}>
                         {club.name}
                     </h3>
                 </div>
-                <p className="text-[13px] text-espresso-300 line-clamp-1 mb-2">{club.isDeleted ? '紐⑥엫?μ뿉 ?섑빐 ?먯뇙???뚮え?꾩엯?덈떎.' : club.description}</p>
-                <div className="flex items-center gap-1.5 text-[11px] font-medium mb-1 flex-nowrap overflow-x-auto hide-scrollbar pb-1">
+
+                {/* 2줄: 모집상태, 방장, 장소 */}
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-espresso-300 mb-1 min-w-0">
                     {club.isDeleted ? (
-                        <span className="px-2 py-0.5 bg-red-500/20 text-red-500 border border-red-500/30 rounded-full w-fit flex flex-row shrink-0 whitespace-nowrap items-center gap-1 font-bold">
-                            ???먯뇙??
+                        <span className="px-1.5 py-0.5 bg-red-500/20 text-red-500 border border-red-500/30 rounded-md font-bold shrink-0">
+                            중단됨
                         </span>
                     ) : isRecruiting ? (
-                        <span className="px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/50 rounded-full w-fit flex flex-row shrink-0 whitespace-nowrap items-center gap-1">
-                            {t('club_list.recruiting')} {deadlineStr && `( ~${deadlineStr} )`}
+                        <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 border border-green-500/50 rounded-md shrink-0">
+                            {t('club_list.recruiting')}
                         </span>
                     ) : (
-                        <span className="px-2 py-0.5 bg-espresso-800 text-espresso-400 border border-espresso-700/50 rounded-full w-fit flex flex-row shrink-0 whitespace-nowrap items-center gap-1">
+                        <span className="px-1.5 py-0.5 bg-espresso-750 text-espresso-400 border border-espresso-700/50 rounded-md shrink-0">
                             {t('club_list.recruitment_closed')}
                         </span>
                     )}
-                    <span className="px-2 py-0.5 bg-espresso-950 rounded-full w-fit text-amber-500/80 border border-amber-900/50 flex flex-row items-center gap-1 shrink-0 whitespace-nowrap">
-                        <Users size={12} /> {club.memberCount || 0}{t('club_list.unit_person')}
-                    </span>
-                    {club.locationName && (
-                        <span className="px-2 py-0.5 bg-espresso-900 rounded-full text-espresso-300 border border-espresso-800 flex items-center gap-1 max-w-[120px] min-w-0">
-                             <MapPin size={10} className="shrink-0" />
-                             <span className="truncate">{club.locationName}</span>
-                        </span>
-                    )}
                     {club.owner?.nickname && (
-                        <span className="px-2 py-0.5 bg-espresso-900 rounded-full text-espresso-300 border shrink-0 whitespace-nowrap border-espresso-800">
-                             {t('club_list.lbl_owner')}: {club.owner.nickname}
+                        <span className="shrink-0 text-espresso-200">
+                            {t('club_list.lbl_owner')}: <span className="text-amber-500 font-bold">{club.owner.nickname}</span>
                         </span>
                     )}
-                    {actualPendingCount > 0 && (
-                        <span className="px-2 py-0.5 bg-red-500/20 text-red-500 border border-red-500/50 rounded-full font-bold ml-auto flex items-center gap-1 animate-pulse shrink-0 whitespace-nowrap">
-                            <span className="w-1.5 h-1.5 bg-red-500 rounded-full"/> {t('club_list.lbl_pending')} {actualPendingCount}{t('club_list.unit_person')}
+                    {club.locationName && (
+                        <span className="truncate min-w-0 flex items-center gap-0.5 text-espresso-450">
+                            • <MapPin size={10} className="inline shrink-0" /> {club.locationName}
                         </span>
                     )}
                 </div>
+
+                {/* 3줄: 참여 인원수, 시작일 */}
+                <div className="flex items-center gap-2 text-[11px] font-semibold text-espresso-400 min-w-0">
+                    <span className="flex items-center gap-0.5 shrink-0">
+                        <Users size={11} className="text-amber-500/80" /> {club.memberCount || 0}{t('club_list.unit_person')}
+                    </span>
+                    <span className="shrink-0">
+                        • {t('club_list.start_date', '시작일')}: {new Date(club.createdAt).toLocaleDateString()}
+                    </span>
+                    {actualPendingCount > 0 && (
+                        <span className="px-1.5 py-0.5 bg-red-500/20 text-red-500 border border-red-500/50 rounded-md font-bold ml-auto flex items-center gap-1 animate-pulse text-[10px] shrink-0">
+                            {t('club_list.lbl_pending')} {actualPendingCount}{t('club_list.unit_person')}
+                        </span>
+                    )}
+                </div>
+
+                {/* 가입 정보 피드백 (내 소모임 전용) */}
                 {activeTab === 'MY_CLUBS' && club.members && club.members.length > 0 && (
-                    <div className="text-[10px] items-center text-espresso-400 font-medium">
+                    <div className="text-[10px] items-center text-espresso-500 font-medium mt-1">
                         {club.members[0].role === 'PENDING' ? t('club_list.status_pending') : `${new Date(club.members[0].joinedAt).toLocaleDateString()} ${t('club_list.status_joined')}`}
                         {newlyApprovedClubIds.includes(club.id) && (
-                            <span className="ml-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-2 py-0.5 rounded-full font-bold animate-pulse inline-flex items-center">
+                            <span className="ml-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-1.5 py-0.5 rounded-md font-bold animate-pulse inline-flex items-center">
                                 {t('club_list.alert_approved')}
                             </span>
                         )}

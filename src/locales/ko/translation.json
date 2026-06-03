@@ -143,7 +143,8 @@
         "lbl_selected_pin": "선택 위치",
         "desc_map_instruction": "지도를 터치하여 핀을 꽂아보세요.",
         "ph_search": "소모임 이름, 지역, 소개 검색...",
-        "btn_cancel": "취소"
+        "btn_cancel": "취소",
+        "start_date": "시작일"
     },
     "app": {
         "nav_home": "큐레이터",
