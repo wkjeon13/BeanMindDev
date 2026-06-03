@@ -135,6 +135,36 @@ router.post('/register', authLimiter, async (req, res) => {
             });
         }
 
+        // Record consent history (Compliance tracking)
+        try {
+            const ipAddress = (req.headers['x-forwarded-for'] as string) || req.ip || 'unknown';
+            const privacyVersion = req.body.privacyPolicyVersion || 'v1.0.0';
+            const tosVersion = req.body.termsOfServiceVersion || 'v1.0.0';
+
+            await prisma.consentHistory.createMany({
+                data: [
+                    {
+                        userId: newUser.id,
+                        email: newUser.email,
+                        policyType: 'PRIVACY_POLICY',
+                        version: privacyVersion,
+                        isAgreed: true,
+                        ipAddress
+                    },
+                    {
+                        userId: newUser.id,
+                        email: newUser.email,
+                        policyType: 'TERMS_OF_SERVICE',
+                        version: tosVersion,
+                        isAgreed: true,
+                        ipAddress
+                    }
+                ]
+            });
+        } catch (consentErr) {
+            console.error("Error logging consent history in register:", consentErr);
+        }
+
         if (isTestAccount) {
             return res.status(201).json({
                 message: 'Test account registered and automatically verified.',
@@ -413,6 +443,36 @@ router.post('/google/register', authLimiter, async (req, res) => {
             }
         });
 
+        // Record consent history (Compliance tracking)
+        try {
+            const ipAddress = (req.headers['x-forwarded-for'] as string) || req.ip || 'unknown';
+            const privacyVersion = req.body.privacyPolicyVersion || 'v1.0.0';
+            const tosVersion = req.body.termsOfServiceVersion || 'v1.0.0';
+
+            await prisma.consentHistory.createMany({
+                data: [
+                    {
+                        userId: user.id,
+                        email: user.email,
+                        policyType: 'PRIVACY_POLICY',
+                        version: privacyVersion,
+                        isAgreed: true,
+                        ipAddress
+                    },
+                    {
+                        userId: user.id,
+                        email: user.email,
+                        policyType: 'TERMS_OF_SERVICE',
+                        version: tosVersion,
+                        isAgreed: true,
+                        ipAddress
+                    }
+                ]
+            });
+        } catch (consentErr) {
+            console.error("Error logging consent history in google register:", consentErr);
+        }
+
         const jwtToken = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
             JWT_SECRET,
@@ -642,6 +702,36 @@ router.post('/apple/register', authLimiter, async (req, res) => {
                 pointBalance: welcomePolicy.welcomeBeans
             }
         });
+
+        // Record consent history (Compliance tracking)
+        try {
+            const ipAddress = (req.headers['x-forwarded-for'] as string) || req.ip || 'unknown';
+            const privacyVersion = req.body.privacyPolicyVersion || 'v1.0.0';
+            const tosVersion = req.body.termsOfServiceVersion || 'v1.0.0';
+
+            await prisma.consentHistory.createMany({
+                data: [
+                    {
+                        userId: user.id,
+                        email: user.email,
+                        policyType: 'PRIVACY_POLICY',
+                        version: privacyVersion,
+                        isAgreed: true,
+                        ipAddress
+                    },
+                    {
+                        userId: user.id,
+                        email: user.email,
+                        policyType: 'TERMS_OF_SERVICE',
+                        version: tosVersion,
+                        isAgreed: true,
+                        ipAddress
+                    }
+                ]
+            });
+        } catch (consentErr) {
+            console.error("Error logging consent history in apple register:", consentErr);
+        }
 
         const jwtToken = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
@@ -1079,6 +1169,36 @@ router.post('/naver/register', authLimiter, async (req, res) => {
                 pointBalance: welcomePolicy.welcomeBeans
             }
         });
+
+        // Record consent history (Compliance tracking)
+        try {
+            const ipAddress = (req.headers['x-forwarded-for'] as string) || req.ip || 'unknown';
+            const privacyVersion = req.body.privacyPolicyVersion || 'v1.0.0';
+            const tosVersion = req.body.termsOfServiceVersion || 'v1.0.0';
+
+            await prisma.consentHistory.createMany({
+                data: [
+                    {
+                        userId: user.id,
+                        email: user.email,
+                        policyType: 'PRIVACY_POLICY',
+                        version: privacyVersion,
+                        isAgreed: true,
+                        ipAddress
+                    },
+                    {
+                        userId: user.id,
+                        email: user.email,
+                        policyType: 'TERMS_OF_SERVICE',
+                        version: tosVersion,
+                        isAgreed: true,
+                        ipAddress
+                    }
+                ]
+            });
+        } catch (consentErr) {
+            console.error("Error logging consent history in naver register:", consentErr);
+        }
 
         const jwtToken = jwt.sign(
             { id: user.id, email: user.email, role: user.role },

@@ -545,13 +545,30 @@ router.delete('/me', authenticateToken, async (req: any, res: any) => {
     try {
         const userId = req.user.id;
 
-        // Thanks to Prisma's onDelete: Cascade for Prescriptions, Bookmarks, and Stores
-        // deleting the user will automatically clean up their related records.
-        await prisma.user.delete({
-            where: { id: userId }
+        // Soft delete & anonymize user details for legal logging requirements (5 years preservation under e-commerce law)
+        await prisma.user.update({
+            where: { id: userId },
+            data: {
+                status: 'DELETED',
+                email: `deleted_${userId}@beanmind.com`,
+                nickname: '탈퇴한 회원',
+                password: null,
+                phone: null,
+                socialId: null,
+                profileImageUrl: null,
+                failedLoginAttempts: 0,
+                lockedUntil: null,
+                bio: null,
+                fcmToken: null,
+                prefAcidity: null,
+                prefSweetness: null,
+                prefBody: null,
+                prefBitterness: null,
+                interests: null
+            }
         });
 
-        res.status(200).json({ message: 'Account successfully deleted.' });
+        res.status(200).json({ message: 'Account successfully deleted (anonymized).' });
     } catch (error) {
         console.error("Account deletion error:", error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });

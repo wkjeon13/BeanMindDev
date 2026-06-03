@@ -16,6 +16,7 @@ import { GoogleGenAI } from '@google/genai';
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const router = express.Router();
 import prisma from '../utils/prisma.js';
+import { logAdminAction } from '../middlewares/adminActionLogger.js';
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
 // Middleware to authenticate JWT token and strictly check ADMIN role
@@ -453,7 +454,7 @@ router.put('/settings', requireSuperAdmin, async (req: any, res: any) => {
 // ----------------------------------------
 
 // GET: Fetch all users
-router.get('/users', async (req: any, res: any) => {
+router.get('/users', logAdminAction('VIEW', 'USER', () => '전체 사용자 목록 조회'), async (req: any, res: any) => {
     try {
         const users = await prisma.user.findMany({
             select: {
@@ -522,7 +523,7 @@ router.patch('/bulk-limit', async (req: any, res: any) => {
 });
 
 // PUT: Update user status (Active / Suspended)
-router.put('/users/:id/status', async (req: any, res: any) => {
+router.put('/users/:id/status', logAdminAction('UPDATE', 'USER', (req) => `사용자 상태 변경: ${req.params.id} -> ${req.body.status}`), async (req: any, res: any) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
@@ -549,7 +550,7 @@ router.put('/users/:id/status', async (req: any, res: any) => {
 });
 
 // PUT: Update user role (Enable / Revoke Admin)
-router.put('/users/:id/role', requireSuperAdmin, async (req: any, res: any) => {
+router.put('/users/:id/role', requireSuperAdmin, logAdminAction('UPDATE', 'USER', (req) => `사용자 권한 변경: ${req.params.id} -> ${req.body.role}`), async (req: any, res: any) => {
     try {
         const { id } = req.params;
         const { role } = req.body;
@@ -576,7 +577,7 @@ router.put('/users/:id/role', requireSuperAdmin, async (req: any, res: any) => {
 });
 
 // DELETE: Delete a user by ID
-router.delete('/users/:id', async (req: any, res: any) => {
+router.delete('/users/:id', logAdminAction('DELETE', 'USER', (req) => `사용자 계정 삭제: ${req.params.id}`), async (req: any, res: any) => {
     try {
         const { id } = req.params;
         // Don't allow an admin to delete themselves directly through this endpoint
@@ -591,8 +592,28 @@ router.delete('/users/:id', async (req: any, res: any) => {
             }
         }
 
-        await prisma.user.delete({ where: { id } });
-        res.status(200).json({ message: 'User deleted successfully.' });
+        await prisma.user.update({
+            where: { id },
+            data: {
+                status: 'DELETED',
+                email: `deleted_${id}@beanmind.com`,
+                nickname: '탈퇴한 회원',
+                password: null,
+                phone: null,
+                socialId: null,
+                profileImageUrl: null,
+                failedLoginAttempts: 0,
+                lockedUntil: null,
+                bio: null,
+                fcmToken: null,
+                prefAcidity: null,
+                prefSweetness: null,
+                prefBody: null,
+                prefBitterness: null,
+                interests: null
+            }
+        });
+        res.status(200).json({ message: 'User deleted (anonymized) successfully.' });
     } catch (error) {
         console.error("Delete user error:", error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
@@ -600,7 +621,7 @@ router.delete('/users/:id', async (req: any, res: any) => {
 });
 
 // GET: Fetch all shops
-router.get('/shops', async (req: any, res: any) => {
+router.get('/shops', logAdminAction('VIEW', 'STORE', () => '전체 매장 목록 조회'), async (req: any, res: any) => {
     try {
         const stores = await prisma.store.findMany({
             include: {
@@ -625,7 +646,7 @@ router.get('/shops', async (req: any, res: any) => {
 });
 
 // PUT: Update shop status (Approve / Reject)
-router.put('/shops/:id/status', async (req: any, res: any) => {
+router.put('/shops/:id/status', logAdminAction('UPDATE', 'STORE', (req) => `매장 승인 상태 변경: ${req.params.id} -> ${req.body.status}`), async (req: any, res: any) => {
     try {
         const { id } = req.params;
         const { status, rejectionReason } = req.body;
@@ -684,7 +705,7 @@ router.put('/shops/:id/status', async (req: any, res: any) => {
 });
 
 // PUT: Update shop premium plan (BASIC / PREMIUM)
-router.put('/shops/:id/plan', async (req: any, res: any) => {
+router.put('/shops/:id/plan', logAdminAction('UPDATE', 'STORE', (req) => `매장 플랜 변경: ${req.params.id} -> ${req.body.storePlan}`), async (req: any, res: any) => {
     try {
         const { id } = req.params;
         const { storePlan } = req.body;
@@ -1805,7 +1826,7 @@ Return the response EXACTLY in the following JSON format without any markdown bl
 });
 
 // GET: Fetch all payment transactions with filters for admin
-router.get('/payments', async (req: any, res: any) => {
+router.get('/payments', logAdminAction('VIEW', 'PAYMENT', () => '결제 내역 목록 조회'), async (req: any, res: any) => {
     try {
         const { search, platform, status, startDate, endDate } = req.query;
 
@@ -1905,7 +1926,7 @@ router.get('/payments', async (req: any, res: any) => {
 });
 
 // POST: Cancel / Refund a payment transaction and revoke beans
-router.post('/payments/:id/cancel', async (req: any, res: any) => {
+router.post('/payments/:id/cancel', logAdminAction('UPDATE', 'PAYMENT', (req) => `결제 취소 처리: ${req.params.id}`), async (req: any, res: any) => {
     try {
         const { id } = req.params;
         const { force, reason } = req.body; // force: allow negative balance, reason: cancel description
@@ -1981,7 +2002,7 @@ router.post('/payments/:id/cancel', async (req: any, res: any) => {
 });
 
 // GET: Fetch user access logs (with pagination & filters)
-router.get('/access-logs', async (req: any, res: any) => {
+router.get('/access-logs', logAdminAction('VIEW', 'ACCESS_LOG', () => '사용자 접속 로그 조회'), async (req: any, res: any) => {
     try {
         const { email, ipAddress, deviceOS, actionType, page, limit } = req.query;
         const pageNum = parseInt(page as string) || 1;
@@ -2066,6 +2087,162 @@ router.get('/access-logs/stats', async (req: any, res: any) => {
         });
     } catch (error) {
         console.error("Fetch access stats error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// --- COMPLIANCE & AUDIT API ---
+
+// GET: Fetch Admin Action Logs (with pagination & filter)
+router.get('/compliance/admin-actions', async (req: any, res: any) => {
+    try {
+        const { adminEmail, actionType, targetType, page, limit } = req.query;
+        const pageNum = parseInt(page as string) || 1;
+        const limitNum = parseInt(limit as string) || 50;
+        const skip = (pageNum - 1) * limitNum;
+
+        const whereClause: any = {};
+        if (adminEmail) {
+            whereClause.adminEmail = { contains: adminEmail as string };
+        }
+        if (actionType) {
+            whereClause.actionType = actionType as string;
+        }
+        if (targetType) {
+            whereClause.targetType = targetType as string;
+        }
+
+        const [logs, total] = await Promise.all([
+            prisma.adminActionLog.findMany({
+                where: whereClause,
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: limitNum
+            }),
+            prisma.adminActionLog.count({ where: whereClause })
+        ]);
+
+        res.status(200).json({
+            logs,
+            total,
+            page: pageNum,
+            totalPages: Math.ceil(total / limitNum)
+        });
+    } catch (error) {
+        console.error("Fetch admin action logs error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// GET: Fetch Compliance/CCPA Requests (with pagination & filter)
+router.get('/compliance/requests', async (req: any, res: any) => {
+    try {
+        const { requestEmail, requestType, status, page, limit } = req.query;
+        const pageNum = parseInt(page as string) || 1;
+        const limitNum = parseInt(limit as string) || 50;
+        const skip = (pageNum - 1) * limitNum;
+
+        const whereClause: any = {};
+        if (requestEmail) {
+            whereClause.requestEmail = { contains: requestEmail as string };
+        }
+        if (requestType) {
+            whereClause.requestType = requestType as string;
+        }
+        if (status) {
+            whereClause.status = status as string;
+        }
+
+        const [requests, total] = await Promise.all([
+            prisma.complianceRequestLog.findMany({
+                where: whereClause,
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: limitNum
+            }),
+            prisma.complianceRequestLog.count({ where: whereClause })
+        ]);
+
+        res.status(200).json({
+            requests,
+            total,
+            page: pageNum,
+            totalPages: Math.ceil(total / limitNum)
+        });
+    } catch (error) {
+        console.error("Fetch compliance requests error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// PUT: Process Compliance/CCPA Request
+router.put('/compliance/requests/:id', async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+        const { status, actionTaken } = req.body;
+
+        if (!['COMPLETED', 'REJECTED'].includes(status)) {
+            return res.status(400).json({ error: ERROR_CODES.INVALID_DATA_FORMAT });
+        }
+
+        const updatedRequest = await prisma.complianceRequestLog.update({
+            where: { id },
+            data: {
+                status,
+                actionTaken: actionTaken || null,
+                processedBy: req.user.id,
+                completedAt: status === 'COMPLETED' ? new Date() : null
+            }
+        });
+
+        res.status(200).json({ success: true, request: updatedRequest });
+    } catch (error) {
+        console.error("Update compliance request error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// GET: Fetch Consent History (for privacy audits)
+router.get('/compliance/consents', async (req: any, res: any) => {
+    try {
+        const { email, policyType, page, limit } = req.query;
+        const pageNum = parseInt(page as string) || 1;
+        const limitNum = parseInt(limit as string) || 50;
+        const skip = (pageNum - 1) * limitNum;
+
+        const whereClause: any = {};
+        if (email) {
+            whereClause.email = { contains: email as string };
+        }
+        if (policyType) {
+            whereClause.policyType = policyType as string;
+        }
+
+        const [consents, total] = await Promise.all([
+            prisma.consentHistory.findMany({
+                where: whereClause,
+                orderBy: { agreedAt: 'desc' },
+                skip,
+                take: limitNum,
+                include: {
+                    user: {
+                        select: {
+                            nickname: true
+                        }
+                    }
+                }
+            }),
+            prisma.consentHistory.count({ where: whereClause })
+        ]);
+
+        res.status(200).json({
+            consents,
+            total,
+            page: pageNum,
+            totalPages: Math.ceil(total / limitNum)
+        });
+    } catch (error) {
+        console.error("Fetch consent history error:", error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
     }
 });

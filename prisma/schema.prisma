@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client-stamp"
+  provider   = "prisma-client-js"
+  output     = "../node_modules/.prisma/client-stamp-tmp"
+  engineType = "binary"
 }
 
 datasource db {
@@ -77,6 +78,8 @@ model User {
   tastingNotes        TastingNote[]
   following           UserFollow[]         @relation("Following")
   followers           UserFollow[]         @relation("Followers")
+  accessLogs          UserAccessLog[]
+  consents            ConsentHistory[]
 }
 
 model Prescription {
@@ -1027,4 +1030,69 @@ model StampTransaction {
   txnType       String   // EARN, CANCEL_ROLLBACK
   createdAt     DateTime @default(now())
   itemsEarned   String?                     // 항목별 적립 수량 JSON 문자열
+}
+
+model UserAccessLog {
+  id          String   @id @default(uuid())
+  userId      String?  // 비회원 접속일 경우 null 허용
+  email       String?  // 탈퇴/수정 대비 이메일 필드 별도 캐싱 및 인덱스 검색 최적화용
+  ipAddress   String?
+  userAgent   String?  @db.Text
+  deviceOS    String?
+  pagePath    String   // 진입한 페이지 (예: '/community', '/map')
+  actionType  String   // 'LOGIN', 'LOGOUT', 'PAGE_VIEW'
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([email])
+}
+
+// 5. 개인정보취급자(Admin/Host)의 개인정보 접근 및 조작 행위 로그
+model AdminActionLog {
+  id          String   @id @default(uuid())
+  adminId     String   // 조작을 수행한 어드민/점주 ID
+  adminEmail  String   // 이메일 캐싱
+  adminRole   String   // ADMIN, MODERATOR, OWNER 등
+  actionType  String   // VIEW (조회), UPDATE (수정), DELETE (삭제), DOWNLOAD (CSV 등)
+  targetType  String   // USER, STORE, PAYMENT, AD 등
+  targetId    String?  // 조작 대상의 ID
+  details     String   // 구체적인 수행 내용
+  ipAddress   String   // 접속 IP
+  createdAt   DateTime @default(now())
+
+  @@index([adminId])
+  @@index([targetType])
+}
+
+// 6. 이용약관 및 개인정보 처리방침 동의 이력
+model ConsentHistory {
+  id          String   @id @default(uuid())
+  userId      String
+  email       String
+  policyType  String   // PRIVACY_POLICY, TERMS_OF_SERVICE
+  version     String   // 예: "v1.2.0"
+  isAgreed    Boolean  @default(true)
+  agreedAt    DateTime @default(now())
+  ipAddress   String
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+}
+
+// 7. CCPA / CPRA 소비자 권리 요청 및 조치 로그
+model ComplianceRequestLog {
+  id             String   @id @default(uuid())
+  userId         String?  // 비회원도 신청 가능하므로 null 허용
+  requestEmail   String   
+  requestType    String   // ACCESS, DELETE, OPT_OUT
+  status         String   // PENDING, COMPLETED, REJECTED
+  actionTaken    String?  
+  processedBy    String?  
+  createdAt      DateTime @default(now())
+  completedAt    DateTime?
+
+  @@index([requestEmail])
 }
