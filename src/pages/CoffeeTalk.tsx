@@ -612,6 +612,7 @@ export default function CoffeeTalk() {
               likes: d._count?.likes || 0,
               comments: d._count?.comments || 0,
               commentImages: d.comments || [],
+              shareCount: d.shareCount || 0,
               timeAgo: formatRelativeTime(d.createdAt),
               isPinned: d.isPinned,
               earnedBeans: d.earnedBeans || 0,
@@ -664,6 +665,7 @@ export default function CoffeeTalk() {
                           cafeLat: d.cafeLat ? parseFloat(d.cafeLat) : undefined,
                           cafeLng: d.cafeLng ? parseFloat(d.cafeLng) : undefined,
                           likes: d._count?.likes || 0,
+                          shareCount: d.shareCount || 0,
                           comments: d._count?.comments || 0,
                           commentImages: d.comments || [],
                           timeAgo: formatRelativeTime(d.createdAt),
@@ -715,6 +717,7 @@ export default function CoffeeTalk() {
                     return p.id === np?.id && 
                            p.likes === np?.likes && 
                            p.comments === np?.comments && 
+                           p.shareCount === np?.shareCount &&
                            p.content === np?.content &&
                            p.image === np?.image;
                 });
@@ -1136,33 +1139,58 @@ export default function CoffeeTalk() {
   };
 
   const handleShare = async (id: string) => {
-    try {
-        const url = `${API_BASE}/api/community/posts/${id}/share`;
-        const res = await fetch(url, { method: 'POST' });
-        if (res.ok) {
-            const data = await res.json();
-            setPosts(prev => prev.map(p => {
-                if (p.id === id) {
-                    return { ...p, shareCount: data.shareCount };
-                }
-                return p;
-            }));
-        }
-        
-        // Use Web Share API if available
-        if (navigator.share) {
-             await navigator.share({
-                 title: t('coffee_talk.msg_share_title', 'Beanmind Coffee Talk'),
-                 text: t('coffee_talk.msg_share_text', '이 재미있는 커피 이야기를 확인해보세요!'),
-                 url: `${window.location.origin}/community` // Defaulting to community feed since individual post pages don't exist yet
-             });
-        } else {
-             await navigator.clipboard.writeText(`${window.location.origin}/community`);
-             alert(t('coffee_talk.alert_copy_link', '커뮤니티 링크가 클립보드에 복사되었습니다.'));
-        }
-    } catch (e) {
-        console.error("Failed to share", e);
-    }
+      const shareUrl = `${window.location.origin}/community?post=${id}`;
+      const shareData = {
+          title: t('coffee_talk.msg_share_title', 'Beanmind Coffee Talk'),
+          text: t('coffee_talk.msg_share_text', '이 재미있는 커피 이야기를 확인해보세요!'),
+          url: shareUrl
+      };
+
+      // 1. 브라우저 보안 제스처가 유효한 동안 즉각 공유창 또는 클립보드 복사 실행
+      if (navigator.share) {
+          try {
+              await navigator.share(shareData);
+          } catch (e) {
+              console.log("Web Share API cancelled or failed", e);
+              return;
+          }
+      } else {
+          try {
+              await navigator.clipboard.writeText(shareUrl);
+              alert(t('coffee_talk.alert_copy_link', '커뮤니티 링크가 클립보드에 복사되었습니다.'));
+          } catch (e) {
+              console.error("Clipboard copy failed", e);
+              return;
+          }
+      }
+
+      // 2. 백그라운드 비동기로 서버에 카운트 업 요청 및 로컬 상태 + 글로벌 피드 캐시 갱신
+      try {
+          const url = `${API_BASE}/api/community/posts/${id}/share`;
+          const res = await fetch(url, { method: 'POST' });
+          if (res.ok) {
+              const data = await res.json();
+              
+              // 로컬 posts 상태 갱신
+              setPosts(prev => prev.map(p => {
+                  if (p.id === id) {
+                      return { ...p, shareCount: data.shareCount };
+                  }
+                  return p;
+              }));
+
+              // 캐시에도 동시 갱신 반영하여 뒤로가기/복원 시 유실 차단
+              const cacheKey = activeFilter + '_' + sortOption;
+              if (globalFeedCache[cacheKey]) {
+                  globalFeedCache[cacheKey].posts = globalFeedCache[cacheKey].posts.map((p: any) => {
+                      if (p.id === id) return { ...p, shareCount: data.shareCount };
+                      return p;
+                  });
+              }
+          }
+      } catch (e) {
+          console.error("Failed to share count up API call", e);
+      }
   };
 
   const processReward = async (amount: number, description: string) => {
