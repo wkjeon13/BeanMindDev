@@ -166,6 +166,42 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
+  useEffect(() => {
+    let deepLinkHandlePromise: Promise<any> | null = null;
+    const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+    
+    if (isNative) {
+        // 웹 브라우저 환경에서의 정적 로드 에러 방지를 위해 Capacitor App 플러그인을 동적으로 임포트
+        deepLinkHandlePromise = import('@capacitor/app').then(({ App: CapApp }) => {
+            return CapApp.addListener('appUrlOpen', (event: any) => {
+                if (event.url) {
+                    try {
+                        const parsedUrl = new URL(event.url);
+                        const params = new URLSearchParams(parsedUrl.search);
+                        const route = params.get('route');
+                        const post = params.get('post');
+                        if (route === 'community' && post) {
+                            navigate(`/community?post=${post}`, { replace: true });
+                        }
+                    } catch (e) {
+                        console.error("Failed to parse appUrlOpen URL in Layout:", e);
+                    }
+                }
+            });
+        }).catch(e => {
+            console.error("Failed to load @capacitor/app dynamically in Layout:", e);
+            return null;
+        });
+    }
+
+    return () => {
+        if (deepLinkHandlePromise) {
+            deepLinkHandlePromise.then(h => {
+                if (h) h.remove();
+            }).catch(e => console.error("Failed to remove Layout deep link listener:", e));
+        }
+    };
+  }, [navigate]);
 
     return (
     <div className="fixed inset-0 w-full overflow-hidden flex flex-col bg-espresso-950 font-sans selection:bg-amber-900 selection:text-amber-100">
@@ -218,36 +254,8 @@ export default function App() {
   usePushNotifications(isAuthenticated);
 
   React.useEffect(() => {
-    // 1. Capacitor native app deep link listener
-    let deepLinkHandlePromise: Promise<any> | null = null;
-    const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
-    
-    if (isNative) {
-        // 웹 브라우저 환경에서의 정적 로드 에러 방지를 위해 Capacitor App 플러그인을 동적으로 임포트
-        deepLinkHandlePromise = import('@capacitor/app').then(({ App: CapApp }) => {
-            return CapApp.addListener('appUrlOpen', (event: any) => {
-                if (event.url) {
-                    try {
-                        const parsedUrl = new URL(event.url);
-                        const params = new URLSearchParams(parsedUrl.search);
-                        const route = params.get('route');
-                        const post = params.get('post');
-                        if (route === 'community' && post) {
-                            navigate(`/community?post=${post}`, { replace: true });
-                        }
-                    } catch (e) {
-                        console.error("Failed to parse appUrlOpen URL in App:", e);
-                    }
-                }
-            });
-        }).catch(e => {
-            console.error("Failed to load @capacitor/app dynamically:", e);
-            return null;
-        });
-    }
-
-    // 2. 기존 로직 (구글 로그인 바운스 복원 및 방문자 트래킹)
     const hash = window.location.hash;
+    const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
     if (hash && hash.includes('access_token') && hash.includes('state=native_google_login')) {
         if (!isNative) {
             // We are bouncing from Chrome back into Native App!
@@ -278,15 +286,7 @@ export default function App() {
     };
 
     trackVisitor();
-
-    return () => {
-        if (deepLinkHandlePromise) {
-            deepLinkHandlePromise.then(h => {
-                if (h) h.remove();
-            }).catch(e => console.error("Failed to remove App deep link listener:", e));
-        }
-    };
-  }, [navigate]);
+  }, []);
 
   return (
     <BrowserRouter>
