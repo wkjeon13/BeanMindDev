@@ -3379,7 +3379,10 @@ export default function Profile() {
                                                         onChange={(e) => setAgreeTerms(e.target.checked)} 
                                                         className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
                                                     />
-                                                    <label htmlFor="agree-terms" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의</label>
+                                                    <label htmlFor="agree-terms" className="cursor-pointer">
+                                                        <span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의
+                                                        {termsOfServiceData?.version && <span className="text-espresso-300 text-xs ml-1">({termsOfServiceData.version})</span>}
+                                                    </label>
                                                 </div>
                                                 <button type="button" onClick={() => setIsTermsModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
@@ -3392,7 +3395,10 @@ export default function Profile() {
                                                         onChange={(e) => setAgreePrivacy(e.target.checked)} 
                                                         className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
                                                     />
-                                                    <label htmlFor="agree-privacy" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의</label>
+                                                    <label htmlFor="agree-privacy" className="cursor-pointer">
+                                                        <span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의
+                                                        {privacyPolicyData?.version && <span className="text-espresso-300 text-xs ml-1">({privacyPolicyData.version})</span>}
+                                                    </label>
                                                 </div>
                                                 <button type="button" onClick={() => setIsPrivacyModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
@@ -3488,7 +3494,10 @@ export default function Profile() {
                                                         onChange={(e) => setAgreeTerms(e.target.checked)} 
                                                         className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
                                                     />
-                                                    <label htmlFor="google-agree-terms" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의</label>
+                                                    <label htmlFor="google-agree-terms" className="cursor-pointer">
+                                                        <span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의
+                                                        {termsOfServiceData?.version && <span className="text-espresso-300 text-xs ml-1">({termsOfServiceData.version})</span>}
+                                                    </label>
                                                 </div>
                                                 <button type="button" onClick={() => setIsTermsModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
@@ -3501,7 +3510,10 @@ export default function Profile() {
                                                         onChange={(e) => setAgreePrivacy(e.target.checked)} 
                                                         className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
                                                     />
-                                                    <label htmlFor="google-agree-privacy" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의</label>
+                                                    <label htmlFor="google-agree-privacy" className="cursor-pointer">
+                                                        <span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의
+                                                        {privacyPolicyData?.version && <span className="text-espresso-300 text-xs ml-1">({privacyPolicyData.version})</span>}
+                                                    </label>
                                                 </div>
                                                 <button type="button" onClick={() => setIsPrivacyModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
@@ -3597,7 +3609,10 @@ export default function Profile() {
                                                         onChange={(e) => setAgreeTerms(e.target.checked)} 
                                                         className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
                                                     />
-                                                    <label htmlFor="apple-agree-terms" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의</label>
+                                                    <label htmlFor="apple-agree-terms" className="cursor-pointer">
+                                                        <span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의
+                                                        {termsOfServiceData?.version && <span className="text-espresso-300 text-xs ml-1">({termsOfServiceData.version})</span>}
+                                                    </label>
                                                 </div>
                                                 <button type="button" onClick={() => setIsTermsModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
@@ -3610,7 +3625,10 @@ export default function Profile() {
                                                         onChange={(e) => setAgreePrivacy(e.target.checked)} 
                                                         className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
                                                     />
-                                                    <label htmlFor="apple-agree-privacy" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의</label>
+                                                    <label htmlFor="apple-agree-privacy" className="cursor-pointer">
+                                                        <span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의
+                                                        {privacyPolicyData?.version && <span className="text-espresso-300 text-xs ml-1">({privacyPolicyData.version})</span>}
+                                                    </label>
                                                 </div>
                                                 <button type="button" onClick={() => setIsPrivacyModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
@@ -3706,7 +3724,10 @@ export default function Profile() {
                                                         onChange={(e) => setAgreeTerms(e.target.checked)} 
                                                         className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
                                                     />
-                                                    <label htmlFor="naver-agree-terms" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의</label>
+                                                    <label htmlFor="naver-agree-terms" className="cursor-pointer">
+                                                        <span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의
+                                                        {termsOfServiceData?.version && <span className="text-espresso-300 text-xs ml-1">({termsOfServiceData.version})</span>}
+                                                    </label>
                                                 </div>
                                                 <button type="button" onClick={() => setIsTermsModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
@@ -3719,7 +3740,10 @@ export default function Profile() {
                                                         onChange={(e) => setAgreePrivacy(e.target.checked)} 
                                                         className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
                                                     />
-                                                    <label htmlFor="naver-agree-privacy" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의</label>
+                                                    <label htmlFor="naver-agree-privacy" className="cursor-pointer">
+                                                        <span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의
+                                                        {privacyPolicyData?.version && <span className="text-espresso-300 text-xs ml-1">({privacyPolicyData.version})</span>}
+                                                    </label>
                                                 </div>
                                                 <button type="button" onClick={() => setIsPrivacyModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
