@@ -144,6 +144,8 @@ router.get('/my-data', authenticateToken, async (req: any, res: any) => {
         console.error("Export personal data error:", error);
         res.status(500).json({ error: 'INTERNAL_SERVER_ERROR' });
     }
+});
+
 // GET: Fetch currently active Terms of Service and Privacy Policy
 router.get('/policies/active', async (req: any, res: any) => {
     try {
