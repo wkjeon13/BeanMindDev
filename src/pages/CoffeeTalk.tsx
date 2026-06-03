@@ -1860,6 +1860,9 @@ export default function CoffeeTalk() {
                                 }
                                 setActiveFilter(filter);
                                 setIsDeepLinked(false);
+                                // 필터 전환 시 이전 피드가 순간 노출되는 플래시 방지
+                                // React 18 배치: 이 렌더에서 오버레이(isScrollJumping=true)와 필터 변경이 동시 적용됨
+                                setIsScrollJumping(true);
                             }}
                             className={`relative px-4 py-1.5 rounded-full text-[13px] font-semibold whitespace-nowrap transition-all duration-300 ${activeFilter === filter
                                     ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-espresso-50 shadow-[0_0_15px_rgba(245,158,11,0.4)]'
