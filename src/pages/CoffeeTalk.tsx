@@ -1054,30 +1054,27 @@ export default function CoffeeTalk() {
         if (container) {
           container.style.scrollBehavior = 'auto';
           
-          // 1차 즉시 강제 스크롤 복원
-          container.scrollTop = scrollPos;
+          let attempts = 0;
+          const maxAttempts = 20; // 최대 20회 (약 600ms) 대기하며 검증
           
-          // [이미지 지연 로딩 튕김 Stopper] 이미지 렌더링에 따른 height 확장 매칭 다단계 동적 고정기 작동!
-          const delayTimes = [30, 80, 150, 300, 500];
-          delayTimes.forEach(delay => {
-              setTimeout(() => {
-                  const targetContainer = document.getElementById('coffee-feed-container');
-                  if (targetContainer) {
-                      targetContainer.scrollTop = scrollPos;
-                      // 80ms 경과하여 레이아웃이 어느 정도 고정되는 유의미한 시점에 잠금 해제를 시도
-                      if (delay === 80) {
-                          setIsScrollJumping(false);
-                      }
-                  }
-              }, delay);
-          });
-
-          container.style.scrollBehavior = '';
-          
-          // 0ms 시점에 바로 풀지 않고, 스크롤이 완전히 안착되는 150ms 시점에 최종 잠금 해제 안전 장치 가동
-          setTimeout(() => {
-              setIsScrollJumping(false);
-          }, 150);
+          const interval = setInterval(() => {
+            const targetContainer = document.getElementById('coffee-feed-container');
+            if (targetContainer) {
+              // 스크롤 복원 시도
+              targetContainer.scrollTop = scrollPos;
+              
+              // 현재 스크롤이 목표값 근처로 도달했는지 확인 (오차 2px 이내)
+              const diff = Math.abs(targetContainer.scrollTop - scrollPos);
+              const isAtTarget = diff <= 2;
+              
+              if (isAtTarget || attempts >= maxAttempts) {
+                clearInterval(interval);
+                targetContainer.style.scrollBehavior = '';
+                setIsScrollJumping(false); // 완벽히 안착된 후 가림막 해제!
+              }
+            }
+            attempts++;
+          }, 30);
           
           return true;
         }
