@@ -386,8 +386,14 @@ export default function AdminAccessLogs() {
                                     <tbody className="divide-y divide-espresso-800/50 font-medium">
                                         {logs.map((log) => (
                                             <tr key={log.id} className="hover:bg-espresso-950/20 transition-colors">
-                                                <td className="px-6 py-4 text-espresso-50 font-semibold font-mono">
-                                                    {log.email || <span className="text-espresso-500 font-normal">비회원(Anonymous)</span>}
+                                                <td className="px-6 py-4 text-espresso-50 font-semibold font-mono" title={log.email || ''}>
+                                                    {log.email ? (
+                                                        log.email.endsWith('@apple.user.local') || log.email.includes('apple') ? (
+                                                            log.email.length > 15 ? `${log.email.substring(0, 15)}....` : log.email
+                                                        ) : log.email
+                                                    ) : (
+                                                        <span className="text-espresso-500 font-normal">비회원(Anonymous)</span>
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4 text-espresso-200">
                                                     {log.user?.nickname || <span className="text-espresso-500 font-normal font-sans">-</span>}
