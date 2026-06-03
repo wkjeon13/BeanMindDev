@@ -734,7 +734,7 @@ export default function Profile() {
                 }
             }
         };
-        CapApp.addListener('appUrlOpen', handleDeepLink);
+        const deepLinkHandlePromise = CapApp.addListener('appUrlOpen', handleDeepLink);
 
         // Fallback or PC check: if returning directly to URL via standard browser redirect
         const hash = window.location.hash;
@@ -799,7 +799,7 @@ export default function Profile() {
         }
         
         return () => {
-            CapApp.removeAllListeners();
+            deepLinkHandlePromise.then(h => h.remove()).catch(e => console.error("Failed to remove deep link listener:", e));
         };
     }, []);
 

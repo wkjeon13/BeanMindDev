@@ -99,6 +99,7 @@ const BottomNav = () => {
 };
 
 import { v4 as uuidv4 } from 'uuid';
+import { App as CapApp } from '@capacitor/app';
 import { API_BASE } from './utils/apiConfig';
 import { usePushNotifications } from './hooks/usePushNotifications';
 import GlobalAdBanner from './components/GlobalAdBanner';
@@ -218,9 +219,32 @@ export default function App() {
   usePushNotifications(isAuthenticated);
 
   React.useEffect(() => {
+    // 1. Capacitor native app deep link listener
+    let deepLinkHandlePromise: Promise<any> | null = null;
+    const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+    
+    if (isNative) {
+        deepLinkHandlePromise = CapApp.addListener('appUrlOpen', (event: any) => {
+            if (event.url) {
+                try {
+                    // 예: https://www.beanmindcurator.com/?route=community&post=xxxx
+                    const parsedUrl = new URL(event.url);
+                    const params = new URLSearchParams(parsedUrl.search);
+                    const route = params.get('route');
+                    const post = params.get('post');
+                    if (route === 'community' && post) {
+                        navigate(`/community?post=${post}`, { replace: true });
+                    }
+                } catch (e) {
+                    console.error("Failed to parse appUrlOpen URL in App:", e);
+                }
+            }
+        });
+    }
+
+    // 2. 기존 로직 (구글 로그인 바운스 복원 및 방문자 트래킹)
     const hash = window.location.hash;
     if (hash && hash.includes('access_token') && hash.includes('state=native_google_login')) {
-        const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
         if (!isNative) {
             // We are bouncing from Chrome back into Native App!
             window.location.href = `capcurator://google-login${hash}`;
@@ -250,7 +274,13 @@ export default function App() {
     };
 
     trackVisitor();
-  }, []);
+
+    return () => {
+        if (deepLinkHandlePromise) {
+            deepLinkHandlePromise.then(h => h.remove()).catch(e => console.error("Failed to remove App deep link listener:", e));
+        }
+    };
+  }, [navigate]);
 
   return (
     <BrowserRouter>
