@@ -105,6 +105,8 @@ export default function Profile() {
     const [gender, setGender] = useState('');
     const [favoriteCafe, setFavoriteCafe] = useState('');
     const [authError, setAuthError] = useState('');
+    const [agreeTerms, setAgreeTerms] = useState(false);
+    const [agreePrivacy, setAgreePrivacy] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [pointBalance, setPointBalance] = useState(0);
 
@@ -1081,6 +1083,10 @@ export default function Profile() {
             setAuthError(t('profile.err_all_req'));
             return;
         }
+        if (!agreeTerms || !agreePrivacy) {
+            setAuthError('필수 이용약관 및 개인정보 처리방침에 동의하셔야 합니다.');
+            return;
+        }
         setAuthError('');
         setIsLoading(true);
         try {
@@ -1096,7 +1102,9 @@ export default function Profile() {
                     gender,
                     favoriteCafe,
                     countryCode: getDeviceCountryCode(),
-                    preferredLanguage: i18n.language
+                    preferredLanguage: i18n.language,
+                    termsOfServiceVersion: 'v1.0.0',
+                    privacyPolicyVersion: 'v1.0.0'
                 })
             });
             const data = await response.json();
@@ -1228,6 +1236,10 @@ export default function Profile() {
             setAuthError(t('profile.err_all_req'));
             return;
         }
+        if (!agreeTerms || !agreePrivacy) {
+            setAuthError('필수 이용약관 및 개인정보 처리방침에 동의하셔야 합니다.');
+            return;
+        }
         setAuthError('');
         setIsLoading(true);
         try {
@@ -1244,7 +1256,9 @@ export default function Profile() {
                     gender: tempNaverUser.gender || gender,
                     favoriteCafe,
                     countryCode: getDeviceCountryCode(),
-                    preferredLanguage: i18n.language
+                    preferredLanguage: i18n.language,
+                    termsOfServiceVersion: 'v1.0.0',
+                    privacyPolicyVersion: 'v1.0.0'
                 })
             });
             const data = await response.json();
@@ -1276,6 +1290,10 @@ export default function Profile() {
             setAuthError(t('profile.err_all_req'));
             return;
         }
+        if (!agreeTerms || !agreePrivacy) {
+            setAuthError('필수 이용약관 및 개인정보 처리방침에 동의하셔야 합니다.');
+            return;
+        }
         setAuthError('');
         setIsLoading(true);
         try {
@@ -1291,7 +1309,9 @@ export default function Profile() {
                     gender,
                     favoriteCafe,
                     countryCode: getDeviceCountryCode(),
-                    preferredLanguage: i18n.language
+                    preferredLanguage: i18n.language,
+                    termsOfServiceVersion: 'v1.0.0',
+                    privacyPolicyVersion: 'v1.0.0'
                 })
             });
             const data = await response.json();
@@ -1323,12 +1343,28 @@ export default function Profile() {
             setAuthError(t('profile.err_pw_mismatch'));
             return;
         }
+        if (!agreeTerms || !agreePrivacy) {
+            setAuthError('필수 이용약관 및 개인정보 처리방침에 동의하셔야 합니다.');
+            return;
+        }
         setIsLoading(true);
         try {
             const response = await fetch(`${API_BASE}/api/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password, nickname, role, ageGroup, gender, favoriteCafe, countryCode: getDeviceCountryCode(), preferredLanguage: i18n.language })
+                body: JSON.stringify({
+                    email,
+                    password,
+                    nickname,
+                    role,
+                    ageGroup,
+                    gender,
+                    favoriteCafe,
+                    countryCode: getDeviceCountryCode(),
+                    preferredLanguage: i18n.language,
+                    termsOfServiceVersion: 'v1.0.0',
+                    privacyPolicyVersion: 'v1.0.0'
+                })
             });
             const data = await response.json();
 
@@ -3294,6 +3330,51 @@ export default function Profile() {
                                             </select>
                                         </div>
 
+                                        {/* Terms and Privacy Agreements */}
+                                        <div className="bg-espresso-950 p-4 rounded-2xl border border-espresso-700 space-y-3 mt-4 text-[13px] text-espresso-200">
+                                            <div className="flex items-center gap-3">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="agree-all" 
+                                                    checked={agreeTerms && agreePrivacy}
+                                                    onChange={(e) => {
+                                                        const val = e.target.checked;
+                                                        setAgreeTerms(val);
+                                                        setAgreePrivacy(val);
+                                                    }} 
+                                                    className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
+                                                />
+                                                <label htmlFor="agree-all" className="font-bold text-espresso-100 cursor-pointer">전체 약관에 동의합니다.</label>
+                                            </div>
+                                            <hr className="border-espresso-800/40" />
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        id="agree-terms" 
+                                                        checked={agreeTerms}
+                                                        onChange={(e) => setAgreeTerms(e.target.checked)} 
+                                                        className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
+                                                    />
+                                                    <label htmlFor="agree-terms" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의</label>
+                                                </div>
+                                                <a href="https://www.beanmindcurator.com/terms" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        id="agree-privacy" 
+                                                        checked={agreePrivacy}
+                                                        onChange={(e) => setAgreePrivacy(e.target.checked)} 
+                                                        className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
+                                                    />
+                                                    <label htmlFor="agree-privacy" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의</label>
+                                                </div>
+                                                <a href="https://www.beanmindcurator.com/privacy" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                            </div>
+                                        </div>
+
                                         {authError && <div className="text-red-500 text-sm font-medium px-2">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
 
                                         <button
@@ -3356,6 +3437,51 @@ export default function Profile() {
                                                 <option value="폴바셋">{t('profile.cafe_paulbassett')}</option>
                                                 <option value="동네 로스터리">{t('profile.cafe_roastery')}</option>
                                             </select>
+                                        </div>
+
+                                        {/* Terms and Privacy Agreements */}
+                                        <div className="bg-espresso-950 p-4 rounded-2xl border border-espresso-700 space-y-3 mt-4 text-[13px] text-espresso-200">
+                                            <div className="flex items-center gap-3">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="google-agree-all" 
+                                                    checked={agreeTerms && agreePrivacy}
+                                                    onChange={(e) => {
+                                                        const val = e.target.checked;
+                                                        setAgreeTerms(val);
+                                                        setAgreePrivacy(val);
+                                                    }} 
+                                                    className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
+                                                />
+                                                <label htmlFor="google-agree-all" className="font-bold text-espresso-100 cursor-pointer">전체 약관에 동의합니다.</label>
+                                            </div>
+                                            <hr className="border-espresso-800/40" />
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        id="google-agree-terms" 
+                                                        checked={agreeTerms}
+                                                        onChange={(e) => setAgreeTerms(e.target.checked)} 
+                                                        className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
+                                                    />
+                                                    <label htmlFor="google-agree-terms" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의</label>
+                                                </div>
+                                                <a href="https://www.beanmindcurator.com/terms" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        id="google-agree-privacy" 
+                                                        checked={agreePrivacy}
+                                                        onChange={(e) => setAgreePrivacy(e.target.checked)} 
+                                                        className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
+                                                    />
+                                                    <label htmlFor="google-agree-privacy" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의</label>
+                                                </div>
+                                                <a href="https://www.beanmindcurator.com/privacy" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                            </div>
                                         </div>
 
                                         {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
@@ -3422,6 +3548,51 @@ export default function Profile() {
                                             </select>
                                         </div>
 
+                                        {/* Terms and Privacy Agreements */}
+                                        <div className="bg-espresso-950 p-4 rounded-2xl border border-espresso-700 space-y-3 mt-4 text-[13px] text-espresso-200">
+                                            <div className="flex items-center gap-3">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="apple-agree-all" 
+                                                    checked={agreeTerms && agreePrivacy}
+                                                    onChange={(e) => {
+                                                        const val = e.target.checked;
+                                                        setAgreeTerms(val);
+                                                        setAgreePrivacy(val);
+                                                    }} 
+                                                    className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
+                                                />
+                                                <label htmlFor="apple-agree-all" className="font-bold text-espresso-100 cursor-pointer">전체 약관에 동의합니다.</label>
+                                            </div>
+                                            <hr className="border-espresso-800/40" />
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        id="apple-agree-terms" 
+                                                        checked={agreeTerms}
+                                                        onChange={(e) => setAgreeTerms(e.target.checked)} 
+                                                        className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
+                                                    />
+                                                    <label htmlFor="apple-agree-terms" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의</label>
+                                                </div>
+                                                <a href="https://www.beanmindcurator.com/terms" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        id="apple-agree-privacy" 
+                                                        checked={agreePrivacy}
+                                                        onChange={(e) => setAgreePrivacy(e.target.checked)} 
+                                                        className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
+                                                    />
+                                                    <label htmlFor="apple-agree-privacy" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의</label>
+                                                </div>
+                                                <a href="https://www.beanmindcurator.com/privacy" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                            </div>
+                                        </div>
+
                                         {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
 
                                         <button
@@ -3484,6 +3655,51 @@ export default function Profile() {
                                                 <option value="폴바셋">{t('profile.cafe_paulbassett')}</option>
                                                 <option value="동네 로스터리">{t('profile.cafe_roastery')}</option>
                                             </select>
+                                        </div>
+
+                                        {/* Terms and Privacy Agreements */}
+                                        <div className="bg-espresso-950 p-4 rounded-2xl border border-espresso-700 space-y-3 mt-4 text-[13px] text-espresso-200">
+                                            <div className="flex items-center gap-3">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="naver-agree-all" 
+                                                    checked={agreeTerms && agreePrivacy}
+                                                    onChange={(e) => {
+                                                        const val = e.target.checked;
+                                                        setAgreeTerms(val);
+                                                        setAgreePrivacy(val);
+                                                    }} 
+                                                    className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
+                                                />
+                                                <label htmlFor="naver-agree-all" className="font-bold text-espresso-100 cursor-pointer">전체 약관에 동의합니다.</label>
+                                            </div>
+                                            <hr className="border-espresso-800/40" />
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        id="naver-agree-terms" 
+                                                        checked={agreeTerms}
+                                                        onChange={(e) => setAgreeTerms(e.target.checked)} 
+                                                        className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
+                                                    />
+                                                    <label htmlFor="naver-agree-terms" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의</label>
+                                                </div>
+                                                <a href="https://www.beanmindcurator.com/terms" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        id="naver-agree-privacy" 
+                                                        checked={agreePrivacy}
+                                                        onChange={(e) => setAgreePrivacy(e.target.checked)} 
+                                                        className="w-4 h-4 rounded accent-amber-600 cursor-pointer"
+                                                    />
+                                                    <label htmlFor="naver-agree-privacy" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의</label>
+                                                </div>
+                                                <a href="https://www.beanmindcurator.com/privacy" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                            </div>
                                         </div>
 
                                         {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
