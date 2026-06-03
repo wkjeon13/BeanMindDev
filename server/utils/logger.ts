@@ -8,7 +8,7 @@ export function logUserAccess(req: Request, actionType: string, pagePath: string
     // User-Agent 분석을 통해 단순 OS 추출
     let deviceOS = 'Unknown';
     if (/android/i.test(userAgentStr)) deviceOS = 'Android';
-    else if (/iphone|ipad|ipod/i.test(userAgentStr)) deviceOS = 'iOS';
+    else if (/iphone|ipad|ipod|cfnetwork|darwin/i.test(userAgentStr)) deviceOS = 'iOS';
     else if (/windows/i.test(userAgentStr)) deviceOS = 'Windows';
     else if (/macintosh|mac os x/i.test(userAgentStr)) deviceOS = 'macOS';
     else if (/linux/i.test(userAgentStr)) deviceOS = 'Linux';
