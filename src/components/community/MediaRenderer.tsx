@@ -178,5 +178,14 @@ export default function MediaRenderer({ src, className = '', autoPlay = true, on
     );
   }
 
-  return <img src={displaySrc} alt="media" className={`w-full h-full ${!className.includes('object-') ? 'object-cover' : ''} ${className}`} onClick={onClick} onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'; }} />;
+  return (
+    <img 
+      src={displaySrc} 
+      alt="media" 
+      loading="eager"
+      className={`w-full h-full ${!className.includes('object-') ? 'object-cover' : ''} ${className}`} 
+      onClick={onClick} 
+      onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80'; }} 
+    />
+  );
 }

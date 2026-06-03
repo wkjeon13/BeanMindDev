@@ -1054,6 +1054,9 @@ export default function CoffeeTalk() {
         if (container) {
           container.style.scrollBehavior = 'auto';
           
+          // 가림막 뒤에서 최초 즉각 스크롤 위치 강제 지정 (첫 렌더 시 0px 노출 방어)
+          container.scrollTop = scrollPos;
+          
           let attempts = 0;
           const maxAttempts = 30; // 최대 30회 (약 900ms) 대기하며 검증
           
@@ -1958,7 +1961,7 @@ export default function CoffeeTalk() {
       </header>
 
       {/* Main Feed Content */}
-      <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto scroll-smooth ${isScrollJumping ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-75 ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24'}`}>
+      <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto scroll-smooth ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24'}`} style={{ opacity: isScrollJumping ? 0 : 1, pointerEvents: isScrollJumping ? 'none' : 'auto' }}>
         <div className={`mx-auto ${activeFilter === 'shorts' ? 'w-full max-w-md md:max-w-2xl h-full' : 'max-w-md md:max-w-2xl sm:px-4 sm:pb-4'}`}>
           {activeFilter === 'near_live' && <HotspotMap />}
           {isLoading && <p className="text-center text-espresso-200 mt-10">{t('coffee_talk.loading_feed', '피드를 불러오는 중입니다...')}</p>}
