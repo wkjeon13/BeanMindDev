@@ -226,7 +226,7 @@ export default function App() {
   useEffect(() => {
     const userRole = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}').role; } catch { return 'USER'; } })();
     if (isLoggedIn && step === 4 && aiExplanation && typeof aiExplanation === 'string' && aiExplanation.includes("🚨") && userRole !== 'ADMIN' && userRole !== 'MODERATOR') {
-        useCuratorStore.getState().startMatch(i18n.language);
+        useCuratorStore.getState().startMatch(i18n.language || 'ko');
     }
   }, [isLoggedIn, step, aiExplanation, i18n.language]);
 
@@ -884,8 +884,8 @@ export default function App() {
                              <div>
                                <div className="text-[10px] text-espresso-200 font-bold uppercase tracking-wider mb-1">
                                  {idx === 0 
-                                     ? (i18n.language.startsWith('en') ? "2nd Pick" : "2순위 추천") 
-                                     : (i18n.language.startsWith('en') ? "3rd Pick" : "3순위 추천")}
+                                     ? ((i18n.language || 'ko').startsWith('en') ? "2nd Pick" : "2순위 추천") 
+                                     : ((i18n.language || 'ko').startsWith('en') ? "3rd Pick" : "3순위 추천")}
                                </div>
                                <h3 className="text-espresso-50 font-bold text-sm leading-tight mb-1">
                                  {sub.bean.name}
@@ -1072,7 +1072,7 @@ export default function App() {
                             aiExplanation: "> 🚨 **로그인을 한 후 실행하면, AI 커피 큐레이터가 회원님과 맞는 커피와 스페셜티 매장, 디저트 페어링, 음악을 추천합니다.**\n\n## ☕ 오늘의 맞춤 추천 커피 (예시)\n**에티오피아 예가체프 아리차 G1**\n화사한 꽃향기와 기분 좋은 베리류의 산미가 당신의 현재 기분에 완벽한 활력을 불어넣어 줍니다.\n\n## 🍰 디저트 페어링 (예시)\n**바닐라 베리 크로플**\n커피의 과일 향을 더욱 끌어올리면서도 은은한 단맛을 더해주는 크로플을 추천합니다.\n\n## 🎵 추천 플레이리스트 (예시)\n**[Groove] 리드미컬한 R&B**\n생기를 더해줄 적당한 템포의 그루비한 R&B 플레이리스트가 이 커피와 가장 잘 어울립니다."
                         });
                     } else {
-                        startMatch(i18n.language);
+                        startMatch(i18n.language || 'ko');
                     }
                 } : nextStep} 
                 className="w-full max-w-[260px] md:max-w-sm py-[18px] bg-amber-500 text-espresso-50 font-extrabold uppercase tracking-widest text-[14px] rounded-[1.5rem] shadow-[0_0_30px_rgba(34,211,238,0.3)] active:scale-95 transition-transform mb-4"

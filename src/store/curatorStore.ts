@@ -126,7 +126,8 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
     get().syncStateToStorage();
   },
 
-  startMatch: async (language: string) => {
+  startMatch: async (langParam: string) => {
+    const language = langParam || 'ko';
     // ---- PERFORMANCE TRACKING INJECTION ----
     const perfLogs: string[] = [];
     (window as any).curatorPerfLogs = perfLogs;
