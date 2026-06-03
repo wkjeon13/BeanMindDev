@@ -215,7 +215,7 @@ export default function CoffeeTalk() {
     const { t, i18n } = useTranslation(['translation']);
     const navigate = useNavigate();
     const location = useLocation();
-    const [isMobileDevice, setIsMobileDevice] = useState<boolean | null>(null);
+    const [isMobileDevice, setIsMobileDevice] = useState<boolean>(true);
 
     useEffect(() => {
         setIsMobileDevice(isMobileOrTablet());
@@ -1181,6 +1181,57 @@ export default function CoffeeTalk() {
     };
 
     const handleShare = async (id: string) => {
+        // 다국어 번역 반환 타입의 String화 보장 (타입 및 형식 오류로 인한 API 거부 원천 차단)
+        const shareTitle = String(t('coffee_talk.msg_share_title', 'Beanmind Coffee Talk'));
+        const shareText = String(t('coffee_talk.msg_share_text', '이 재미있는 커피 이야기를 확인해보세요!'));
+        const shareUrl = `${window.location.origin}/community`;
+
+        const shareData = {
+            title: shareTitle,
+            text: shareText,
+            url: shareUrl
+        };
+
+        let sharedSuccessfully = false;
+
+        // 1단계: Web Share API 시도 (사용자 터치 액션이 살아있는 최상단 동기 컨텍스트에서 실행)
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+                sharedSuccessfully = true;
+            } catch (e: any) {
+                console.warn("Web Share failed, attempting clipboard fallback. Error:", e);
+                // 사용자가 공유 창을 명시적으로 취소(AbortError)한 경우를 제외하고는 폴백을 수행
+                if (e && e.name === 'AbortError') {
+                    sharedSuccessfully = true;
+                }
+            }
+        }
+
+        // 2단계: Web Share를 지원하지 않거나 실패한 경우 클립보드 복사 폴백 실행
+        if (!sharedSuccessfully) {
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(shareUrl);
+                    alert(String(t('coffee_talk.alert_copy_link', '커뮤니티 링크가 클립보드에 복사되었습니다.')));
+                } else {
+                    // navigator.clipboard도 차단된 특수 웹뷰/보안 환경 대응용 레거시 input 복사 기법 적용
+                    const tempInput = document.createElement('input');
+                    tempInput.value = shareUrl;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    alert(String(t('coffee_talk.alert_copy_link', '커뮤니티 링크가 클립보드에 복사되었습니다.')));
+                }
+            } catch (err) {
+                console.error("Clipboard copy failed:", err);
+                // 최종 폴백: 사용자가 수동 복사할 수 있도록 모달 또는 주소 창 출력
+                alert(`공유 링크: ${shareUrl}`);
+            }
+        }
+
+        // 3단계: 공유 창 활성화 이후 백그라운드로 데이터베이스 공유 카운트 업데이트 진행
         try {
             const url = `${API_BASE}/api/community/posts/${id}/share`;
             const res = await fetch(url, { method: 'POST' });
@@ -1193,20 +1244,8 @@ export default function CoffeeTalk() {
                     return p;
                 }));
             }
-
-            // Use Web Share API if available
-            if (navigator.share) {
-                await navigator.share({
-                    title: t('coffee_talk.msg_share_title', 'Beanmind Coffee Talk'),
-                    text: t('coffee_talk.msg_share_text', '이 재미있는 커피 이야기를 확인해보세요!'),
-                    url: `${window.location.origin}/community` // Defaulting to community feed since individual post pages don't exist yet
-                });
-            } else {
-                await navigator.clipboard.writeText(`${window.location.origin}/community`);
-                alert(t('coffee_talk.alert_copy_link', '커뮤니티 링크가 클립보드에 복사되었습니다.'));
-            }
         } catch (e) {
-            console.error("Failed to share", e);
+            console.error("Failed to update share count on server", e);
         }
     };
 
@@ -1809,15 +1848,6 @@ export default function CoffeeTalk() {
             document.activeElement.blur();
         }
     };
-
-    if (isMobileDevice === null) {
-        return (
-            <div className="min-h-[100dvh] bg-espresso-950 flex flex-col items-center justify-center">
-                <div className="w-10 h-10 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin mb-4"></div>
-                <p className="text-espresso-300 font-mono text-xs tracking-widest animate-pulse">DEVICE CHECK...</p>
-            </div>
-        );
-    }
 
     if (isMobileDevice === false) {
         return (
