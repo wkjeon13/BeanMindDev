@@ -113,8 +113,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
-     // If user is unauthenticated and tries to access a protected route (or just whenever they open the app unauthenticated), 
-     // force them to the home page (Curator) if they are not already there or on a public safe page.
+     // 1. Nginx 등 웹 서버의 서브라우팅 유실을 우회하기 위해, 홈페이지 루트로 들어온 쿼리 파라미터 딥링크를 감지해 내부 포워딩
+     const params = new URLSearchParams(location.search);
+     const targetRoute = params.get('route');
+     const targetPost = params.get('post');
+     if (targetRoute === 'community' && targetPost) {
+         navigate(`/community?post=${targetPost}`, { replace: true });
+         return;
+     }
+
+     // 2. 비인증 사용자 차단 방어막 (기존 로직 유지)
      const isAuth = !!localStorage.getItem('token');
      const isPublicRoute = location.pathname === '/' || 
                            location.pathname.startsWith('/curator') ||
@@ -128,7 +136,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
      if (!isAuth && !isPublicRoute) {
          navigate('/community', { replace: true });
      }
-  }, [location.pathname, navigate]);
+  }, [location.pathname, location.search, navigate]);
 
   // Sync language on initial load if logged in
   useEffect(() => {
