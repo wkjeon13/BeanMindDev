@@ -881,7 +881,10 @@ export default function CoffeeTalk() {
         // 딥링크가 아닌 경우 이전 스크롤 복원 대상 확보
         const targetId = window.location.hash ? window.location.hash.substring(1) : targetPostIdToScroll.current;
         if (!targetId) {
-            const savedScroll = localStorage.getItem(`coffeeTalkScrollTop_${activeFilter}`);
+            // 숏폼/ASMR 탭은 TikTok 방식이므로 항상 첫 번째 피드부터 시작 (위치 복원 안 함)
+            const savedScroll = activeFilter !== 'shorts'
+                ? localStorage.getItem(`coffeeTalkScrollTop_${activeFilter}`)
+                : null;
             const savedScrollNum = savedScroll ? parseInt(savedScroll, 10) : 0;
             if (savedScrollNum > 0) {
                 restoreScrollTop.current = savedScrollNum;
@@ -974,9 +977,7 @@ export default function CoffeeTalk() {
 
         // 1. 딥링크 타깃 포스트 스크롤 이동
         if (posts.length > 0 && targetId) {
-            if (targetPostIdToScroll.current === targetId) {
-                targetPostIdToScroll.current = null;
-            }
+            // ★ ref는 performScroll 성공 시에만 null 처리 (성공 전 클리어 시 posts 재로드 후 재시도 불가)
             if (window.location.hash === `#${targetId}`) {
                 window.history.replaceState(null, '', window.location.pathname + window.location.search);
             }
@@ -985,22 +986,19 @@ export default function CoffeeTalk() {
                 const el = document.getElementById(`post-${targetId}`);
                 const container = document.getElementById('coffee-feed-container');
                 if (el && container) {
-                    // Temporarily remove smooth scrolling so the jump is instant
                     container.style.scrollBehavior = 'auto';
                     el.scrollIntoView({ behavior: 'auto', block: 'start' });
 
-                    // 대상 피드 강조 링 표시 (항상)
                     el.classList.add('ring-4', 'ring-amber-500', 'ring-offset-2', 'ring-offset-espresso-950', 'transition-all', 'duration-500');
                     setTimeout(() => {
                         el.classList.remove('ring-4', 'ring-amber-500', 'ring-offset-2', 'ring-offset-espresso-950');
                     }, 2000);
+                    setTimeout(() => { container.style.scrollBehavior = ''; }, 50);
 
-                    // Restore smooth scrolling after the jump
-                    setTimeout(() => {
-                        container.style.scrollBehavior = '';
-                    }, 50);
-
-                    // 스크롤이 완료된 즉시 화면 투명도 잠금 해제! (0ms 찰나에 페이드인)
+                    // 성공 시에만 ref 클리어 및 오버레이 해제
+                    if (targetPostIdToScroll.current === targetId) {
+                        targetPostIdToScroll.current = null;
+                    }
                     setIsScrollJumping(false);
                     return true;
                 }
@@ -1008,17 +1006,16 @@ export default function CoffeeTalk() {
             };
 
             if (!performScroll()) {
-                // 렌더링 프레임 지연 대비 RAF 폴링 재시도
-                // 주의: 포스트 로딩 중(isLoading=true)에는 DOM에 post-${id}가 없으므로
-                // 실패 시 오버레이를 미리 제거하면 안 됨 → useEffect([posts]) 재실행 시 처리
+                // 포스트 로딩 중(isLoading=true)일 때 DOM에 요소 없음 → 인터벌로 재시도
+                // 실패해도 ref를 유지하여 useEffect([posts]) 재실행 시 자동 재시도
                 let attempts = 0;
                 const interval = setInterval(() => {
                     attempts++;
                     if (performScroll()) {
                         clearInterval(interval);
                     } else if (attempts > 30) {
-                        // 300ms 경과해도 요소를 못 찾으면 포스트 아직 로딩 중
-                        // 오버레이는 유지하고 인터벌만 종료 → useEffect([posts]) 재실행 시 재시도
+                        // 300ms 경과: DOM에 없음 = 포스트 로딩 대기 중
+                        // ref 유지 + 오버레이 유지 → fetchPosts 완료 후 useEffect([posts]) 재실행 시 재시도
                         clearInterval(interval);
                     }
                 }, 10);
