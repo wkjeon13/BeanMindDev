@@ -531,6 +531,13 @@ export default function CoffeeTalk() {
   const targetPostIdToScroll = useRef<string | null>(null);
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const queryPostId = params.get('post');
+    if (queryPostId) {
+        targetPostIdToScroll.current = queryPostId;
+        setIsScrollJumping(true);
+    }
+
     if (location.state?.filter) {
         setActiveFilter(location.state.filter);
     }
@@ -554,9 +561,9 @@ export default function CoffeeTalk() {
         setIsWriteModalOpen(true);
     }
     
-    // Clean up location state so modal/filters don't trigger on reload
-    if (location.state?.filter || location.state?.composePilgrimageLedger || location.state?.activePost) {
-        window.history.replaceState({}, document.title);
+    // Clean up location state and URL query parameter so reload/back doesn't trigger again
+    if (location.state?.filter || location.state?.composePilgrimageLedger || location.state?.activePost || queryPostId) {
+        window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [location]);
 
