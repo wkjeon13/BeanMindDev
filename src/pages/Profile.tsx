@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { User, LogIn, Store, ShieldCheck, ChevronRight, ChevronUp, ChevronDown, Mail, Lock, Shield, Users, Globe, Send, Inbox, Coffee, Database, MapPin, Share2, Trash2, KeyRound, Image as ImageIcon } from 'lucide-react';
+import { User, LogIn, Store, ShieldCheck, ChevronRight, ChevronUp, ChevronDown, Mail, Lock, Shield, Users, Globe, Send, Inbox, Coffee, Database, MapPin, Share2, Trash2, KeyRound, Image as ImageIcon, X } from 'lucide-react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useGoogleLogin, GoogleLogin } from '@react-oauth/google';
 import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
@@ -20,6 +20,7 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Responsi
 import { MagazineAd } from '../components/ads/MagazineAd';
 import { useAdStore } from '../store/adStore';
 import { compressImage } from '../utils/imageUtils';
+import { TERMS_OF_SERVICE, PRIVACY_POLICY } from '../data/termsData';
 
 // 지능형 품목 설정 복구 파서 (Promotion 카드 타이틀로부터 정적 품목 복원 지원)
 const getItemsConfig = (cfg: any) => {
@@ -107,6 +108,8 @@ export default function Profile() {
     const [authError, setAuthError] = useState('');
     const [agreeTerms, setAgreeTerms] = useState(false);
     const [agreePrivacy, setAgreePrivacy] = useState(false);
+    const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+    const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [pointBalance, setPointBalance] = useState(0);
 
@@ -3358,7 +3361,7 @@ export default function Profile() {
                                                     />
                                                     <label htmlFor="agree-terms" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의</label>
                                                 </div>
-                                                <a href="https://www.beanmindcurator.com/terms" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                                <button type="button" onClick={() => setIsTermsModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
@@ -3371,7 +3374,7 @@ export default function Profile() {
                                                     />
                                                     <label htmlFor="agree-privacy" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의</label>
                                                 </div>
-                                                <a href="https://www.beanmindcurator.com/privacy" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                                <button type="button" onClick={() => setIsPrivacyModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
                                         </div>
 
@@ -3467,7 +3470,7 @@ export default function Profile() {
                                                     />
                                                     <label htmlFor="google-agree-terms" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의</label>
                                                 </div>
-                                                <a href="https://www.beanmindcurator.com/terms" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                                <button type="button" onClick={() => setIsTermsModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
@@ -3480,7 +3483,7 @@ export default function Profile() {
                                                     />
                                                     <label htmlFor="google-agree-privacy" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의</label>
                                                 </div>
-                                                <a href="https://www.beanmindcurator.com/privacy" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                                <button type="button" onClick={() => setIsPrivacyModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
                                         </div>
 
@@ -3576,7 +3579,7 @@ export default function Profile() {
                                                     />
                                                     <label htmlFor="apple-agree-terms" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의</label>
                                                 </div>
-                                                <a href="https://www.beanmindcurator.com/terms" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                                <button type="button" onClick={() => setIsTermsModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
@@ -3589,7 +3592,7 @@ export default function Profile() {
                                                     />
                                                     <label htmlFor="apple-agree-privacy" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의</label>
                                                 </div>
-                                                <a href="https://www.beanmindcurator.com/privacy" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                                <button type="button" onClick={() => setIsPrivacyModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
                                         </div>
 
@@ -3685,7 +3688,7 @@ export default function Profile() {
                                                     />
                                                     <label htmlFor="naver-agree-terms" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 이용약관 동의</label>
                                                 </div>
-                                                <a href="https://www.beanmindcurator.com/terms" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                                <button type="button" onClick={() => setIsTermsModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
@@ -3698,7 +3701,7 @@ export default function Profile() {
                                                     />
                                                     <label htmlFor="naver-agree-privacy" className="cursor-pointer"><span className="text-amber-500 font-bold">[필수]</span> 개인정보 처리방침 동의</label>
                                                 </div>
-                                                <a href="https://www.beanmindcurator.com/privacy" target="_blank" rel="noopener noreferrer" className="text-espresso-300 hover:text-espresso-50 underline text-[11px]">보기</a>
+                                                <button type="button" onClick={() => setIsPrivacyModalOpen(true)} className="text-espresso-300 hover:text-espresso-50 underline text-[11px] bg-transparent border-none cursor-pointer">보기</button>
                                             </div>
                                         </div>
 
@@ -4017,6 +4020,98 @@ export default function Profile() {
                             </div>
                         </motion.div>
                     </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* 이용약관 모달 */}
+            <AnimatePresence>
+                {isTermsModalOpen && (
+                    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsTermsModalOpen(false)}
+                            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            transition={{ type: 'spring', duration: 0.4 }}
+                            className="relative w-full max-w-lg bg-espresso-900 border border-espresso-700/80 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[80vh] z-[1001]"
+                        >
+                            <div className="flex justify-between items-center mb-4 border-b border-espresso-800 pb-3">
+                                <h3 className="text-lg font-bold text-espresso-50 font-serif flex items-center gap-2">
+                                    <Shield size={18} className="text-amber-500" />
+                                    {TERMS_OF_SERVICE.title}
+                                </h3>
+                                <button
+                                    onClick={() => setIsTermsModalOpen(false)}
+                                    className="p-1 rounded-lg text-espresso-300 hover:text-espresso-50 hover:bg-espresso-800 transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto pr-1 text-[13px] leading-relaxed text-espresso-200 whitespace-pre-wrap font-sans scrollbar-thin scrollbar-thumb-espresso-800 scrollbar-track-transparent">
+                                {TERMS_OF_SERVICE.content}
+                            </div>
+                            <div className="mt-5 pt-3 border-t border-espresso-800/80 flex justify-end">
+                                <button
+                                    onClick={() => setIsTermsModalOpen(false)}
+                                    className="px-6 py-2.5 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-bold text-[14px] hover:from-amber-500 hover:to-amber-600 transition-all active:scale-95 shadow-md shadow-amber-900/20"
+                                >
+                                    확인
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* 개인정보 처리방침 모달 */}
+            <AnimatePresence>
+                {isPrivacyModalOpen && (
+                    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsPrivacyModalOpen(false)}
+                            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                            transition={{ type: 'spring', duration: 0.4 }}
+                            className="relative w-full max-w-lg bg-espresso-900 border border-espresso-700/80 rounded-3xl p-6 shadow-2xl flex flex-col max-h-[80vh] z-[1001]"
+                        >
+                            <div className="flex justify-between items-center mb-4 border-b border-espresso-800 pb-3">
+                                <h3 className="text-lg font-bold text-espresso-50 font-serif flex items-center gap-2">
+                                    <ShieldCheck size={18} className="text-amber-500" />
+                                    {PRIVACY_POLICY.title}
+                                </h3>
+                                <button
+                                    onClick={() => setIsPrivacyModalOpen(false)}
+                                    className="p-1 rounded-lg text-espresso-300 hover:text-espresso-50 hover:bg-espresso-800 transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <div className="flex-1 overflow-y-auto pr-1 text-[13px] leading-relaxed text-espresso-200 whitespace-pre-wrap font-sans scrollbar-thin scrollbar-thumb-espresso-800 scrollbar-track-transparent">
+                                {PRIVACY_POLICY.content}
+                            </div>
+                            <div className="mt-5 pt-3 border-t border-espresso-800/80 flex justify-end">
+                                <button
+                                    onClick={() => setIsPrivacyModalOpen(false)}
+                                    className="px-6 py-2.5 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-bold text-[14px] hover:from-amber-500 hover:to-amber-600 transition-all active:scale-95 shadow-md shadow-amber-900/20"
+                                >
+                                    확인
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
                 )}
             </AnimatePresence>
 
