@@ -1055,22 +1055,27 @@ export default function CoffeeTalk() {
           container.style.scrollBehavior = 'auto';
           
           let attempts = 0;
-          const maxAttempts = 20; // 최대 20회 (약 600ms) 대기하며 검증
+          const maxAttempts = 30; // 최대 30회 (약 900ms) 대기하며 검증
           
           const interval = setInterval(() => {
             const targetContainer = document.getElementById('coffee-feed-container');
             if (targetContainer) {
-              // 스크롤 복원 시도
+              // 1. 스크롤 위치 강제 지정
               targetContainer.scrollTop = scrollPos;
               
-              // 현재 스크롤이 목표값 근처로 도달했는지 확인 (오차 2px 이내)
+              // 2. 컨테이너 내부의 모든 이미지들이 실제로 브라우저 상에 다운로드/디코딩 완료되었는지 검사
+              const images = Array.from(targetContainer.getElementsByTagName('img'));
+              const allImagesLoaded = images.every(img => img.complete);
+              
+              // 3. 스크롤 안착 상태 체크
               const diff = Math.abs(targetContainer.scrollTop - scrollPos);
               const isAtTarget = diff <= 2;
               
-              if (isAtTarget || attempts >= maxAttempts) {
+              // 이미지 로딩도 완전히 끝났고 스크롤도 목표에 도달한 경우에만 해제
+              if ((allImagesLoaded && isAtTarget) || attempts >= maxAttempts) {
                 clearInterval(interval);
                 targetContainer.style.scrollBehavior = '';
-                setIsScrollJumping(false); // 완벽히 안착된 후 가림막 해제!
+                setIsScrollJumping(false); // 로딩 및 정렬 완료 시점에 가림막 해제
               }
             }
             attempts++;
@@ -1953,8 +1958,8 @@ export default function CoffeeTalk() {
       </header>
 
       {/* Main Feed Content */}
-      <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto scroll-smooth ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24'}`}>
-        <div className={`mx-auto ${isScrollJumping ? 'opacity-0' : 'opacity-100'} ${activeFilter === 'shorts' ? 'w-full max-w-md md:max-w-2xl h-full' : 'max-w-md md:max-w-2xl sm:px-4 sm:pb-4'}`}>
+      <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto scroll-smooth ${isScrollJumping ? 'opacity-0 pointer-events-none' : 'opacity-100'} transition-opacity duration-75 ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24'}`}>
+        <div className={`mx-auto ${activeFilter === 'shorts' ? 'w-full max-w-md md:max-w-2xl h-full' : 'max-w-md md:max-w-2xl sm:px-4 sm:pb-4'}`}>
           {activeFilter === 'near_live' && <HotspotMap />}
           {isLoading && <p className="text-center text-espresso-200 mt-10">{t('coffee_talk.loading_feed', '피드를 불러오는 중입니다...')}</p>}
           {!isLoading && filteredPosts.length === 0 && (
