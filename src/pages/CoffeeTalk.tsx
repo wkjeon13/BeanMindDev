@@ -506,6 +506,10 @@ export default function CoffeeTalk() {
     useEffect(() => {
         if (location.state?.filter) {
             setActiveFilter(location.state.filter);
+        } else if (location.state?.activePost) {
+            // activePost가 전달되었으나 filter가 명시되지 않은 경우,
+            // 이전 숏폼/ASMR 등 특정 탭 상태에 갇혀서 렌더링이 깨지는 현상을 방지하기 위해 전체(all) 필터로 초기화
+            setActiveFilter('all');
         }
 
         if (location.state?.activePost) {
