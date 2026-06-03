@@ -614,7 +614,9 @@ export default function CoffeeTalk() {
                 });
 
                 // Fetch the targeted active post if it's missing from the feed (e.g., old hot post)
-                const activePostId = location.state?.activePost || targetPostIdToScroll.current;
+                // location.state?.activePost는 window.history.replaceState 이후에도 React Router가 유지하므로
+                // 필터 전환 시 stale 값으로 일반 포스트가 잘못 주입되는 버그 방지 → ref만 사용
+                const activePostId = targetPostIdToScroll.current;
                 if (activePostId && !mappedPosts.some(p => p.id === activePostId)) {
                     try {
                         const singleRes = await fetch(`${API_BASE}/api/community/posts/${activePostId}`, { headers });
