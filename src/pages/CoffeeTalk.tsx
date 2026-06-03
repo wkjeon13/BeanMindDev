@@ -217,11 +217,17 @@ export default function CoffeeTalk() {
   const { t, i18n } = useTranslation(['translation']);
   const navigate = useNavigate();
   const location = useLocation();
-  const initialFilter = location.state?.filter || 'all';
+  const savedLastFilter = (() => {
+      try { return localStorage.getItem('coffeeTalkLastActiveFilter') || 'all'; } catch { return 'all'; }
+  })();
+  const initialFilter = location.state?.filter || savedLastFilter;
   const [activeFilter, setActiveFilter] = useState(initialFilter);
-    const [sortOption, setSortOption] = useState('latest');
+  const [sortOption, setSortOption] = useState('latest');
   const [isDeepLinked, setIsDeepLinked] = useState(!!location.state?.activePost || !!window.location.hash);
-  const [isScrollJumping, setIsScrollJumping] = useState(!!location.state?.activePost || !!window.location.hash);
+  const [isScrollJumping, setIsScrollJumping] = useState(() => {
+      if (!!location.state?.activePost || !!window.location.hash) return true;
+      return false;
+  });
   const currentFilterRef = useRef(activeFilter);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -694,7 +700,19 @@ export default function CoffeeTalk() {
           if (filterToFetch === currentFilterRef.current) {
             setIsLiked(prev => ({...prev, ...initialLikes}));
             setIsBookmarked(prev => ({...prev, ...initialBookmarks}));
-            setPosts(mappedPosts);
+            
+            // 기존 포스트와 새로 가져온 포스트 목록이 동일한 경우 상태 업데이트를 생략하여 불필요한 리렌더링 및 껌벅거림 차단
+            setPosts(prevPosts => {
+                const isSame = prevPosts.length === mappedPosts.length && prevPosts.every((p, idx) => {
+                    const np = mappedPosts[idx];
+                    return p.id === np?.id && 
+                           p.likes === np?.likes && 
+                           p.comments === np?.comments && 
+                           p.content === np?.content &&
+                           p.image === np?.image;
+                });
+                return isSame ? prevPosts : mappedPosts;
+            });
           }
           
           const cacheKey = filterToFetch + '_' + sortOption;
@@ -867,6 +885,9 @@ export default function CoffeeTalk() {
     }
 
     currentFilterRef.current = activeFilter;
+    try {
+        localStorage.setItem('coffeeTalkLastActiveFilter', activeFilter);
+    } catch (e) {}
     const cacheKey = activeFilter + '_' + sortOption;
     
     // 딥링크가 아닌 경우 이전 스크롤 복원 대상 확보
@@ -938,6 +959,9 @@ export default function CoffeeTalk() {
         window.removeEventListener('scrollToTop', handleScrollToTop);
         if (container) {
             container.removeEventListener('scroll', handleScroll);
+            try {
+                localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, lastScrollTopRef.current.toString());
+            } catch (e) {}
         }
     };
   }, []);
