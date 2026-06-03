@@ -1743,8 +1743,9 @@ export default function CoffeeTalk() {
 
         // 2. Tab Filters
         // shorts 탭: isShorts 포스트만 표시 (필터 전환 타이밍에 이전 피드가 렌더링되는 현상 원천 차단)
+        // !! 처리: DB가 boolean true 대신 숫자 1이나 다른 truthy 값을 반환할 수 있음
         if (activeFilter === 'shorts') {
-            return post.isShorts === true;
+            return !!post.isShorts;
         }
 
         if (activeFilter === 'all') {
