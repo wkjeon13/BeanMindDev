@@ -144,6 +144,38 @@ router.get('/my-data', authenticateToken, async (req: any, res: any) => {
         console.error("Export personal data error:", error);
         res.status(500).json({ error: 'INTERNAL_SERVER_ERROR' });
     }
+// GET: Fetch currently active Terms of Service and Privacy Policy
+router.get('/policies/active', async (req: any, res: any) => {
+    try {
+        const activePolicies = await prisma.legalPolicy.findMany({
+            where: { isActive: true }
+        });
+        
+        const terms = activePolicies.find(p => p.policyType === 'TERMS_OF_SERVICE');
+        const privacy = activePolicies.find(p => p.policyType === 'PRIVACY_POLICY');
+
+        res.status(200).json({
+            success: true,
+            terms: terms ? {
+                id: terms.id,
+                version: terms.version,
+                title: terms.title,
+                content: terms.content,
+                updatedAt: terms.updatedAt
+            } : null,
+            privacy: privacy ? {
+                id: privacy.id,
+                version: privacy.version,
+                title: privacy.title,
+                content: privacy.content,
+                updatedAt: privacy.updatedAt
+            } : null
+        });
+    } catch (error) {
+        console.error("Fetch active policies error:", error);
+        res.status(500).json({ error: 'INTERNAL_SERVER_ERROR' });
+    }
 });
 
 export default router;
+

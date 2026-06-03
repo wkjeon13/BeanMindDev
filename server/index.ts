@@ -159,10 +159,14 @@ process.on('uncaughtException', (err) => {
 });
 
 import { initMediaCleanupJob } from './workers/mediaCleanupJob.js';
+import { seedLegalPolicies } from './utils/legalPolicySeeder.js';
 
-const server = app.listen(port, '0.0.0.0', () => {
+const server = app.listen(port, '0.0.0.0', async () => {
     console.log(`[Server] BeanMind AI Coffee Curator API running on port ${port}`);
     console.log(`[Server] Booting up... Node-cron initialized.`);
+    
+    // Seed initial Terms & Privacy version
+    await seedLegalPolicies();
     
     // Phase 10: Initialize Media Garbage Collector (Runs 03:00 AM)
     initMediaCleanupJob();

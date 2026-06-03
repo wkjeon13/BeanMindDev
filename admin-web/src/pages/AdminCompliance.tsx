@@ -8,7 +8,7 @@ export default function AdminCompliance() {
     const navigate = useNavigate();
     const { t } = useTranslation();
 
-    const [activeTab, setActiveTab] = useState<'admin_actions' | 'ccpa_requests' | 'consents'>('admin_actions');
+    const [activeTab, setActiveTab] = useState<'admin_actions' | 'ccpa_requests' | 'consents' | 'policies'>('admin_actions');
     const token = localStorage.getItem('token');
     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -45,6 +45,23 @@ export default function AdminCompliance() {
     const [consentPage, setConsentPage] = useState(1);
     const [consentTotalPages, setConsentTotalPages] = useState(1);
     const [isConsentLoading, setIsConsentLoading] = useState(false);
+
+    // Tab 4: Legal Policy Management State
+    const [policies, setPolicies] = useState<any[]>([]);
+    const [isPoliciesLoading, setIsPoliciesLoading] = useState(false);
+    
+    // Create/Edit/View Policy Modal State
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [selectedPolicy, setSelectedPolicy] = useState<any | null>(null);
+    
+    // Form for new policy
+    const [newPolicyType, setNewPolicyType] = useState('TERMS_OF_SERVICE');
+    const [newPolicyVersion, setNewPolicyVersion] = useState('');
+    const [newPolicyTitle, setNewPolicyTitle] = useState('');
+    const [newPolicyContent, setNewPolicyContent] = useState('');
+    const [newPolicyIsActive, setNewPolicyIsActive] = useState(false);
+    const [isSavingPolicy, setIsSavingPolicy] = useState(false);
 
     // CCPA Action Modal State
     const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
@@ -123,11 +140,116 @@ export default function AdminCompliance() {
         }
     };
 
+    // Fetch Legal Policies
+    const fetchPolicies = async () => {
+        setIsPoliciesLoading(true);
+        try {
+            const res = await fetch(`${API_BASE}/api/admin/compliance/policies`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setPolicies(data || []);
+            }
+        } catch (err) {
+            console.error('Failed to fetch legal policies:', err);
+        } finally {
+            setIsPoliciesLoading(false);
+        }
+    };
+
+    const handleActivatePolicy = async (id: string) => {
+        if (!confirm('해당 약관 버전을 현재 게시 버전으로 활성화하시겠습니까? 기존 활성 버전은 비활성화됩니다.')) return;
+        try {
+            const res = await fetch(`${API_BASE}/api/admin/compliance/policies/${id}/activate`, {
+                method: 'PUT',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                alert('해당 약관 버전이 성공적으로 활성화되었습니다.');
+                fetchPolicies();
+            } else {
+                const data = await res.json();
+                alert(data.error || '활성화 처리에 실패했습니다.');
+            }
+        } catch (err) {
+            alert('오류가 발생했습니다.');
+        }
+    };
+
+    const handleDeletePolicy = async (id: string) => {
+        if (!confirm('해당 약관 버전을 삭제하시겠습니까?')) return;
+        try {
+            const res = await fetch(`${API_BASE}/api/admin/compliance/policies/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                alert('해당 약관 버전이 성공적으로 삭제되었습니다.');
+                fetchPolicies();
+            } else {
+                const data = await res.json();
+                alert(data.message || '삭제 처리에 실패했습니다.');
+            }
+        } catch (err) {
+            alert('오류가 발생했습니다.');
+        }
+    };
+
+    const handleSavePolicy = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newPolicyVersion.trim() || !newPolicyTitle.trim() || !newPolicyContent.trim()) {
+            alert('모든 필수 항목을 입력해주세요.');
+            return;
+        }
+
+        if (!/^v\d+\.\d+\.\d+$/.test(newPolicyVersion.trim())) {
+            alert('버전은 v1.0.0 형식으로 입력해야 합니다. (예: v1.1.0)');
+            return;
+        }
+
+        setIsSavingPolicy(true);
+        try {
+            const res = await fetch(`${API_BASE}/api/admin/compliance/policies`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    policyType: newPolicyType,
+                    version: newPolicyVersion.trim(),
+                    title: newPolicyTitle.trim(),
+                    content: newPolicyContent.trim(),
+                    isActive: newPolicyIsActive
+                })
+            });
+
+            if (res.ok) {
+                alert('새로운 약관 버전이 성공적으로 등록되었습니다.');
+                setIsCreateModalOpen(false);
+                setNewPolicyVersion('');
+                setNewPolicyTitle('');
+                setNewPolicyContent('');
+                setNewPolicyIsActive(false);
+                fetchPolicies();
+            } else {
+                const data = await res.json();
+                alert(data.message || '약관 저장에 실패했습니다.');
+            }
+        } catch (err) {
+            alert('네트워크 오류가 발생했습니다.');
+        } finally {
+            setIsSavingPolicy(false);
+        }
+    };
+
     // Trigger searches based on active tab
     useEffect(() => {
         if (activeTab === 'admin_actions') fetchAdminActions();
         if (activeTab === 'ccpa_requests') fetchCcpaRequests();
         if (activeTab === 'consents') fetchConsents();
+        if (activeTab === 'policies') fetchPolicies();
     }, [activeTab, actionsPage, ccpaPage, consentPage]);
 
     const handleSearch = (e: React.FormEvent) => {
@@ -197,11 +319,21 @@ export default function AdminCompliance() {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
+                    {activeTab === 'policies' && (
+                        <button
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-lg text-sm font-semibold transition shadow-md shadow-emerald-950/20"
+                        >
+                            <FileText className="w-4 h-4" />
+                            새 약관 버전 등록
+                        </button>
+                    )}
                     <button
                         onClick={() => {
                             if (activeTab === 'admin_actions') fetchAdminActions();
                             if (activeTab === 'ccpa_requests') fetchCcpaRequests();
                             if (activeTab === 'consents') fetchConsents();
+                            if (activeTab === 'policies') fetchPolicies();
                         }}
                         className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 border border-slate-700 rounded-lg text-sm transition"
                     >
@@ -280,11 +412,27 @@ export default function AdminCompliance() {
                 >
                     약관 동의 감사 이력 (Consent History)
                 </button>
+                <button
+                    onClick={() => setActiveTab('policies')}
+                    className={`px-5 py-3 font-semibold text-sm transition border-b-2 -mb-[2px] ${
+                        activeTab === 'policies'
+                            ? 'border-emerald-500 text-emerald-400'
+                            : 'border-transparent text-slate-400 hover:text-slate-200'
+                    }`}
+                >
+                    약관 버전 관리 (Legal Policies)
+                </button>
             </div>
 
             {/* Search Filters */}
             <form onSubmit={handleSearch} className="bg-slate-900/40 border border-slate-800 rounded-xl p-4 mb-6">
                 <div className="flex flex-col md:flex-row md:items-end gap-4">
+                    {activeTab === 'policies' && (
+                        <div className="flex-1 py-1 text-sm text-slate-400 font-medium">
+                            서비스의 이용약관 및 개인정보 처리방침의 개정 이력을 관리하고, 실시간 가입 동의 시 게시할 버전을 제어합니다.
+                        </div>
+                    )}
+
                     {activeTab === 'admin_actions' && (
                         <>
                             <div className="flex-1">
@@ -587,45 +735,125 @@ export default function AdminCompliance() {
                     </div>
                 )}
 
+                {activeTab === 'policies' && (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr className="border-b border-slate-800 bg-slate-900/50 text-slate-300 font-semibold">
+                                    <th className="p-4">구분</th>
+                                    <th className="p-4">버전</th>
+                                    <th className="p-4">약관 제목</th>
+                                    <th className="p-4">상태</th>
+                                    <th className="p-4">마지막 수정일</th>
+                                    <th className="p-4">관리 작업</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {isPoliciesLoading ? (
+                                    <tr>
+                                        <td colSpan={6} className="p-8 text-center text-slate-400">약관 목록 로딩 중...</td>
+                                    </tr>
+                                ) : policies.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} className="p-8 text-center text-slate-500">등록된 약관 이력이 없습니다.</td>
+                                    </tr>
+                                ) : (
+                                    policies.map((policy) => (
+                                        <tr key={policy.id} className="border-b border-slate-800/60 hover:bg-slate-900/20 text-slate-300">
+                                            <td className="p-4 font-semibold text-slate-300">
+                                                {policy.policyType === 'TERMS_OF_SERVICE' ? '이용약관' : '개인정보 처리방침'}
+                                            </td>
+                                            <td className="p-4 font-mono font-bold text-amber-500">{policy.version}</td>
+                                            <td className="p-4 text-white font-medium">{policy.title}</td>
+                                            <td className="p-4">
+                                                <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                                                    policy.isActive 
+                                                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' 
+                                                        : 'bg-slate-800 text-slate-500 border border-slate-700/50'
+                                                }`}>
+                                                    {policy.isActive ? '게시 중 (Active)' : '비활성'}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 text-xs font-mono text-slate-400">
+                                                {new Date(policy.updatedAt).toLocaleString()}
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => { setSelectedPolicy(policy); setIsViewModalOpen(true); }}
+                                                        className="p-1.5 bg-slate-800 hover:bg-slate-750 text-slate-300 rounded transition border border-slate-700"
+                                                        title="약관 전문 보기"
+                                                    >
+                                                        <Eye className="w-4 h-4" />
+                                                    </button>
+                                                    {!policy.isActive && (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleActivatePolicy(policy.id)}
+                                                                className="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600/35 border border-emerald-600/40 text-emerald-400 rounded text-xs transition"
+                                                            >
+                                                                활성화
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeletePolicy(policy.id)}
+                                                                className="p-1.5 bg-red-950/20 hover:bg-red-950/40 border border-red-900/30 text-red-400 rounded transition"
+                                                                title="버전 삭제"
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
                 {/* Pagination Controls */}
-                <div className="flex items-center justify-between p-4 border-t border-slate-800 bg-slate-900/20">
-                    <div className="text-xs text-slate-400 font-medium">
-                        Page {activeTab === 'admin_actions' ? actionsPage : activeTab === 'ccpa_requests' ? ccpaPage : consentPage} of{' '}
-                        {activeTab === 'admin_actions' ? actionsTotalPages : activeTab === 'ccpa_requests' ? ccpaTotalPages : consentTotalPages}
+                {activeTab !== 'policies' && (
+                    <div className="flex items-center justify-between p-4 border-t border-slate-800 bg-slate-900/20">
+                        <div className="text-xs text-slate-400 font-medium">
+                            Page {activeTab === 'admin_actions' ? actionsPage : activeTab === 'ccpa_requests' ? ccpaPage : consentPage} of{' '}
+                            {activeTab === 'admin_actions' ? actionsTotalPages : activeTab === 'ccpa_requests' ? ccpaTotalPages : consentTotalPages}
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                disabled={
+                                    activeTab === 'admin_actions' ? actionsPage <= 1 :
+                                    activeTab === 'ccpa_requests' ? ccpaPage <= 1 :
+                                    consentPage <= 1
+                                }
+                                onClick={() => {
+                                    if (activeTab === 'admin_actions') setActionsPage(p => p - 1);
+                                    if (activeTab === 'ccpa_requests') setCcpaPage(p => p - 1);
+                                    if (activeTab === 'consents') setConsentPage(p => p - 1);
+                                }}
+                                className="p-1.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 disabled:opacity-30 disabled:hover:bg-slate-800 border border-slate-700 rounded transition"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            <button
+                                disabled={
+                                    activeTab === 'admin_actions' ? actionsPage >= actionsTotalPages :
+                                    activeTab === 'ccpa_requests' ? ccpaPage >= ccpaTotalPages :
+                                    consentPage >= consentTotalPages
+                                }
+                                onClick={() => {
+                                    if (activeTab === 'admin_actions') setActionsPage(p => p + 1);
+                                    if (activeTab === 'ccpa_requests') setCcpaPage(p => p + 1);
+                                    if (activeTab === 'consents') setConsentPage(p => p + 1);
+                                }}
+                                className="p-1.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 disabled:opacity-30 disabled:hover:bg-slate-800 border border-slate-700 rounded transition"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
                     </div>
-                    <div className="flex gap-2">
-                        <button
-                            disabled={
-                                activeTab === 'admin_actions' ? actionsPage <= 1 :
-                                activeTab === 'ccpa_requests' ? ccpaPage <= 1 :
-                                consentPage <= 1
-                            }
-                            onClick={() => {
-                                if (activeTab === 'admin_actions') setActionsPage(p => p - 1);
-                                if (activeTab === 'ccpa_requests') setCcpaPage(p => p - 1);
-                                if (activeTab === 'consents') setConsentPage(p => p - 1);
-                            }}
-                            className="p-1.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 disabled:opacity-30 disabled:hover:bg-slate-800 border border-slate-700 rounded transition"
-                        >
-                            <ChevronLeft className="w-4 h-4" />
-                        </button>
-                        <button
-                            disabled={
-                                activeTab === 'admin_actions' ? actionsPage >= actionsTotalPages :
-                                activeTab === 'ccpa_requests' ? ccpaPage >= ccpaTotalPages :
-                                consentPage >= consentTotalPages
-                            }
-                            onClick={() => {
-                                if (activeTab === 'admin_actions') setActionsPage(p => p + 1);
-                                if (activeTab === 'ccpa_requests') setCcpaPage(p => p + 1);
-                                if (activeTab === 'consents') setConsentPage(p => p + 1);
-                            }}
-                            className="p-1.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 disabled:opacity-30 disabled:hover:bg-slate-800 border border-slate-700 rounded transition"
-                        >
-                            <ChevronRight className="w-4 h-4" />
-                        </button>
-                    </div>
-                </div>
+                )}
             </div>
 
             {/* CCPA Privacy Action Signature Modal */}
@@ -685,6 +913,152 @@ export default function AdminCompliance() {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* 새 약관 등록 모달 */}
+            {isCreateModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                    <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 flex flex-col max-h-[90vh]">
+                        <div className="flex items-center justify-between border-b border-slate-850 pb-4 mb-4">
+                            <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                                <FileText className="w-5 h-5 text-emerald-500" />
+                                새 약관 개정 버전 등록
+                            </h3>
+                            <button onClick={() => setIsCreateModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+                        </div>
+
+                        <form onSubmit={handleSavePolicy} className="space-y-4 flex-1 flex flex-col overflow-hidden">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-400 mb-1.5">약관 구분</label>
+                                    <select
+                                        value={newPolicyType}
+                                        onChange={(e) => setNewPolicyType(e.target.value)}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"
+                                    >
+                                        <option value="TERMS_OF_SERVICE">이용약관 (Terms of Service)</option>
+                                        <option value="PRIVACY_POLICY">개인정보 처리방침 (Privacy Policy)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-slate-400 mb-1.5">버전 명 (vX.Y.Z)</label>
+                                    <input
+                                        type="text"
+                                        placeholder="v1.1.0"
+                                        value={newPolicyVersion}
+                                        onChange={(e) => setNewPolicyVersion(e.target.value)}
+                                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 font-mono font-bold"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 mb-1.5">약관 제목</label>
+                                <input
+                                    type="text"
+                                    placeholder="BeanMind Curator 서비스 이용약관 개정안"
+                                    value={newPolicyTitle}
+                                    onChange={(e) => setNewPolicyTitle(e.target.value)}
+                                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"
+                                    required
+                                />
+                            </div>
+
+                            <div className="flex-1 flex flex-col min-h-[250px] overflow-hidden">
+                                <label className="block text-xs font-semibold text-slate-400 mb-1.5">약관 전문 내용</label>
+                                <textarea
+                                    value={newPolicyContent}
+                                    onChange={(e) => setNewPolicyContent(e.target.value)}
+                                    className="flex-1 w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder-slate-800 focus:outline-none focus:border-emerald-500 resize-none overflow-y-auto"
+                                    placeholder="법적 약관 전문을 여기에 입력해 주세요..."
+                                    required
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="policy-active-chk"
+                                    checked={newPolicyIsActive}
+                                    onChange={(e) => setNewPolicyIsActive(e.target.checked)}
+                                    className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
+                                />
+                                <label htmlFor="policy-active-chk" className="text-xs text-slate-300 cursor-pointer font-semibold select-none">
+                                    등록 즉시 현재 활성 버전으로 게시 (주의: 기존 활성 버전은 비활성화됩니다)
+                                </label>
+                            </div>
+
+                            <div className="flex justify-end gap-3 border-t border-slate-850 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsCreateModalOpen(false)}
+                                    className="px-4 py-2 bg-slate-800 hover:bg-slate-750 text-slate-300 text-sm font-semibold rounded-lg transition"
+                                >
+                                    취소
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSavingPolicy}
+                                    className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-lg transition"
+                                >
+                                    {isSavingPolicy ? '저장 중...' : '약관 등록'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* 약관 상세 보기 모달 */}
+            {isViewModalOpen && selectedPolicy && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+                    <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-6 flex flex-col max-h-[85vh]">
+                        <div className="flex items-center justify-between border-b border-slate-850 pb-4 mb-4">
+                            <div>
+                                <h3 className="text-lg font-bold text-white">
+                                    {selectedPolicy.title}
+                                </h3>
+                                <div className="flex gap-2 mt-1 items-center">
+                                    <span className="text-xs text-slate-400">구분: {selectedPolicy.policyType === 'TERMS_OF_SERVICE' ? '이용약관' : '개인정보 처리방침'}</span>
+                                    <span className="text-xs text-slate-500">|</span>
+                                    <span className="text-xs font-mono text-amber-500 font-bold">버전: {selectedPolicy.version}</span>
+                                    {selectedPolicy.isActive && (
+                                        <span className="ml-2 px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold rounded">현재 활성 게시중</span>
+                                    )}
+                                </div>
+                            </div>
+                            <button onClick={() => { setSelectedPolicy(null); setIsViewModalOpen(false); }} className="text-slate-400 hover:text-white">✕</button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto bg-slate-950 p-4 border border-slate-850 rounded-xl text-xs text-slate-200 whitespace-pre-wrap leading-relaxed">
+                            {selectedPolicy.content}
+                        </div>
+
+                        <div className="flex justify-end gap-3 border-t border-slate-850 pt-4 mt-4">
+                            {!selectedPolicy.isActive && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        handleActivatePolicy(selectedPolicy.id);
+                                        setSelectedPolicy(null);
+                                        setIsViewModalOpen(false);
+                                    }}
+                                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-lg transition"
+                                >
+                                    이 버전으로 활성화
+                                </button>
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => { setSelectedPolicy(null); setIsViewModalOpen(false); }}
+                                className="px-4 py-2 bg-slate-800 hover:bg-slate-750 text-slate-300 text-sm font-semibold rounded-lg transition"
+                            >
+                                닫기
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

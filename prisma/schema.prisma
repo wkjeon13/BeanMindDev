@@ -1096,3 +1096,17 @@ model ComplianceRequestLog {
 
   @@index([requestEmail])
 }
+
+model LegalPolicy {
+  id          String   @id @default(uuid())
+  policyType  String   // "TERMS_OF_SERVICE" 또는 "PRIVACY_POLICY"
+  version     String   // 예: "v1.0.0", "v1.1.0"
+  title       String
+  content     String   @db.LongText
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([policyType, version])
+}
+

@@ -110,6 +110,8 @@ export default function Profile() {
     const [agreePrivacy, setAgreePrivacy] = useState(false);
     const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
     const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+    const [termsOfServiceData, setTermsOfServiceData] = useState<{title: string, content: string, version: string} | null>(null);
+    const [privacyPolicyData, setPrivacyPolicyData] = useState<{title: string, content: string, version: string} | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [pointBalance, setPointBalance] = useState(0);
 
@@ -145,6 +147,24 @@ export default function Profile() {
         setPasswordConfirm('');
         setVerificationCode('');
     }, [authView]);
+
+    React.useEffect(() => {
+        const fetchActivePolicies = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/api/compliance/policies/active`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success) {
+                        if (data.terms) setTermsOfServiceData(data.terms);
+                        if (data.privacy) setPrivacyPolicyData(data.privacy);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch active legal policies:", err);
+            }
+        };
+        fetchActivePolicies();
+    }, []);
 
     const [currentUser, setCurrentUser] = useState(() => JSON.parse(localStorage.getItem('user') || '{}'));
 
@@ -1106,8 +1126,8 @@ export default function Profile() {
                     favoriteCafe,
                     countryCode: getDeviceCountryCode(),
                     preferredLanguage: i18n.language,
-                    termsOfServiceVersion: 'v1.0.0',
-                    privacyPolicyVersion: 'v1.0.0'
+                    termsOfServiceVersion: termsOfServiceData?.version || 'v1.0.0',
+                    privacyPolicyVersion: privacyPolicyData?.version || 'v1.0.0'
                 })
             });
             const data = await response.json();
@@ -1260,8 +1280,8 @@ export default function Profile() {
                     favoriteCafe,
                     countryCode: getDeviceCountryCode(),
                     preferredLanguage: i18n.language,
-                    termsOfServiceVersion: 'v1.0.0',
-                    privacyPolicyVersion: 'v1.0.0'
+                    termsOfServiceVersion: termsOfServiceData?.version || 'v1.0.0',
+                    privacyPolicyVersion: privacyPolicyData?.version || 'v1.0.0'
                 })
             });
             const data = await response.json();
@@ -1313,8 +1333,8 @@ export default function Profile() {
                     favoriteCafe,
                     countryCode: getDeviceCountryCode(),
                     preferredLanguage: i18n.language,
-                    termsOfServiceVersion: 'v1.0.0',
-                    privacyPolicyVersion: 'v1.0.0'
+                    termsOfServiceVersion: termsOfServiceData?.version || 'v1.0.0',
+                    privacyPolicyVersion: privacyPolicyData?.version || 'v1.0.0'
                 })
             });
             const data = await response.json();
@@ -1365,8 +1385,8 @@ export default function Profile() {
                     favoriteCafe,
                     countryCode: getDeviceCountryCode(),
                     preferredLanguage: i18n.language,
-                    termsOfServiceVersion: 'v1.0.0',
-                    privacyPolicyVersion: 'v1.0.0'
+                    termsOfServiceVersion: termsOfServiceData?.version || 'v1.0.0',
+                    privacyPolicyVersion: privacyPolicyData?.version || 'v1.0.0'
                 })
             });
             const data = await response.json();
@@ -4044,7 +4064,7 @@ export default function Profile() {
                             <div className="flex justify-between items-center mb-4 border-b border-espresso-800 pb-3">
                                 <h3 className="text-lg font-bold text-espresso-50 font-serif flex items-center gap-2">
                                     <Shield size={18} className="text-amber-500" />
-                                    {TERMS_OF_SERVICE.title}
+                                    {termsOfServiceData?.title || TERMS_OF_SERVICE.title}
                                 </h3>
                                 <button
                                     onClick={() => setIsTermsModalOpen(false)}
@@ -4054,7 +4074,7 @@ export default function Profile() {
                                 </button>
                             </div>
                             <div className="flex-1 overflow-y-auto pr-1 text-[13px] leading-relaxed text-espresso-200 whitespace-pre-wrap font-sans scrollbar-thin scrollbar-thumb-espresso-800 scrollbar-track-transparent">
-                                {TERMS_OF_SERVICE.content}
+                                {termsOfServiceData?.content || TERMS_OF_SERVICE.content}
                             </div>
                             <div className="mt-5 pt-3 border-t border-espresso-800/80 flex justify-end">
                                 <button
@@ -4090,7 +4110,7 @@ export default function Profile() {
                             <div className="flex justify-between items-center mb-4 border-b border-espresso-800 pb-3">
                                 <h3 className="text-lg font-bold text-espresso-50 font-serif flex items-center gap-2">
                                     <ShieldCheck size={18} className="text-amber-500" />
-                                    {PRIVACY_POLICY.title}
+                                    {privacyPolicyData?.title || PRIVACY_POLICY.title}
                                 </h3>
                                 <button
                                     onClick={() => setIsPrivacyModalOpen(false)}
@@ -4100,7 +4120,7 @@ export default function Profile() {
                                 </button>
                             </div>
                             <div className="flex-1 overflow-y-auto pr-1 text-[13px] leading-relaxed text-espresso-200 whitespace-pre-wrap font-sans scrollbar-thin scrollbar-thumb-espresso-800 scrollbar-track-transparent">
-                                {PRIVACY_POLICY.content}
+                                {privacyPolicyData?.content || PRIVACY_POLICY.content}
                             </div>
                             <div className="mt-5 pt-3 border-t border-espresso-800/80 flex justify-end">
                                 <button

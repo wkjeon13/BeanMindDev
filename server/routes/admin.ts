@@ -2247,4 +2247,159 @@ router.get('/compliance/consents', async (req: any, res: any) => {
     }
 });
 
+// GET: Fetch Legal Policies list (Terms and Privacy version histories)
+router.get('/compliance/policies', async (req: any, res: any) => {
+    try {
+        const policies = await prisma.legalPolicy.findMany({
+            orderBy: [
+                { policyType: 'asc' },
+                { version: 'desc' }
+            ]
+        });
+        res.json(policies);
+    } catch (error) {
+        console.error("Fetch legal policies error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// POST: Add new Legal Policy version
+router.post('/compliance/policies', async (req: any, res: any) => {
+    try {
+        const { policyType, version, title, content, isActive } = req.body;
+
+        if (!policyType || !version || !title || !content) {
+            return res.status(400).json({ error: ERROR_CODES.INVALID_DATA_FORMAT });
+        }
+
+        // Check duplicate
+        const existing = await prisma.legalPolicy.findUnique({
+            where: {
+                policyType_version: {
+                    policyType,
+                    version
+                }
+            }
+        });
+
+        if (existing) {
+            return res.status(400).json({ error: 'DUPLICATE_VERSION_ERROR', message: '동일한 약관의 이미 존재하는 버전입니다.' });
+        }
+
+        const isTrueActive = isActive === true || isActive === 'true';
+
+        // Transaction to ensure single active version
+        const newPolicy = await prisma.$transaction(async (tx) => {
+            if (isTrueActive) {
+                // Deactivate others
+                await tx.legalPolicy.updateMany({
+                    where: { policyType },
+                    data: { isActive: false }
+                });
+            }
+
+            return await tx.legalPolicy.create({
+                data: {
+                    policyType,
+                    version,
+                    title,
+                    content,
+                    isActive: isTrueActive
+                }
+            });
+        });
+
+        await logAdminAction(
+            req.user.id,
+            req.user.email,
+            req.user.role,
+            'UPDATE',
+            'COMPLIANCE',
+            newPolicy.id,
+            `새로운 약관 등록 및 활성화 제어: ${policyType} ${version} (Active: ${isTrueActive})`,
+            req.ip || '127.0.0.1'
+        );
+
+        res.status(201).json(newPolicy);
+    } catch (error) {
+        console.error("Create legal policy error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// PUT: Activate specific Legal Policy version
+router.put('/compliance/policies/:id/activate', async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+
+        const target = await prisma.legalPolicy.findUnique({ where: { id } });
+        if (!target) {
+            return res.status(404).json({ error: 'POLICY_NOT_FOUND', message: '해당 약관을 찾을 수 없습니다.' });
+        }
+
+        const updated = await prisma.$transaction(async (tx) => {
+            await tx.legalPolicy.updateMany({
+                where: { policyType: target.policyType },
+                data: { isActive: false }
+            });
+
+            return await tx.legalPolicy.update({
+                where: { id },
+                data: { isActive: true }
+            });
+        });
+
+        await logAdminAction(
+            req.user.id,
+            req.user.email,
+            req.user.role,
+            'UPDATE',
+            'COMPLIANCE',
+            id,
+            `약관 활성화 전환: ${target.policyType} ${target.version} 활성 상태로 변경`,
+            req.ip || '127.0.0.1'
+        );
+
+        res.json(updated);
+    } catch (error) {
+        console.error("Activate legal policy error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// DELETE: Delete specific Legal Policy version (inactive only)
+router.delete('/compliance/policies/:id', async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+
+        const target = await prisma.legalPolicy.findUnique({ where: { id } });
+        if (!target) {
+            return res.status(404).json({ error: 'POLICY_NOT_FOUND', message: '해당 약관을 찾을 수 없습니다.' });
+        }
+
+        if (target.isActive) {
+            return res.status(400).json({ error: 'CANNOT_DELETE_ACTIVE_POLICY', message: '현재 게시 중인 활성 상태의 약관 버전은 삭제할 수 없습니다.' });
+        }
+
+        await prisma.legalPolicy.delete({ where: { id } });
+
+        await logAdminAction(
+            req.user.id,
+            req.user.email,
+            req.user.role,
+            'DELETE',
+            'COMPLIANCE',
+            id,
+            `약관 버전 삭제: ${target.policyType} ${target.version}`,
+            req.ip || '127.0.0.1'
+        );
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Delete legal policy error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
 export default router;
+
