@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Heart, MessageCircle, Share2, MapPin, MoreVertical, X, Clock, Navigation, CheckCircle, Store, Send, Image as ImageIcon, Flame, TrendingUp, Droplets, Trophy, Lock, Users, Target, UserCheck, Shield, Bookmark, Edit, Trash2, Calendar, Coffee, ListChecks, Link, Globe, Info, Search, ChevronDown, Camera, Star, Map, User, Edit2, Gift, PenSquare, Scale, Thermometer, Timer, Settings, BarChart2, Plus, Minus, Crown, ChevronRight, Check, Smile, ChevronLeft, Play, Music, Pause, Sparkles } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Share } from '@capacitor/share';
 import { isMobileOrTablet } from '../utils/deviceDetector';
 import CommentSheet from '../components/community/CommentSheet';
 import CommentImageGallerySheet from '../components/community/CommentImageGallerySheet';
@@ -1184,7 +1185,14 @@ export default function CoffeeTalk() {
         // 다국어 번역 반환 타입의 String화 보장 (타입 및 형식 오류로 인한 API 거부 원천 차단)
         const shareTitle = String(t('coffee_talk.msg_share_title', 'Beanmind Coffee Talk'));
         const shareText = String(t('coffee_talk.msg_share_text', '이 재미있는 커피 이야기를 확인해보세요!'));
-        const shareUrl = `${window.location.origin}/community`;
+        
+        // window.location.origin 분석 및 개발용 포트(3002 등) 소거 보정
+        let origin = window.location.origin;
+        const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+        if (isNative || origin.includes('beanmindcurator.com')) {
+            origin = 'http://www.beanmindcurator.com';
+        }
+        const shareUrl = `${origin}/community`;
 
         const shareData = {
             title: shareTitle,
@@ -1194,8 +1202,23 @@ export default function CoffeeTalk() {
 
         let sharedSuccessfully = false;
 
-        // 1단계: Web Share API 시도 (사용자 터치 액션이 살아있는 최상단 동기 컨텍스트에서 실행)
-        if (navigator.share) {
+        // 1단계: Capacitor Native 환경 검출 시 네이티브 Share 플러그인 우선 적용
+        const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+        if (isNative) {
+            try {
+                await Share.share(shareData);
+                sharedSuccessfully = true;
+            } catch (e: any) {
+                console.warn("Capacitor Native Share failed or cancelled. Error:", e);
+                // 사용자가 공유 창을 취소한 경우 (예: "Share was cancelled") 등
+                if (e && (e.message?.includes('cancelled') || e.message?.includes('dismissed'))) {
+                    sharedSuccessfully = true;
+                }
+            }
+        }
+
+        // 2단계: 일반 웹 환경의 Web Share API 시도 (사용자 터치 액션이 살아있는 최상단 동기 컨텍스트에서 실행)
+        if (!sharedSuccessfully && navigator.share) {
             try {
                 await navigator.share(shareData);
                 sharedSuccessfully = true;
@@ -1208,7 +1231,7 @@ export default function CoffeeTalk() {
             }
         }
 
-        // 2단계: Web Share를 지원하지 않거나 실패한 경우 클립보드 복사 폴백 실행
+        // 3단계: 네이티브 및 웹 공유 모두 실패 시 클립보드 복사 폴백 실행
         if (!sharedSuccessfully) {
             try {
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -1231,7 +1254,7 @@ export default function CoffeeTalk() {
             }
         }
 
-        // 3단계: 공유 창 활성화 이후 백그라운드로 데이터베이스 공유 카운트 업데이트 진행
+        // 4단계: 공유 창 활성화 이후 백그라운드로 데이터베이스 공유 카운트 업데이트 진행
         try {
             const url = `${API_BASE}/api/community/posts/${id}/share`;
             const res = await fetch(url, { method: 'POST' });
