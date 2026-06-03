@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Heart, MessageCircle, Share2, MapPin, MoreVertical, X, Clock, Navigation, CheckCircle, Store, Send, Image as ImageIcon, Flame, TrendingUp, Droplets, Trophy, Lock, Users, Target, UserCheck, Shield, Bookmark, Edit, Trash2, Calendar, Coffee, ListChecks, Link, Globe, Info, Search, ChevronDown, Camera, Star, Map, User, Edit2, Gift, PenSquare, Scale, Thermometer, Timer, Settings, BarChart2, Plus, Minus, Crown, ChevronRight, Check, Smile, ChevronLeft, Play, Music, Pause, Sparkles } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Share as CapacitorShare } from '@capacitor/share';
 import { motion, AnimatePresence } from 'framer-motion';
 import CommentSheet from '../components/community/CommentSheet';
 import CommentImageGallerySheet from '../components/community/CommentImageGallerySheet';
@@ -1140,16 +1141,35 @@ export default function CoffeeTalk() {
 
   const handleShare = async (id: string) => {
       const shareUrl = `${window.location.origin}/community?post=${id}`;
-      const shareData = {
-          title: t('coffee_talk.msg_share_title', 'Beanmind Coffee Talk'),
-          text: t('coffee_talk.msg_share_text', '이 재미있는 커피 이야기를 확인해보세요!'),
-          url: shareUrl
-      };
+      const shareTitle = t('coffee_talk.msg_share_title', 'Beanmind Coffee Talk');
+      const shareText = t('coffee_talk.msg_share_text', '이 재미있는 커피 이야기를 확인해보세요!');
+
+      const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+
+      let sharedSuccessfully = false;
 
       // 1. 브라우저 보안 제스처가 유효한 동안 즉각 공유창 또는 클립보드 복사 실행
-      if (navigator.share) {
+      if (isNative) {
           try {
-              await navigator.share(shareData);
+              await CapacitorShare.share({
+                  title: shareTitle,
+                  text: shareText,
+                  url: shareUrl,
+                  dialogTitle: shareTitle
+              });
+              sharedSuccessfully = true;
+          } catch (e) {
+              console.log("Capacitor Share API cancelled or failed", e);
+              return;
+          }
+      } else if (navigator.share) {
+          try {
+              await navigator.share({
+                  title: shareTitle,
+                  text: shareText,
+                  url: shareUrl
+              });
+              sharedSuccessfully = true;
           } catch (e) {
               console.log("Web Share API cancelled or failed", e);
               return;
@@ -1158,6 +1178,7 @@ export default function CoffeeTalk() {
           try {
               await navigator.clipboard.writeText(shareUrl);
               alert(t('coffee_talk.alert_copy_link', '커뮤니티 링크가 클립보드에 복사되었습니다.'));
+              sharedSuccessfully = true;
           } catch (e) {
               console.error("Clipboard copy failed", e);
               return;
@@ -1165,31 +1186,33 @@ export default function CoffeeTalk() {
       }
 
       // 2. 백그라운드 비동기로 서버에 카운트 업 요청 및 로컬 상태 + 글로벌 피드 캐시 갱신
-      try {
-          const url = `${API_BASE}/api/community/posts/${id}/share`;
-          const res = await fetch(url, { method: 'POST' });
-          if (res.ok) {
-              const data = await res.json();
-              
-              // 로컬 posts 상태 갱신
-              setPosts(prev => prev.map(p => {
-                  if (p.id === id) {
-                      return { ...p, shareCount: data.shareCount };
-                  }
-                  return p;
-              }));
-
-              // 캐시에도 동시 갱신 반영하여 뒤로가기/복원 시 유실 차단
-              const cacheKey = activeFilter + '_' + sortOption;
-              if (globalFeedCache[cacheKey]) {
-                  globalFeedCache[cacheKey].posts = globalFeedCache[cacheKey].posts.map((p: any) => {
-                      if (p.id === id) return { ...p, shareCount: data.shareCount };
+      if (sharedSuccessfully) {
+          try {
+              const url = `${API_BASE}/api/community/posts/${id}/share`;
+              const res = await fetch(url, { method: 'POST' });
+              if (res.ok) {
+                  const data = await res.json();
+                  
+                  // 로컬 posts 상태 갱신
+                  setPosts(prev => prev.map(p => {
+                      if (p.id === id) {
+                          return { ...p, shareCount: data.shareCount };
+                      }
                       return p;
-                  });
+                  }));
+
+                  // 캐시에도 동시 갱신 반영하여 뒤로가기/복원 시 유실 차단
+                  const cacheKey = activeFilter + '_' + sortOption;
+                  if (globalFeedCache[cacheKey]) {
+                      globalFeedCache[cacheKey].posts = globalFeedCache[cacheKey].posts.map((p: any) => {
+                          if (p.id === id) return { ...p, shareCount: data.shareCount };
+                          return p;
+                      });
+                  }
               }
+          } catch (e) {
+              console.error("Failed to share count up API call", e);
           }
-      } catch (e) {
-          console.error("Failed to share count up API call", e);
       }
   };
 
