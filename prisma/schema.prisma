@@ -1,6 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client-stamp"
+  provider   = "prisma-client-js"
+  output     = "../node_modules/.prisma/client-stamp"
+  engineType = "binary"
 }
 
 datasource db {
@@ -77,6 +78,7 @@ model User {
   tastingNotes        TastingNote[]
   following           UserFollow[]         @relation("Following")
   followers           UserFollow[]         @relation("Followers")
+  accessLogs          UserAccessLog[]
 }
 
 model Prescription {
@@ -1027,4 +1029,22 @@ model StampTransaction {
   txnType       String   // EARN, CANCEL_ROLLBACK
   createdAt     DateTime @default(now())
   itemsEarned   String?                     // 항목별 적립 수량 JSON 문자열
+}
+
+model UserAccessLog {
+  id          String   @id @default(uuid())
+  userId      String?  // 비회원 접속일 경우 null 허용
+  email       String?  // 탈퇴/수정 대비 이메일 필드 별도 캐싱 및 인덱스 검색 최적화용
+  ipAddress   String?
+  userAgent   String?  @db.Text
+  deviceOS    String?
+  pagePath    String   // 진입한 페이지 (예: '/community', '/map')
+  actionType  String   // 'LOGIN', 'LOGOUT', 'PAGE_VIEW'
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([email])
 }

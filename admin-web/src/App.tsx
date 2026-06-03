@@ -14,7 +14,8 @@ import AdminPairings from './pages/AdminPairings';
 import AdminHeroBanner from './pages/AdminHeroBanner';
 import AdminFlashDrop from './pages/AdminFlashDrop';
 import AdminCoffeeBeans from './pages/AdminCoffeeBeans';
-import { Settings, Users, Store, Coffee, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut, Layout, Image as ImageIcon, Zap, Coins } from 'lucide-react';
+import AdminAccessLogs from './pages/AdminAccessLogs';
+import { Settings, Users, Store, Coffee, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut, Layout, Image as ImageIcon, Zap, Coins, Activity } from 'lucide-react';
 
 const Sidebar = () => {
   const handleLogout = () => {
@@ -37,6 +38,9 @@ const Sidebar = () => {
         </Link>
         <Link to="/shops" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors">
           <Store className="w-5 h-5 mr-3" /> Shops
+        </Link>
+        <Link to="/access-logs" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors">
+          <Activity className="w-5 h-5 mr-3" /> Access Logs
         </Link>
         <Link to="/moderation" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors">
           <ShieldAlert className="w-5 h-5 mr-3" /> Moderation
@@ -108,6 +112,7 @@ function App() {
                   <Route path="/settings" element={<AdminSettings />} />
                   <Route path="/moderation" element={<AdminModeration />} />
                   <Route path="/beans" element={<AdminCoffeeBeans />} />
+                  <Route path="/access-logs" element={<AdminAccessLogs />} />
                   <Route path="/ads" element={<AdminAds />} />
                   <Route path="/ad-inquiries" element={<AdminAdInquiries />} />
                   <Route path="/home-campaigns" element={<AdminHomeCampaigns />} />

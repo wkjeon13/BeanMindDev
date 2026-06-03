@@ -8,6 +8,7 @@ import { encryptPII } from '../utils/encryption.js';
 import { sendVerificationEmail } from '../utils/mailer';
 import rateLimit from 'express-rate-limit';
 import { ERROR_CODES } from '../utils/errorCodes.js';
+import { logUserAccess } from '../utils/logger.js';
 
 const router = express.Router();
 
@@ -253,6 +254,8 @@ router.post('/login', authLimiter, async (req, res) => {
             { expiresIn: '7d' }
         );
 
+        logUserAccess(req as any, 'LOGIN', '/login', user.id, user.email);
+
         res.status(200).json({
             message: 'Login successful!',
             token,
@@ -358,6 +361,8 @@ router.post('/google', authLimiter, async (req, res) => {
             { expiresIn: '7d' }
         );
 
+        logUserAccess(req as any, 'LOGIN', '/google', user.id, user.email);
+
         res.status(200).json({
             message: 'Google login successful!',
             token: jwtToken,
@@ -413,6 +418,8 @@ router.post('/google/register', authLimiter, async (req, res) => {
             JWT_SECRET,
             { expiresIn: '7d' }
         );
+
+        logUserAccess(req as any, 'LOGIN', '/google/register', user.id, user.email);
 
         res.status(201).json({
             message: 'Google login successful!',
@@ -575,6 +582,8 @@ router.post('/apple', authLimiter, async (req, res) => {
                 { expiresIn: '7d' }
             );
 
+            logUserAccess(req as any, 'LOGIN', '/apple', user.id, user.email);
+
             return res.status(200).json({
                 message: 'Apple login successful!',
                 token: jwtToken,
@@ -640,6 +649,8 @@ router.post('/apple/register', authLimiter, async (req, res) => {
             { expiresIn: '7d' }
         );
 
+        logUserAccess(req as any, 'LOGIN', '/apple/register', user.id, user.email);
+
         res.status(201).json({
             message: 'Apple register successful!',
             token: jwtToken,
@@ -697,6 +708,8 @@ router.post('/verify-email', authLimiter, async (req, res) => {
             JWT_SECRET,
             { expiresIn: '7d' }
         );
+
+        logUserAccess(req as any, 'LOGIN', '/verify-email', user.id, user.email);
 
         res.status(200).json({
             message: 'Email verified successfully! Logged in.',
@@ -989,6 +1002,8 @@ router.get('/naver/callback', async (req, res) => {
                 { expiresIn: '7d' }
             );
 
+            logUserAccess(req as any, 'LOGIN', '/naver/callback', user.id, user.email);
+
             if (isWeb) {
                 return res.send(`
                     <!DOCTYPE html>
@@ -1070,6 +1085,8 @@ router.post('/naver/register', authLimiter, async (req, res) => {
             JWT_SECRET,
             { expiresIn: '7d' }
         );
+
+        logUserAccess(req as any, 'LOGIN', '/naver/register', user.id, user.email);
 
         res.status(201).json({
             message: 'Naver register successful!',

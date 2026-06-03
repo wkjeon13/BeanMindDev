@@ -1980,4 +1980,94 @@ router.post('/payments/:id/cancel', async (req: any, res: any) => {
     }
 });
 
+// GET: Fetch user access logs (with pagination & filters)
+router.get('/access-logs', async (req: any, res: any) => {
+    try {
+        const { email, ipAddress, deviceOS, actionType, page, limit } = req.query;
+        const pageNum = parseInt(page as string) || 1;
+        const limitNum = parseInt(limit as string) || 50;
+        const skip = (pageNum - 1) * limitNum;
+
+        const whereClause: any = {};
+        if (email) {
+            whereClause.email = { contains: email as string };
+        }
+        if (ipAddress) {
+            whereClause.ipAddress = { contains: ipAddress as string };
+        }
+        if (deviceOS) {
+            whereClause.deviceOS = deviceOS as string;
+        }
+        if (actionType) {
+            whereClause.actionType = actionType as string;
+        }
+
+        const [logs, total] = await Promise.all([
+            prisma.userAccessLog.findMany({
+                where: whereClause,
+                orderBy: { createdAt: 'desc' },
+                skip,
+                take: limitNum,
+                include: {
+                    user: {
+                        select: {
+                            nickname: true
+                        }
+                    }
+                }
+            }),
+            prisma.userAccessLog.count({ where: whereClause })
+        ]);
+
+        res.status(200).json({
+            logs,
+            total,
+            page: pageNum,
+            totalPages: Math.ceil(total / limitNum)
+        });
+    } catch (error) {
+        console.error("Fetch access logs error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// GET: Fetch access logs stats (DAU for last 7 days & OS ratios)
+router.get('/access-logs/stats', async (req: any, res: any) => {
+    try {
+        // 일별 유니크 접속자 수 집계 (MySQL 쿼리)
+        const stats: any[] = await prisma.$queryRaw`
+            SELECT DATE_FORMAT(createdAt, '%Y-%m-%d') as date, COUNT(DISTINCT IFNULL(userId, ipAddress)) as activeUsers
+            FROM UserAccessLog
+            WHERE createdAt >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+            GROUP BY DATE_FORMAT(createdAt, '%Y-%m-%d')
+            ORDER BY date ASC
+        `;
+
+        // 기기 OS별 점유율 통계
+        const osStats = await prisma.userAccessLog.groupBy({
+            by: ['deviceOS'],
+            _count: {
+                _all: true
+            }
+        });
+
+        // raw query가 반환하는 BigInt 등을 안전하게 직렬화하기 위해 JSON 형태로 변환 후 반환
+        const formattedStats = stats.map((s: any) => ({
+            date: s.date,
+            activeUsers: Number(s.activeUsers || 0)
+        }));
+
+        res.status(200).json({
+            stats: formattedStats,
+            osStats: osStats.map((o: any) => ({
+                deviceOS: o.deviceOS || 'Unknown',
+                count: o._count._all
+            }))
+        });
+    } catch (error) {
+        console.error("Fetch access stats error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
 export default router;
