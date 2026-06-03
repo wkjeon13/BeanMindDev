@@ -883,30 +883,22 @@ export default function CoffeeTalk() {
         // 딥링크가 아닌 경우 이전 스크롤 복원 대상 확보
         const targetId = window.location.hash ? window.location.hash.substring(1) : targetPostIdToScroll.current;
         if (!targetId) {
-            if (activeFilter === 'shorts') {
-                // 숏폼/ASMR 탭은 TikTok 방식이므로 항상 첫 번째 피드부터 시작하되,
-                // 리액트 DOM 렌더링 이후 이전 탭의 스크롤 위치로 강제 앵커링되거나 스냅 튀는 현상을 막기 위해
-                // restoreScrollTop.current를 0으로 강제 지정하여 렌더 완료 후 확실히 scrollTop=0으로 복원하도록 유도합니다.
-                restoreScrollTop.current = 0;
-                setIsScrollJumping(true);
+            const savedScroll = localStorage.getItem(`coffeeTalkScrollTop_${activeFilter}`);
+            const savedScrollNum = savedScroll ? parseInt(savedScroll, 10) : 0;
+            if (savedScrollNum > 0) {
+                restoreScrollTop.current = savedScrollNum;
+                setIsScrollJumping(true); // 스크롤 복원 전까지 투명 마스킹
             } else {
-                const savedScroll = localStorage.getItem(`coffeeTalkScrollTop_${activeFilter}`);
-                const savedScrollNum = savedScroll ? parseInt(savedScroll, 10) : 0;
-                if (savedScrollNum > 0) {
-                    restoreScrollTop.current = savedScrollNum;
-                    setIsScrollJumping(true); // 스크롤 복원 전까지 투명 마스킹
-                } else {
-                    restoreScrollTop.current = null;
-                    // 스크롤 복원 불필요: 오버레이가 켜진 상태에서 scrollTop=0 강제 설정
-                    // (캐시 히트 시 setPosts([])를 거치지 않아 이전 필터의 scrollTop이 남아있을 수 있음)
-                    const container = document.getElementById('coffee-feed-container');
-                    if (container) {
-                        container.style.scrollBehavior = 'auto';
-                        container.scrollTop = 0;
-                        container.style.scrollBehavior = '';
-                    }
-                    setIsScrollJumping(false);
+                restoreScrollTop.current = null;
+                // 스크롤 복원 불필요: 오버레이가 켜진 상태에서 scrollTop=0 강제 설정
+                // (캐시 히트 시 setPosts([])를 거치지 않아 이전 필터의 scrollTop이 남아있을 수 있음)
+                const container = document.getElementById('coffee-feed-container');
+                if (container) {
+                    container.style.scrollBehavior = 'auto';
+                    container.scrollTop = 0;
+                    container.style.scrollBehavior = '';
                 }
+                setIsScrollJumping(false);
             }
         } else {
             restoreScrollTop.current = null;
@@ -938,6 +930,17 @@ export default function CoffeeTalk() {
     }, [activeFilter, sortOption]);
 
     React.useEffect(() => {
+        try {
+            const isFirstVisitOfSession = !sessionStorage.getItem('coffeeTalkSessionVisited');
+            if (isFirstVisitOfSession) {
+                // 세션 최초 방문 시 전체 탭 스크롤 캐시 소거 (최상단부터 시작하게 유도)
+                ['all', 'shorts', 'following_story', 'pilgrimage_talk', 'near_live', 'home_cafe'].forEach(filter => {
+                    localStorage.removeItem(`coffeeTalkScrollTop_${filter}`);
+                });
+                sessionStorage.setItem('coffeeTalkSessionVisited', 'true');
+            }
+        } catch (e) {}
+
         fetchRewardTiers();
         fetchAds();
         fetchUnreadAnnouncementsCount();
