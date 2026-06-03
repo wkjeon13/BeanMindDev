@@ -1742,6 +1742,11 @@ export default function CoffeeTalk() {
         if (post.isPinned && !searchQuery.trim() && (activeFilter === 'all' || activeFilter === 'following_story')) return true;
 
         // 2. Tab Filters
+        // shorts 탭: isShorts 포스트만 표시 (필터 전환 타이밍에 이전 피드가 렌더링되는 현상 원천 차단)
+        if (activeFilter === 'shorts') {
+            return post.isShorts === true;
+        }
+
         if (activeFilter === 'all') {
             return post.postType !== 'ANNOUNCEMENT' && post.postType !== 'EVENT';
         }
