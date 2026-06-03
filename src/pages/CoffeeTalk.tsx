@@ -882,11 +882,14 @@ export default function CoffeeTalk() {
         const targetId = window.location.hash ? window.location.hash.substring(1) : targetPostIdToScroll.current;
         if (!targetId) {
             const savedScroll = localStorage.getItem(`coffeeTalkScrollTop_${activeFilter}`);
-            if (savedScroll) {
-                restoreScrollTop.current = parseInt(savedScroll, 10);
+            const savedScrollNum = savedScroll ? parseInt(savedScroll, 10) : 0;
+            if (savedScrollNum > 0) {
+                restoreScrollTop.current = savedScrollNum;
                 setIsScrollJumping(true); // 스크롤 복원 전까지 투명 마스킹
             } else {
                 restoreScrollTop.current = null;
+                // 저장된 스크롤 위치가 없으면 오버레이 해제 (딥링크도 아닌 경우)
+                setIsScrollJumping(false);
             }
         } else {
             restoreScrollTop.current = null;
@@ -947,6 +950,11 @@ export default function CoffeeTalk() {
             window.removeEventListener('scrollToTop', handleScrollToTop);
             if (container) {
                 container.removeEventListener('scroll', handleScroll);
+                // 언마운트 시 최종 스크롤 위치 저장
+                // (딥링크 등으로 이동 후 사용자가 직접 스크롤하지 않아도 위치가 보존됨)
+                try {
+                    localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, lastScrollTopRef.current.toString());
+                } catch (e) {}
             }
         };
     }, []);
@@ -1000,14 +1008,19 @@ export default function CoffeeTalk() {
             };
 
             if (!performScroll()) {
-                // 미세 렌더링 프레임 지연 대비 10ms 인터벌 폴링 재시도 (최대 10회)
+                // 렌더링 프레임 지연 대비 RAF 폴링 재시도
+                // 주의: 포스트 로딩 중(isLoading=true)에는 DOM에 post-${id}가 없으므로
+                // 실패 시 오버레이를 미리 제거하면 안 됨 → useEffect([posts]) 재실행 시 처리
                 let attempts = 0;
                 const interval = setInterval(() => {
-                    if (performScroll() || attempts > 10) {
-                        clearInterval(interval);
-                        setIsScrollJumping(false); // 스크롤 시도 종료/실패 시에도 강제 잠금 해제하여 먹통 예방
-                    }
                     attempts++;
+                    if (performScroll()) {
+                        clearInterval(interval);
+                    } else if (attempts > 30) {
+                        // 300ms 경과해도 요소를 못 찾으면 포스트 아직 로딩 중
+                        // 오버레이는 유지하고 인터벌만 종료 → useEffect([posts]) 재실행 시 재시도
+                        clearInterval(interval);
+                    }
                 }, 10);
             }
         }
@@ -1073,6 +1086,10 @@ export default function CoffeeTalk() {
                 requestAnimationFrame(retry);
             }
         }
+        // case 3 제거: 백그라운드 싱크로 posts가 바뀔 때마다 이 effect가 재실행되므로
+        // "posts.length > 0이면 무조건 오버레이 해제" 안전장치는 img.decode() 진행 중에
+        // 오버레이를 강제 제거하여 오히려 튀는 현상을 유발함.
+        // 각 경로(딥링크/복원/아무것도 없음)에서 isScrollJumping을 직접 관리함.
     }, [posts, window.location.hash]);
 
     const handleLike = async (id: string, currentLikes: number) => {
