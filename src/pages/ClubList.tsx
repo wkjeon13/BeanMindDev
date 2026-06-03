@@ -336,8 +336,9 @@ export default function ClubList() {
                         <Users size={12} /> {club.memberCount || 0}{t('club_list.unit_person')}
                     </span>
                     {club.locationName && (
-                        <span className="px-2 py-0.5 bg-espresso-900 rounded-full text-espresso-300 border shrink-0 whitespace-nowrap border-espresso-800 flex items-center gap-1">
-                             <MapPin size={10} /> {club.locationName}
+                        <span className="px-2 py-0.5 bg-espresso-900 rounded-full text-espresso-300 border border-espresso-800 flex items-center gap-1 max-w-[120px] min-w-0">
+                             <MapPin size={10} className="shrink-0" />
+                             <span className="truncate">{club.locationName}</span>
                         </span>
                     )}
                     {club.owner?.nickname && (
