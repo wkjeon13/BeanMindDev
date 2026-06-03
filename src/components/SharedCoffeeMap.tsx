@@ -20,7 +20,7 @@ const StopPropagationWrapper = ({ children, onClick, className, onIntercept, sty
     useEffect(() => {
         const el = ref.current;
         if (!el) return;
-        
+
         // Use Google Maps native method to prevent map clicks/gestures from propagating through this element
         if (window.google && window.google.maps && window.google.maps.OverlayView) {
             try {
@@ -64,7 +64,7 @@ export interface MapShop {
     name: string;
     lat: number;
     lng: number;
-    
+
     shortDesc?: string | null;
     signatureBean?: string | null;
     address?: string | null;
@@ -78,7 +78,7 @@ export interface MapShop {
     matchRate?: number;
     averageRating?: number;
     reviewCount?: number;
-    
+
     uri?: string;
     distance?: number;
     isGeneric?: boolean;
@@ -92,14 +92,14 @@ interface SharedCoffeeMapProps {
     setMapCenter?: (center: [number, number]) => void;
     setMapBounds?: (bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => void;
     boundsToFit?: { minLat: number; maxLat: number; minLng: number; maxLng: number, ts: number } | null;
-    
+
     searchedShopId?: string | null;
     focusedShopId?: string | null;
     onShopClick?: (shop: MapShop) => void;
     onPopupClick?: (shop: MapShop) => void;
     onBookmarkToggle?: (shopId: string) => void;
     bookmarkedIds?: Set<string>;
-    
+
     onLocateMe?: () => void;
     isLocating?: boolean;
     isCourseMode?: boolean;
@@ -136,7 +136,7 @@ const defaultGetPixelPositionOffset = (w: number, h: number, isDbShop: boolean, 
     return { x: -(w / 2), y: -h };
 };
 
-const MemoizedMapMarker = React.memo(({ 
+const MemoizedMapMarker = React.memo(({
     shop, lat, lng, isDbShop, isFocused, isSearched, isHighlighted, isPremium, isTargetRegion, zIndexOffset, courseIdx, ignoreMapClickRef, onShopClick, onPopupClick, bookmarkedIds, onBookmarkToggle, getFullImageUrl, t, hideFocusedPopup
 }: any) => {
     const focusTimeRef = useRef<number>(0);
@@ -163,7 +163,7 @@ const MemoizedMapMarker = React.memo(({
             getPixelPositionOffset={getOffset}
             zIndex={zIndexOffset}
         >
-            <StopPropagationWrapper 
+            <StopPropagationWrapper
                 className="relative cursor-pointer group"
                 style={{ pointerEvents: 'auto' }}
                 onIntercept={() => {
@@ -181,17 +181,17 @@ const MemoizedMapMarker = React.memo(({
                     (() => {
                         const isUnclaimed = !shop.mainImageUrl && !shop.markerImageUrl && (!shop.media || shop.media.length === 0);
                         const isCuratorHighlight = !!shop.isCuratorShop;
-                        
+
                         if (isUnclaimed) {
                             const size = isFocused ? 54 : 39;
-                            const markerBg = isHighlighted 
-                                ? 'bg-red-500' 
-                                : (isCuratorHighlight 
-                                    ? 'bg-amber-500 text-espresso-950 font-bold' 
+                            const markerBg = isHighlighted
+                                ? 'bg-red-500'
+                                : (isCuratorHighlight
+                                    ? 'bg-amber-500 text-espresso-950 font-bold'
                                     : 'bg-gray-500'
-                                  );
+                                );
                             const markerBorder = isCuratorHighlight ? 'border-amber-300' : 'border-white';
-                            
+
                             return (
                                 <div className={`transition-all duration-300 flex items-center justify-center rounded-full border-[2.5px] ${markerBorder} text-white ${markerBg} ${isFocused || isCuratorHighlight ? 'shadow-[0_0_15px_rgba(251,191,36,0.6)]' : 'shadow-md'}`} style={{ width: size, height: size }}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width={isFocused ? 27 : 21} height={isFocused ? 27 : 21} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"></path><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path><line x1="6" x2="6" y1="2" y2="4"></line><line x1="10" x2="10" y1="2" y2="4"></line><line x1="14" x2="14" y1="2" y2="4"></line></svg>
@@ -208,16 +208,16 @@ const MemoizedMapMarker = React.memo(({
                             );
                         } else {
                             const size = isFocused ? 64 : 48;
-                            const borderColor = isFocused 
-                                ? 'border-amber-500' 
-                                : (isCuratorHighlight 
-                                    ? 'border-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.6)]' 
+                            const borderColor = isFocused
+                                ? 'border-amber-500'
+                                : (isCuratorHighlight
+                                    ? 'border-amber-500 shadow-[0_0_15px_rgba(251,191,36,0.6)]'
                                     : (isSearched ? 'border-red-500' : (isPremium ? 'border-amber-500' : 'border-white'))
-                                  );
-                            
+                                );
+
                             let mainImageSrc = shop.markerImageUrl || shop.mainImageUrl;
                             if (typeof mainImageSrc === 'string' && mainImageSrc.startsWith('[')) {
-                                try { mainImageSrc = JSON.parse(mainImageSrc)[0]; } catch(e){}
+                                try { mainImageSrc = JSON.parse(mainImageSrc)[0]; } catch (e) { }
                             }
                             if (!mainImageSrc) mainImageSrc = 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800';
                             const isVideo = typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'));
@@ -252,7 +252,7 @@ const MemoizedMapMarker = React.memo(({
                             <div className="absolute w-full h-full rounded-full bg-red-500/50 animate-ping"></div>
                             <div className="w-[16px] h-[16px] bg-red-500 border-[3px] border-white rounded-full shadow-md z-10"></div>
                             <div className="absolute -top-[25px] left-1/2 -translate-x-1/2 bg-red-500 text-white px-2 py-0.5 rounded-xl text-[11px] font-bold whitespace-nowrap shadow-sm z-20">
-                                {t('shared_map.lbl_search_center', '검색 중심')}
+                                {t('shared_map.lbl_search_center', '검??중심')}
                             </div>
                         </div>
                     ) : (() => {
@@ -275,7 +275,7 @@ const MemoizedMapMarker = React.memo(({
                                     </div>
                                 )}
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width={sizeWidth} height={sizeHeight} fill={markerColor}>
-                                    <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
+                                    <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z" />
                                 </svg>
                                 {isCuratorShop && (
                                     <div className="absolute top-[8px] text-[10px] text-white font-black pointer-events-none">
@@ -289,22 +289,22 @@ const MemoizedMapMarker = React.memo(({
 
                 {/* Focused Shop Popup Overlay (similar to Leaflet Popup) */}
                 {!shop.isGeneric && !hideFocusedPopup && (
-                    <StopPropagationWrapper 
+                    <StopPropagationWrapper
                         className={`absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 bg-white flex p-3 gap-3 items-center hover:bg-zinc-50 transition-all duration-200 w-auto min-w-[260px] max-w-[60vw] rounded-xl shadow-lg border border-zinc-200/60 font-sans z-50 cursor-pointer origin-bottom ${isFocused ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
                         onIntercept={() => {
                             ignoreMapClickRef.current = true;
                             setTimeout(() => { ignoreMapClickRef.current = false; }, 500);
                         }}
-                        onClick={(e) => { 
-                            e.stopPropagation(); 
-                            e.nativeEvent?.stopImmediatePropagation?.(); 
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            e.nativeEvent?.stopImmediatePropagation?.();
                             // Ignore synthetic clicks that happen immediately after the popup is shown
                             if (focusTimeRef.current && Date.now() - focusTimeRef.current < 500) return;
-                            (onPopupClick || onShopClick)?.(shop); 
+                            (onPopupClick || onShopClick)?.(shop);
                         }}
                     >
-                        <button 
-                            onClick={(e) => { e.stopPropagation(); onBookmarkToggle?.(shop.id); }} 
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onBookmarkToggle?.(shop.id); }}
                             className="absolute top-2.5 right-2.5 p-1 transition-transform active:scale-90 z-10"
                         >
                             <Heart size={18} fill={bookmarkedIds.has(shop.id) ? "currentColor" : "none"} className={bookmarkedIds.has(shop.id) ? 'text-rose-500' : 'text-zinc-400'} strokeWidth={bookmarkedIds.has(shop.id) ? 0 : 2} />
@@ -313,7 +313,7 @@ const MemoizedMapMarker = React.memo(({
                             {(() => {
                                 let mainImageSrc = shop.markerImageUrl || shop.mainImageUrl;
                                 if (typeof mainImageSrc === 'string' && mainImageSrc.startsWith('[')) {
-                                    try { mainImageSrc = JSON.parse(mainImageSrc)[0]; } catch(e){}
+                                    try { mainImageSrc = JSON.parse(mainImageSrc)[0]; } catch (e) { }
                                 }
                                 if (!mainImageSrc) mainImageSrc = 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800';
                                 const isVideo = typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'));
@@ -328,23 +328,21 @@ const MemoizedMapMarker = React.memo(({
                             <h3 className="font-extrabold text-[15px] font-sans text-zinc-900 leading-tight truncate w-full mb-0.5">{shop.name}</h3>
                             <div className="flex items-center gap-1 mt-1 text-[12px] text-zinc-600 w-full min-w-0 font-sans">
                                 <span className="truncate block max-w-[120px]">
-                                    {typeof shop.shortDesc === 'string' && shop.shortDesc.includes('AI가 발굴한')
-                                        ? t('shared_map.ai_discovered_shop', 'AI가 발굴한 카페/명소')
-                                        : (shop.shortDesc || shop.signatureBean || t('map.fallback_specialty', 'Specialty Coffee'))}
+                                    {shop.shortDesc || shop.signatureBean || "Specialty Coffee"}
                                 </span>
                                 <span className="shrink-0 text-zinc-300">|</span>
                                 <span className="shrink-0 text-zinc-600">
                                     {(shop.reviewCount ?? 0) > 0 ? (
-                                        <span className="font-semibold text-amber-500">{shop.averageRating?.toFixed(1) || '0.0'} <span className="text-zinc-400 font-normal">({(shop.reviewCount ?? 0) >= 1000 ? ((shop.reviewCount ?? 0)/1000).toFixed(1)+'k' : shop.reviewCount})</span></span>
+                                        <span className="font-semibold text-amber-500">{shop.averageRating?.toFixed(1) || '0.0'} <span className="text-zinc-400 font-normal">({(shop.reviewCount ?? 0) >= 1000 ? ((shop.reviewCount ?? 0) / 1000).toFixed(1) + 'k' : shop.reviewCount})</span></span>
                                     ) : (
-                                        <span className="text-zinc-500 text-[11px]">{t('shared_map.lbl_no_review', '리뷰 없음')}</span>
+                                        <span className="text-zinc-500 text-[11px]">{t('shared_map.lbl_no_review', '리뷰 ?음')}</span>
                                     )}
                                 </span>
                             </div>
                         </div>
                     </StopPropagationWrapper>
                 )}
-                
+
                 {/* Generic AI popup (Prescription mode) */}
                 {shop.isGeneric && (
                     <div className={`absolute bottom-[calc(100%+10px)] left-1/2 -translate-x-1/2 bg-white rounded-xl shadow-md p-2 px-3 text-center z-50 whitespace-nowrap transition-all duration-200 origin-bottom ${isFocused ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
@@ -399,7 +397,7 @@ export default function SharedCoffeeMap({
 }: SharedCoffeeMapProps) {
     const { t } = useTranslation();
     const navigate = useNavigate();
-    
+
     const { isLoaded, loadError } = useJsApiLoader({
         id: 'google-map-script',
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
@@ -441,16 +439,16 @@ export default function SharedCoffeeMap({
     // Starts the 900ms timer when map receives a mousedown/touchstart, securing precise LatLng
     const handleMapMouseDown = useCallback((e: google.maps.MapMouseEvent) => {
         if (ignoreMapClickRef.current) return;
-        
+
         if (pressTimer.current) {
             clearTimeout(pressTimer.current);
         }
         longPressTriggered.current = false;
-        
+
         if (e.latLng) {
             savedLatLng.current = { lat: e.latLng.lat(), lng: e.latLng.lng() };
         }
-        
+
         pressTimer.current = setTimeout(() => {
             longPressTriggered.current = true;
             pressTimer.current = null;
@@ -461,11 +459,11 @@ export default function SharedCoffeeMap({
     const onLoad = useCallback((map: google.maps.Map) => {
         mapRef.current = map;
         setMapInst(map);
-        
+
         if (mapCenter && !isNaN(mapCenter[0]) && !isNaN(mapCenter[1])) {
             map.setCenter({ lat: mapCenter[0], lng: mapCenter[1] });
         }
-        
+
         const mapDiv = map.getDiv();
         if (!mapDiv) return;
 
@@ -501,7 +499,7 @@ export default function SharedCoffeeMap({
                 const dx = touch.screenX - touchStartRef.current.x;
                 const dy = touch.screenY - touchStartRef.current.y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                
+
                 // If finger moves more than 10 pixels, treat it as a drag/scroll and cancel long press
                 if (distance > 10) {
                     handleMapMouseUpOrDrag();
@@ -539,7 +537,7 @@ export default function SharedCoffeeMap({
             apiListeners.forEach(l => google.maps.event.removeListener(l));
             mapDiv.removeEventListener('touchstart', handleDOMTouchStart, { capture: true });
             mapDiv.removeEventListener('contextmenu', handleContextMenu, { capture: true });
-            
+
             window.removeEventListener('touchmove', handleWindowTouchMove, { capture: true });
             window.removeEventListener('touchend', handleWindowMouseUpOrEnd, { capture: true });
             window.removeEventListener('touchcancel', handleWindowMouseUpOrEnd, { capture: true });
@@ -553,7 +551,7 @@ export default function SharedCoffeeMap({
             if (mapDiv && (mapDiv as any)._cleanupTouchListeners) {
                 try {
                     (mapDiv as any)._cleanupTouchListeners();
-                } catch(e) {}
+                } catch (e) { }
             }
         }
         mapRef.current = null;
@@ -563,15 +561,15 @@ export default function SharedCoffeeMap({
     // Handle Drag / Move
     const handleIdle = useCallback(() => {
         if (!mapRef.current || mode !== 'explore') return;
-        
+
         const newCenter = mapRef.current.getCenter();
         const bounds = mapRef.current.getBounds();
-        
+
         if (newCenter && setMapCenter) {
             setMapCenter([newCenter.lat(), newCenter.lng()]);
             prevCenterStr.current = `${newCenter.lat()},${newCenter.lng()}`;
         }
-        
+
         if (bounds && setMapBounds) {
             const ne = bounds.getNorthEast();
             const sw = bounds.getSouthWest();
@@ -593,7 +591,7 @@ export default function SharedCoffeeMap({
         if (boundsToFit && boundsToFit.ts !== prevBoundsTs.current) {
             prevBoundsTs.current = boundsToFit.ts;
             prevCenterStr.current = currentCenterStr;
-            
+
             if (!isNaN(boundsToFit.minLat)) {
                 map.fitBounds({
                     north: boundsToFit.maxLat,
@@ -656,7 +654,7 @@ export default function SharedCoffeeMap({
                     >    <div className="relative group cursor-pointer flex items-center justify-center">
                             <div className="w-[20px] h-[20px] bg-blue-500 border-[3px] border-white rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)]"></div>
                             <div className="opacity-0 group-hover:opacity-100 absolute top-full mt-1 bg-white p-2 rounded-xl shadow-sm text-center font-bold text-[13px] text-espresso-900 pointer-events-none transition-opacity whitespace-nowrap z-50">
-                                {t('shared_map.lbl_my_location', '현재 내 위치')}
+                                {t('shared_map.lbl_my_location', '?재 ???치')}
                             </div>
                         </div>
                     </OverlayViewF>
@@ -666,7 +664,7 @@ export default function SharedCoffeeMap({
                 {shops.map((shop, idx) => {
                     let lat = typeof shop.lat === 'number' ? shop.lat : parseFloat(shop.lat as any);
                     let lng = typeof shop.lng === 'number' ? shop.lng : parseFloat(shop.lng as any);
-                    
+
                     if (isNaN(lat) || isNaN(lng)) {
                         if (userLocation && Array.isArray(userLocation)) {
                             const hash = shop.id ? shop.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) : idx;
@@ -681,7 +679,7 @@ export default function SharedCoffeeMap({
                     const overlaps = shops.filter(s => Math.abs(s.lat - lat) < 0.00001 && Math.abs(s.lng - lng) < 0.00001);
                     if (overlaps.length > 1) {
                         const groupIdx = overlaps.findIndex(s => s.id === shop.id);
-                        const radius = 0.0015; 
+                        const radius = 0.0015;
                         const angle = (Math.PI * 2 * groupIdx) / overlaps.length;
                         lat += radius * Math.cos(angle);
                         lng += radius * Math.sin(angle);
@@ -699,7 +697,7 @@ export default function SharedCoffeeMap({
                     else if (isSearched) zIndexOffset = 1500;
                     else if (isPremium) zIndexOffset = 1200;
                     else if (isDbShop) zIndexOffset = 1000;
-                    
+
                     // Course Badge
                     const courseIdx = isCourseMode && courseShops ? courseShops.findIndex(s => s.id === shop.id) : -1;
 
@@ -749,7 +747,7 @@ export default function SharedCoffeeMap({
                 <button
                     onClick={(e) => { e.preventDefault(); onLocateMe(); }}
                     disabled={isLocating}
-                    title={t('shared_map.title_find_me', '현재 위치 찾기')}
+                    title={t('shared_map.title_find_me', '???치 찾기')}
                     className="absolute right-4 z-[400] w-12 h-12 bg-espresso-900 rounded-full shadow-lg flex items-center justify-center text-blue-500 border border-blue-100 hover:bg-blue-50 transition-all duration-300 disabled:opacity-50"
                     style={{ bottom: bottomPadding || '1.5rem' }}
                 >
@@ -759,7 +757,7 @@ export default function SharedCoffeeMap({
 
             {mode === 'explore' && shops.length === 0 && (
                 <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[400] bg-espresso-900/90 backdrop-blur-sm px-6 py-3 rounded-full shadow-lg border border-espresso-700 text-center pointer-events-none">
-                    <p className="font-bold text-[13px] text-espresso-100">{t('shared_map.msg_no_shops', '이 지역에는 등록된 매장이 없습니다.')}</p>
+                    <p className="font-bold text-[13px] text-espresso-100">{t('shared_map.msg_no_shops', '??지?????록??매장???습?다.')}</p>
                 </div>
             )}
 

@@ -143,8 +143,7 @@
         "lbl_selected_pin": "선택 위치",
         "desc_map_instruction": "지도를 터치하여 핀을 꽂아보세요.",
         "ph_search": "소모임 이름, 지역, 소개 검색...",
-        "btn_cancel": "취소",
-        "start_date": "시작일"
+        "btn_cancel": "취소"
     },
     "app": {
         "nav_home": "큐레이터",
@@ -597,11 +596,7 @@
         "fallback_temp_addr": "임시 주소 (추후 업데이트 예정)",
         "fallback_tbd_hours": "추후 제공 (AI 발굴 자동 핀)",
         "fallback_tbd": "추후 제공",
-        "fallback_origin_story": "빈마인드 AI 시스템이 사용자들의 커피 성향 탐색 과정에서 웹 서치를 통해 발굴해낸 스페셜티 매장입니다. 아직 점주가 직접 등록하지 않은 자동 생성 핀이며, 모달의 [Website] 버튼을 누르시면 실제 구글 지도 생생한 리뷰로 연결됩니다.",
-        "btn_earn": "🎫 적립",
-        "lat_lng_format": "위도 {{lat}}, 경도 {{lng}}",
-        "fallback_equipment": "기본 시설",
-        "fallback_origin_story_brief": "AI 자동 탐색을 통해 찾아낸 매장입니다. 향후 상세 정보가 업데이트될 예정입니다."
+        "fallback_origin_story": "빈마인드 AI 시스템이 사용자들의 커피 성향 탐색 과정에서 웹 서치를 통해 발굴해낸 스페셜티 매장입니다. 아직 점주가 직접 등록하지 않은 자동 생성 핀이며, 모달의 [Website] 버튼을 누르시면 실제 구글 지도 생생한 리뷰로 연결됩니다."
     },
     "tasting_note": {
         "err_empty_input": "커피 이름과 감상 평을 입력해주세요.",
@@ -1380,24 +1375,6 @@
         "ph_host_search": "가입된 호스트 닉네임 또는 이메일 검색 (2자 이상)..."
     },
     "coffee_talk": {
-        "bgm_pairing_btn": "BGM 페어링",
-        "bgm_pairing_title": "🎵 AI 감성 사운드 페어링 (배경음악 지정)",
-        "bgm_direct_input": "✍️ 직접 입력",
-        "bgm_ai_auto_match": "🪄 AI 자동 매칭",
-        "bgm_ph_custom_title": "가수명 - 곡명 (예: 아이유 - 밤편지)",
-        "bgm_alert_empty_content": "🪄 [BeanMind AI 사운드 매칭]\n\n피드 내용을 먼저 조금이라도 작성해 주시면, AI가 본문 감성을 분석하여 가장 잘 어울리는 BGM을 자동으로 매칭해 드립니다!",
-        "bgm_alert_match_complete": "🪄 [BeanMind AI BGM 자동 매칭 완료]\n\n회원님이 작성하신 피드 속 감성 어휘(예: \"{{word}}\")를 정밀 분석하여,\n가장 아름답게 어울리는 배경음악 테마 「{{label}}」을 찾아 자동으로 페어링해 드렸습니다!",
-        "bgm_genre_classical": "🎻 Classical (클래식)",
-        "bgm_genre_jazz": "🎷 Jazz (재즈)",
-        "bgm_genre_kpop": "🎤 K-pop (가요)",
-        "bgm_genre_pop": "🎵 Pop (팝송)",
-        "bgm_genre_rock": "🎸 Rock (감성 락)",
-        "bgm_genre_hiphop": "🎧 Hip Hop (힙합/로파이)",
-        "bgm_genre_rnb": "🎹 R&B (알앤비)",
-        "bgm_genre_edm": "⚡ EDM (칠아웃)",
-        "bgm_genre_country": "🤠 Country (컨트리)",
-        "bgm_genre_reggae": "🌴 Reggae (레게)",
-        "bgm_match_fallback": "커피 한 잔의 여유",
         "msg_share_title": "Beanmind Coffee Talk",
         "msg_share_text": "이 재미있는 커피 이야기를 확인해보세요!",
         "alert_copy_link": "커뮤니티 링크가 클립보드에 복사되었습니다.",

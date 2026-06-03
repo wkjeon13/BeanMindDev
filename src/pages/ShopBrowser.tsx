@@ -17,7 +17,7 @@ const getFullImageUrl = (url: string | null | undefined) => {
     return url;
 };
 const getInitialCache = () => {
-    try { return JSON.parse(sessionStorage.getItem('bm_ai_cache_dict_v2') || '{}'); } 
+    try { return JSON.parse(sessionStorage.getItem('bm_ai_cache_dict_v2') || '{}'); }
     catch { return {}; }
 };
 const aiShopCache: Record<string, any[]> = getInitialCache();
@@ -26,12 +26,12 @@ function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon
     const R = 6371; // Radius of the earth in km
     const dLat = (lat2 - lat1) * (Math.PI / 180);
     const dLon = (lon2 - lon1) * (Math.PI / 180);
-    const a = 
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
-      Math.sin(dLon / 2) * Math.sin(dLon / 2)
-      ; 
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2)
+        ;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c; // Distance in km
 }
 
@@ -87,7 +87,7 @@ export default function ShopBrowser() {
             return saved ? JSON.parse(saved) : [];
         } catch { return []; }
     });
-    
+
     const [aiShops, setAiShops] = useState<any[]>(() => {
         try {
             const saved = sessionStorage.getItem('bm_ai_shops');
@@ -95,17 +95,17 @@ export default function ShopBrowser() {
         } catch { return []; }
     });
     const [isAiLoading, setIsAiLoading] = useState(false);
-    
+
     // AI Auto Extract Toggle
     const [isAiAutoExtractEnabled, setIsAiAutoExtractEnabled] = useState(false);
     const isAiAutoExtractRef = React.useRef(false);
     useEffect(() => {
         isAiAutoExtractRef.current = isAiAutoExtractEnabled;
     }, [isAiAutoExtractEnabled]);
-    
+
     // Map Ads State
     const [mapAds, setMapAds] = useState<any[]>([]);
-    
+
     const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem('bm_search_query') || '');
     const [isSearching, setIsSearching] = useState(false);
     const [searchedDbShops, setSearchedDbShops] = useState<any[]>([]);
@@ -115,7 +115,7 @@ export default function ShopBrowser() {
         return !!urlParams.get('courseId');
     });
     const [activeCourseConfig, setActiveCourseConfig] = useState<any>(null);
-    
+
     // Fetch Map Ads
     useEffect(() => {
         const fetchAds = async () => {
@@ -130,7 +130,7 @@ export default function ShopBrowser() {
                         setMapAds([data.ad]);
                     }
                 }
-            } catch(e) {}
+            } catch (e) { }
         };
         fetchAds();
     }, [i18n.language]);
@@ -141,11 +141,11 @@ export default function ShopBrowser() {
         const urlCourseId = urlParams.get('courseId');
         const urlShopId = urlParams.get('shopId');
         const isPassport = urlParams.get('passport') === 'true';
-        
+
         if (isPassport) {
             setIsCourseMode(true);
             setIsLoading(true);
-            
+
             const fetchPassportShops = async () => {
                 try {
                     const headers: any = {};
@@ -156,10 +156,10 @@ export default function ShopBrowser() {
                     if (res.ok) {
                         const data = await res.json();
                         const checkinShops = data.map((checkin: any) => checkin.store).filter(Boolean);
-                        
+
                         setActiveCourseConfig({ name: '성지순례 여권 (My Passport)', description: '내가 방문 인증을 완료한 성지들입니다.' });
                         setShops(checkinShops);
-                        
+
                         if (checkinShops.length > 0) {
                             if (urlShopId) {
                                 const targetShop = checkinShops.find((s: any) => s.id === urlShopId);
@@ -179,10 +179,10 @@ export default function ShopBrowser() {
                                         if (s.lng > maxLng) maxLng = s.lng;
                                     }
                                 });
-                                
+
                                 setMapCenter([checkinShops[0].lat, checkinShops[0].lng]);
                                 sortAnchor.current = [checkinShops[0].lat, checkinShops[0].lng];
-                                
+
                                 if (minLat !== 90 && checkinShops.length > 1) {
                                     setMapBoundsToFit({ minLat: minLat - 0.005, maxLat: maxLat + 0.005, minLng: minLng - 0.005, maxLng: maxLng + 0.005, ts: Date.now() });
                                 }
@@ -198,12 +198,12 @@ export default function ShopBrowser() {
                     setIsLoading(false);
                 }
             };
-            
+
             fetchPassportShops();
         } else if (urlCourseId) {
             setIsCourseMode(true);
             setIsLoading(true);
-            
+
             const fetchCourseDetails = async () => {
                 try {
                     const headers: any = {};
@@ -214,10 +214,10 @@ export default function ShopBrowser() {
                     if (res.ok) {
                         const courseData = await res.json();
                         setActiveCourseConfig(courseData);
-                        
+
                         const courseShops = courseData.items?.map((item: any) => item.store).filter(Boolean) || [];
                         setShops(courseShops);
-                        
+
                         if (courseShops.length > 0) {
                             if (urlShopId) {
                                 const targetShop = courseShops.find((s: any) => s.id === urlShopId);
@@ -237,10 +237,10 @@ export default function ShopBrowser() {
                                         if (s.lng > maxLng) maxLng = s.lng;
                                     }
                                 });
-                                
+
                                 setMapCenter([courseShops[0].lat, courseShops[0].lng]);
                                 sortAnchor.current = [courseShops[0].lat, courseShops[0].lng];
-                                
+
                                 if (minLat !== 90 && courseShops.length > 1) {
                                     setMapBoundsToFit({ minLat: minLat - 0.005, maxLat: maxLat + 0.005, minLng: minLng - 0.005, maxLng: maxLng + 0.005, ts: Date.now() });
                                 }
@@ -256,23 +256,23 @@ export default function ShopBrowser() {
                     setIsLoading(false);
                 }
             };
-            
+
             fetchCourseDetails();
         } else {
             setIsCourseMode(false);
             setActiveCourseConfig(null);
         }
     }, [location.search]);
-    
+
     const activeCoffeeTalkTargetRef = React.useRef<string | null>(null);
-    
+
     // Stable sort anchor to prevent carousel jumping when the 사용자 interacts with the map natively
     const sortAnchor = React.useRef<[number, number] | null>(null);
     if (!sortAnchor.current && mapCenter) sortAnchor.current = mapCenter;
 
     const [searchedShopId, setSearchedShopId] = useState<string | null>(() => sessionStorage.getItem('bm_searched_id') || null);
     const [isComposing, setIsComposing] = useState(false);
-    
+
     // Filter states
     const sourceFilter = 'ALL';
     const isSourceFilterOpen = false;
@@ -310,7 +310,7 @@ export default function ShopBrowser() {
     const handleSheetPointerUp = (e: React.PointerEvent) => {
         if (sheetDragStartY.current === null) return;
         sheetDragStartY.current = null;
-        try { (e.target as HTMLElement).releasePointerCapture(e.pointerId); } catch(ex) {}
+        try { (e.target as HTMLElement).releasePointerCapture(e.pointerId); } catch (ex) { }
         // Snap physics
         if (sheetHeight < 30) {
             setSheetHeight(15);
@@ -330,14 +330,14 @@ export default function ShopBrowser() {
     const handleFeedScroll = (e: React.UIEvent<HTMLDivElement>) => {
         // 상단 가로 슬라이더 검색 결과 오버레이가 활성화되어 있는 동안에는 세로 피드 스크롤 간섭 완전 차단
         if (showFloatingList) return;
-        
+
         // Prevent layout shifts (virtual keyboard dismiss, DOM mount) from hijacking the map bounds
         if (Date.now() - userInteractionRef.current > 1000) return;
 
         const container = e.currentTarget;
         const containerRect = container.getBoundingClientRect();
         const containerCenterY = containerRect.top + containerRect.height / 2;
-        
+
         let closestId: string | null = null;
         let minDistance = Infinity;
 
@@ -346,13 +346,13 @@ export default function ShopBrowser() {
 
         cards.forEach((card, index) => {
             if (index === 0) firstCardId = card.id.replace('feed-card-', '');
-            
+
             const rect = card.getBoundingClientRect();
             if (rect.bottom < containerRect.top || rect.top > containerRect.bottom) return;
 
             const cardCenterY = rect.top + rect.height / 2;
             const distance = Math.abs(containerCenterY - cardCenterY);
-            
+
             if (distance < minDistance) {
                 minDistance = distance;
                 closestId = card.id.replace('feed-card-', '');
@@ -384,7 +384,7 @@ export default function ShopBrowser() {
 
         // If we already panned to this exact shop, do not pan again just because 'shops' array updated (e.g. from user dragging the map)
         if (focusedShopId && focusedShopId === lastPannedShopId.current && !showFloatingListChanged) return;
-        
+
         if (!focusedShopId) {
             lastPannedShopId.current = null;
             return;
@@ -394,7 +394,7 @@ export default function ShopBrowser() {
             const displayShops = shops;
             const displayAiShops = aiShops;
             const allAvailableShops = [...displayShops, ...displayAiShops];
-            
+
             const shopToPan = allAvailableShops.find(s => s.id === focusedShopId);
             if (shopToPan && shopToPan.lat && shopToPan.lng) {
                 // Determine actual map center right now.
@@ -402,21 +402,21 @@ export default function ShopBrowser() {
                 // but setting mapCenter will trigger MapControllerComponent's flyTo safely.
                 const parsedLat = parseFloat(shopToPan.lat as any);
                 const parsedLng = parseFloat(shopToPan.lng as any);
-                
+
                 if (!isNaN(parsedLat) && !isNaN(parsedLng)) {
                     isAutoPanningRef.current = true;
-                    
+
                     // 2단계: 상단 리스트가 열린 추천 매장 검색 결과 상태라면, 
                     // 개별 매장이 선택되어 하단 팝업이 활성화되었는지 여부에 따라 카메라 위도 보정값을 가변 적용합니다.
                     // (포커싱 활성화 시 하단 점유 스페이스가 늘어나므로 오프셋을 +0.0038로 컴팩트하게 축소하여 핀을 상단으로 올립니다.)
                     const adjustedLat = showFloatingList && searchedDbShops.length > 0
                         ? (focusedShopId ? parsedLat + 0.0038 : parsedLat + 0.0078)
                         : parsedLat;
-                        
+
                     setMapCenter([adjustedLat, parsedLng]);
-                    
+
                     lastPannedShopId.current = focusedShopId;
-                    
+
                     // Release the lock after 1.5s, clearing any previous concurrent locks
                     if (autoPanTimerRef.current) clearTimeout(autoPanTimerRef.current);
                     autoPanTimerRef.current = setTimeout(() => { isAutoPanningRef.current = false; }, 1500);
@@ -425,7 +425,7 @@ export default function ShopBrowser() {
         }
     }, [focusedShopId, sourceFilter, shops, aiShops, showFloatingList, searchedDbShops]); // Deliberately lightweight dep array
 
-        // Save persist state continuously
+    // Save persist state continuously
     useEffect(() => {
         try {
             sessionStorage.setItem('bm_search_query', searchQuery);
@@ -438,10 +438,10 @@ export default function ShopBrowser() {
             sessionStorage.setItem('bm_shops', JSON.stringify(safeShops));
             sessionStorage.setItem('bm_ai_shops', JSON.stringify(aiShops));
             sessionStorage.setItem('bm_bookmarks', JSON.stringify(Array.from(bookmarks)));
-            
+
             if (searchedShopId) sessionStorage.setItem('bm_searched_id', searchedShopId);
             else sessionStorage.removeItem('bm_searched_id');
-            
+
             if (mapCenter) sessionStorage.setItem('bm_map_center', JSON.stringify(mapCenter));
         } catch (e) {
             console.warn('SessionStorage quota exceeded, caching skipped:', e);
@@ -471,11 +471,11 @@ export default function ShopBrowser() {
             if (filterType && filterType !== 'ALL') {
                 params.append('type', filterType);
             }
-            
+
             // Add language parameter
             const currentLang = i18n.language ? i18n.language.substring(0, 2) : 'ko';
             params.append('lang', currentLang);
-            
+
             // Add device countryCode to filter out unmatched regions when no bounds are provided
             params.append('countryCode', getDeviceCountryCode());
 
@@ -492,12 +492,12 @@ export default function ShopBrowser() {
             let fetchedShops: any[] = [];
             if (shopsRes.ok) {
                 fetchedShops = await shopsRes.json();
-                
+
                 // CRITICAL FIX: If we actively navigated from CoffeeTalk, preserve the mock-injected target shop
                 // otherwise the debounced bounds fetch will permanently wipe it from the UI.
                 setShops(prev => {
                     let nextShops = [...fetchedShops];
-                    
+
                     // Prevent currently focused shop from disappearing if it falls slightly out of the DB query limit
                     // or if it is a PENDING shop that was explicitly loaded via a direct /api/shops/:id fetch.
                     if (focusedShopId) {
@@ -510,12 +510,12 @@ export default function ShopBrowser() {
                     if (preserveTargetName) {
                         const targetMock = prev.find(s => s.name === preserveTargetName && s.id.startsWith('target-'));
                         const backendHasIt = nextShops.some(s => s.name === preserveTargetName);
-                        
+
                         if (targetMock && !backendHasIt) {
                             nextShops = [...nextShops, targetMock];
                         }
                     }
-                    
+
                     return nextShops;
                 });
             }
@@ -530,7 +530,7 @@ export default function ShopBrowser() {
                     setBookmarks(new Set(bmsData.map((b: any) => b.storeId)));
                 }
             }
-            
+
             return fetchedShops;
         } catch (err) {
             console.error('Failed to load shops', err);
@@ -547,7 +547,7 @@ export default function ShopBrowser() {
         setIsCourseMode(false);
         setShowFloatingList(false);
         setSearchedDbShops([]);
-        try { navigate(location.pathname, { replace: true }); } catch (e) {}
+        try { navigate(location.pathname, { replace: true }); } catch (e) { }
         setIsLocating(true);
 
         // 1. Force native permission checks/requests in mobile environment
@@ -589,13 +589,13 @@ export default function ShopBrowser() {
         // 4. If all GPS sources failed, resolve to stable fallback (Pangyo Station 37.4020, 127.1086)
         if (!coords) {
             console.warn("[ShopBrowser] All geolocation attempts failed. Resolving fallback.");
-            
+
             // Try to recover from cached state first to preserve previous success location
             let cachedLoc: [number, number] | null = null;
             try {
                 const saved = sessionStorage.getItem('bm_user_loc');
                 if (saved) cachedLoc = JSON.parse(saved);
-            } catch (e) {}
+            } catch (e) { }
 
             coords = cachedLoc || [37.4020, 127.1086]; // Default to Pangyo Station (never hardcode Seoul 37.5665, 126.9780)
         }
@@ -607,7 +607,7 @@ export default function ShopBrowser() {
         activeCoffeeTalkTargetRef.current = null; // Release strict target lock
         setSearchQuery(''); // Unbind text search query visually
         setSearchedShopId(null); // Clear search highlight rings
-        
+
         sessionStorage.setItem('bm_user_loc', JSON.stringify(coords));
         sessionStorage.setItem('bm_map_center', JSON.stringify(coords));
 
@@ -616,7 +616,7 @@ export default function ShopBrowser() {
         const cacheLat = coords[0].toFixed(2);
         const cacheLng = coords[1].toFixed(2);
         await fetchAiShops(`latitude ${cacheLat}, longitude ${cacheLng}`);
-        
+
         setIsLocating(false);
     };
 
@@ -645,7 +645,7 @@ export default function ShopBrowser() {
             if (targetName) {
                 activeCoffeeTalkTargetRef.current = targetName;
             }
-            
+
             if ((isNaN(targetLat) || isNaN(targetLng)) && !state.targetShopId) {
                 console.warn('Target coordinates invalid and no Shop ID provided. Falling back to GPS.');
                 locateUser();
@@ -655,21 +655,21 @@ export default function ShopBrowser() {
 
             if (!isNaN(targetLat) && !isNaN(targetLng)) {
                 setMapCenter([targetLat, targetLng]);
-                sortAnchor.current = [targetLat, targetLng]; 
+                sortAnchor.current = [targetLat, targetLng];
             }
-            
+
             const initFromCoffeeTalk = async () => {
                 try {
                     let fetchedShops: any[] = [];
                     if (!isNaN(targetLat) && !isNaN(targetLng)) {
                         fetchedShops = await fetchShopsAndBookmarks(targetLat, targetLng, undefined, undefined, targetName);
                     }
-                    
+
                     let matchingShop = null;
                     if (state.targetShopId && fetchedShops && Array.isArray(fetchedShops)) {
                         matchingShop = fetchedShops.find((s: any) => s.id === state.targetShopId);
                     }
-                    
+
                     // CRITICAL FIX: If regional fetch missed it due to cached coordinates, fetch explicitly!
                     if (!matchingShop && state.targetShopId) {
                         try {
@@ -680,13 +680,13 @@ export default function ShopBrowser() {
                                     setMapCenter([parseFloat(matchingShop.lat), parseFloat(matchingShop.lng)]);
                                 }
                             }
-                        } catch(e) {}
+                        } catch (e) { }
                     }
 
                     if (!matchingShop && targetName && fetchedShops && Array.isArray(fetchedShops)) {
                         matchingShop = fetchedShops.find((s: any) => s.name === targetName);
                     }
-                    
+
                     if (matchingShop) {
                         setSearchedShopId(matchingShop.id);
                         setFocusedShopId(matchingShop.id);
@@ -713,13 +713,13 @@ export default function ShopBrowser() {
                                 try {
                                     shopCard.scrollIntoView({ behavior: 'auto', block: 'center' });
                                 } catch (e) {
-                                    try { shopCard.scrollIntoView(); } catch (err) {}
+                                    try { shopCard.scrollIntoView(); } catch (err) { }
                                 }
                             }
                         }, 300);
                     } else {
                         if (targetName) setSearchQuery(targetName);
-                        
+
                         const mockId = `target-${Date.now()}`;
                         const mockShop = {
                             id: mockId,
@@ -743,7 +743,7 @@ export default function ShopBrowser() {
                         setTimeout(() => {
                             const shopCard = document.getElementById(`feed-card-${mockId}`);
                             if (shopCard) {
-                                try { shopCard.scrollIntoView({ behavior: 'auto', block: 'center' }); } catch(e) {}
+                                try { shopCard.scrollIntoView({ behavior: 'auto', block: 'center' }); } catch (e) { }
                             }
                         }, 300);
                     }
@@ -753,7 +753,7 @@ export default function ShopBrowser() {
                     window.history.replaceState({}, document.title);
                 }
             };
-            
+
             initFromCoffeeTalk();
             return;
         }
@@ -765,21 +765,21 @@ export default function ShopBrowser() {
                 const lng = parseFloat(state.autoLocateLng);
                 setUserLocation([lat, lng]);
                 setMapCenter([lat, lng]);
-                sortAnchor.current = [lat, lng]; 
-                
+                sortAnchor.current = [lat, lng];
+
                 // PREVENT RACE CONDITION: Instantly populate bm_shops with an empty array.
                 // This ensures that when history.replaceState triggers the next render,
                 // the Normal Load section does NOT run locateUser() which overrides/clears curator markers.
                 sessionStorage.setItem('bm_shops', JSON.stringify([]));
 
                 fetchShopsAndBookmarks(lat, lng);
-                
+
                 const cacheLat = lat.toFixed(2);
                 const cacheLng = lng.toFixed(2);
 
                 if (state.curatorShops && Array.isArray(state.curatorShops)) {
                     sessionStorage.setItem('bm_curator_shops_v3', JSON.stringify(state.curatorShops));
-                    
+
                     const mappedShops = state.curatorShops.slice(0, 5).map((shop: any, idx: number) => ({
                         id: `ai-curator-${idx}-${Date.now()}`,
                         name: shop.name,
@@ -792,14 +792,14 @@ export default function ShopBrowser() {
                 } else {
                     setAiShops([]);
                 }
-                
+
                 await fetchAiShops(`latitude ${cacheLat}, longitude ${cacheLng}`);
                 window.history.replaceState({}, document.title);
             };
             initFromCurator();
             return;
-        } 
-        
+        }
+
         // Priority 3: Normal Load
         const hasSavedState = sessionStorage.getItem('bm_shops');
         if (!hasSavedState) {
@@ -823,7 +823,7 @@ export default function ShopBrowser() {
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
         if (isCourseMode || urlParams.get('courseId')) return; // Disable automatic background fetching while viewing a specific course route
-        
+
         // Prevent background refetch from hijacking the recommended shops when navigating from AI Curator results
         const isFromCuratorResult = location.state && ((location.state as any).curatorShops || (location.state as any).autoLocateLat);
         const hasJustNavigated = isFirstRender.current || (isFromCuratorResult && (Date.now() - userInteractionRef.current > 3000));
@@ -855,7 +855,7 @@ export default function ShopBrowser() {
                 if (Array.isArray(curated) && curated.length > 0) {
                     setAiShops((prev: any[]) => {
                         const curatedNames = new Set(curated.map(c => c.name.toLowerCase().replace(/\s+/g, '')));
-                        
+
                         // 1. Remove old memory nodes and any generic nodes that share a name with curated shops
                         const filteredPrev = prev.filter(s => {
                             if (s.isMem) return false;
@@ -863,7 +863,7 @@ export default function ShopBrowser() {
                             if (curatedNames.has(normName)) return false;
                             return true;
                         });
-                        
+
                         // 2. Build the ideal memory shops array with guaranteed spread offsets and stable IDs
                         // ONLY generate virtual pins if they do NOT exist in the local DB shops array (shops)!
                         const dbNames = new Set(shops.map(s => s.name.toLowerCase().replace(/\s+/g, '')));
@@ -884,18 +884,18 @@ export default function ShopBrowser() {
                                 isMem: true
                             };
                         });
-                        
+
                         // 3. Prevent infinite re-render loops by verifying if prev is already perfectly matching
                         // We check if the existing memory nodes exactly match the target memory nodes in count and stable ID.
                         const currentMemNodes = prev.filter(s => s.isMem);
                         let needsUpdate = false;
-                        
+
                         if (currentMemNodes.length !== idealMemShops.length) needsUpdate = true;
                         if (!needsUpdate && prev.length !== idealMemShops.length + filteredPrev.length) needsUpdate = true;
                         if (!needsUpdate && prev.length > 0 && idealMemShops.length > 0 && prev[0].id !== idealMemShops[0].id) needsUpdate = true;
-                        
+
                         if (!needsUpdate) return prev;
-                        
+
                         const finalArr = [...idealMemShops, ...filteredPrev];
                         console.log("[Global Mem Hook] Overriding array. New size:", finalArr.length);
                         return finalArr;
@@ -940,7 +940,7 @@ export default function ShopBrowser() {
         const container = e.currentTarget;
         const scrollLeft = container.scrollLeft;
         const cardWidth = 252; // 카드 w-[240px] + gap-3(12px) = 252px
-        
+
         const activeIndex = Math.round(scrollLeft / cardWidth);
         if (activeIndex >= 0 && activeIndex < searchedDbShops.length) {
             const activeShop = searchedDbShops[activeIndex];
@@ -955,7 +955,7 @@ export default function ShopBrowser() {
         e.preventDefault();
         const query = searchQuery.trim();
         setIsCourseMode(false);
-        try { navigate(location.pathname, { replace: true }); } catch (e) {}
+        try { navigate(location.pathname, { replace: true }); } catch (e) { }
 
         // If no query is entered, we just search around the current map center
         if (!query) {
@@ -1018,15 +1018,15 @@ export default function ShopBrowser() {
                 if (results && results.length > 0) {
                     let bestResult = results[0];
                     // Prioritize actual regions/neighborhoods over tiny transit stations
-                    const regionLike = results.find((r: any) => 
-                        (r.class === 'boundary' || r.class === 'place') && 
+                    const regionLike = results.find((r: any) =>
+                        (r.class === 'boundary' || r.class === 'place') &&
                         (r.type === 'administrative' || r.type === 'city' || r.type === 'suburb' || r.type === 'town' || r.type === 'borough' || r.type === 'neighbourhood')
                     );
-                    
+
                     // Detect major transit hubs and Korean regional suffixes reliably
                     const isGeographicKeyword = /(역|동|구|시|도|군|읍|면|거리|길)$/.test(query.trim());
-                    
-                    const isMajorPOI = results.find((r: any) => 
+
+                    const isMajorPOI = results.find((r: any) =>
                         (r.class === 'railway' && (r.type === 'station' || r.type === 'subway' || r.type === 'stop')) ||
                         (r.class === 'highway' && r.type === 'bus_stop') ||
                         (r.class === 'amenity' && r.type === 'bus_station') ||
@@ -1035,7 +1035,7 @@ export default function ShopBrowser() {
 
                     if (regionLike || isMajorPOI || isGeographicKeyword) {
                         bestResult = regionLike || isMajorPOI || results[0];
-                        
+
                         // SMART INTENT RANKING: 
                         // If the DB captured a partial name match (e.g. query="강남역", DB="매머드커피 강남역점"),
                         // but OSM explicitly confirms "강남역" is a major geographic place or subway station,
@@ -1043,7 +1043,7 @@ export default function ShopBrowser() {
                         if (foundTextMatch && finalShops.length > 0) {
                             const topDbName = finalShops[0].name.toLowerCase().replace(/\s+/g, '');
                             const normalizedQuery = query.toLowerCase().replace(/\s+/g, '');
-                            
+
                             if (topDbName !== normalizedQuery) {
                                 foundTextMatch = false; // Demote DB priority
                                 setSearchedShopId(null);
@@ -1068,7 +1068,7 @@ export default function ShopBrowser() {
                         let maxLat = parseFloat(bestResult.boundingbox[1]);
                         let minLon = parseFloat(bestResult.boundingbox[2]);
                         let maxLon = parseFloat(bestResult.boundingbox[3]);
-                        
+
                         // PAD THE BOUNDING BOX BY 0.009 DEGREES (~1km)
                         // Adjusted to strictly confine the search viewport to a 1km radius as requested by user.
                         const pad = 0.009;
@@ -1089,13 +1089,13 @@ export default function ShopBrowser() {
                             minLon = lng - maxSpan / 2;
                             maxLon = lng + maxSpan / 2;
                         }
-                        
+
                         bboxParams = `&minLat=${minLat}&maxLat=${maxLat}&minLng=${minLon}&maxLng=${maxLon}`;
                         bboxForAi = `Latitude between ${minLat} and ${maxLat}, Longitude between ${minLon} and ${maxLon}`;
-                        
+
                         setMapBoundsToFit({ minLat, maxLat, minLng: minLon, maxLng: maxLon, ts: Date.now() });
                     }
-                    
+
                     if (!foundTextMatch) {
                         centerToUse = [lat, lng];
                         // NEW: Inject a mock anchor marker for the searched region to visually guide the user
@@ -1144,7 +1144,7 @@ export default function ShopBrowser() {
         } finally {
             const anchor = userLocation || centerToUse || mapCenter;
             let sortedFinalShops = [...finalShops];
-            
+
             if (anchor && Array.isArray(anchor) && anchor.length >= 2) {
                 const dbShops = finalShops
                     .filter((s: any) => !s.isGeneric && s.lat && s.lng)
@@ -1158,7 +1158,7 @@ export default function ShopBrowser() {
                         return { ...s, distanceInKm: dist };
                     })
                     .sort((a: any, b: any) => a.distanceInKm - b.distanceInKm);
-                
+
                 setSearchedDbShops(dbShops);
                 if (dbShops.length > 0) {
                     setShowFloatingList(true);
@@ -1170,7 +1170,7 @@ export default function ShopBrowser() {
                 } else {
                     setShowFloatingList(false);
                 }
-                
+
                 // 지도의 핀도 슬라이더의 거리순 정렬과 100% 똑같은 순서로 배치하여 핀과 리스트 인덱스 동기화를 보장합니다!
                 const genericShops = finalShops.filter((s: any) => s.isGeneric);
                 sortedFinalShops = [...dbShops, ...genericShops];
@@ -1179,7 +1179,7 @@ export default function ShopBrowser() {
                 setShowFloatingList(false);
             }
 
-            setShops(sortedFinalShops); 
+            setShops(sortedFinalShops);
             setMapCenter(centerToUse);
             sortAnchor.current = centerToUse; // Update the stable sort anchor on active search!
             // DO NOT immediately fire mapBounds effect; let the animation end via SharedCoffeeMap pan bounds.
@@ -1188,7 +1188,7 @@ export default function ShopBrowser() {
             // If OSM failed too, centerToUse relies on the AI reverse-centering.
             const isOsmFailure = !foundTextMatch && centerToUse === mapCenter;
             fetchAiShops(query, bboxForAi, isOsmFailure, centerToUse, false);
-            
+
             setIsSearching(false);
         }
     };
@@ -1198,7 +1198,7 @@ export default function ShopBrowser() {
 
         const roundedBbox = bbox ? bbox.split(',').map(n => parseFloat(n).toFixed(2)).join(',') : '';
         const cacheKey = region.trim().toLowerCase() + (roundedBbox ? `_${roundedBbox}` : '');
-        
+
         if (aiShopCache[cacheKey]) {
             setAiShops(prev => {
                 const existingIds = new Set(prev.map(s => s.id));
@@ -1223,22 +1223,22 @@ Format EXACTLY like this example:
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ promptStr, currentLatitude: latToSend, currentLongitude: lngToSend })
             });
-            
+
             if (!mapsResponse.ok) throw new Error("Backend Map API Failed");
-            
+
             const mapData = await mapsResponse.json();
             const parsedData = mapData.shops || [];
             const chunks = mapData.chunks;
 
             const genericShops: any[] = [];
-            
+
             if (Array.isArray(parsedData)) {
                 parsedData.forEach((shop, idx) => {
                     if (!shop || !shop.name) return;
-                    
+
                     let finalLat = shop.lat !== undefined ? shop.lat : shop.latitude;
                     let finalLng = shop.lng !== undefined ? shop.lng : shop.longitude;
-                    
+
                     // Gemini frequently omits coordinates to save tokens when listing 30 shops.
                     // If coordinates are missing, fallback to the target text-search location, then map center.
                     if (finalLat === undefined || isNaN(parseFloat(finalLat))) {
@@ -1259,35 +1259,35 @@ Format EXACTLY like this example:
                     const latOffset = (idx % 5) * 0.0003 * (idx % 2 === 0 ? 1 : -1);
                     const lngOffset = Math.floor(idx / 5) * 0.0003 * (idx % 3 === 0 ? 1 : -1);
 
-                    genericShops.push({ 
-                        id: `ai-${idx}-${Date.now()}`, 
-                        name: shop.name, 
-                        lat: parseFloat(finalLat) + latOffset, 
-                        lng: parseFloat(finalLng) + lngOffset, 
-                        uri, 
-                        isGeneric: true 
+                    genericShops.push({
+                        id: `ai-${idx}-${Date.now()}`,
+                        name: shop.name,
+                        lat: parseFloat(finalLat) + latOffset,
+                        lng: parseFloat(finalLng) + lngOffset,
+                        uri,
+                        isGeneric: true
                     });
                 });
             }
-            
+
             // Reverse-Centering Fallback: If DB didn't find the location but AI did, move map to first AI pin
             if (forceCenterMap && genericShops.length > 0) {
                 setMapCenter([genericShops[0].lat, genericShops[0].lng]);
             } else if (forceCenterMap && genericShops.length === 0) {
                 alert(t('map.search_no_result'));
             }
-            
+
             // Ensure duplicate pins aren't appended if we simply panned the map slightly
             setAiShops((prev) => {
                 const existingIds = new Set(prev.map(s => s.id));
                 const newShops = genericShops.filter(s => !existingIds.has(s.id));
                 const combined = [...prev, ...newShops];
-                
+
                 // Save ONLY the pure generic shops to the persistent cache dictionary, 
                 // NOT the combined UI state which might include transient Curator pins!
                 aiShopCache[cacheKey] = genericShops;
                 sessionStorage.setItem('bm_ai_cache_dict_v2', JSON.stringify(aiShopCache));
-                
+
                 return combined;
             });
         } catch (error) {
@@ -1326,7 +1326,7 @@ Format EXACTLY like this example:
                 if (Array.isArray(curated)) {
                     curatorNames = new Set(curated.map((c: any) => c.name.toLowerCase().replace(/\s+/g, '')));
                 }
-            } catch(e) {}
+            } catch (e) { }
         }
 
         return [...shops].map(shop => {
@@ -1374,7 +1374,7 @@ Format EXACTLY like this example:
             // If we return `false` here, they permanently disappear from the Map whenever Curator enforces a strict 10km anchor.
             // By returning `true`, we grant them amnesty, passing them to the SharedCoffeeMap renderer
             // which handles coordinate-less shops by automatically projecting their pins via randomized hash offsets around the user's focus center.
-            if (!lat || !lng) return true; 
+            if (!lat || !lng) return true;
             return getDistanceFromLatLonInKm(pivot[0], pivot[1], lat, lng) <= 10;
         });
     }
@@ -1397,7 +1397,7 @@ Format EXACTLY like this example:
             alert('코스 가져오기는 로그인 후 이용할 수 있습니다.');
             return;
         }
-        
+
         setIsForking(true);
         try {
             const token = localStorage.getItem('token');
@@ -1405,7 +1405,7 @@ Format EXACTLY like this example:
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
-            
+
             if (res.ok) {
                 const newForkeds = [...forkedCourseIds, activeCourseConfig.id];
                 setForkedCourseIds(newForkeds);
@@ -1442,7 +1442,7 @@ Format EXACTLY like this example:
             primaryCoffeeType: 'GENERAL',
             isGeneric: true
         };
-        
+
         setAiShops([mockShop]);
 
         fetchShopsAndBookmarks(lat, lng).then(fetched => {
@@ -1456,476 +1456,475 @@ Format EXACTLY like this example:
 
     return (
         <ErrorBoundary>
-        <div className="h-[100dvh] flex flex-col pt-safe-top pb-[80px] sm:pb-0 overflow-hidden bg-[#0d0d0f] font-sans absolute inset-0 w-full" style={{ touchAction: 'none' }}>
-            <header className="px-6 pb-4 pt-safe flex flex-col bg-[#121215] border-b border-white/10 shrink-0 sticky top-0 z-[50] gap-4 shadow-xl shadow-black/40">
-                <div className="flex items-center justify-between">
-                    <h1 className="font-serif font-bold text-2xl text-espresso-50 tracking-tight">{t('map.title')}</h1>
-                </div>
-                
-                <div className="flex gap-2 relative z-[60]">
-                    <form onSubmit={handleSearch} className="relative flex-1">
-                        <Search className="absolute left-[14px] top-1/2 -translate-y-1/2 text-espresso-300 pointer-events-none z-10" size={18} />
-                        <input
-                            type="search"
-                            enterKeyHint="search"
-                            autoComplete="off"
-                            placeholder={t('map.search_ph')}
-                            className={`w-full bg-[#1c1c21] border border-white/10 text-espresso-50 placeholder:text-espresso-400 h-11 pl-10 ${searchQuery.length > 0 || isSearching ? 'pr-10' : 'pr-4'} rounded-xl focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 outline-none text-[13px] font-medium appearance-none shadow-inner block relative pointer-events-auto`}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onCompositionStart={() => setIsComposing(true)}
-                            onCompositionEnd={() => setIsComposing(false)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter' && !isComposing) {
-                                    handleSearch(e);
+            <div className="h-[100dvh] flex flex-col pt-safe-top pb-[80px] sm:pb-0 overflow-hidden bg-[#0d0d0f] font-sans absolute inset-0 w-full" style={{ touchAction: 'none' }}>
+                <header className="px-6 pb-4 pt-safe flex flex-col bg-[#121215] border-b border-white/10 shrink-0 sticky top-0 z-[50] gap-4 shadow-xl shadow-black/40">
+                    <div className="flex items-center justify-between">
+                        <h1 className="font-serif font-bold text-2xl text-espresso-50 tracking-tight">{t('map.title')}</h1>
+                    </div>
+
+                    <div className="flex gap-2 relative z-[60]">
+                        <form onSubmit={handleSearch} className="relative flex-1">
+                            <Search className="absolute left-[14px] top-1/2 -translate-y-1/2 text-espresso-300 pointer-events-none z-10" size={18} />
+                            <input
+                                type="search"
+                                enterKeyHint="search"
+                                autoComplete="off"
+                                placeholder={t('map.search_ph')}
+                                className={`w-full bg-[#1c1c21] border border-white/10 text-espresso-50 placeholder:text-espresso-400 h-11 pl-10 ${searchQuery.length > 0 || isSearching ? 'pr-10' : 'pr-4'} rounded-xl focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 outline-none text-[13px] font-medium appearance-none shadow-inner block relative pointer-events-auto`}
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onCompositionStart={() => setIsComposing(true)}
+                                onCompositionEnd={() => setIsComposing(false)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !isComposing) {
+                                        handleSearch(e);
+                                    }
+                                }}
+                                style={{ WebkitAppearance: 'none', caretColor: '#1e3a8a' }}
+                            />
+                            {isSearching ? (
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-500"></div>
+                                </div>
+                            ) : searchQuery.length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setSearchQuery('');
+                                        setShowFloatingList(false);
+                                        setSearchedDbShops([]);
+                                        locateUser();
+                                    }}
+                                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-espresso-400 hover:text-amber-500 transition-colors p-1 bg-espresso-800/50 rounded-full"
+                                >
+                                    <X size={14} />
+                                </button>
+                            )}
+                        </form>
+
+                        <button
+                            onClick={() => {
+                                if (!isLoggedIn) {
+                                    alert(t('map.login_required'));
+                                    navigate('/profile');
+                                    return;
+                                }
+                                setCuratorPickOnly(!curatorPickOnly);
+                            }}
+                            className={`px-3 h-11 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-300 font-bold text-[12px] whitespace-nowrap gap-1.5 shadow-sm ${curatorPickOnly ? 'bg-rose-500/10 border-rose-500/50 text-rose-400' : 'bg-[#1c1c21] border-white/10 text-espresso-200 hover:text-espresso-50 hover:border-white/20'}`}
+                        >
+                            <Heart size={14} className={curatorPickOnly ? 'fill-rose-500 text-rose-500' : 'text-espresso-400'} />
+                            80%+ Match
+                        </button>
+
+                    </div>
+
+                </header>
+
+                <div className={`flex-1 relative overflow-hidden block bg-espresso-950 transition-none`}>
+                    {/* 1. Map Section */}
+                    <div className={`absolute inset-0 z-0 bg-espresso-950`}>
+                        <SharedCoffeeMap
+                            mode="explore"
+                            shops={combinedShops}
+                            courseShops={activeCourseConfig?.items?.map((i: any) => i.store).filter(Boolean)}
+                            userLocation={userLocation}
+                            mapCenter={mapCenter}
+                            setMapCenter={setMapCenter}
+                            setMapBounds={setMapBounds}
+                            boundsToFit={mapBoundsToFit}
+                            searchedShopId={searchedShopId}
+                            focusedShopId={focusedShopId}
+                            isRefreshing={isRefreshing}
+                            mapAds={mapAds}
+                            bottomPadding={isCourseMode ? '10.5rem' : (focusedShopId && combinedShops.find(s => s.id === focusedShopId) ? '10.5rem' : '3.5rem')}
+                            hideFocusedPopup={showFloatingList}
+                            onShopClick={(shop) => {
+                                if (isCourseMode) {
+                                    setSelectedShop(shop);
+                                    setIsDetailModalOpen(true);
+                                } else {
+                                    if (focusedShopId === shop.id) {
+                                        setFocusedShopId(null);
+                                    } else {
+                                        setFocusedShopId(shop.id);
+                                    }
                                 }
                             }}
-                            style={{ WebkitAppearance: 'none', caretColor: '#1e3a8a' }} 
-                        />
-                        {isSearching ? (
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-500"></div>
-                            </div>
-                        ) : searchQuery.length > 0 && (
-                            <button 
-                                type="button"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setSearchQuery('');
-                                    setShowFloatingList(false);
-                                    setSearchedDbShops([]);
-                                    locateUser();
-                                }}
-                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-espresso-400 hover:text-amber-500 transition-colors p-1 bg-espresso-800/50 rounded-full"
-                            >
-                                <X size={14} />
-                            </button>
-                        )}
-                    </form>
-                    
-                    <button 
-                        onClick={() => {
-                            if (!isLoggedIn) {
-                                alert(t('map.login_required'));
-                                navigate('/profile');
-                                return;
-                            }
-                            setCuratorPickOnly(!curatorPickOnly);
-                        }}
-                        className={`px-3 h-11 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-300 font-bold text-[12px] whitespace-nowrap gap-1.5 shadow-sm ${curatorPickOnly ? 'bg-rose-500/10 border-rose-500/50 text-rose-400' : 'bg-[#1c1c21] border-white/10 text-espresso-200 hover:text-espresso-50 hover:border-white/20'}`}
-                    >
-                        <Heart size={14} className={curatorPickOnly ? 'fill-rose-500 text-rose-500' : 'text-espresso-400'} />
-                        80%+ Match
-                    </button>
-                    
-                </div>
-
-            </header>
-
-            <div className={`flex-1 relative overflow-hidden block bg-espresso-950 transition-none`}>
-                {/* 1. Map Section */}
-                <div className={`absolute inset-0 z-0 bg-espresso-950`}>
-                    <SharedCoffeeMap
-                        mode="explore"
-                        shops={combinedShops}
-                        courseShops={activeCourseConfig?.items?.map((i: any) => i.store).filter(Boolean)}
-                        userLocation={userLocation}
-                        mapCenter={mapCenter}
-                        setMapCenter={setMapCenter}
-                        setMapBounds={setMapBounds}
-                        boundsToFit={mapBoundsToFit}
-                        searchedShopId={searchedShopId}
-                        focusedShopId={focusedShopId}
-                        isRefreshing={isRefreshing}
-                        mapAds={mapAds}
-                        bottomPadding={isCourseMode ? '10.5rem' : (focusedShopId && combinedShops.find(s => s.id === focusedShopId) ? '10.5rem' : '3.5rem')}
-                        hideFocusedPopup={showFloatingList}
-                        onShopClick={(shop) => { 
-                            if (isCourseMode) {
+                            onPopupClick={(shop) => {
                                 setSelectedShop(shop);
                                 setIsDetailModalOpen(true);
-                            } else {
-                                if (focusedShopId === shop.id) {
-                                    setFocusedShopId(null);
-                                } else {
-                                    setFocusedShopId(shop.id);
-                                }
-                            }
-                        }}
-                        onPopupClick={(shop) => {
-                            setSelectedShop(shop);
-                            setIsDetailModalOpen(true);
-                        }}
-                        onBookmarkToggle={toggleBookmark}
-                        bookmarkedIds={bookmarks}
-                        onLocateMe={locateUser}
-                        isLocating={isLocating}
-                        isCourseMode={isCourseMode}
-                        onMapClick={handleMapClick}
-                        onMapInteraction={() => {
-                            setFocusedShopId(null);
-                            setShowFloatingList(false);
-                        }}
-                    />
+                            }}
+                            onBookmarkToggle={toggleBookmark}
+                            bookmarkedIds={bookmarks}
+                            onLocateMe={locateUser}
+                            isLocating={isLocating}
+                            isCourseMode={isCourseMode}
+                            onMapClick={handleMapClick}
+                            onMapInteraction={() => {
+                                setFocusedShopId(null);
+                                setShowFloatingList(false);
+                            }}
+                        />
 
-                    {/* 3단계 & 4단계: 검색된 DB 추천 매장 플로팅 가로 슬라이더 리스트 */}
-                    {showFloatingList && searchedDbShops.length > 0 && (
-                        <div className="absolute top-4 left-4 right-4 bg-[#18181b]/95 backdrop-blur-md border border-amber-500/20 rounded-2xl p-4 shadow-2xl z-[40] animate-in fade-in slide-in-from-top-4 duration-300 pointer-events-auto">
-                            <div className="flex justify-between items-center mb-3">
-                                <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[14px]">
-                                    <Sparkles size={14} className="animate-pulse" />
-                                    <span>{t('map.curator_recommend', 'BeanMind 추천 매장')}</span>
-                                    <span className="bg-amber-500/10 text-amber-400 text-[10px] px-1.5 py-0.5 rounded-md ml-1">{searchedDbShops.length}</span>
-                                </div>
-                                <button 
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setShowFloatingList(false);
-                                    }}
-                                    className="text-espresso-400 hover:text-espresso-200 transition-colors p-1 bg-espresso-800/30 rounded-full"
-                                >
-                                    <X size={12} />
-                                </button>
-                            </div>
-                            <div 
-                                onScroll={handleSliderScroll}
-                                className="flex gap-3 overflow-x-auto pb-1 scrollbar-none" 
-                                style={{ WebkitOverflowScrolling: 'touch' }}
-                            >
-                                {searchedDbShops.map((shop: any) => {
-                                    let mainImageSrc = shop.markerImageUrl || shop.mainImageUrl;
-                                    if (typeof mainImageSrc === 'string' && mainImageSrc.startsWith('[')) {
-                                        try { mainImageSrc = JSON.parse(mainImageSrc)[0]; } catch(e){}
-                                    }
-                                    if (!mainImageSrc) mainImageSrc = 'https://images.unsplash.com/photo-1554118811-1e0d58224f24';
-                                    
-                                    const distanceText = shop.distanceInKm !== undefined 
-                                        ? (shop.distanceInKm < 1 
-                                            ? `${Math.round(shop.distanceInKm * 1000)}m` 
-                                            : `${shop.distanceInKm.toFixed(1)}km`)
-                                        : '';
-
-                                    return (
-                                        <div 
-                                            key={`floating-${shop.id}`}
-                                            onClick={() => {
-                                                if (shop.lat && shop.lng) {
-                                                    const latVal = parseFloat(shop.lat);
-                                                    const lngVal = parseFloat(shop.lng);
-                                                    
-                                                    // 리스트 박스 및 하단 포커스 팝업들에 가려지지 않도록 카메라 위도를 북쪽(+0.0038)으로 정교하게 보정
-                                                    const adjustedLat = latVal + 0.0038;
-                                                    
-                                                    setMapCenter([adjustedLat, lngVal]);
-                                                    setFocusedShopId(shop.id);
-                                                    setSearchedShopId(shop.id);
-                                                }
-                                            }}
-                                            className="flex-shrink-0 w-[240px] bg-[#242429]/60 border border-white/5 rounded-xl p-2.5 cursor-pointer active:scale-[0.98] transition-all hover:bg-[#242429]/95 flex flex-col gap-2 pointer-events-auto"
-                                        >
-                                            <div className="relative w-full h-[100px] rounded-lg overflow-hidden bg-espresso-950">
-                                                <img 
-                                                    src={getFullImageUrl(mainImageSrc)} 
-                                                    alt={shop.name} 
-                                                    className="w-full h-full object-cover" 
-                                                />
-                                                <div className="absolute top-1.5 right-1.5 bg-amber-500 text-espresso-950 px-1.5 py-0.5 rounded-md text-[8px] font-black whitespace-nowrap shadow-sm border border-amber-300 flex items-center gap-0.5">
-                                                    <span>🏆</span>
-                                                    <span>Curator Pick</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col text-left">
-                                                <h4 className="font-bold text-[13px] text-espresso-50 truncate mb-0.5">{shop.name}</h4>
-                                                <div className="flex items-center justify-between text-[11px]">
-                                                    <div className="flex items-center gap-1 text-amber-500 font-bold">
-                                                        <span>★</span>
-                                                        <span>{shop.averageRating?.toFixed(1) || '0.0'}</span>
-                                                        <span className="text-espresso-400 font-normal">({shop.reviewCount || 0})</span>
-                                                    </div>
-                                                    {distanceText && (
-                                                        <span className="text-amber-400 font-semibold">{distanceText}</span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Floating AI Auto Extract Toggle Button */}
-                    {!isCourseMode && (
-                        <button
-                            onClick={() => setIsAiAutoExtractEnabled(prev => !prev)}
-                            title={isAiAutoExtractEnabled ? t('map.disable_ai_auto', 'AI 자동 추출 끄기') : t('map.enable_ai_auto', 'AI 자동 추출 켜기')}
-                            className={`absolute right-4 z-[400] w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${
-                                isAiAutoExtractEnabled 
-                                    ? 'bg-amber-500 text-espresso-950 shadow-amber-500/30' 
-                                    : 'bg-espresso-900 text-amber-500/50 border border-espresso-700/80 hover:text-amber-500/80'
-                            }`}
-                            style={{ bottom: `calc(${focusedShopId && combinedShops.find(s => s.id === focusedShopId) ? '10.5rem' : '3.5rem'} + 3.5rem)` }}
-                        >
-                            <Sparkles size={22} className={isAiAutoExtractEnabled ? "animate-pulse" : ""} strokeWidth={2} />
-                        </button>
-                    )}
-                    
-                    {/* Floating AI Loading Indicator */}
-                    <AnimatePresence>
-                        {isAiLoading && (
-                            <motion.div 
-                                initial={{ opacity: 0, y: -20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                className="absolute top-4 left-4 z-[1000] flex justify-center pointer-events-none"
-                            >
-                                <div className="bg-espresso-900/90 backdrop-blur-md text-amber-500 border border-espresso-700/80 px-4 py-3 rounded-full flex items-center gap-2 shadow-xl shadow-black/40 overflow-hidden max-w-full">
-                                    <div className="flex gap-1 shrink-0">
-                                        <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                                        <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                                        <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce"></span>
+                        {/* 3단계 & 4단계: 검색된 DB 추천 매장 플로팅 가로 슬라이더 리스트 */}
+                        {showFloatingList && searchedDbShops.length > 0 && (
+                            <div className="absolute top-4 left-4 right-4 bg-[#18181b]/95 backdrop-blur-md border border-amber-500/20 rounded-2xl p-4 shadow-2xl z-[40] animate-in fade-in slide-in-from-top-4 duration-300 pointer-events-auto">
+                                <div className="flex justify-between items-center mb-3">
+                                    <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[14px]">
+                                        <Sparkles size={14} className="animate-pulse" />
+                                        <span>{t('map.curator_recommend', 'BeanMind 추천 매장')}</span>
+                                        <span className="bg-amber-500/10 text-amber-400 text-[10px] px-1.5 py-0.5 rounded-md ml-1">{searchedDbShops.length}</span>
                                     </div>
-                                    <span className="font-bold text-[12px] sm:text-[13px] tracking-tight truncate whitespace-nowrap">{t('map.ai_extracting')}</span>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-
-                    {/* Active Course Shared Banner Overlay */}
-                    <AnimatePresence>
-                        {isCourseMode && activeCourseConfig && (
-                            <motion.div 
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 20 }}
-                                className="absolute bottom-6 left-4 right-4 z-[1000] pointer-events-auto"
-                            >
-                                <div className="bg-espresso-950/90 backdrop-blur-xl border border-amber-500/50 rounded-2xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex flex-col gap-3">
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-1.5 mb-1">
-                                                <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">{t('map.badge_user_shared_course')}</span>
-                                            </div>
-                                            <h3 className="font-bold text-espresso-50 text-[16px] truncate leading-tight">{activeCourseConfig.name}</h3>
-                                            <p className="text-[12px] text-espresso-300 truncate mt-0.5">by <b>{activeCourseConfig.user?.nickname || t('map.lbl_anonymous')}</b></p>
-                                        </div>
-                                        <button 
-                                            onClick={() => {
-                                                navigate(location.pathname, { replace: true });
-                                                locateUser();
-                                            }}
-                                            className="w-8 h-8 rounded-full bg-espresso-900 border border-espresso-700 flex items-center justify-center text-espresso-300 hover:text-espresso-50 transition-colors shrink-0"
-                                        >
-                                            <X size={16} />
-                                        </button>
-                                    </div>
-                                    
-                                    {(!isLoggedIn || (activeCourseConfig.userId !== (() => {
-                                        try {
-                                            const t = localStorage.getItem('token');
-                                            return t ? JSON.parse(atob(t.split('.')[1])).id : null;
-                                        } catch { return null; }
-                                    })() && !forkedCourseIds.includes(activeCourseConfig.id))) && (
-                                        <button 
-                                            onClick={handleForkCourse}
-                                            disabled={isForking}
-                                            className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-espresso-950 font-black text-[13px] rounded-xl transition-colors shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100"
-                                        >
-                                            {isForking ? (
-                                                <div className="w-4 h-4 border-2 border-espresso-950 border-t-transparent rounded-full animate-spin"></div>
-                                            ) : (
-                                                <><Heart size={16} fill="currentColor" className="text-rose-500" /> {t('map.btn_save_my_route')}</>
-                                            )}
-                                        </button>
-                                    )}
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                    <AnimatePresence>
-                        {isAiLoading && (
-                            <motion.div 
-                                initial={{ opacity: 0, y: -20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -20 }}
-                                className="absolute top-4 left-4 z-[1000] flex justify-center pointer-events-none"
-                            >
-                                <div className="bg-espresso-900/90 backdrop-blur-md text-amber-500 border border-espresso-700/80 px-4 py-3 rounded-full flex items-center gap-2 shadow-xl shadow-black/40 overflow-hidden max-w-full">
-                                    <div className="flex gap-1 shrink-0">
-                                        <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                                        <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                                        <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce"></span>
-                                    </div>
-                                    <span className="font-bold text-[12px] sm:text-[13px] tracking-tight truncate whitespace-nowrap">{t('map.ai_extracting')}</span>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </div>
-
-                {/* 2. Smart Bottom Panel (Selected Shop Summary) */}
-                {!isCourseMode && (
-                <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none pb-safe">
-                    <div className="px-4 pb-4">
-                        <AnimatePresence mode="wait">
-                            {focusedShopId && combinedShops.find(s => s.id === focusedShopId) ? (() => {
-                                const shop = combinedShops.find(s => s.id === focusedShopId)!;
-                                const isBookmarked = bookmarks.has(shop.id);
-                                let parsedMainImageUrl = shop.mainImageUrl;
-                                if (typeof parsedMainImageUrl === 'string' && parsedMainImageUrl.startsWith('[')) {
-                                    try { const parsed = JSON.parse(parsedMainImageUrl); if (Array.isArray(parsed) && parsed.length > 0) parsedMainImageUrl = parsed[0]; } catch (e) {}
-                                }
-                                const fallbackMedia = shop.media?.find((m: any) => m.type === 'IMAGE' || m.type === 'VIDEO');
-                                const fallbackSrc = fallbackMedia ? fallbackMedia.url : 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800';
-                                const mainImageSrc = parsedMainImageUrl || fallbackSrc;
-                                const tags = [shop.shortDesc || "Specialty", shop.primaryCoffeeType, shop.isGeneric ? "Google Maps" : "Beanmind Partner"]
-                                    .filter(t => t && t !== 'GENERAL')
-                                    .map(tagStr => typeof tagStr === 'string' && tagStr.includes('AI가 발굴한') ? t('shared_map.ai_discovered_shop', 'AI가 발굴한 카페/명소') : tagStr);
-
-                                return (
-                                    <motion.div
-                                        key={`panel-${shop.id}`}
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: 20 }}
-                                        transition={{ duration: 0.3 }}
-                                        className="pointer-events-auto bg-[#1a1a1f] border border-espresso-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col w-full max-w-md mx-auto md:mx-0 md:ml-4 relative cursor-pointer active:scale-[0.98] transition-transform"
-                                        onClick={() => { setSelectedShop(shop); setIsDetailModalOpen(true); }}
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setShowFloatingList(false);
+                                        }}
+                                        className="text-espresso-400 hover:text-espresso-200 transition-colors p-1 bg-espresso-800/30 rounded-full"
                                     >
-                                        <div className="flex items-center p-3 gap-3">
-                                            {/* Thumbnail & Rating */}
-                                            <div className="flex flex-col items-center gap-1.5 shrink-0">
-                                                <div className="w-14 h-14 rounded-full overflow-hidden border border-espresso-700/50 bg-espresso-900 relative">
-                                                    {(typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'))) ? (
-                                                        <video src={getFullImageUrl(mainImageSrc)} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <img src={getFullImageUrl(mainImageSrc as string)} alt={shop.name} className="w-full h-full object-cover" />
-                                                    )}
-                                                </div>
-                                                <div className="flex items-center justify-center">
-                                                    {(shop.reviewCount ?? 0) > 0 ? (
-                                                        <span className="text-amber-500 font-bold text-[11px]">★ {shop.averageRating?.toFixed(1) || '0.0'}</span>
-                                                    ) : (
-                                                        <span className="text-amber-600/80 border border-amber-600/30 bg-amber-600/5 px-1 rounded text-[10px]">{t('map.new_store')}</span>
-                                                    )}
-                                                </div>
-                                            </div>
+                                        <X size={12} />
+                                    </button>
+                                </div>
+                                <div
+                                    onScroll={handleSliderScroll}
+                                    className="flex gap-3 overflow-x-auto pb-1 scrollbar-none"
+                                    style={{ WebkitOverflowScrolling: 'touch' }}
+                                >
+                                    {searchedDbShops.map((shop: any) => {
+                                        let mainImageSrc = shop.markerImageUrl || shop.mainImageUrl;
+                                        if (typeof mainImageSrc === 'string' && mainImageSrc.startsWith('[')) {
+                                            try { mainImageSrc = JSON.parse(mainImageSrc)[0]; } catch (e) { }
+                                        }
+                                        if (!mainImageSrc) mainImageSrc = 'https://images.unsplash.com/photo-1554118811-1e0d58224f24';
 
-                                            {/* Info & Match Rate */}
-                                            <div className="flex-1 min-w-0 flex items-stretch">
-                                                {/* Info (Left) */}
-                                                <div className="flex-1 min-w-0 flex flex-col justify-center pr-2">
-                                                    <div className="flex items-center justify-between mb-0.5 gap-2">
-                                                        <div className="flex items-center min-w-0 gap-1">
-                                                            <h3 className="font-sans font-bold text-espresso-50 text-[15px] truncate">{shop.name}</h3>
-                                                            {!shop.isGeneric && (
-                                                                <BadgeCheck size={16} className="text-amber-500 shrink-0" strokeWidth={2.5} />
-                                                            )}
-                                                        </div>
-                                                        <button onClick={(e) => { e.stopPropagation(); toggleBookmark(shop.id); }} className={`p-1 -mr-1 transition-transform active:scale-90 ${isBookmarked ? 'text-rose-500' : 'text-espresso-400'}`}>
-                                                            <Heart size={16} fill={isBookmarked ? "currentColor" : "none"} strokeWidth={2} />
-                                                        </button>
+                                        const distanceText = shop.distanceInKm !== undefined
+                                            ? (shop.distanceInKm < 1
+                                                ? `${Math.round(shop.distanceInKm * 1000)}m`
+                                                : `${shop.distanceInKm.toFixed(1)}km`)
+                                            : '';
+
+                                        return (
+                                            <div
+                                                key={`floating-${shop.id}`}
+                                                onClick={() => {
+                                                    if (shop.lat && shop.lng) {
+                                                        const latVal = parseFloat(shop.lat);
+                                                        const lngVal = parseFloat(shop.lng);
+
+                                                        // 리스트 박스 및 하단 포커스 팝업들에 가려지지 않도록 카메라 위도를 북쪽(+0.0038)으로 정교하게 보정
+                                                        const adjustedLat = latVal + 0.0038;
+
+                                                        setMapCenter([adjustedLat, lngVal]);
+                                                        setFocusedShopId(shop.id);
+                                                        setSearchedShopId(shop.id);
+                                                    }
+                                                }}
+                                                className="flex-shrink-0 w-[240px] bg-[#242429]/60 border border-white/5 rounded-xl p-2.5 cursor-pointer active:scale-[0.98] transition-all hover:bg-[#242429]/95 flex flex-col gap-2 pointer-events-auto"
+                                            >
+                                                <div className="relative w-full h-[100px] rounded-lg overflow-hidden bg-espresso-950">
+                                                    <img
+                                                        src={getFullImageUrl(mainImageSrc)}
+                                                        alt={shop.name}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                    <div className="absolute top-1.5 right-1.5 bg-amber-500 text-espresso-950 px-1.5 py-0.5 rounded-md text-[8px] font-black whitespace-nowrap shadow-sm border border-amber-300 flex items-center gap-0.5">
+                                                        <span>🏆</span>
+                                                        <span>Curator Pick</span>
                                                     </div>
-                                                    
-                                                    {(!shop.isGeneric && (shop.signatureBean || shop.signatureMenu || shop.dessertPairing)) ? (
-                                                        <div className="flex flex-col gap-1.5 mt-1">
-                                                            {(shop.signatureBean || shop.signatureMenu) && (
-                                                                <div className="flex flex-col gap-1.5 text-[11.5px] text-espresso-200">
-                                                                    {shop.signatureBean && (
-                                                                        <div className="flex items-start gap-2 min-w-0">
-                                                                            <Bean size={14} className="text-amber-500 shrink-0 mt-[1.5px]" strokeWidth={2.5} />
-                                                                            <span className="leading-snug">
-                                                                                {shop.signatureBean === '스페셜티/시그니처 향미' ? t('map.fallback_specialty', '스페셜티/시그니처 향미') : (shop.signatureBean.includes('추후 제공') ? t('map.fallback_tbd', 'TBD') : shop.signatureBean)}
-                                                                            </span>
-                                                                        </div>
-                                                                    )}
-                                                                    {shop.signatureMenu && (
-                                                                        <div className="flex items-start gap-2 min-w-0">
-                                                                            <Coffee size={14} className="text-amber-500 shrink-0 mt-[1.5px]" strokeWidth={2.5} />
-                                                                            <span className="leading-snug">
-                                                                                {shop.signatureMenu === '대표 메뉴 (상세 미정)' ? t('map.fallback_menu', '대표 메뉴 (상세 미정)') : (shop.signatureMenu.includes('추후 제공') ? t('map.fallback_tbd', 'TBD') : shop.signatureMenu)}
-                                                                            </span>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            )}
-                                                            {shop.dessertPairing && (
-                                                                <div className="flex items-start gap-2 text-[11.5px] text-espresso-200 min-w-0 mt-0.5">
-                                                                    <CakeSlice size={14} className="text-amber-500 shrink-0 mt-[1.5px]" strokeWidth={2.5} />
-                                                                    <span className="leading-snug">
-                                                                        {shop.dessertPairing === '추천 정보 없음' ? t('map.fallback_pairing', '추천 정보 없음') : (shop.dessertPairing.includes('추후 제공') ? t('map.fallback_tbd', 'TBD') : shop.dessertPairing)}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    ) : (
-                                                        // Fallback for generic or empty shops
-                                                        <div className="mt-0.5 flex flex-col gap-1 relative">
-                                                            <p className="text-[11px] text-espresso-400 italic line-clamp-2">
-                                                                "{shop.aiSummary || shop.recentReview || (shop.reviews && shop.reviews[0]?.comment) || (shop.isGeneric ? t('map.ai_generic_desc', 'AI 추천 스페셜티 샵') : t('map.partner_desc', '빈마인드 공식 매장'))}"
-                                                            </p>
-                                                        </div>
-                                                    )}
                                                 </div>
-
-                                                {/* Match Rate (Right) */}
-                                                <div className="flex flex-col items-center justify-between pl-3 ml-1 shrink-0 border-l border-espresso-800/50 min-w-[64px] relative py-1">
-                                                    <div className="flex flex-col items-center">
-                                                        <div className="text-[9px] text-amber-500/70 font-bold uppercase tracking-widest mb-0.5">Match</div>
-                                                        {shop.matchRate != null && shop.matchRate > 0 ? (
-                                                            <div className="text-xl font-black text-amber-400 leading-none tracking-tighter">
-                                                                {shop.matchRate}<span className="text-[10px] text-amber-500/80 ml-[1px]">%</span>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="text-xl font-black text-espresso-600 leading-none tracking-tighter mt-1">
-                                                                -<span className="text-[10px] text-espresso-600/80 ml-[1px]">%</span>
-                                                            </div>
+                                                <div className="flex flex-col text-left">
+                                                    <h4 className="font-bold text-[13px] text-espresso-50 truncate mb-0.5">{shop.name}</h4>
+                                                    <div className="flex items-center justify-between text-[11px]">
+                                                        <div className="flex items-center gap-1 text-amber-500 font-bold">
+                                                            <span>★</span>
+                                                            <span>{shop.averageRating?.toFixed(1) || '0.0'}</span>
+                                                            <span className="text-espresso-400 font-normal">({shop.reviewCount || 0})</span>
+                                                        </div>
+                                                        {distanceText && (
+                                                            <span className="text-amber-400 font-semibold">{distanceText}</span>
                                                         )}
                                                     </div>
-
-                                                    {/* 🎫 적립 단추 바로가기 */}
-                                                    <button 
-                                                        onClick={(e) => { 
-                                                            e.stopPropagation(); 
-                                                            navigate('/profile', { state: { openStampQR: true } }); 
-                                                        }} 
-                                                        className="mt-2 w-full bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-[9px] py-1 px-1 rounded-lg active:scale-95 transition-all shadow-sm flex items-center justify-center gap-0.5 cursor-pointer shrink-0"
-                                                    >
-                                                        {t('map.btn_earn', '🎫 적립')}
-                                                    </button>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </motion.div>
-                                );
-                            })() : (
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Floating AI Auto Extract Toggle Button */}
+                        {!isCourseMode && (
+                            <button
+                                onClick={() => setIsAiAutoExtractEnabled(prev => !prev)}
+                                title={isAiAutoExtractEnabled ? t('map.disable_ai_auto', 'AI 자동 추출 끄기') : t('map.enable_ai_auto', 'AI 자동 추출 켜기')}
+                                className={`absolute right-4 z-[400] w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 ${isAiAutoExtractEnabled
+                                        ? 'bg-amber-500 text-espresso-950 shadow-amber-500/30'
+                                        : 'bg-espresso-900 text-amber-500/50 border border-espresso-700/80 hover:text-amber-500/80'
+                                    }`}
+                                style={{ bottom: `calc(${focusedShopId && combinedShops.find(s => s.id === focusedShopId) ? '10.5rem' : '3.5rem'} + 3.5rem)` }}
+                            >
+                                <Sparkles size={22} className={isAiAutoExtractEnabled ? "animate-pulse" : ""} strokeWidth={2} />
+                            </button>
+                        )}
+
+                        {/* Floating AI Loading Indicator */}
+                        <AnimatePresence>
+                            {isAiLoading && (
                                 <motion.div
-                                    key="panel-empty"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="pointer-events-auto bg-[#121215]/90 backdrop-blur-md border border-espresso-800/50 rounded-full px-5 py-2.5 shadow-lg flex items-center justify-between w-max mx-auto md:mx-0 md:ml-6"
+                                    initial={{ opacity: 0, y: -20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    className="absolute top-4 left-4 z-[1000] flex justify-center pointer-events-none"
                                 >
-                                    <span className="text-[12px] font-medium text-espresso-200">
-                                        {combinedShops.length > 0 
-                                            ? t('map.msg_found_shops', '주변 매장 {{count}}곳 발견됨', { count: combinedShops.length })
-                                            : t('map.msg_no_shops', '이 지역에는 등록된 매장이 없습니다.')}
-                                    </span>
+                                    <div className="bg-espresso-900/90 backdrop-blur-md text-amber-500 border border-espresso-700/80 px-4 py-3 rounded-full flex items-center gap-2 shadow-xl shadow-black/40 overflow-hidden max-w-full">
+                                        <div className="flex gap-1 shrink-0">
+                                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce"></span>
+                                        </div>
+                                        <span className="font-bold text-[12px] sm:text-[13px] tracking-tight truncate whitespace-nowrap">{t('map.ai_extracting')}</span>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
+                        {/* Active Course Shared Banner Overlay */}
+                        <AnimatePresence>
+                            {isCourseMode && activeCourseConfig && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: 20 }}
+                                    className="absolute bottom-6 left-4 right-4 z-[1000] pointer-events-auto"
+                                >
+                                    <div className="bg-espresso-950/90 backdrop-blur-xl border border-amber-500/50 rounded-2xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.8)] flex flex-col gap-3">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center gap-1.5 mb-1">
+                                                    <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">{t('map.badge_user_shared_course')}</span>
+                                                </div>
+                                                <h3 className="font-bold text-espresso-50 text-[16px] truncate leading-tight">{activeCourseConfig.name}</h3>
+                                                <p className="text-[12px] text-espresso-300 truncate mt-0.5">by <b>{activeCourseConfig.user?.nickname || t('map.lbl_anonymous')}</b></p>
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    navigate(location.pathname, { replace: true });
+                                                    locateUser();
+                                                }}
+                                                className="w-8 h-8 rounded-full bg-espresso-900 border border-espresso-700 flex items-center justify-center text-espresso-300 hover:text-espresso-50 transition-colors shrink-0"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+
+                                        {(!isLoggedIn || (activeCourseConfig.userId !== (() => {
+                                            try {
+                                                const t = localStorage.getItem('token');
+                                                return t ? JSON.parse(atob(t.split('.')[1])).id : null;
+                                            } catch { return null; }
+                                        })() && !forkedCourseIds.includes(activeCourseConfig.id))) && (
+                                                <button
+                                                    onClick={handleForkCourse}
+                                                    disabled={isForking}
+                                                    className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-espresso-950 font-black text-[13px] rounded-xl transition-colors shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100"
+                                                >
+                                                    {isForking ? (
+                                                        <div className="w-4 h-4 border-2 border-espresso-950 border-t-transparent rounded-full animate-spin"></div>
+                                                    ) : (
+                                                        <><Heart size={16} fill="currentColor" className="text-rose-500" /> {t('map.btn_save_my_route')}</>
+                                                    )}
+                                                </button>
+                                            )}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        <AnimatePresence>
+                            {isAiLoading && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: -20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    className="absolute top-4 left-4 z-[1000] flex justify-center pointer-events-none"
+                                >
+                                    <div className="bg-espresso-900/90 backdrop-blur-md text-amber-500 border border-espresso-700/80 px-4 py-3 rounded-full flex items-center gap-2 shadow-xl shadow-black/40 overflow-hidden max-w-full">
+                                        <div className="flex gap-1 shrink-0">
+                                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce"></span>
+                                        </div>
+                                        <span className="font-bold text-[12px] sm:text-[13px] tracking-tight truncate whitespace-nowrap">{t('map.ai_extracting')}</span>
+                                    </div>
                                 </motion.div>
                             )}
                         </AnimatePresence>
                     </div>
-                </div>
-                )}
-            </div>
 
-            {/* Render the Shop Detail Modal */}
-            <ShopDetailModal
-                isOpen={isDetailModalOpen}
-                onClose={() => { setIsDetailModalOpen(false); setSelectedShop(null); }}
-                shop={selectedShop}
-            />
-        </div>
+                    {/* 2. Smart Bottom Panel (Selected Shop Summary) */}
+                    {!isCourseMode && (
+                        <div className="absolute bottom-0 left-0 right-0 z-10 pointer-events-none pb-safe">
+                            <div className="px-4 pb-4">
+                                <AnimatePresence mode="wait">
+                                    {focusedShopId && combinedShops.find(s => s.id === focusedShopId) ? (() => {
+                                        const shop = combinedShops.find(s => s.id === focusedShopId)!;
+                                        const isBookmarked = bookmarks.has(shop.id);
+                                        let parsedMainImageUrl = shop.mainImageUrl;
+                                        if (typeof parsedMainImageUrl === 'string' && parsedMainImageUrl.startsWith('[')) {
+                                            try { const parsed = JSON.parse(parsedMainImageUrl); if (Array.isArray(parsed) && parsed.length > 0) parsedMainImageUrl = parsed[0]; } catch (e) { }
+                                        }
+                                        const fallbackMedia = shop.media?.find((m: any) => m.type === 'IMAGE' || m.type === 'VIDEO');
+                                        const fallbackSrc = fallbackMedia ? fallbackMedia.url : 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800';
+                                        const mainImageSrc = parsedMainImageUrl || fallbackSrc;
+                                        const tags = [shop.shortDesc || "Specialty", shop.primaryCoffeeType, shop.isGeneric ? "Google Maps" : "Beanmind Partner"]
+                                            .filter(t => t && t !== 'GENERAL')
+                                            .map(tagStr => typeof tagStr === 'string' && tagStr.includes('AI가 발굴한') ? t('shared_map.ai_discovered_shop', 'AI가 발굴한 카페/명소') : tagStr);
+
+                                        return (
+                                            <motion.div
+                                                key={`panel-${shop.id}`}
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: 20 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="pointer-events-auto bg-[#1a1a1f] border border-espresso-700/80 rounded-2xl shadow-2xl overflow-hidden flex flex-col w-full max-w-md mx-auto md:mx-0 md:ml-4 relative cursor-pointer active:scale-[0.98] transition-transform"
+                                                onClick={() => { setSelectedShop(shop); setIsDetailModalOpen(true); }}
+                                            >
+                                                <div className="flex items-center p-3 gap-3">
+                                                    {/* Thumbnail & Rating */}
+                                                    <div className="flex flex-col items-center gap-1.5 shrink-0">
+                                                        <div className="w-14 h-14 rounded-full overflow-hidden border border-espresso-700/50 bg-espresso-900 relative">
+                                                            {(typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'))) ? (
+                                                                <video src={getFullImageUrl(mainImageSrc)} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <img src={getFullImageUrl(mainImageSrc as string)} alt={shop.name} className="w-full h-full object-cover" />
+                                                            )}
+                                                        </div>
+                                                        <div className="flex items-center justify-center">
+                                                            {(shop.reviewCount ?? 0) > 0 ? (
+                                                                <span className="text-amber-500 font-bold text-[11px]">★ {shop.averageRating?.toFixed(1) || '0.0'}</span>
+                                                            ) : (
+                                                                <span className="text-amber-600/80 border border-amber-600/30 bg-amber-600/5 px-1 rounded text-[10px]">{t('map.new_store')}</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Info & Match Rate */}
+                                                    <div className="flex-1 min-w-0 flex items-stretch">
+                                                        {/* Info (Left) */}
+                                                        <div className="flex-1 min-w-0 flex flex-col justify-center pr-2">
+                                                            <div className="flex items-center justify-between mb-0.5 gap-2">
+                                                                <div className="flex items-center min-w-0 gap-1">
+                                                                    <h3 className="font-sans font-bold text-espresso-50 text-[15px] truncate">{shop.name}</h3>
+                                                                    {!shop.isGeneric && (
+                                                                        <BadgeCheck size={16} className="text-amber-500 shrink-0" strokeWidth={2.5} />
+                                                                    )}
+                                                                </div>
+                                                                <button onClick={(e) => { e.stopPropagation(); toggleBookmark(shop.id); }} className={`p-1 -mr-1 transition-transform active:scale-90 ${isBookmarked ? 'text-rose-500' : 'text-espresso-400'}`}>
+                                                                    <Heart size={16} fill={isBookmarked ? "currentColor" : "none"} strokeWidth={2} />
+                                                                </button>
+                                                            </div>
+
+                                                            {(!shop.isGeneric && (shop.signatureBean || shop.signatureMenu || shop.dessertPairing)) ? (
+                                                                <div className="flex flex-col gap-1.5 mt-1">
+                                                                    {(shop.signatureBean || shop.signatureMenu) && (
+                                                                        <div className="flex flex-col gap-1.5 text-[11.5px] text-espresso-200">
+                                                                            {shop.signatureBean && (
+                                                                                <div className="flex items-start gap-2 min-w-0">
+                                                                                    <Bean size={14} className="text-amber-500 shrink-0 mt-[1.5px]" strokeWidth={2.5} />
+                                                                                    <span className="leading-snug">
+                                                                                        {shop.signatureBean === '스페셜티/시그니처 향미' ? t('map.fallback_specialty', '스페셜티/시그니처 향미') : (shop.signatureBean.includes('추후 제공') ? t('map.fallback_tbd', 'TBD') : shop.signatureBean)}
+                                                                                    </span>
+                                                                                </div>
+                                                                            )}
+                                                                            {shop.signatureMenu && (
+                                                                                <div className="flex items-start gap-2 min-w-0">
+                                                                                    <Coffee size={14} className="text-amber-500 shrink-0 mt-[1.5px]" strokeWidth={2.5} />
+                                                                                    <span className="leading-snug">
+                                                                                        {shop.signatureMenu === '대표 메뉴 (상세 미정)' ? t('map.fallback_menu', '대표 메뉴 (상세 미정)') : (shop.signatureMenu.includes('추후 제공') ? t('map.fallback_tbd', 'TBD') : shop.signatureMenu)}
+                                                                                    </span>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    )}
+                                                                    {shop.dessertPairing && (
+                                                                        <div className="flex items-start gap-2 text-[11.5px] text-espresso-200 min-w-0 mt-0.5">
+                                                                            <CakeSlice size={14} className="text-amber-500 shrink-0 mt-[1.5px]" strokeWidth={2.5} />
+                                                                            <span className="leading-snug">
+                                                                                {shop.dessertPairing === '추천 정보 없음' ? t('map.fallback_pairing', '추천 정보 없음') : (shop.dessertPairing.includes('추후 제공') ? t('map.fallback_tbd', 'TBD') : shop.dessertPairing)}
+                                                                            </span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            ) : (
+                                                                // Fallback for generic or empty shops
+                                                                <div className="mt-0.5 flex flex-col gap-1 relative">
+                                                                    <p className="text-[11px] text-espresso-400 italic line-clamp-2">
+                                                                        "{shop.aiSummary || shop.recentReview || (shop.reviews && shop.reviews[0]?.comment) || (shop.isGeneric ? t('map.ai_generic_desc', 'AI 추천 스페셜티 샵') : t('map.partner_desc', '빈마인드 공식 매장'))}"
+                                                                    </p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Match Rate (Right) */}
+                                                        <div className="flex flex-col items-center justify-between pl-3 ml-1 shrink-0 border-l border-espresso-800/50 min-w-[64px] relative py-1">
+                                                            <div className="flex flex-col items-center">
+                                                                <div className="text-[9px] text-amber-500/70 font-bold uppercase tracking-widest mb-0.5">Match</div>
+                                                                {shop.matchRate != null && shop.matchRate > 0 ? (
+                                                                    <div className="text-xl font-black text-amber-400 leading-none tracking-tighter">
+                                                                        {shop.matchRate}<span className="text-[10px] text-amber-500/80 ml-[1px]">%</span>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="text-xl font-black text-espresso-600 leading-none tracking-tighter mt-1">
+                                                                        -<span className="text-[10px] text-espresso-600/80 ml-[1px]">%</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {/* 🎫 적립 단추 바로가기 */}
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    navigate('/profile', { state: { openStampQR: true } });
+                                                                }}
+                                                                className="mt-2 w-full bg-amber-600 hover:bg-amber-700 text-espresso-950 font-black text-[9px] py-1 px-1 rounded-lg active:scale-95 transition-all shadow-sm flex items-center justify-center gap-0.5 cursor-pointer shrink-0"
+                                                            >
+                                                                🎫 적립
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })() : (
+                                        <motion.div
+                                            key="panel-empty"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            className="pointer-events-auto bg-[#121215]/90 backdrop-blur-md border border-espresso-800/50 rounded-full px-5 py-2.5 shadow-lg flex items-center justify-between w-max mx-auto md:mx-0 md:ml-6"
+                                        >
+                                            <span className="text-[12px] font-medium text-espresso-200">
+                                                {combinedShops.length > 0
+                                                    ? t('map.msg_found_shops', '주변 매장 {{count}}곳 발견됨', { count: combinedShops.length })
+                                                    : t('map.msg_no_shops', '이 지역에는 등록된 매장이 없습니다.')}
+                                            </span>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Render the Shop Detail Modal */}
+                <ShopDetailModal
+                    isOpen={isDetailModalOpen}
+                    onClose={() => { setIsDetailModalOpen(false); setSelectedShop(null); }}
+                    shop={selectedShop}
+                />
+            </div>
         </ErrorBoundary>
     );
 }

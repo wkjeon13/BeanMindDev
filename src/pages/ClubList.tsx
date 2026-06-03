@@ -86,7 +86,7 @@ export default function ClubList() {
             });
             if (res.ok) {
                 const data = await res.json();
-                
+
                 if (isLoadMore) {
                     setAllClubs(prev => {
                         const merged = [...prev, ...(data.all || [])];
@@ -99,16 +99,16 @@ export default function ClubList() {
                     setMyClubs(data.my || []);
                     setAllClubs(data.all || []);
                 }
-                
+
                 setNextCursor(data.nextCursor);
                 if (data.nextCursor && !isLoadMore && globalClubsCache && !debouncedSearchQuery && !isRecruitingFilter) {
-                   globalClubsCache.nextCursor = data.nextCursor;
+                    globalClubsCache.nextCursor = data.nextCursor;
                 }
-                
+
                 // Clear unread badge by updating lastSeenClubIds
                 const activeClubs = (data.my || []).filter((c: any) => c.members && c.members.length > 0 && c.members[0].role !== 'PENDING');
                 const activeIds = activeClubs.map((c: any) => c.id);
-                
+
                 const lastSeenIds = JSON.parse(localStorage.getItem('lastSeenClubIds') || '[]');
                 const newIds = activeIds.filter((id: string) => !lastSeenIds.includes(id));
                 setNewlyApprovedClubIds(newIds);
@@ -124,7 +124,7 @@ export default function ClubList() {
                 // Default gracefully if no clubs joined
                 if ((data.my || []).length === 0 && !globalClubsCache) setActiveTab('ALL_CLUBS');
             }
-        } catch(e) {
+        } catch (e) {
             console.error("Failed to fetch clubs", e);
         } finally {
             if (!silent && !isLoadMore) setIsLoading(false);
@@ -157,7 +157,7 @@ export default function ClubList() {
                         setClubAd({ fallback: 'ADMOB' });
                     }
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error("Failed to fetch club ad", e);
             }
 
@@ -176,7 +176,7 @@ export default function ClubList() {
                         setClubPremiumAd({ fallback: 'ADMOB' });
                     }
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error("Failed to fetch premium club ad", e);
             }
         };
@@ -197,7 +197,7 @@ export default function ClubList() {
             isInitialRender.current = false;
             return;
         }
-        
+
         // When searching/filtering, we shouldn't use the cache for 'allClubs'
         setNextCursor(null);
         fetchClubs(false, false);
@@ -205,13 +205,13 @@ export default function ClubList() {
 
     useEffect(() => {
         if (!loadMoreRef.current || !nextCursor || activeTab !== 'ALL_CLUBS') return;
-        
+
         const observer = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting && !isLoading && !isLoadingMore) {
                 fetchClubs(true, true);
             }
         }, { threshold: 0.1 });
-        
+
         observer.observe(loadMoreRef.current);
         return () => observer.disconnect();
     }, [nextCursor, activeTab, isLoading, isLoadingMore]);
@@ -235,7 +235,7 @@ export default function ClubList() {
                         clubLng = parseFloat(geoData[0].lon);
                     }
                 }
-            } catch(e) {
+            } catch (e) {
                 console.warn('Geocoding failed', e);
             }
         }
@@ -243,7 +243,7 @@ export default function ClubList() {
         try {
             const res = await fetch(`${API_BASE}/api/clubs`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'application/json'
                 },
@@ -265,7 +265,7 @@ export default function ClubList() {
                 const err = await res.json();
                 alert(err.error || '紐⑥엫 ?앹꽦 ?ㅽ뙣');
             }
-        } catch(e) {
+        } catch (e) {
             alert('紐⑥엫 ?앹꽦 以??ㅻ쪟媛 諛쒖깮?덉뒿?덈떎.');
         } finally {
             setIsSubmitting(false);
@@ -287,99 +287,87 @@ export default function ClubList() {
         const deadlineStr = club.recruitDeadline ? new Date(club.recruitDeadline).toLocaleDateString() : '';
 
         return (
-        <React.Fragment key={club.id}>
-        <motion.div 
-            whileTap={{ scale: 0.98 }}
-            key={club.id} 
-            onClick={() => navigate(`/clubs/${club.id}`, { state: { club } })}
-            className={`flex items-center gap-4 p-4 rounded-2xl border cursor-pointer transition-colors relative overflow-hidden shadow-sm ${
-                club.isDeleted 
-                ? 'bg-espresso-950 border-red-500/30 opacity-70 hover:opacity-90' 
-                : 'bg-espresso-800/80 border-espresso-600 hover:bg-espresso-700 shadow-espresso-900/50'
-            }`}
-        >
-            <div className={`w-20 h-20 rounded-xl flex items-center justify-center shrink-0 border overflow-hidden relative ${club.isDeleted ? 'bg-espresso-900 border-red-500/20 grayscale' : 'bg-espresso-800 border-espresso-700'}`}>
-                {club.coverImageUrl ? (
-                    <img src={parseCoverImages(club.coverImageUrl)[0]} alt="Cover" className="w-full h-full object-cover" />
-                ) : (
-                    <Users size={24} className={club.isDeleted ? "text-espresso-600" : "text-amber-500"} />
-                )}
-                {club.isPrivate && !club.isDeleted && (
-                    <div className="absolute top-1 right-1 bg-black/60 p-0.5 rounded-full">
-                        <Lock size={10} className="text-white" />
-                    </div>
-                )}
-            </div>
-            
-            <div className="flex-1 min-w-0 z-10 flex flex-col justify-between py-0.5">
-                {/* 1줄: 제목 */}
-                <div className="flex justify-between items-start mb-1">
-                    <h3 className={`font-bold text-[15px] truncate ${club.isDeleted ? 'text-espresso-400 line-through decoration-red-500/50' : 'text-espresso-50'}`}>
-                        {club.name}
-                    </h3>
-                </div>
-
-                {/* 2줄: 모집상태, 방장, 장소 */}
-                <div className="flex items-center gap-1.5 text-[11px] font-semibold text-espresso-300 mb-1 min-w-0">
-                    {club.isDeleted ? (
-                        <span className="px-1.5 py-0.5 bg-red-500/20 text-red-500 border border-red-500/30 rounded-md font-bold shrink-0">
-                            중단됨
-                        </span>
-                    ) : isRecruiting ? (
-                        <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 border border-green-500/50 rounded-md shrink-0">
-                            {t('club_list.recruiting')}
-                        </span>
-                    ) : (
-                        <span className="px-1.5 py-0.5 bg-espresso-750 text-espresso-400 border border-espresso-700/50 rounded-md shrink-0">
-                            {t('club_list.recruitment_closed')}
-                        </span>
-                    )}
-                    {club.owner?.nickname && (
-                        <span className="shrink-0 text-espresso-200">
-                            {t('club_list.lbl_owner')}: <span className="text-amber-500 font-bold">{club.owner.nickname}</span>
-                        </span>
-                    )}
-                    {club.locationName && (
-                        <span className="truncate min-w-0 flex items-center gap-0.5 text-espresso-450">
-                            • <MapPin size={10} className="inline shrink-0" /> {club.locationName}
-                        </span>
-                    )}
-                </div>
-
-                {/* 3줄: 참여 인원수, 시작일 */}
-                <div className="flex items-center gap-2 text-[11px] font-semibold text-espresso-400 min-w-0">
-                    <span className="flex items-center gap-0.5 shrink-0">
-                        <Users size={11} className="text-amber-500/80" /> {club.memberCount || 0}{t('club_list.unit_person')}
-                    </span>
-                    <span className="shrink-0">
-                        • {t('club_list.start_date', '시작일')}: {new Date(club.createdAt).toLocaleDateString()}
-                    </span>
-                    {actualPendingCount > 0 && (
-                        <span className="px-1.5 py-0.5 bg-red-500/20 text-red-500 border border-red-500/50 rounded-md font-bold ml-auto flex items-center gap-1 animate-pulse text-[10px] shrink-0">
-                            {t('club_list.lbl_pending')} {actualPendingCount}{t('club_list.unit_person')}
-                        </span>
-                    )}
-                </div>
-
-                {/* 가입 정보 피드백 (내 소모임 전용) */}
-                {activeTab === 'MY_CLUBS' && club.members && club.members.length > 0 && (
-                    <div className="text-[10px] items-center text-espresso-500 font-medium mt-1">
-                        {club.members[0].role === 'PENDING' ? t('club_list.status_pending') : `${new Date(club.members[0].joinedAt).toLocaleDateString()} ${t('club_list.status_joined')}`}
-                        {newlyApprovedClubIds.includes(club.id) && (
-                            <span className="ml-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-1.5 py-0.5 rounded-md font-bold animate-pulse inline-flex items-center">
-                                {t('club_list.alert_approved')}
-                            </span>
+            <React.Fragment key={club.id}>
+                <motion.div
+                    whileTap={{ scale: 0.98 }}
+                    key={club.id}
+                    onClick={() => navigate(`/clubs/${club.id}`, { state: { club } })}
+                    className={`flex items-center gap-4 p-4 rounded-2xl border cursor-pointer transition-colors relative overflow-hidden shadow-sm ${club.isDeleted
+                            ? 'bg-espresso-950 border-red-500/30 opacity-70 hover:opacity-90'
+                            : 'bg-espresso-800/80 border-espresso-600 hover:bg-espresso-700 shadow-espresso-900/50'
+                        }`}
+                >
+                    <div className={`w-16 h-16 rounded-xl flex items-center justify-center shrink-0 border overflow-hidden relative ${club.isDeleted ? 'bg-espresso-900 border-red-500/20 grayscale' : 'bg-espresso-800 border-espresso-700'}`}>
+                        {club.coverImageUrl ? (
+                            <img src={parseCoverImages(club.coverImageUrl)[0]} alt="Cover" className="w-full h-full object-cover" />
+                        ) : (
+                            <Users size={24} className={club.isDeleted ? "text-espresso-600" : "text-amber-500"} />
+                        )}
+                        {club.isPrivate && !club.isDeleted && (
+                            <div className="absolute top-1 right-1 bg-black/60 p-0.5 rounded-full">
+                                <Lock size={10} className="text-white" />
+                            </div>
                         )}
                     </div>
+
+                    <div className="flex-1 min-w-0 z-10">
+                        <div className="flex justify-between items-start mb-1">
+                            <h3 className={`font-bold text-[15px] truncate ${club.isDeleted ? 'text-espresso-400 line-through decoration-red-500/50' : 'text-espresso-50'}`}>
+                                {club.name}
+                            </h3>
+                        </div>
+                        <p className="text-[13px] text-espresso-300 line-clamp-1 mb-2">{club.isDeleted ? '紐⑥엫?μ뿉 ?섑빐 ?먯뇙???뚮え?꾩엯?덈떎.' : club.description}</p>
+                        <div className="flex items-center gap-1.5 text-[11px] font-medium mb-1 flex-nowrap overflow-x-auto hide-scrollbar pb-1">
+                            {club.isDeleted ? (
+                                <span className="px-2 py-0.5 bg-red-500/20 text-red-500 border border-red-500/30 rounded-full w-fit flex flex-row shrink-0 whitespace-nowrap items-center gap-1 font-bold">
+                                    ???먯뇙??
+                                </span>
+                            ) : isRecruiting ? (
+                                <span className="px-2 py-0.5 bg-green-500/20 text-green-400 border border-green-500/50 rounded-full w-fit flex flex-row shrink-0 whitespace-nowrap items-center gap-1">
+                                    {t('club_list.recruiting')} {deadlineStr && `( ~${deadlineStr} )`}
+                                </span>
+                            ) : (
+                                <span className="px-2 py-0.5 bg-espresso-800 text-espresso-400 border border-espresso-700/50 rounded-full w-fit flex flex-row shrink-0 whitespace-nowrap items-center gap-1">
+                                    {t('club_list.recruitment_closed')}
+                                </span>
+                            )}
+                            <span className="px-2 py-0.5 bg-espresso-950 rounded-full w-fit text-amber-500/80 border border-amber-900/50 flex flex-row items-center gap-1 shrink-0 whitespace-nowrap">
+                                <Users size={12} /> {club.memberCount || 0}{t('club_list.unit_person')}
+                            </span>
+                            {club.locationName && (
+                                <span className="px-2 py-0.5 bg-espresso-900 rounded-full text-espresso-300 border shrink-0 whitespace-nowrap border-espresso-800 flex items-center gap-1">
+                                    <MapPin size={10} /> {club.locationName}
+                                </span>
+                            )}
+                            {club.owner?.nickname && (
+                                <span className="px-2 py-0.5 bg-espresso-900 rounded-full text-espresso-300 border shrink-0 whitespace-nowrap border-espresso-800">
+                                    {t('club_list.lbl_owner')}: {club.owner.nickname}
+                                </span>
+                            )}
+                            {actualPendingCount > 0 && (
+                                <span className="px-2 py-0.5 bg-red-500/20 text-red-500 border border-red-500/50 rounded-full font-bold ml-auto flex items-center gap-1 animate-pulse shrink-0 whitespace-nowrap">
+                                    <span className="w-1.5 h-1.5 bg-red-500 rounded-full" /> {t('club_list.lbl_pending')} {actualPendingCount}{t('club_list.unit_person')}
+                                </span>
+                            )}
+                        </div>
+                        {activeTab === 'MY_CLUBS' && club.members && club.members.length > 0 && (
+                            <div className="text-[10px] items-center text-espresso-400 font-medium">
+                                {club.members[0].role === 'PENDING' ? t('club_list.status_pending') : `${new Date(club.members[0].joinedAt).toLocaleDateString()} ${t('club_list.status_joined')}`}
+                                {newlyApprovedClubIds.includes(club.id) && (
+                                    <span className="ml-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 px-2 py-0.5 rounded-full font-bold animate-pulse inline-flex items-center">
+                                        {t('club_list.alert_approved')}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+                {injectAd && (
+                    <div className="mb-4 mx-0" key={`ad-${club.id}-${index}`}>
+                        <FeedAdCard adData={clubAd.ads?.length > 0 ? clubAd.ads[Math.floor(index / 5) % clubAd.ads.length] : (clubAd.ad || clubAd)} />
+                    </div>
                 )}
-            </div>
-        </motion.div>
-        {injectAd && (
-            <div className="mb-4 mx-0" key={`ad-${club.id}-${index}`}>
-                <FeedAdCard adData={clubAd.ads?.length > 0 ? clubAd.ads[Math.floor(index / 5) % clubAd.ads.length] : (clubAd.ad || clubAd)} />
-            </div>
-        )}
-        </React.Fragment>
+            </React.Fragment>
         );
     };
 
@@ -404,7 +392,7 @@ export default function ClubList() {
                         <div className="flex items-center gap-1 shrink-0">
                             {activeTab === 'ALL_CLUBS' && (
                                 <>
-                                    <button 
+                                    <button
                                         onClick={() => setIsRecruitingFilter(!isRecruitingFilter)}
                                         className={`shrink-0 px-2 py-1 mr-0.5 rounded-full text-[11px] font-bold border transition-colors ${isRecruitingFilter ? 'bg-amber-500/20 text-amber-500 border-amber-500/50' : 'bg-transparent text-espresso-400 border-espresso-800 hover:border-espresso-600'}`}
                                     >
@@ -420,7 +408,7 @@ export default function ClubList() {
                         <div className="flex items-center flex-1 justify-end min-w-0">
                             <div className="relative flex items-center flex-1 sm:max-w-xs bg-espresso-950/50 border border-espresso-800 rounded-full px-2 py-1 sm:px-3 sm:py-1.5 focus-within:border-amber-500 transition-colors">
                                 <Search size={14} className="text-espresso-400 mr-1 shrink-0 hidden sm:block" />
-                                <input 
+                                <input
                                     type="text"
                                     placeholder={t('club_list.ph_search')}
                                     value={searchQuery}
@@ -434,24 +422,24 @@ export default function ClubList() {
                                     </button>
                                 )}
                             </div>
-                            <button 
-                                onClick={() => { setIsSearchOpen(false); setSearchQuery(''); setIsRecruitingFilter(false); }} 
+                            <button
+                                onClick={() => { setIsSearchOpen(false); setSearchQuery(''); setIsRecruitingFilter(false); }}
                                 className="text-[13px] font-medium text-espresso-300 ml-2 whitespace-nowrap shrink-0"
                             >
-                                {t('club_list.btn_cancel')} 
+                                {t('club_list.btn_cancel')}
                             </button>
                         </div>
                     )}
                 </div>
-                
+
                 <div className="flex w-full mb-0 border-b border-espresso-800/60">
-                    <button 
+                    <button
                         onClick={() => setActiveTab('ALL_CLUBS')}
                         className={`flex-1 py-3 text-[14px] font-bold text-center border-b-2 transition-colors ${activeTab === 'ALL_CLUBS' ? 'border-amber-500 text-amber-500' : 'border-transparent text-espresso-400'}`}
                     >
                         {t('club_list.tab_all')}
                     </button>
-                    <button 
+                    <button
                         onClick={() => setActiveTab('MY_CLUBS')}
                         className={`flex-1 py-3 text-[14px] font-bold text-center border-b-2 transition-colors relative flex justify-center items-center gap-1 ${activeTab === 'MY_CLUBS' ? 'border-amber-500 text-amber-500' : 'border-transparent text-espresso-400'}`}
                     >
@@ -487,7 +475,7 @@ export default function ClubList() {
                         </div>
                     )
                 )}
-                
+
                 {activeTab === 'ALL_CLUBS' && nextCursor && (
                     <div ref={loadMoreRef} className="py-8 flex justify-center items-center">
                         {isLoadingMore ? (
@@ -500,7 +488,7 @@ export default function ClubList() {
             </PullToRefresh>
 
             <div className="fixed bottom-20 right-4 md:right-8 lg:right-10 z-50 flex justify-end pointer-events-none">
-                <button 
+                <button
                     onClick={() => setIsCreateModalOpen(true)}
                     className="pointer-events-auto w-14 h-14 md:w-16 md:h-16 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center text-espresso-950 shadow-lg shadow-amber-500/30 hover:scale-105 active:scale-95 transition-transform"
                 >
@@ -522,8 +510,8 @@ export default function ClubList() {
                             <form onSubmit={handleCreateClub} className="space-y-5">
                                 <div>
                                     <label className="block text-[13px] font-medium text-espresso-300 mb-1.5">{t('club_list.lbl_name')}</label>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         value={newClubName}
                                         onChange={e => setNewClubName(e.target.value)}
                                         placeholder={t('club_list.ph_name')}
@@ -534,34 +522,34 @@ export default function ClubList() {
                                 </div>
                                 <div>
                                     <label className="block text-[13px] font-medium text-espresso-300 mb-1.5">{t('club_list.lbl_cover_image')}</label>
-                                    <div 
-                                    onClick={() => fileInputRef.current?.click()}
-                                    className="w-full h-32 bg-espresso-950 border border-dashed border-espresso-700 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-amber-500 overflow-hidden relative transition-colors group"
-                                >
-                                    {coverImagePreviews.length > 0 ? (
-                                        <div className="flex w-full h-full divide-x divide-espresso-900 border-r border-espresso-900 relative">
-                                            {coverImagePreviews.slice(0, 3).map((img, idx) => (
-                                                <div key={idx} className="flex-1 h-full relative">
-                                                    <img src={img} alt="Preview" className="w-full h-full object-cover opacity-60" />
+                                    <div
+                                        onClick={() => fileInputRef.current?.click()}
+                                        className="w-full h-32 bg-espresso-950 border border-dashed border-espresso-700 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-amber-500 overflow-hidden relative transition-colors group"
+                                    >
+                                        {coverImagePreviews.length > 0 ? (
+                                            <div className="flex w-full h-full divide-x divide-espresso-900 border-r border-espresso-900 relative">
+                                                {coverImagePreviews.slice(0, 3).map((img, idx) => (
+                                                    <div key={idx} className="flex-1 h-full relative">
+                                                        <img src={img} alt="Preview" className="w-full h-full object-cover opacity-60" />
+                                                    </div>
+                                                ))}
+                                                {coverImagePreviews.length > 3 && (
+                                                    <div className="absolute inset-y-0 right-0 w-1/3 bg-black/70 flex items-center justify-center border-l border-espresso-800 backdrop-blur-sm">
+                                                        <span className="text-white font-bold text-xs">+{coverImagePreviews.length - 3}</span>
+                                                    </div>
+                                                )}
+                                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+                                                    <span className="bg-black/80 px-3 py-1 rounded-lg text-xs font-bold text-white shadow-lg">{t('club_list.btn_reset_images', { count: coverImagePreviews.length })}</span>
                                                 </div>
-                                            ))}
-                                            {coverImagePreviews.length > 3 && (
-                                                <div className="absolute inset-y-0 right-0 w-1/3 bg-black/70 flex items-center justify-center border-l border-espresso-800 backdrop-blur-sm">
-                                                    <span className="text-white font-bold text-xs">+{coverImagePreviews.length - 3}</span>
-                                                </div>
-                                            )}
-                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-                                                <span className="bg-black/80 px-3 py-1 rounded-lg text-xs font-bold text-white shadow-lg">{t('club_list.btn_reset_images', { count: coverImagePreviews.length })}</span>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <ImageIcon size={32} className="text-espresso-600 mb-2 group-hover:scale-110 transition-transform" />
-                                            <span className="text-xs text-espresso-400 group-hover:text-amber-500 transition-colors">{t('club_list.desc_cover_image')}</span>
-                                        </>
-                                    )}
-                                </div>
-                                <input type="file" multiple ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
+                                        ) : (
+                                            <>
+                                                <ImageIcon size={32} className="text-espresso-600 mb-2 group-hover:scale-110 transition-transform" />
+                                                <span className="text-xs text-espresso-400 group-hover:text-amber-500 transition-colors">{t('club_list.desc_cover_image')}</span>
+                                            </>
+                                        )}
+                                    </div>
+                                    <input type="file" multiple ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
                                 </div>
                                 <div>
                                     <label className="block text-[13px] font-medium text-espresso-300 mb-1.5">{t('club_list.lbl_location')}</label>
@@ -569,8 +557,8 @@ export default function ClubList() {
                                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center object-contain pointer-events-none">
                                             <MapPin size={18} className="text-espresso-600" />
                                         </div>
-                                        <input 
-                                            type="text" 
+                                        <input
+                                            type="text"
                                             value={locationName}
                                             onChange={e => setLocationName(e.target.value)}
                                             placeholder={t('club_list.ph_location')}
@@ -581,7 +569,7 @@ export default function ClubList() {
                                 </div>
                                 <div>
                                     <label className="block text-[13px] font-medium text-espresso-300 mb-1.5">{t('club_list.lbl_desc')}</label>
-                                    <textarea 
+                                    <textarea
                                         value={newClubDesc}
                                         onChange={e => setNewClubDesc(e.target.value)}
                                         placeholder={t('club_list.ph_desc')}
@@ -604,7 +592,7 @@ export default function ClubList() {
                                     </label>
                                 </div>
 
-                                <button 
+                                <button
                                     type="submit"
                                     disabled={isSubmitting || !newClubName.trim() || !newClubDesc.trim()}
                                     className="w-full py-4 text-center mt-4 bg-amber-500 text-espresso-950 font-bold rounded-xl active:bg-amber-600 disabled:opacity-50"

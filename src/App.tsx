@@ -27,7 +27,7 @@ const BottomNav = () => {
   const { t } = useTranslation();
   const location = useLocation();
   const currentPath = location.pathname;
-  
+
   const safeGetSession = () => { try { return !!localStorage.getItem('token'); } catch { return false; } };
   const [isLoggedIn, setIsLoggedIn] = React.useState(safeGetSession());
 
@@ -38,13 +38,13 @@ const BottomNav = () => {
     window.addEventListener('authStateChanged', handleAuthChange);
 
     const handleFocusIn = (e: Event) => {
-        const target = e.target as HTMLElement;
-        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-            const type = (target as HTMLInputElement).type;
-            if (type !== 'checkbox' && type !== 'radio' && type !== 'submit' && type !== 'button' && type !== 'file') {
-                setIsKeyboardVisible(true);
-            }
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+        const type = (target as HTMLInputElement).type;
+        if (type !== 'checkbox' && type !== 'radio' && type !== 'submit' && type !== 'button' && type !== 'file') {
+          setIsKeyboardVisible(true);
         }
+      }
     };
     const handleFocusOut = () => setIsKeyboardVisible(false);
 
@@ -52,23 +52,23 @@ const BottomNav = () => {
     window.addEventListener('focusout', handleFocusOut);
 
     return () => {
-        window.removeEventListener('authStateChanged', handleAuthChange);
-        window.removeEventListener('focusin', handleFocusIn);
-        window.removeEventListener('focusout', handleFocusOut);
+      window.removeEventListener('authStateChanged', handleAuthChange);
+      window.removeEventListener('focusin', handleFocusIn);
+      window.removeEventListener('focusout', handleFocusOut);
     };
   }, []);
 
-  // Hide bottom nav on specific pages or when virtual keyboard is active to prevent blocking input fields
-  if (isKeyboardVisible || currentPath.startsWith('/register') || currentPath.startsWith('/admin') || currentPath.startsWith('/profile/host-web') || currentPath.startsWith('/profile/tasting-note') || currentPath.startsWith('/profile/tour-wizard')) return null;
+  // Hide bottom nav on specific pages
+  if (currentPath.startsWith('/register') || currentPath.startsWith('/admin') || currentPath.startsWith('/profile/host-web')) return null;
 
   const handleNavClick = (e: React.MouseEvent, targetPath: string) => {
     // If clicking the current tab, trigger scroll to top
     if (
-        (targetPath === '/' && currentPath === '/') ||
-        (targetPath !== '/' && currentPath.startsWith(targetPath))
+      (targetPath === '/' && currentPath === '/') ||
+      (targetPath !== '/' && currentPath.startsWith(targetPath))
     ) {
-        e.preventDefault(); // Prevent re-navigation flicker
-        window.dispatchEvent(new Event('scrollToTop'));
+      e.preventDefault(); // Prevent re-navigation flicker
+      window.dispatchEvent(new Event('scrollToTop'));
     }
   };
 
@@ -109,48 +109,40 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const hideBottomNav = location.pathname.startsWith('/register') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/profile/host-web') || location.pathname.startsWith('/profile/tasting-note') || location.pathname.startsWith('/profile/tour-wizard');
+  const hideBottomNav = location.pathname.startsWith('/register') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/profile/host-web');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   useEffect(() => {
-     // 1. Nginx 등 웹 서버의 서브라우팅 유실을 우회하기 위해, 홈페이지 루트로 들어온 쿼리 파라미터 딥링크를 감지해 내부 포워딩
-     const params = new URLSearchParams(location.search);
-     const targetRoute = params.get('route');
-     const targetPost = params.get('post');
-     if (targetRoute === 'community' && targetPost) {
-         navigate(`/community?post=${targetPost}`, { replace: true });
-         return;
-     }
+    // If user is unauthenticated and tries to access a protected route (or just whenever they open the app unauthenticated), 
+    // force them to the home page (Curator) if they are not already there or on a public safe page.
+    const isAuth = !!localStorage.getItem('token');
+    const isPublicRoute = location.pathname === '/' ||
+      location.pathname.startsWith('/curator') ||
+      location.pathname.startsWith('/community') ||
+      location.pathname.startsWith('/clubs') ||
+      location.pathname.startsWith('/map') ||
+      location.pathname.startsWith('/course') ||
+      location.pathname === '/profile' ||
+      location.pathname === '/register';
 
-     // 2. 비인증 사용자 차단 방어막 (기존 로직 유지)
-     const isAuth = !!localStorage.getItem('token');
-     const isPublicRoute = location.pathname === '/' || 
-                           location.pathname.startsWith('/curator') ||
-                           location.pathname.startsWith('/community') || 
-                           location.pathname.startsWith('/clubs') ||
-                           location.pathname.startsWith('/map') || 
-                           location.pathname.startsWith('/course') ||
-                           location.pathname === '/profile' ||
-                           location.pathname === '/register';
-     
-     if (!isAuth && !isPublicRoute) {
-         navigate('/community', { replace: true });
-     }
-  }, [location.pathname, location.search, navigate]);
+    if (!isAuth && !isPublicRoute) {
+      navigate('/community', { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   // Sync language on initial load if logged in
   useEffect(() => {
-     try {
-         const userStr = localStorage.getItem('user');
-         if (userStr) {
-             const user = JSON.parse(userStr);
-             if (user.preferredLanguage && i18n.language !== user.preferredLanguage) {
-                 i18n.changeLanguage(user.preferredLanguage);
-             }
-         }
-     } catch (e) {
-         console.error("Failed to sync language on load", e);
-     }
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        if (user.preferredLanguage && i18n.language !== user.preferredLanguage) {
+          i18n.changeLanguage(user.preferredLanguage);
+        }
+      }
+    } catch (e) {
+      console.error("Failed to sync language on load", e);
+    }
   }, [i18n]);
 
   useEffect(() => {
@@ -166,46 +158,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  useEffect(() => {
-    let deepLinkHandlePromise: Promise<any> | null = null;
-    const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
-    
-    if (isNative) {
-        // 웹 브라우저 환경에서의 정적 로드 에러 방지를 위해 Capacitor App 플러그인을 동적으로 임포트
-        deepLinkHandlePromise = import('@capacitor/app').then(({ App: CapApp }) => {
-            return CapApp.addListener('appUrlOpen', (event: any) => {
-                if (event.url) {
-                    try {
-                        const parsedUrl = new URL(event.url);
-                        const params = new URLSearchParams(parsedUrl.search);
-                        const route = params.get('route');
-                        const post = params.get('post');
-                        if (route === 'community' && post) {
-                            navigate(`/community?post=${post}`, { replace: true });
-                        }
-                    } catch (e) {
-                        console.error("Failed to parse appUrlOpen URL in Layout:", e);
-                    }
-                }
-            });
-        }).catch(e => {
-            console.error("Failed to load @capacitor/app dynamically in Layout:", e);
-            return null;
-        });
-    }
 
-    return () => {
-        if (deepLinkHandlePromise) {
-            deepLinkHandlePromise.then(h => {
-                if (h) h.remove();
-            }).catch(e => console.error("Failed to remove Layout deep link listener:", e));
-        }
-    };
-  }, [navigate]);
-
-    return (
+  return (
     <div className="fixed inset-0 w-full overflow-hidden flex flex-col bg-espresso-950 font-sans selection:bg-amber-900 selection:text-amber-100">
-      
+
       {/* Offline Toast */}
       {isOffline && (
         <div className="absolute top-safe left-1/2 -translate-x-1/2 w-[90%] max-w-sm mt-4 z-[200]">
@@ -237,7 +193,7 @@ const safeGetItem = (storage: Storage, key: string) => {
   try { return storage.getItem(key); } catch { return null; }
 };
 const safeSetItem = (storage: Storage, key: string, val: string) => {
-  try { storage.setItem(key, val); } catch {}
+  try { storage.setItem(key, val); } catch { }
 };
 
 export default function App() {
@@ -245,9 +201,9 @@ export default function App() {
 
   // Listen to auth changes to selectively request push
   React.useEffect(() => {
-     const handleAuth = () => setIsAuthenticated(!!safeGetItem(sessionStorage, 'token'));
-     window.addEventListener('authStateChanged', handleAuth);
-     return () => window.removeEventListener('authStateChanged', handleAuth);
+    const handleAuth = () => setIsAuthenticated(!!safeGetItem(sessionStorage, 'token'));
+    window.addEventListener('authStateChanged', handleAuth);
+    return () => window.removeEventListener('authStateChanged', handleAuth);
   }, []);
 
   // Initialize push notification hook
@@ -255,13 +211,13 @@ export default function App() {
 
   React.useEffect(() => {
     const hash = window.location.hash;
-    const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
     if (hash && hash.includes('access_token') && hash.includes('state=native_google_login')) {
-        if (!isNative) {
-            // We are bouncing from Chrome back into Native App!
-            window.location.href = `capcurator://google-login${hash}`;
-            return;
-        }
+      const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+      if (!isNative) {
+        // We are bouncing from Chrome back into Native App!
+        window.location.href = `capcurator://google-login${hash}`;
+        return;
+      }
     }
 
     const trackVisitor = async () => {
@@ -300,24 +256,24 @@ export default function App() {
             </div>
           }>
             <Routes>
-          <Route path="/" element={<HomeDashboard />} />
-          <Route path="/curator" element={<Curator />} />
-          <Route path="/community" element={<CoffeeTalk />} />
-          <Route path="/clubs" element={<ClubList />} />
-          <Route path="/clubs/:id" element={<ClubDetail />} />
-          <Route path="/map" element={<ShopBrowser />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/profile/activity" element={<ActivityHistory />} />
-          <Route path="/profile/tasting-note" element={<TastingNoteWizard />} />
-          <Route path="/profile/tour-wizard" element={<TourRouteWizard />} />
-          <Route path="/profile/prescriptions" element={<PrescriptionHistory />} />
-          <Route path="/profile/bookmarks" element={<SavedShops />} />
-          <Route path="/profile/bookmarked-posts" element={<BookmarkedPosts />} />
-          <Route path="/course/:id" element={<CoursePlaylists />} />
-          <Route path="/profile/manage-shop" element={<ManageShop />} />
-          <Route path="/profile/points" element={<PointHistory />} />
-          <Route path="/register" element={<RegisterShop />} />
-          <Route path="/profile/host-web" element={<HostWebDashboard />} />
+              <Route path="/" element={<HomeDashboard />} />
+              <Route path="/curator" element={<Curator />} />
+              <Route path="/community" element={<CoffeeTalk />} />
+              <Route path="/clubs" element={<ClubList />} />
+              <Route path="/clubs/:id" element={<ClubDetail />} />
+              <Route path="/map" element={<ShopBrowser />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/activity" element={<ActivityHistory />} />
+              <Route path="/profile/tasting-note" element={<TastingNoteWizard />} />
+              <Route path="/profile/tour-wizard" element={<TourRouteWizard />} />
+              <Route path="/profile/prescriptions" element={<PrescriptionHistory />} />
+              <Route path="/profile/bookmarks" element={<SavedShops />} />
+              <Route path="/profile/bookmarked-posts" element={<BookmarkedPosts />} />
+              <Route path="/course/:id" element={<CoursePlaylists />} />
+              <Route path="/profile/manage-shop" element={<ManageShop />} />
+              <Route path="/profile/points" element={<PointHistory />} />
+              <Route path="/register" element={<RegisterShop />} />
+              <Route path="/profile/host-web" element={<HostWebDashboard />} />
 
 
             </Routes>

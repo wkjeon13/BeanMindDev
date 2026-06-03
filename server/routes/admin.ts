@@ -73,7 +73,7 @@ router.get('/moderation/blinded-content', async (req: any, res: any) => {
             orderBy: { createdAt: 'desc' },
             include: { author: { select: { nickname: true, email: true, profileImageUrl: true } } }
         });
-        
+
         const comments = await (prisma as any).comment.findMany({
             where: { isHidden: true },
             orderBy: { createdAt: 'desc' },
@@ -91,7 +91,7 @@ router.get('/moderation/blinded-content', async (req: any, res: any) => {
 router.put('/moderation/blinded-content/:type/:id/restore', async (req: any, res: any) => {
     try {
         const { type, id } = req.params;
-        
+
         if (type === 'POST') {
             await (prisma as any).post.update({
                 where: { id },
@@ -142,9 +142,9 @@ router.get('/moderation/other-reports', async (req: any, res: any) => {
                 const comment = await prisma.comment.findUnique({ where: { id: report.targetId }, select: { content: true } });
                 targetName = `[댓글] ${comment?.content?.substring(0, 30)}...`;
             }
-            
+
             const reporter = await prisma.user.findUnique({ where: { id: report.reporterId }, select: { nickname: true, email: true } });
-            
+
             return {
                 ...report,
                 targetName,
@@ -174,31 +174,31 @@ router.delete('/moderation/reports/:id', async (req: any, res: any) => {
 router.put('/moderation/reports/:id/reject', async (req: any, res: any) => {
     try {
         const { reason, targetName } = req.body;
-        
+
         const report = await prisma.report.findUnique({
             where: { id: req.params.id }
         });
-        
+
         if (!report) return res.status(404).json({ error: ERROR_CODES.REPORT_NOT_FOUND || 'REPORT_NOT_FOUND' });
-        
+
         // Update report status
         const updatedReport = await prisma.report.update({
             where: { id: req.params.id },
             data: { status: 'REJECTED' }
         });
-        
+
         // Fetch Reporter email directly since Prisma \`Report.reporterId\` doesn't have an explicit relation in schema to User currently
         const reporter = await prisma.user.findUnique({ where: { id: report.reporterId } });
-        
+
         if (reporter && reporter.email) {
             await sendFalseReportNotice(
-                reporter.email, 
-                report.targetType, 
-                targetName || '알 수 없음(삭제됨)', 
+                reporter.email,
+                report.targetType,
+                targetName || '알 수 없음(삭제됨)',
                 reason || '신고 내용을 관리자가 검토하였으나 특이사항이 발견되지 않았습니다. 허위/장난 신고의 경우 서비스 제한 조치가 있을 수 있습니다.'
             );
         }
-        
+
         res.json({ success: true, report: updatedReport });
     } catch (error) {
         console.error("Reject report error:", error);
@@ -212,38 +212,38 @@ router.put('/moderation/reports/:id/accept', async (req: any, res: any) => {
         const report = await prisma.report.findUnique({
             where: { id: req.params.id }
         });
-        
+
         if (!report) return res.status(404).json({ error: ERROR_CODES.REPORT_NOT_FOUND || 'REPORT_NOT_FOUND' });
-        
+
         if (report.targetType === 'STORE') {
             await prisma.store.update({
                 where: { id: report.targetId },
                 data: { status: 'REJECTED' }
-            }).catch(() => {});
+            }).catch(() => { });
         } else if (report.targetType === 'USER') {
             await prisma.user.update({
                 where: { id: report.targetId },
                 data: { status: 'SUSPENDED' }
-            }).catch(() => {});
+            }).catch(() => { });
         } else if (report.targetType === 'REVIEW') {
             await prisma.storeReview.delete({
                 where: { id: report.targetId }
-            }).catch(() => {});
+            }).catch(() => { });
         } else if (report.targetType === 'POST') {
             await prisma.post.update({
                 where: { id: report.targetId },
                 data: { isHidden: true }
-            }).catch(() => {});
+            }).catch(() => { });
         } else if (report.targetType === 'COMMENT') {
             await prisma.comment.update({
                 where: { id: report.targetId },
                 data: { isHidden: true }
-            }).catch(() => {});
+            }).catch(() => { });
         }
-        
+
         // Delete the report record after penalizing target
         await prisma.report.delete({ where: { id: req.params.id } });
-        
+
         res.json({ success: true });
     } catch (error) {
         console.error("Accept report error:", error);
@@ -255,7 +255,7 @@ router.put('/moderation/reports/:id/accept', async (req: any, res: any) => {
 router.post('/content/delete', async (req: any, res: any) => {
     try {
         const { type, id, reason } = req.body;
-        
+
         if (!type || !id || !reason) {
             return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
         }
@@ -312,7 +312,7 @@ const storage = multer.diskStorage({
         cb(null, 'ad-' + uniqueSuffix + ext);
     }
 });
-const upload = multer({ 
+const upload = multer({
     storage: storage,
     limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
     fileFilter: (req: any, file: any, cb: any) => {
@@ -402,7 +402,7 @@ router.get('/point-policy', requireSuperAdmin, async (req: any, res: any) => {
 router.put('/point-policy', requireSuperAdmin, async (req: any, res: any) => {
     try {
         const { welcomeBeans, welcomeFreePrescriptions, prescriptionCost, reviewReward, p2pFeePercent, exchangeRate, minExchangeAmount, adFrequencyCapHours } = req.body;
-        
+
         const updatedPolicy = {
             id: 'singleton',
             welcomeBeans: welcomeBeans !== undefined ? parseInt(welcomeBeans) : 0,
@@ -816,7 +816,7 @@ router.get('/metrics', async (req: any, res: any) => {
             prisma.anonymousVisitor.count({ where: { hasUsedAi: true } }),
             prisma.anonymousVisitor.aggregate({ _sum: { aiUsageCount: true } })
         ]);
-        
+
         const aiPrescriptionsAnonymous = anonymousUsageSum._sum.aiUsageCount || 0;
         const totalPrescriptions = aiPrescriptionsLoggedIn + aiPrescriptionsAnonymous;
 
@@ -863,7 +863,7 @@ router.get('/announcements', async (req: any, res: any) => {
 router.post('/announcements', async (req: any, res: any) => {
     try {
         const { content, contentEn, startDate, endDate, image, imageEn, isSystemPopup, countryCode } = req.body;
-        
+
         if (!content) {
             return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
         }
@@ -958,15 +958,15 @@ router.get('/hosts/search', async (req: any, res: any) => {
                 ]
             },
             take: 10,
-            select: { 
-                id: true, 
-                nickname: true, 
-                email: true, 
+            select: {
+                id: true,
+                nickname: true,
+                email: true,
                 profileImageUrl: true,
                 stores: { select: { name: true, ownerName: true }, take: 1 }
             }
         });
-        
+
         res.status(200).json(hosts);
     } catch (error) {
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
@@ -976,9 +976,9 @@ router.get('/hosts/search', async (req: any, res: any) => {
 // --- Advertisers ---
 router.get('/advertisers', async (req: any, res: any) => {
     try {
-        const advertisers = await prisma.advertiser.findMany({ 
+        const advertisers = await prisma.advertiser.findMany({
             include: { user: { select: { nickname: true, email: true } } },
-            orderBy: { createdAt: 'desc' } 
+            orderBy: { createdAt: 'desc' }
         });
         res.status(200).json(advertisers);
     } catch (error) {
@@ -990,7 +990,7 @@ router.post('/advertisers', async (req: any, res: any) => {
     try {
         const body = { ...req.body };
         const { adInquiryId } = body;
-        
+
         if (!adInquiryId) {
             return res.status(400).json({ error: ERROR_CODES.AD_NOT_APPROVED });
         }
@@ -1002,7 +1002,7 @@ router.post('/advertisers', async (req: any, res: any) => {
 
         delete body.adInquiryId; // Not a field in Advertiser schema
         if (!body.userId) delete body.userId; // Clean empty string
-        
+
         const ad = await prisma.advertiser.create({ data: body });
         res.status(201).json(ad);
     } catch (error: any) {
@@ -1038,9 +1038,9 @@ router.delete('/advertisers/:id', async (req: any, res: any) => {
 // --- Contracts ---
 router.get('/contracts', async (req: any, res: any) => {
     try {
-        const contracts = await prisma.contract.findMany({ 
+        const contracts = await prisma.contract.findMany({
             include: { advertiser: true },
-            orderBy: { createdAt: 'desc' } 
+            orderBy: { createdAt: 'desc' }
         });
         res.status(200).json(contracts);
     } catch (error) {
@@ -1064,7 +1064,7 @@ router.post('/contracts', async (req: any, res: any) => {
         if (body.priceRate) body.priceRate = parseFloat(body.priceRate);
         if (body.maxImpressions) body.maxImpressions = parseInt(body.maxImpressions);
         if (body.maxClicks) body.maxClicks = parseInt(body.maxClicks);
-        
+
         const contract = await prisma.contract.create({ data: body });
         res.status(201).json(contract);
     } catch (error) {
@@ -1102,7 +1102,7 @@ router.put('/contracts/:id', async (req: any, res: any) => {
         if (body.startDate) syncData.startDate = body.startDate;
         if (body.endDate) syncData.endDate = body.endDate;
         if (body.status) syncData.status = body.status;
-        
+
         if (Object.keys(syncData).length > 0) {
             await prisma.campaign.updateMany({
                 where: { contractId: req.params.id },
@@ -1129,9 +1129,9 @@ router.delete('/contracts/:id', async (req: any, res: any) => {
 // --- Campaigns ---
 router.get('/campaigns', async (req: any, res: any) => {
     try {
-        const items = await prisma.campaign.findMany({ 
+        const items = await prisma.campaign.findMany({
             include: { advertiser: true, contract: true },
-            orderBy: { createdAt: 'desc' } 
+            orderBy: { createdAt: 'desc' }
         });
         res.status(200).json(items);
     } catch (error) {
@@ -1152,7 +1152,7 @@ router.post('/campaigns', async (req: any, res: any) => {
         if (body.startDate) body.startDate = new Date(body.startDate);
         if (body.endDate) body.endDate = new Date(body.endDate);
         if (body.budget) body.budget = parseFloat(body.budget);
-        
+
         const item = await prisma.campaign.create({ data: body });
         res.status(201).json(item);
     } catch (error) {
@@ -1196,9 +1196,9 @@ router.delete('/campaigns/:id', async (req: any, res: any) => {
 // --- AdCreatives ---
 router.get('/creatives', async (req: any, res: any) => {
     try {
-        const items = await prisma.adCreative.findMany({ 
+        const items = await prisma.adCreative.findMany({
             include: { campaign: { include: { contract: true } }, placement: true },
-            orderBy: { createdAt: 'desc' } 
+            orderBy: { createdAt: 'desc' }
         });
 
         const logs = await prisma.adLog.groupBy({
@@ -1328,7 +1328,7 @@ router.post('/placements', async (req: any, res: any) => {
         const item = await prisma.placement.create({ data: req.body });
         res.status(201).json(item);
     } catch (error: any) {
-        if(error?.code === 'P2002') return res.status(400).json({ error: 'ALREADY_EXISTS' });
+        if (error?.code === 'P2002') return res.status(400).json({ error: 'ALREADY_EXISTS' });
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
     }
 });
@@ -1370,7 +1370,7 @@ router.put('/ad-inquiries/:id/status', async (req: any, res: any) => {
     try {
         const { id } = req.params;
         const { status, adminMemo } = req.body;
-        
+
         const updateData: any = {};
         if (status) updateData.status = status;
         if (adminMemo !== undefined) updateData.adminMemo = adminMemo;
@@ -1379,7 +1379,7 @@ router.put('/ad-inquiries/:id/status', async (req: any, res: any) => {
             where: { id },
             data: updateData
         });
-        
+
         res.status(200).json(inquiry);
     } catch (error) {
         console.error("Failed to update inquiry status:", error);
@@ -1391,7 +1391,7 @@ router.post('/ad-inquiries/:id/email', async (req: any, res: any) => {
     try {
         const { id } = req.params;
         const { subject, message, newStatus } = req.body;
-        
+
         const inquiry = await prisma.adInquiry.findUnique({ where: { id } });
         if (!inquiry) return res.status(404).json({ error: ERROR_CODES.STORE_NOT_FOUND });
 
@@ -1403,7 +1403,7 @@ router.post('/ad-inquiries/:id/email', async (req: any, res: any) => {
 
         const emailSent = await sendAdminAnnouncement(inquiry.contactEmail, subject, message);
         console.log(`[DEBUG] emailSent Result:`, emailSent);
-        
+
         let updatedInquiry = inquiry;
         if (emailSent === true && newStatus && newStatus !== inquiry.status) {
             updatedInquiry = await prisma.adInquiry.update({
@@ -1447,7 +1447,7 @@ router.post('/backup', requireSuperAdmin, async (req: any, res: any) => {
         }
 
         const fullPath = path.join(savePath, fileName);
-        
+
         let dumpConfig: any = {
             connection: {
                 host,
@@ -1500,10 +1500,10 @@ router.post('/banned-words', async (req: any, res: any) => {
         const newWord = await (prisma as any).bannedWord.create({
             data: { word, category: category || 'PROFANITY', locale: locale || 'ko' }
         });
-        
+
         // Refresh memory cache across Node server
         refreshBannedWordsCache();
-        
+
         res.status(201).json(newWord);
     } catch (error: any) {
         if (error.code === 'P2002') {
@@ -1525,7 +1525,7 @@ router.put('/banned-words/:id', async (req: any, res: any) => {
             where: { id: req.params.id },
             data: updateData
         });
-        
+
         refreshBannedWordsCache();
         res.status(200).json(updatedWord);
     } catch (error: any) {
@@ -1540,10 +1540,10 @@ router.put('/banned-words/:id', async (req: any, res: any) => {
 router.delete('/banned-words/:id', async (req: any, res: any) => {
     try {
         await (prisma as any).bannedWord.delete({ where: { id: req.params.id } });
-        
+
         // Refresh memory cache
         refreshBannedWordsCache();
-        
+
         res.status(200).json({ success: true });
     } catch (error) {
         console.error("Delete banned word error:", error);
@@ -1593,7 +1593,7 @@ router.get('/home-campaigns', authenticateAdmin, async (req, res) => {
                 key: { in: ['HOME_FLASH_DROP', 'HOME_ROULETTE', 'HOME_NATIVE_AD', 'HOME_WEEKLY_MBTI'] }
             }
         });
-        
+
         const config: any = {
             HOME_FLASH_DROP: { isActive: false, title: '', description: '', imageUrl: '', linkUrl: '', badgeText: 'Flash Drop' },
             HOME_ROULETTE: { isActive: true },
@@ -1604,7 +1604,7 @@ router.get('/home-campaigns', authenticateAdmin, async (req, res) => {
         settings.forEach((s: any) => {
             try {
                 config[s.key as keyof typeof config] = JSON.parse(s.value);
-            } catch (e) {}
+            } catch (e) { }
         });
 
         res.json(config);
@@ -1657,7 +1657,7 @@ router.get('/pairings', async (req, res) => {
 router.post('/pairings', async (req, res) => {
     try {
         const { icon, availableRegions, isActive, order, translations } = req.body;
-        
+
         const newPairing = await prisma.todayPairing.create({
             data: {
                 icon,
@@ -1682,7 +1682,7 @@ router.put('/pairings/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { icon, availableRegions, isActive, order, translations } = req.body;
-        
+
         // Upsert translations
         const translationOps = [];
         if (translations && Array.isArray(translations)) {
@@ -1721,7 +1721,7 @@ router.put('/pairings/:id', async (req, res) => {
                 );
             }
         }
-        
+
         const updated = await prisma.$transaction([
             prisma.todayPairing.update({
                 where: { id },
@@ -1739,7 +1739,7 @@ router.put('/pairings/:id', async (req, res) => {
             where: { id },
             include: { translations: true }
         });
-        
+
         res.json(finalItem);
     } catch (error: any) {
         console.error('Update pairing error:', error);
@@ -1763,7 +1763,7 @@ router.delete('/pairings/:id', async (req, res) => {
 router.post('/pairings/translate', authenticateAdmin, async (req, res) => {
     try {
         const { name, coffee, desc, season, tasteProfile } = req.body;
-        
+
         if (!name || !coffee) {
             return res.status(400).json({ error: 'Name and Coffee are required for translation.' });
         }
@@ -1796,7 +1796,7 @@ Return the response EXACTLY in the following JSON format without any markdown bl
 
         const text = response.text || '';
         const translations = JSON.parse(text);
-        
+
         res.json(translations);
     } catch (error) {
         console.error('Translation error:', error);
@@ -1874,8 +1874,8 @@ router.get('/payments', async (req: any, res: any) => {
 
         if (search) {
             const query = search.toLowerCase();
-            enrichedTransactions = enrichedTransactions.filter(tx => 
-                tx.user?.email.toLowerCase().includes(query) || 
+            enrichedTransactions = enrichedTransactions.filter(tx =>
+                tx.user?.email.toLowerCase().includes(query) ||
                 tx.user?.nickname.toLowerCase().includes(query) ||
                 tx.storeTransactionId.toLowerCase().includes(query) ||
                 tx.id.toLowerCase().includes(query)
@@ -1938,7 +1938,7 @@ router.post('/payments/:id/cancel', async (req: any, res: any) => {
 
         // Check for negative balance protection
         if (!force && user.pointBalance < cancelAmount) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 error: 'INSUFFICIENT_BALANCE_FOR_CANCEL',
                 message: `회원의 현재 커피콩 잔액(${user.pointBalance}개)이 회수할 수량(${cancelAmount}개)보다 부족합니다. 강제 진행 옵션을 켜주세요.`
             });
@@ -1976,96 +1976,6 @@ router.post('/payments/:id/cancel', async (req: any, res: any) => {
         res.status(200).json({ success: true, result });
     } catch (error) {
         console.error("Cancel admin payment error:", error);
-        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
-    }
-});
-
-// GET: Fetch user access logs (with pagination & filters)
-router.get('/access-logs', async (req: any, res: any) => {
-    try {
-        const { email, ipAddress, deviceOS, actionType, page, limit } = req.query;
-        const pageNum = parseInt(page as string) || 1;
-        const limitNum = parseInt(limit as string) || 50;
-        const skip = (pageNum - 1) * limitNum;
-
-        const whereClause: any = {};
-        if (email) {
-            whereClause.email = { contains: email as string };
-        }
-        if (ipAddress) {
-            whereClause.ipAddress = { contains: ipAddress as string };
-        }
-        if (deviceOS) {
-            whereClause.deviceOS = deviceOS as string;
-        }
-        if (actionType) {
-            whereClause.actionType = actionType as string;
-        }
-
-        const [logs, total] = await Promise.all([
-            prisma.userAccessLog.findMany({
-                where: whereClause,
-                orderBy: { createdAt: 'desc' },
-                skip,
-                take: limitNum,
-                include: {
-                    user: {
-                        select: {
-                            nickname: true
-                        }
-                    }
-                }
-            }),
-            prisma.userAccessLog.count({ where: whereClause })
-        ]);
-
-        res.status(200).json({
-            logs,
-            total,
-            page: pageNum,
-            totalPages: Math.ceil(total / limitNum)
-        });
-    } catch (error) {
-        console.error("Fetch access logs error:", error);
-        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
-    }
-});
-
-// GET: Fetch access logs stats (DAU for last 7 days & OS ratios)
-router.get('/access-logs/stats', async (req: any, res: any) => {
-    try {
-        // 일별 유니크 접속자 수 집계 (MySQL 쿼리)
-        const stats: any[] = await prisma.$queryRaw`
-            SELECT DATE_FORMAT(createdAt, '%Y-%m-%d') as date, COUNT(DISTINCT IFNULL(userId, ipAddress)) as activeUsers
-            FROM UserAccessLog
-            WHERE createdAt >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-            GROUP BY DATE_FORMAT(createdAt, '%Y-%m-%d')
-            ORDER BY date ASC
-        `;
-
-        // 기기 OS별 점유율 통계
-        const osStats = await prisma.userAccessLog.groupBy({
-            by: ['deviceOS'],
-            _count: {
-                _all: true
-            }
-        });
-
-        // raw query가 반환하는 BigInt 등을 안전하게 직렬화하기 위해 JSON 형태로 변환 후 반환
-        const formattedStats = stats.map((s: any) => ({
-            date: s.date,
-            activeUsers: Number(s.activeUsers || 0)
-        }));
-
-        res.status(200).json({
-            stats: formattedStats,
-            osStats: osStats.map((o: any) => ({
-                deviceOS: o.deviceOS || 'Unknown',
-                count: o._count._all
-            }))
-        });
-    } catch (error) {
-        console.error("Fetch access stats error:", error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
     }
 });

@@ -40,26 +40,15 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
 
     const getFallbackTranslation = (text: string | undefined | null) => {
         if (!text) return text;
-        if (typeof text === 'string') {
-            if (text.includes('위도') || text.includes('경도') || text.includes('Latitude') || text.includes('Longitude')) {
-                const coords = text.match(/-?\d+\.\d+/g);
-                if (coords && coords.length >= 2) {
-                    return t('map.lat_lng_format', '위도 {{lat}}, 경도 {{lng}}', { lat: coords[0], lng: coords[1] });
-                }
-            }
-            if (text.includes('영업시간 미정') || text.includes('Hours TBD')) return t('map.fallback_tbd_hours');
-            if (text === '기본 시설' || text === 'Basic Facilities') return t('map.fallback_equipment', '기본 시설');
-            if (text.includes('AI 자동 탐색을 통해 찾아낸 매장입니다') || text.includes('This store was discovered through AI automatic search')) return t('map.fallback_origin_story_brief');
-            if (text.includes('AI 큐레이터가 발굴한 스페셜티 추천 공간') || text.includes('Specialty space recommended by AI Curator')) return t('map.fallback_ai_subtitle');
-            if (text.includes('AI가 발굴한 카페/명소입니다.') || text.includes('AI discovered cafe/attraction.')) return t('map.fallback_short_desc');
-            if (text.includes('스페셜티/시그니처 향미') || text.includes('Specialty/Signature Flavor')) return t('map.fallback_specialty');
-            if (text.includes('대표 메뉴 (상세 미정)') || text.includes('Signature Menu (TBD)')) return t('map.fallback_menu');
-            if (text.includes('추천 정보 없음') || text.includes('No Recommendation Info')) return t('map.fallback_pairing');
-            if (text.includes('임시 주소 (추후 업데이트 예정)') || text.includes('Temporary address (to be updated)')) return t('map.fallback_temp_addr');
-            if (text.includes('추후 제공 (AI 발굴') || text.includes('TBD (AI discovered')) return t('map.fallback_tbd_hours');
-            if (text.includes('추후 제공') || text.includes('TBD')) return t('map.fallback_tbd');
-            if (text.startsWith('빈마인드 AI 시스템이 사용자들의 커피 성향 탐색 과정에서') || text.startsWith('This is a specialty shop discovered via web search')) return t('map.fallback_origin_story');
-        }
+        if (text.includes('AI 큐레이터가 발굴한 스페셜티 추천 공간') || text.includes('Specialty space recommended by AI Curator')) return t('map.fallback_ai_subtitle');
+        if (text.includes('AI가 발굴한 카페/명소입니다.') || text.includes('AI discovered cafe/attraction.')) return t('map.fallback_short_desc');
+        if (text.includes('스페셜티/시그니처 향미') || text.includes('Specialty/Signature Flavor')) return t('map.fallback_specialty');
+        if (text.includes('대표 메뉴 (상세 미정)') || text.includes('Signature Menu (TBD)')) return t('map.fallback_menu');
+        if (text.includes('추천 정보 없음') || text.includes('No Recommendation Info')) return t('map.fallback_pairing');
+        if (text.includes('임시 주소 (추후 업데이트 예정)') || text.includes('Temporary address (to be updated)')) return t('map.fallback_temp_addr');
+        if (text.includes('추후 제공 (AI 발굴') || text.includes('TBD (AI discovered')) return t('map.fallback_tbd_hours');
+        if (text.includes('추후 제공') || text.includes('TBD')) return t('map.fallback_tbd');
+        if (text.startsWith('빈마인드 AI 시스템이 사용자들의 커피 성향 탐색 과정에서') || text.startsWith('This is a specialty shop discovered via web search')) return t('map.fallback_origin_story');
         return text;
     };
 
@@ -201,27 +190,27 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
     }, [shop?.hours]);
 
     const [isHoursExpanded, setIsHoursExpanded] = useState(false);
-    
+
     const todayStatus = React.useMemo(() => {
         if (!parsedHours) return null;
         const days = ['일', '월', '화', '수', '목', '금', '토'];
         const now = new Date();
         const todayStr = days[now.getDay()];
-        
+
         const todayHours = parsedHours.find((h: any) => h.day === todayStr);
         if (!todayHours) return null;
-        
+
         if (todayHours.isClosed) {
             return { ...todayHours, isOpenNow: false, statusText: '휴무일' };
         }
-        
+
         const [openHour, openMin] = todayHours.open.split(':').map(Number);
         const [closeHour, closeMin] = todayHours.close.split(':').map(Number);
-        
+
         const currentMins = now.getHours() * 60 + now.getMinutes();
         const openMins = openHour * 60 + openMin;
         const closeMins = closeHour * 60 + closeMin;
-        
+
         const isOpenNow = currentMins >= openMins && currentMins <= closeMins;
         return { ...todayHours, isOpenNow, statusText: isOpenNow ? '영업 중' : '영업 종료' };
     }, [parsedHours]);
@@ -285,7 +274,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
         fetchFollowStatus();
         fetchBookmarkStatus();
         fetchReviews();
-        
+
         // Fetch full hydrated data and trigger view increment backend
         if (isOpen && propShop?.id) {
             const token = localStorage.getItem('token');
@@ -371,14 +360,14 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
             return;
         }
 
-        const reason = window.prompt(t('shop_detail.prompt_report', '[{{name}}]\n위 매장을 신고하시는 사유를 간단히 입력해주세요.\n(예: 폐업함, 잘못된 장소 정보 등)', {name: shop.name}));
+        const reason = window.prompt(t('shop_detail.prompt_report', '[{{name}}]\n위 매장을 신고하시는 사유를 간단히 입력해주세요.\n(예: 폐업함, 잘못된 장소 정보 등)', { name: shop.name }));
         if (!reason || reason.trim() === '') return;
 
-        if (window.confirm(t('shop_detail.confirm_report', `'{{name}}' 매장을 관리자에게 신고하시겠습니까?`, {name: shop.name}))) {
+        if (window.confirm(t('shop_detail.confirm_report', `'{{name}}' 매장을 관리자에게 신고하시겠습니까?`, { name: shop.name }))) {
             try {
                 const res = await fetch(`${API_BASE}/api/users/report`, {
                     method: 'POST',
-                    headers: { 
+                    headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
@@ -392,11 +381,11 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                 if (res.ok) {
                     alert(t('shop_detail.alert_report_ok', '정상적으로 신고가 접수되었습니다.'));
                 } else {
-                     alert(t('shop_detail.alert_report_fail', '신고 접수에 실패했습니다.'));
+                    alert(t('shop_detail.alert_report_fail', '신고 접수에 실패했습니다.'));
                 }
             } catch (err) {
-                 console.error(err);
-                 alert(t('shop_detail.alert_error', '오류가 발생했습니다.'));
+                console.error(err);
+                alert(t('shop_detail.alert_error', '오류가 발생했습니다.'));
             }
         }
     };
@@ -436,7 +425,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
 
             const res = await fetch(`${API_BASE}/api/users/checkin`, {
                 method: 'POST',
-                headers: { 
+                headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
@@ -578,7 +567,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                 </div>
 
                                 <div className="px-6 py-6 pb-20 flex flex-col gap-8 pointer-events-auto">
-                                    
+
                                     {/* Action Bar (Compact & Modern) */}
                                     <div className="flex flex-wrap items-center justify-between gap-4">
                                         <div className="flex items-center gap-4 bg-white/5 border border-white/5 px-4 py-2.5 rounded-[1rem] backdrop-blur-sm">
@@ -592,7 +581,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                                 <span className="font-bold text-[14px]">{shop.distance !== undefined ? (shop.distance < 1 ? `${(shop.distance * 1000).toFixed(0)}m` : `${shop.distance.toFixed(1)}km`) : t('shop_detail.no_distance_info')}</span>
                                             </div>
                                         </div>
-                                        
+
                                         <div className="flex items-center gap-2">
                                             {shop.phone && <a href={`tel:${shop.phone}`} className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-full transition-all text-espresso-200 hover:text-white" style={{ WebkitTapHighlightColor: 'transparent' }}><Phone size={18} /></a>}
                                             <button onClick={handleShare} className="p-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-full transition-all text-espresso-200 hover:text-white" style={{ WebkitTapHighlightColor: 'transparent' }}><Share size={18} /></button>
@@ -607,59 +596,59 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                             <p className="text-white text-[13px] font-medium leading-relaxed break-keep">{getFallbackTranslation(shop.address)}</p>
                                         </div>
                                         {shop.hours && (
-                                        <div className={hasRealWebsite && validUrl ? "col-span-1 bg-white/5 border border-white/5 rounded-[1.25rem] p-4 flex flex-col justify-center gap-3" : "col-span-2 bg-white/5 border border-white/5 rounded-[1.25rem] p-4 flex flex-col justify-center gap-3"}>
-                                            <div className="flex items-center justify-between cursor-pointer w-full" onClick={() => parsedHours && setIsHoursExpanded(!isHoursExpanded)}>
-                                                <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                    <Clock size={18} className="text-amber-500 shrink-0" />
-                                                    {parsedHours && todayStatus ? (
-                                                        <div className="flex flex-col min-w-0">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className={`text-[12px] font-bold ${todayStatus.isOpenNow ? 'text-green-400' : 'text-red-400'} shrink-0`}>{todayStatus.statusText}</span>
-                                                                <span className="text-white text-[13px] font-medium truncate">
-                                                                    {todayStatus.isClosed ? '오늘 휴무' : `${todayStatus.open} - ${todayStatus.close}`}
-                                                                    {todayStatus.comment && <span className="ml-1.5 text-amber-500/80 text-[12px]">({todayStatus.comment})</span>}
-                                                                </span>
+                                            <div className={hasRealWebsite && validUrl ? "col-span-1 bg-white/5 border border-white/5 rounded-[1.25rem] p-4 flex flex-col justify-center gap-3" : "col-span-2 bg-white/5 border border-white/5 rounded-[1.25rem] p-4 flex flex-col justify-center gap-3"}>
+                                                <div className="flex items-center justify-between cursor-pointer w-full" onClick={() => parsedHours && setIsHoursExpanded(!isHoursExpanded)}>
+                                                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                        <Clock size={18} className="text-amber-500 shrink-0" />
+                                                        {parsedHours && todayStatus ? (
+                                                            <div className="flex flex-col min-w-0">
+                                                                <div className="flex items-center gap-2">
+                                                                    <span className={`text-[12px] font-bold ${todayStatus.isOpenNow ? 'text-green-400' : 'text-red-400'} shrink-0`}>{todayStatus.statusText}</span>
+                                                                    <span className="text-white text-[13px] font-medium truncate">
+                                                                        {todayStatus.isClosed ? '오늘 휴무' : `${todayStatus.open} - ${todayStatus.close}`}
+                                                                        {todayStatus.comment && <span className="ml-1.5 text-amber-500/80 text-[12px]">({todayStatus.comment})</span>}
+                                                                    </span>
+                                                                </div>
                                                             </div>
+                                                        ) : (
+                                                            <p className="text-white text-[13px] font-medium line-clamp-1 flex-1" title={shop.hours}>{getFallbackTranslation(shop.hours)}</p>
+                                                        )}
+                                                    </div>
+                                                    {parsedHours && (
+                                                        <div className="text-espresso-300 shrink-0 ml-2">
+                                                            {isHoursExpanded ? <ChevronLeft size={16} className="-rotate-90" /> : <ChevronRight size={16} className="rotate-90" />}
                                                         </div>
-                                                    ) : (
-                                                        <p className="text-white text-[13px] font-medium line-clamp-1 flex-1" title={shop.hours}>{getFallbackTranslation(shop.hours)}</p>
                                                     )}
                                                 </div>
-                                                {parsedHours && (
-                                                    <div className="text-espresso-300 shrink-0 ml-2">
-                                                        {isHoursExpanded ? <ChevronLeft size={16} className="-rotate-90" /> : <ChevronRight size={16} className="rotate-90" />}
+
+                                                {/* Expanded Hours */}
+                                                {parsedHours && isHoursExpanded && (
+                                                    <div className="pt-3 border-t border-white/10 space-y-2 mt-1 w-full">
+                                                        {parsedHours.map((h: any, idx: number) => {
+                                                            const isToday = h.day === ['일', '월', '화', '수', '목', '금', '토'][new Date().getDay()];
+                                                            return (
+                                                                <div key={idx} className={`flex flex-col gap-0.5 text-[13px] ${isToday ? 'font-bold text-amber-500' : 'text-espresso-200'}`}>
+                                                                    <div className="flex items-center justify-between">
+                                                                        <span className="w-8 shrink-0">{h.day}</span>
+                                                                        <span>{h.isClosed ? '휴무일' : `${h.open} - ${h.close}`}</span>
+                                                                    </div>
+                                                                    {h.comment && (
+                                                                        <div className="text-right text-amber-500/80 text-[11px] break-words whitespace-normal leading-tight ml-8">
+                                                                            ({h.comment})
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
                                                     </div>
                                                 )}
                                             </div>
-                                            
-                                            {/* Expanded Hours */}
-                                            {parsedHours && isHoursExpanded && (
-                                                <div className="pt-3 border-t border-white/10 space-y-2 mt-1 w-full">
-                                                    {parsedHours.map((h: any, idx: number) => {
-                                                        const isToday = h.day === ['일', '월', '화', '수', '목', '금', '토'][new Date().getDay()];
-                                                        return (
-                                                            <div key={idx} className={`flex flex-col gap-0.5 text-[13px] ${isToday ? 'font-bold text-amber-500' : 'text-espresso-200'}`}>
-                                                                <div className="flex items-center justify-between">
-                                                                    <span className="w-8 shrink-0">{h.day}</span>
-                                                                    <span>{h.isClosed ? '휴무일' : `${h.open} - ${h.close}`}</span>
-                                                                </div>
-                                                                {h.comment && (
-                                                                    <div className="text-right text-amber-500/80 text-[11px] break-words whitespace-normal leading-tight ml-8">
-                                                                        ({h.comment})
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
-                                        </div>
                                         )}
                                         {hasRealWebsite && validUrl && (
-                                        <a href={validUrl.startsWith('http') ? validUrl : `https://${validUrl}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className={`${hasRealWebsite && validUrl && shop.hours ? "col-span-1" : "col-span-2"} bg-white/5 border border-white/5 rounded-[1.25rem] p-4 flex items-center gap-3 hover:bg-white/10 transition-colors`}>
-                                            <ExternalLink size={18} className="text-amber-500 shrink-0" />
-                                            <p className="text-amber-500 underline text-[13px] font-medium truncate flex-1">{t('shop_detail.lbl_website_sns', '웹사이트 / SNS')}</p>
-                                        </a>
+                                            <a href={validUrl.startsWith('http') ? validUrl : `https://${validUrl}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className={`${hasRealWebsite && validUrl && shop.hours ? "col-span-1" : "col-span-2"} bg-white/5 border border-white/5 rounded-[1.25rem] p-4 flex items-center gap-3 hover:bg-white/10 transition-colors`}>
+                                                <ExternalLink size={18} className="text-amber-500 shrink-0" />
+                                                <p className="text-amber-500 underline text-[13px] font-medium truncate flex-1">{t('shop_detail.lbl_website_sns', '웹사이트 / SNS')}</p>
+                                            </a>
                                         )}
                                     </div>
                                     {/* Action Buttons */}
@@ -750,8 +739,8 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                                                                 bgStyle = { background: `linear-gradient(to right, ${info.color} ${percentage}%, #33332D ${percentage}%)` };
                                                                             }
                                                                             return (
-                                                                                <div 
-                                                                                    key={i} 
+                                                                                <div
+                                                                                    key={i}
                                                                                     className="h-1.5 w-full rounded-full transition-all duration-300 opacity-80 group-hover:opacity-100"
                                                                                     style={bgStyle}
                                                                                 />
@@ -788,8 +777,8 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                                 )}
                                                 {shop.equipment && (
                                                     <div className="flex-none w-[220px] snap-center bg-[#1a1a1e] border border-white/5 rounded-2xl p-5 flex flex-col justify-between">
-                                                        <span className="block text-[11px] font-bold text-amber-500 uppercase tracking-widest mb-3">{t('shop_detail.lbl_equipment', 'Equipment')}</span>
-                                                        <p className="text-white font-medium text-[15px] leading-relaxed break-keep">{getFallbackTranslation(shop.equipment)}</p>
+                                                        <span className="block text-[11px] font-bold text-amber-500 uppercase tracking-widest mb-3">Equipment</span>
+                                                        <p className="text-white font-medium text-[15px] leading-relaxed break-keep">{shop.equipment}</p>
                                                     </div>
                                                 )}
                                             </div>
@@ -800,8 +789,8 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                     {(shop.hasDecaf || shop.hasOatMilk || shop.hasParking || shop.hasWifi || shop.hasPowerOutlets || shop.hasPetFriendly) && (
                                         <div className="pt-8 border-t border-white/20 -mx-6 px-6 mt-8">
                                             <div className="flex flex-wrap gap-2">
-                                                {shop.hasDecaf && <span className="px-3 py-1.5 bg-[#1a1a1e] text-espresso-200 border border-white/5 text-[12px] font-medium rounded-full flex items-center gap-1.5"><CheckCircle2 size={12} className="text-amber-500"/> Decaf</span>}
-                                                {shop.hasOatMilk && <span className="px-3 py-1.5 bg-[#1a1a1e] text-espresso-200 border border-white/5 text-[12px] font-medium rounded-full flex items-center gap-1.5"><CheckCircle2 size={12} className="text-amber-500"/> Oat Milk</span>}
+                                                {shop.hasDecaf && <span className="px-3 py-1.5 bg-[#1a1a1e] text-espresso-200 border border-white/5 text-[12px] font-medium rounded-full flex items-center gap-1.5"><CheckCircle2 size={12} className="text-amber-500" /> Decaf</span>}
+                                                {shop.hasOatMilk && <span className="px-3 py-1.5 bg-[#1a1a1e] text-espresso-200 border border-white/5 text-[12px] font-medium rounded-full flex items-center gap-1.5"><CheckCircle2 size={12} className="text-amber-500" /> Oat Milk</span>}
                                                 {shop.hasParking && <span className="px-3 py-1.5 bg-[#1a1a1e] text-espresso-200 border border-white/5 text-[12px] font-medium rounded-full">Auto Parking</span>}
                                                 {shop.hasWifi && <span className="px-3 py-1.5 bg-[#1a1a1e] text-espresso-200 border border-white/5 text-[12px] font-medium rounded-full">Free Wi-Fi</span>}
                                                 {shop.hasPowerOutlets && <span className="px-3 py-1.5 bg-[#1a1a1e] text-espresso-200 border border-white/5 text-[12px] font-medium rounded-full">Power Outlets</span>}
@@ -879,7 +868,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                     {galleryMedia.length > 0 && (
                                         <div className="pt-8 border-t border-white/20 -mx-6 px-6 mt-8">
                                             <h4 className="text-xl font-bold font-sans text-white mb-4">Gallery</h4>
-                                            
+
                                             {(() => {
                                                 const mediaItems = galleryMedia;
                                                 const count = mediaItems.length;
@@ -890,7 +879,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                                             {mediaItems[0].type === 'VIDEO' ? (
                                                                 <video src={mediaItems[0].url} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
                                                             ) : (
-                                                                <img src={mediaItems[0].url.startsWith('/mock-bucket') ? `https://images.unsplash.com/photo-1554118811-1e0d58224f24` : mediaItems[0].url} alt={t('shop_detail.alt_gallery', '{{name}} 갤러리', {name: shop.name})} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
+                                                                <img src={mediaItems[0].url.startsWith('/mock-bucket') ? `https://images.unsplash.com/photo-1554118811-1e0d58224f24` : mediaItems[0].url} alt={t('shop_detail.alt_gallery', '{{name}} 갤러리', { name: shop.name })} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
                                                             )}
                                                             {mediaItems[0].type === 'VIDEO' && (
                                                                 <div className="absolute inset-0 flex items-center justify-center bg-espresso-950/20">
@@ -911,7 +900,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                                                     {item.type === 'VIDEO' ? (
                                                                         <video src={item.url} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
                                                                     ) : (
-                                                                        <img src={item.url.startsWith('/mock-bucket') ? `https://images.unsplash.com/photo-${1554118811 + idx}-1e0d58224f24` : item.url} alt={t('shop_detail.alt_gallery', '{{name}} 갤러리', {name: shop.name})} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
+                                                                        <img src={item.url.startsWith('/mock-bucket') ? `https://images.unsplash.com/photo-${1554118811 + idx}-1e0d58224f24` : item.url} alt={t('shop_detail.alt_gallery', '{{name}} 갤러리', { name: shop.name })} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
                                                                     )}
                                                                     {item.type === 'VIDEO' && (
                                                                         <div className="absolute inset-0 flex items-center justify-center bg-espresso-950/20">
@@ -934,7 +923,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                                             {mediaItems[0].type === 'VIDEO' ? (
                                                                 <video src={mediaItems[0].url} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
                                                             ) : (
-                                                                <img src={mediaItems[0].url.startsWith('/mock-bucket') ? `https://images.unsplash.com/photo-1554118811-1e0d58224f24` : mediaItems[0].url} alt={t('shop_detail.alt_main', '{{name}} 메인 사진', {name: shop.name})} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
+                                                                <img src={mediaItems[0].url.startsWith('/mock-bucket') ? `https://images.unsplash.com/photo-1554118811-1e0d58224f24` : mediaItems[0].url} alt={t('shop_detail.alt_main', '{{name}} 메인 사진', { name: shop.name })} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
                                                             )}
                                                             {mediaItems[0].type === 'VIDEO' && (
                                                                 <div className="absolute inset-0 flex items-center justify-center bg-espresso-950/20">
@@ -950,7 +939,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                                             {mediaItems[1].type === 'VIDEO' ? (
                                                                 <video src={mediaItems[1].url} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
                                                             ) : (
-                                                                <img src={mediaItems[1].url.startsWith('/mock-bucket') ? `https://images.unsplash.com/photo-1554118812-1e0d58224f24` : mediaItems[1].url} alt={t('shop_detail.alt_pic2', '{{name}} 사진 2', {name: shop.name})} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
+                                                                <img src={mediaItems[1].url.startsWith('/mock-bucket') ? `https://images.unsplash.com/photo-1554118812-1e0d58224f24` : mediaItems[1].url} alt={t('shop_detail.alt_pic2', '{{name}} 사진 2', { name: shop.name })} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
                                                             )}
                                                             {mediaItems[1].type === 'VIDEO' && (
                                                                 <div className="absolute inset-0 flex items-center justify-center bg-espresso-950/20">
@@ -966,7 +955,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                                             {mediaItems[2].type === 'VIDEO' ? (
                                                                 <video src={mediaItems[2].url} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
                                                             ) : (
-                                                                <img src={mediaItems[2].url.startsWith('/mock-bucket') ? `https://images.unsplash.com/photo-1554118813-1e0d58224f24` : mediaItems[2].url} alt={t('shop_detail.alt_pic3', '{{name}} 사진 3', {name: shop.name})} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
+                                                                <img src={mediaItems[2].url.startsWith('/mock-bucket') ? `https://images.unsplash.com/photo-1554118813-1e0d58224f24` : mediaItems[2].url} alt={t('shop_detail.alt_pic3', '{{name}} 사진 3', { name: shop.name })} className="w-full h-full object-cover group-active:scale-105 transition-transform" />
                                                             )}
                                                             {mediaItems[2].type === 'VIDEO' && count <= 3 && (
                                                                 <div className="absolute inset-0 flex items-center justify-center bg-espresso-950/20">
@@ -1009,7 +998,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
 
                                     {/* Report/Block Feature for App Store Requirements */}
                                     <div className="flex justify-center pt-8 pb-2">
-                                        <button 
+                                        <button
                                             onClick={handleReport}
                                             className="text-xs text-espresso-200 font-medium underline hover:text-red-500 transition-colors"
                                         >
@@ -1042,7 +1031,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                         <Map size={18} /> {t('shop_detail.btn_view_map', '커피맵에서 보기')}
                                     </button>
                                 )}
-                                            </div>
+                            </div>
 
                         </motion.div>
                     </div>
@@ -1050,7 +1039,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                     {/* Course Picker Overlay */}
                     <AnimatePresence>
                         {isCoursePickerOpen && (
-                            <motion.div 
+                            <motion.div
                                 initial={{ opacity: 0, y: 50 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 50 }}
@@ -1067,7 +1056,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                     </div>
                                     <div className="p-2 max-h-[40vh] overflow-y-auto">
                                         {myCourses.map(course => (
-                                            <button 
+                                            <button
                                                 key={course.id}
                                                 onClick={() => handleAddToCourse(course.id)}
                                                 disabled={isAddingToCourse}
@@ -1189,18 +1178,18 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                                         className="max-w-full max-h-[80vh] object-contain"
                                                     />
                                                 ) : (
-                                                    <TransformWrapper 
-                                                        initialScale={1} 
-                                                        minScale={1} 
-                                                        maxScale={4} 
-                                                        centerOnInit 
-                                                        panning={{ velocityDisabled: true }} 
+                                                    <TransformWrapper
+                                                        initialScale={1}
+                                                        minScale={1}
+                                                        maxScale={4}
+                                                        centerOnInit
+                                                        panning={{ velocityDisabled: true }}
                                                         doubleClick={{ disabled: false, step: 2 }}
                                                     >
                                                         <TransformComponent wrapperClass="!w-full !h-full !flex items-center justify-center cursor-zoom-in" contentClass="!w-full !h-full !flex items-center justify-center">
                                                             <img
                                                                 src={item.url.startsWith('/mock-bucket') ? `https://images.unsplash.com/photo-${1554118811 + idx}-1e0d58224f24` : item.url}
-                                                                alt={t('shop_detail.alt_detail_img', '상세 이미지 {{index}}', {index: idx + 1})}
+                                                                alt={t('shop_detail.alt_detail_img', '상세 이미지 {{index}}', { index: idx + 1 })}
                                                                 className="max-w-full max-h-[80vh] object-contain transition-transform"
                                                             />
                                                         </TransformComponent>

@@ -32,11 +32,11 @@ const getItemsConfig = (cfg: any) => {
             parsed = null;
         }
     }
-    
+
     if (Array.isArray(parsed) && parsed.length > 0) {
         return parsed;
     }
-    
+
     if (cfg.cardType === 'PROMOTION' && cfg.cardTitle) {
         const tokens = cfg.cardTitle.split(/[+,]/);
         const items: { key: string; label: string; target: number }[] = [];
@@ -44,7 +44,7 @@ const getItemsConfig = (cfg: any) => {
         for (const token of tokens) {
             const trimmed = token.trim();
             if (!trimmed) continue;
-            
+
             const match = trimmed.match(/^([^0-9]+?)\s*(\d+)\s*(?:잔|개|병|팩|개입)?$/);
             if (match) {
                 const label = match[1].trim();
@@ -63,7 +63,7 @@ const getItemsConfig = (cfg: any) => {
             return items;
         }
     }
-    
+
     return null;
 };
 
@@ -77,14 +77,14 @@ export default function Profile() {
         const updatedAt = new Date(updatedAtStr);
         const expireDate = new Date(updatedAt.getTime() + validDays * 24 * 60 * 60 * 1000);
         const today = new Date();
-        
+
         // 날짜 차이 구하기 (시간 부분은 제하고 날짜끼리만 비교)
         today.setHours(0, 0, 0, 0);
         expireDate.setHours(0, 0, 0, 0);
-        
+
         const diffTime = expireDate.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
+
         return diffDays >= 0 ? diffDays : 0;
     };
     const location = useLocation();
@@ -155,7 +155,7 @@ export default function Profile() {
     const [isPassportExpanded, setIsPassportExpanded] = useState(false);
     const [isStampWalletExpanded, setIsStampWalletExpanded] = useState(false);
     const [isCoursesExpanded, setIsCoursesExpanded] = useState(false);
-    
+
     // Ads State
     const [magazineAd, setMagazineAd] = useState<any>(null);
     const { canShowAd, recordAdView } = useAdStore();
@@ -186,18 +186,18 @@ export default function Profile() {
     const handleCourseImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || !e.target.files[0] || !uploadingCourseId) return;
         const file = e.target.files[0];
-        
+
         setIsLoading(true);
         try {
             const formData = new FormData();
             formData.append('coverImage', file);
-            
+
             const res = await fetch(`${API_BASE}/api/users/collections/${uploadingCourseId}`, {
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
                 body: formData
             });
-            
+
             if (res.ok) {
                 const updatedCourse = await res.json();
                 setMyCourses(prev => prev.map(c => c.id === updatedCourse.id ? updatedCourse : c));
@@ -220,22 +220,22 @@ export default function Profile() {
         try {
             const formData = new FormData();
             formData.append('memo', memoInput);
-            
+
             memoImageFiles.forEach((file) => {
                 formData.append('images', file);
             });
-            
+
             const keptImages = memoImagePreviews
                 .filter(p => p.startsWith('http') || p.startsWith('/'))
                 .map(p => p.replace(API_BASE, ''));
             formData.append('keptImages', JSON.stringify(keptImages));
-            
+
             const response = await fetch(`${API_BASE}/api/users/checkins/${selectedCheckinForMemo.storeId}/memo`, {
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
                 body: formData
             });
-            
+
             if (response.ok) {
                 const updated = await response.json();
                 setPassportCheckins(prev => prev.map(c => c.id === updated.id ? { ...c, memo: updated.memo, memoImageUrl: updated.memoImageUrl } : c));
@@ -244,18 +244,18 @@ export default function Profile() {
                 setMemoImageFiles([]);
                 setMemoImagePreviews([]);
             }
-        } catch(e) { console.error(e); } finally { setIsLoading(false); }
+        } catch (e) { console.error(e); } finally { setIsLoading(false); }
     };
 
     // Taste Profile
     const [isTasteProfileOpen, setIsTasteProfileOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [tastePref, setTastePref] = useState({ acidity: 3, sweetness: 3, body: 3, bitterness: 3, aroma: '' });
-    
+
     const AROMA_TAGS = ['플로럴', '프루티/베리', '시트러스', '와이니', '초콜릿', '카라멜', '너티/견과류', '허브/스파이스', '스위트/꿀', '기타/특수'];
 
     const getAromaLabel = (tag: string) => {
-        switch(tag) {
+        switch (tag) {
             case '플로럴': return t('profile.aroma_floral', '플로럴');
             case '프루티/베리': return t('profile.aroma_fruity', '프루티/베리');
             case '시트러스': return t('profile.aroma_citrus', '시트러스');
@@ -279,7 +279,7 @@ export default function Profile() {
     const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
     const [sharePrescriptionTarget, setSharePrescriptionTarget] = useState<any>(null);
     const [shareMessage, setShareMessage] = useState(t('profile.share_msg_default'));
-    
+
     const [isEditingBio, setIsEditingBio] = useState(false);
     const [newBio, setNewBio] = useState('');
     const [newBioImages, setNewBioImages] = useState<File[]>([]);
@@ -291,7 +291,7 @@ export default function Profile() {
         if (e.target.files) {
             const files = Array.from(e.target.files);
             setNewBioImages(prev => [...prev, ...files]);
-            
+
             files.forEach(file => {
                 const reader = new FileReader();
                 reader.onloadend = () => {
@@ -334,7 +334,7 @@ export default function Profile() {
                 const cardData = await cardRes.json();
                 setMyStampCards(cardData);
             }
-            
+
             const couponRes = await fetch(`${API_BASE}/api/stamps/coupons/my?_t=${Date.now()}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -366,7 +366,7 @@ export default function Profile() {
             fetchStampData();
             if (location.state?.openStampQR) {
                 setIsStampModalOpen(true);
-                try { navigate(location.pathname, { replace: true, state: {} }); } catch (e) {}
+                try { navigate(location.pathname, { replace: true, state: {} }); } catch (e) { }
             }
             const token = localStorage.getItem('token');
             if (token) {
@@ -374,97 +374,97 @@ export default function Profile() {
                 fetch(`${API_BASE}/api/users/me`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
-                .then(res => {
-                    if (res.status === 401 || res.status === 403) {
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('user');
-                        window.location.href = '/login';
-                        return;
-                    }
-                    if (res.ok) return res.json();
-                })
-                .then(userData => {
-                    if (userData) {
-                        localStorage.setItem('user', JSON.stringify(userData));
-                        // Trigger state update immediately to reflect OWNER role
-                        setCurrentUser(userData);
-                        setTastePref({
-                            acidity: userData.prefAcidity || 3,
-                            sweetness: userData.prefSweetness || 3,
-                            body: userData.prefBody || 3,
-                            bitterness: userData.prefBitterness || 3,
-                            aroma: userData.prefAroma || ''
-                        });
-                    }
-                })
-                .catch(err => console.error("Failed to fetch user:", err));
+                    .then(res => {
+                        if (res.status === 401 || res.status === 403) {
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('user');
+                            window.location.href = '/login';
+                            return;
+                        }
+                        if (res.ok) return res.json();
+                    })
+                    .then(userData => {
+                        if (userData) {
+                            localStorage.setItem('user', JSON.stringify(userData));
+                            // Trigger state update immediately to reflect OWNER role
+                            setCurrentUser(userData);
+                            setTastePref({
+                                acidity: userData.prefAcidity || 3,
+                                sweetness: userData.prefSweetness || 3,
+                                body: userData.prefBody || 3,
+                                bitterness: userData.prefBitterness || 3,
+                                aroma: userData.prefAroma || ''
+                            });
+                        }
+                    })
+                    .catch(err => console.error("Failed to fetch user:", err));
 
                 // Fetch points
                 fetch(`${API_BASE}/api/points`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.balance !== undefined) setPointBalance(data.balance);
-                })
-                .catch(err => console.error("Failed to fetch points:", err));
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.balance !== undefined) setPointBalance(data.balance);
+                    })
+                    .catch(err => console.error("Failed to fetch points:", err));
 
                 // Fetch prescriptions for Passport
                 fetch(`${API_BASE}/api/users/prescriptions`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (Array.isArray(data)) setPrescriptions(data);
-                })
-                .catch(err => console.error("Failed to fetch prescriptions:", err));
+                    .then(res => res.json())
+                    .then(data => {
+                        if (Array.isArray(data)) setPrescriptions(data);
+                    })
+                    .catch(err => console.error("Failed to fetch prescriptions:", err));
 
                 // Fetch Pilgrimage Check-ins
                 fetch(`${API_BASE}/api/users/checkins`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (Array.isArray(data)) setPassportCheckins(data);
-                })
-                .catch(err => console.error("Failed to fetch checkins:", err));
+                    .then(res => res.json())
+                    .then(data => {
+                        if (Array.isArray(data)) setPassportCheckins(data);
+                    })
+                    .catch(err => console.error("Failed to fetch checkins:", err));
 
                 // Fetch Pilgrimage Courses
                 fetch(`${API_BASE}/api/users/collections`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (Array.isArray(data)) {
-                        setMyCourses(data.filter((c: any) => c.isPilgrimageCourse === true));
-                    }
-                })
-                .catch(err => console.error("Failed to fetch collections:", err));
+                    .then(res => res.json())
+                    .then(data => {
+                        if (Array.isArray(data)) {
+                            setMyCourses(data.filter((c: any) => c.isPilgrimageCourse === true));
+                        }
+                    })
+                    .catch(err => console.error("Failed to fetch collections:", err));
 
                 // Fetch Taste Matrix
                 fetch(`${API_BASE}/api/ai-features/tasting-note/matrix`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
-                .then(res => res.json())
-                .then(data => setTasteMatrix(data))
-                .catch(err => console.error("Failed to fetch matrix:", err));
+                    .then(res => res.json())
+                    .then(data => setTasteMatrix(data))
+                    .catch(err => console.error("Failed to fetch matrix:", err));
 
                 // Fetch Magazine Ads
                 fetch(`${API_BASE}/api/ads/serve?tab=MAGAZINE&lang=${i18n.language || 'en'}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.fallback === 'ADMOB') {
-                        setMagazineAd(data);
-                    } else if (data.ad && canShowAd(data.ad.id, (data.frequencyCapHours ?? 24) * 60 * 60 * 1000)) {
-                        setMagazineAd(data);
-                        recordAdView(data.ad.id, 'DIRECT', 'MAGAZINE');
-                    } else {
-                        setMagazineAd({ fallback: 'ADMOB' });
-                    }
-                })
-                .catch(err => console.error("Failed to fetch magazine ad:", err));
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.fallback === 'ADMOB') {
+                            setMagazineAd(data);
+                        } else if (data.ad && canShowAd(data.ad.id, (data.frequencyCapHours ?? 24) * 60 * 60 * 1000)) {
+                            setMagazineAd(data);
+                            recordAdView(data.ad.id, 'DIRECT', 'MAGAZINE');
+                        } else {
+                            setMagazineAd({ fallback: 'ADMOB' });
+                        }
+                    })
+                    .catch(err => console.error("Failed to fetch magazine ad:", err));
             }
         }
     }, [isAuthenticated, i18n.language]);
@@ -549,7 +549,7 @@ export default function Profile() {
                 localStorage.setItem('user', JSON.stringify({ ...currentUser, equippedBadge: data.user.equippedBadge, earnedBadges: data.user.earnedBadges }));
                 alert(`[${badgeName}] 뱃지가 장착되었습니다!`);
             }
-        } catch(e) {
+        } catch (e) {
             console.error(e);
         } finally {
             setIsLoading(false);
@@ -582,10 +582,10 @@ export default function Profile() {
             alert("공유를 위해 코스가 'PUBLIC(공개)' 상태로 자동 전환되었습니다!");
             course.isPublic = true;
         }
-        
+
         const shareUrl = `${window.location.origin}/map?courseId=${course.id}`;
         const text = t('profile.course_share_template', { name: course.name, desc: course.description ? `"${course.description}"\n` : '', count: course.items?.length || course._count?.items || 0 });
-        
+
         try {
             await Share.share({ title: course.name, text, url: shareUrl, dialogTitle: course.name });
         } catch (err) {
@@ -600,13 +600,13 @@ export default function Profile() {
             }
         }
     };
-    
+
     const handleDeleteCourse = async (e: React.MouseEvent, courseId: string) => {
         e.preventDefault();
         e.stopPropagation();
-        
+
         if (!window.confirm(t('profile.confirm_course_delete'))) return;
-        
+
         const token = localStorage.getItem('token');
         try {
             const res = await fetch(`${API_BASE}/api/users/collections/${courseId}`, {
@@ -649,21 +649,21 @@ export default function Profile() {
                 try {
                     const urlObj = new URL(event.url);
                     const error = urlObj.searchParams.get('error');
-                    
+
                     if (error) {
                         await Browser.close().catch(() => console.log('browser already closed'));
                         setAuthError(`Apple Login Error: ${error}`);
                         setIsLoading(false);
                         return;
                     }
-                    
+
                     const token = urlObj.searchParams.get('token');
                     const userStr = urlObj.searchParams.get('user');
-                    
+
                     if (token) {
                         await Browser.close().catch(() => console.log('browser already closed'));
                         setIsLoginModalOpen(true);
-                        
+
                         let name;
                         if (userStr) {
                             try {
@@ -675,7 +675,7 @@ export default function Profile() {
                                 console.error("Failed to parse apple user", e);
                             }
                         }
-                        
+
                         handleAppleCredentialResponse({ credential: token, name: name || undefined });
                     }
                 } catch (e) {
@@ -686,21 +686,21 @@ export default function Profile() {
                 try {
                     const urlObj = new URL(event.url);
                     const error = urlObj.searchParams.get('error');
-                    
+
                     if (error) {
                         await Browser.close().catch(() => console.log('browser already closed'));
                         setAuthError(`Naver Login Error: ${error}`);
                         setIsLoading(false);
                         return;
                     }
-                    
+
                     const token = urlObj.searchParams.get('token');
                     const userStr = urlObj.searchParams.get('user');
-                    
+
                     if (token) {
                         await Browser.close().catch(() => console.log('browser already closed'));
                         setIsLoginModalOpen(true);
-                        
+
                         // Token received, handle login
                         try {
                             const res = await fetch(`${API_BASE}/api/users/me`, {
@@ -734,11 +734,7 @@ export default function Profile() {
                 }
             }
         };
-        const isNativePlatform = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
-        let deepLinkHandlePromise: any = null;
-        if (isNativePlatform) {
-            deepLinkHandlePromise = CapApp.addListener('appUrlOpen', handleDeepLink);
-        }
+        CapApp.addListener('appUrlOpen', handleDeepLink);
 
         // Fallback or PC check: if returning directly to URL via standard browser redirect
         const hash = window.location.hash;
@@ -748,7 +744,7 @@ export default function Profile() {
             if (jwtToken) {
                 window.history.replaceState(null, '', window.location.pathname + window.location.search);
                 setIsLoginModalOpen(true);
-                
+
                 fetch(`${API_BASE}/api/users/me`, {
                     headers: { 'Authorization': `Bearer ${jwtToken}` }
                 }).then(async res => {
@@ -801,15 +797,9 @@ export default function Profile() {
                 handleGoogleCallback(accessToken);
             }
         }
-        
+
         return () => {
-            if (deepLinkHandlePromise) {
-                Promise.resolve(deepLinkHandlePromise).then(h => {
-                    if (h && typeof h.remove === 'function') {
-                        h.remove();
-                    }
-                }).catch(e => console.error("Failed to remove deep link listener:", e));
-            }
+            CapApp.removeAllListeners();
         };
     }, []);
 
@@ -834,7 +824,7 @@ export default function Profile() {
                 createdAt: sharePrescriptionTarget.createdAt,
                 rating: sharePrescriptionTarget.rating
             }));
-            
+
             const res = await fetch(`${API_BASE}/api/community/posts`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
@@ -864,18 +854,18 @@ export default function Profile() {
             try {
                 const match = aiComment.match(/<!-- BEANDATA: (.*?) -->/);
                 if (match) bean = JSON.parse(match[1]);
-            } catch(e) {}
+            } catch (e) { }
         }
         try {
             const token = localStorage.getItem('token');
             const res = await fetch(`${API_BASE}/api/users/prescriptions/${prescriptionId}/rating`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                body: JSON.stringify({ 
-                    rating, 
-                    beanAcidity: bean?.acidity || 3, 
-                    beanSweetness: bean?.sweetness || 3, 
-                    beanBody: bean?.body || 3 
+                body: JSON.stringify({
+                    rating,
+                    beanAcidity: bean?.acidity || 3,
+                    beanSweetness: bean?.sweetness || 3,
+                    beanBody: bean?.body || 3
                 })
             });
             if (res.ok) {
@@ -970,9 +960,9 @@ export default function Profile() {
             return;
         }
         setIsLoading(true);
-        
+
         const normalizedEmail = email.trim().toLowerCase();
-        
+
         try {
             const response = await fetch(`${API_BASE}/api/auth/login`, {
                 method: 'POST',
@@ -1012,7 +1002,7 @@ export default function Profile() {
 
     const handleGoogleLogin = async () => {
         const isNative = Capacitor.isNativePlatform();
-        
+
         // As per @capawesome/capacitor-google-sign-in docs, clientId MUST be the Web Client ID on ALL platforms.
         // HARDCODED because .env is not synced via git to the Mac build machine for iOS builds!
         // We must use the NEW Web Client ID from the current Firebase project (beanmind-61b70).
@@ -1044,10 +1034,10 @@ export default function Profile() {
         let currentOrigin = window.location.origin;
 
         const redirectUri = encodeURIComponent(currentOrigin + '/profile');
-        
+
         const baseState = 'web_google_login';
         const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=token&state=${baseState}&scope=email%20profile`;
-        
+
         window.location.href = url;
     };
 
@@ -1139,9 +1129,9 @@ export default function Profile() {
 
         try {
             setIsLoading(true);
-            
+
             const isAndroid = Capacitor.getPlatform() === 'android';
-            
+
             if (isAndroid) {
                 // Use Capacitor Browser (Chrome Custom Tab) for Android to bypass Apple's WebView security blocks
                 // This ensures 2FA works correctly and Apple does not reject the identity verification.
@@ -1149,7 +1139,7 @@ export default function Profile() {
                 const redirectUri = import.meta.env.VITE_APPLE_REDIRECT_URL || 'https://www.beanmindcurator.com/api/auth/apple/callback';
                 const state = Math.random().toString(36).substring(2, 15);
                 const authUrl = `https://appleid.apple.com/auth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code%20id_token&scope=name%20email&response_mode=form_post&state=${state}`;
-                
+
                 await Browser.open({ url: authUrl });
                 setIsLoading(false);
                 return; // The DeepLink listener will handle the rest!
@@ -1218,7 +1208,7 @@ export default function Profile() {
             const originB64 = btoa(window.location.origin).replace(/=/g, '');
             const state = (isNative ? 'app_' : `web_${originB64}_`) + Math.random().toString(36).substring(2, 15);
             const authUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}`;
-            
+
             if (isNative) {
                 await Browser.open({ url: authUrl });
             } else {
@@ -1442,11 +1432,11 @@ export default function Profile() {
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        
+
         // Prevent accidental cross-contamination of un-saved global state
         localStorage.removeItem('bm_sync_presc');
         localStorage.removeItem('bm_curation_ad');
-        
+
         window.dispatchEvent(new Event('authStateChanged'));
         setIsAuthenticated(false);
     };
@@ -1458,7 +1448,7 @@ export default function Profile() {
         setIsLoading(true);
         try {
             const compressedBase64 = await compressImage(file, 512, 512, 0.8);
-            
+
             const token = localStorage.getItem('token');
             const response = await fetch(`${API_BASE}/api/users/profile-image`, {
                 method: 'PUT',
@@ -1617,13 +1607,13 @@ export default function Profile() {
     const handleResetPwRequest = async () => {
         setAuthError('');
         if (!email) { setAuthError(t('profile.err_email_req')); return; }
-        
+
         // Ensure email is lowercase and trimmed (iOS keyboard often auto-capitalizes first letter)
         const normalizedEmail = email.trim().toLowerCase();
-        
+
         // Clear any old verification code before sending a new one
         setVerificationCode('');
-        
+
         setIsLoading(true);
         try {
             const res = await fetch(`${API_BASE}/api/auth/reset-password-request`, {
@@ -1642,9 +1632,9 @@ export default function Profile() {
         if (!verificationCode || !password || !passwordConfirm) { setAuthError(t('profile.err_code_pw_req')); return; }
         if (password !== passwordConfirm) { setAuthError(t('profile.err_pw_mismatch')); return; }
         setIsLoading(true);
-        
+
         const normalizedEmail = email.trim().toLowerCase();
-        
+
         try {
             const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: normalizedEmail, code: verificationCode, newPassword: password })
@@ -1727,14 +1717,14 @@ export default function Profile() {
         <div id="profile-scroll-container" className="h-full w-full bg-espresso-950 overflow-y-auto pb-24 font-sans selection:bg-espresso-700 selection:text-espresso-50 relative">
             {/* 💡 상단 시스템 영역(상태바) 겹침 방지 불투명 가드 (Sticky StatusBar Shield) */}
             <div className="sticky top-0 left-0 right-0 h-[env(safe-area-inset-top,24px)] bg-espresso-950 z-50 pointer-events-none w-full shrink-0" />
-            
+
             <IAPPaymentModal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} onSuccess={handleChargePoints} userId={currentUser?.id || ''} />
             <div className="max-w-md md:max-w-2xl mx-auto relative flex flex-col min-h-full">
 
                 {/* Header Options */}
                 <header className="px-6 py-3 pb-2 shrink-0 flex justify-between items-center">
                     <h1 className="text-3xl font-serif font-bold text-espresso-50 tracking-tight">{t('profile.title', '내 정보')}</h1>
-                    <button 
+                    <button
                         onClick={() => {
                             const newLang = i18n.language === 'ko' ? 'en' : 'ko';
                             i18n.changeLanguage(newLang);
@@ -1745,11 +1735,11 @@ export default function Profile() {
                                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                                     body: JSON.stringify({ preferredLanguage: newLang })
                                 }).then(res => res.json())
-                                .then(data => {
-                                    if (data.user) {
-                                        localStorage.setItem('user', JSON.stringify(data.user));
-                                    }
-                                }).catch(err => console.error('Failed to sync language preference:', err));
+                                    .then(data => {
+                                        if (data.user) {
+                                            localStorage.setItem('user', JSON.stringify(data.user));
+                                        }
+                                    }).catch(err => console.error('Failed to sync language preference:', err));
                             }
                         }}
                         className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-espresso-800/50 hover:bg-espresso-800 transition-colors border border-espresso-700"
@@ -1814,8 +1804,8 @@ export default function Profile() {
                                                     <span className="text-amber-500 text-[13px]">☕</span>
                                                     <span className="text-amber-400 font-bold text-[13px]">{pointBalance.toLocaleString()} {t('profile.unit_bean', '콩')}</span>
                                                 </Link>
-                                                <button 
-                                                    onClick={() => setIsPaymentModalOpen(true)} 
+                                                <button
+                                                    onClick={() => setIsPaymentModalOpen(true)}
                                                     disabled={isLoading}
                                                     className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-500 text-xs font-bold px-2 py-1 rounded-lg border border-amber-500/30 transition-colors whitespace-nowrap shrink-0"
                                                 >
@@ -1909,10 +1899,10 @@ export default function Profile() {
                                         <AnimatePresence>
                                             {isEditingBio ? (
                                                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="flex flex-col gap-2 relative mt-2">
-                                                    <textarea 
-                                                        value={newBio} 
-                                                        onChange={e => setNewBio(e.target.value)} 
-                                                        placeholder={t('profile.ph_bio')} 
+                                                    <textarea
+                                                        value={newBio}
+                                                        onChange={e => setNewBio(e.target.value)}
+                                                        placeholder={t('profile.ph_bio')}
                                                         maxLength={100}
                                                         className="w-full bg-espresso-950 border border-espresso-700 rounded-lg px-3 py-2 text-[13px] text-espresso-50 outline-none focus:border-amber-500/50 resize-none h-20"
                                                     />
@@ -1925,7 +1915,7 @@ export default function Profile() {
                                                                     ) : (
                                                                         <img src={`${API_BASE}${url}`} className="w-full h-full object-cover" />
                                                                     )}
-                                                                    <button onClick={() => removeExistingBioImage(idx)} className="absolute top-1 right-1 bg-black/60 rounded-full p-0.5 text-white active:scale-90"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                                                                    <button onClick={() => removeExistingBioImage(idx)} className="absolute top-1 right-1 bg-black/60 rounded-full p-0.5 text-white active:scale-90"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg></button>
                                                                 </div>
                                                             ))}
                                                             {newBioImagePreviews.map((url, idx) => (
@@ -1935,14 +1925,14 @@ export default function Profile() {
                                                                     ) : (
                                                                         <img src={url} className="w-full h-full object-cover" />
                                                                     )}
-                                                                    <button onClick={() => removeBioImage(idx)} className="absolute top-1 right-1 bg-black/60 rounded-full p-0.5 text-white active:scale-90"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+                                                                    <button onClick={() => removeBioImage(idx)} className="absolute top-1 right-1 bg-black/60 rounded-full p-0.5 text-white active:scale-90"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg></button>
                                                                 </div>
                                                             ))}
                                                         </div>
                                                     )}
                                                     <div className="flex justify-between items-center gap-2 mt-1">
                                                         <button onClick={() => bioFileInputRef.current?.click()} className="text-espresso-400 hover:text-amber-500 transition-colors p-2 active:scale-95">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
                                                         </button>
                                                         <input type="file" ref={bioFileInputRef} className="hidden" multiple accept="image/*,video/*" onChange={handleBioFileChange} />
                                                         <div className="flex gap-2">
@@ -1957,13 +1947,13 @@ export default function Profile() {
                                                 </p>
                                             )}
                                         </AnimatePresence>
-                                        
+
                                         <div className="flex items-center justify-between mt-2 pt-4 border-t border-espresso-700">
                                             <div className="flex flex-col">
                                                 <span className="text-[13px] font-bold text-espresso-100">{t('profile.lbl_enable_public_profile')}</span>
                                                 <span className="text-[11px] text-espresso-400 mt-1">{t('profile.desc_enable_public_profile')}</span>
                                             </div>
-                                            <button 
+                                            <button
                                                 onClick={() => handleUpdatePublicProfile(undefined, currentUser.isPublicProfile === false ? true : false)}
                                                 disabled={isLoading}
                                                 className={`w-12 h-6 rounded-full transition-colors relative ${currentUser.isPublicProfile !== false ? 'bg-amber-500' : 'bg-espresso-800'}`}
@@ -2000,16 +1990,16 @@ export default function Profile() {
 
                             {/* B2B Web Dashboard & Host QR Stamp Scanner */}
                             <div className="grid grid-cols-2 gap-3">
-                                <button 
-                                    onClick={() => navigate('/profile/host-web')} 
+                                <button
+                                    onClick={() => navigate('/profile/host-web')}
                                     className="flex flex-col items-center justify-center p-5 bg-[#140e0b]/40 border border-amber-500/30 rounded-2xl active:scale-[0.98] transition-all hover:bg-[#140e0b]/60 cursor-pointer text-left w-full"
                                 >
                                     <Database size={22} className="text-amber-400 mb-2" />
                                     <span className="font-bold text-[13px] text-espresso-50">{t('profile.btn_pos_dashboard', '웹 POS 대시보드')}</span>
                                     <span className="text-[10px] text-espresso-300 mt-1">{t('profile.desc_pos_dashboard', '정책설정 & B2B 통계')}</span>
                                 </button>
-                                <button 
-                                    onClick={() => setIsHostScannerOpen(true)} 
+                                <button
+                                    onClick={() => setIsHostScannerOpen(true)}
                                     className="flex flex-col items-center justify-center p-5 bg-[#140e0b]/40 border border-amber-500/30 rounded-2xl active:scale-[0.98] transition-all hover:bg-[#140e0b]/60 cursor-pointer text-left w-full"
                                 >
                                     <Coffee size={22} className="text-amber-400 mb-2" />
@@ -2049,7 +2039,7 @@ export default function Profile() {
                     {/* 🎫 BeanStamp 스탬프 지갑 */}
                     {isAuthenticated && (
                         <section className="bg-gradient-to-br from-espresso-900 to-[#1b120c] rounded-[2rem] border border-white/20 overflow-hidden relative shadow-2xl">
-                            <div 
+                            <div
                                 className="px-6 py-5 relative z-10 flex justify-between items-center bg-espresso-950/40 gap-4 cursor-pointer active:bg-espresso-900/50 transition-colors"
                                 onClick={() => setIsStampWalletExpanded(!isStampWalletExpanded)}
                             >
@@ -2060,9 +2050,9 @@ export default function Profile() {
                                     </h3>
                                     <p className="text-[11px] text-espresso-200 mt-1 font-medium truncate">{t('profile.beanstamp_subtitle', '단골 매장 도장판 및 적립용 QR')}</p>
                                 </div>
-                                
+
                                 {/* 적립용 QR 생성 버튼 */}
-                                <button 
+                                <button
                                     onClick={(e) => { e.stopPropagation(); setIsStampModalOpen(true); }}
                                     className="bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 text-xs font-bold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1 shadow-sm active:scale-95 cursor-pointer shrink-0"
                                 >
@@ -2081,241 +2071,241 @@ export default function Profile() {
                                         className="overflow-hidden p-6 pt-4"
                                     >
 
-                            {/* 탭 헤더 */}
-                            <div className="flex bg-espresso-950/60 rounded-xl p-1 mb-4 border border-espresso-800">
-                                <button 
-                                    onClick={() => setActiveStampTab('REGULAR')}
-                                    className={`flex-1 text-center py-2 text-[12px] font-bold rounded-lg transition-all ${activeStampTab === 'REGULAR' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/10'}`}
-                                >
-                                    {t('profile.tab_regular', '일반 음료')}
-                                </button>
-                                <button 
-                                    onClick={() => setActiveStampTab('PROMOTION')}
-                                    className={`flex-1 text-center py-2 text-[12px] font-bold rounded-lg transition-all ${activeStampTab === 'PROMOTION' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/10'}`}
-                                >
-                                    {t('profile.tab_promotion', '프로모션')}
-                                </button>
-                                <button 
-                                    onClick={() => setActiveStampTab('COUPON')}
-                                    className={`flex-1 text-center py-2 text-[12px] font-bold rounded-lg transition-all ${activeStampTab === 'COUPON' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/10'} flex justify-center items-center gap-1.5`}
-                                >
-                                    {t('profile.tab_coupon', '무료 쿠폰')}
-                                    {myStampCoupons.length > 0 && (
-                                        <span className="bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center font-mono">
-                                            {myStampCoupons.length}
-                                        </span>
-                                    )}
-                                </button>
-                            </div>
+                                        {/* 탭 헤더 */}
+                                        <div className="flex bg-espresso-950/60 rounded-xl p-1 mb-4 border border-espresso-800">
+                                            <button
+                                                onClick={() => setActiveStampTab('REGULAR')}
+                                                className={`flex-1 text-center py-2 text-[12px] font-bold rounded-lg transition-all ${activeStampTab === 'REGULAR' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/10'}`}
+                                            >
+                                                {t('profile.tab_regular', '일반 음료')}
+                                            </button>
+                                            <button
+                                                onClick={() => setActiveStampTab('PROMOTION')}
+                                                className={`flex-1 text-center py-2 text-[12px] font-bold rounded-lg transition-all ${activeStampTab === 'PROMOTION' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/10'}`}
+                                            >
+                                                {t('profile.tab_promotion', '프로모션')}
+                                            </button>
+                                            <button
+                                                onClick={() => setActiveStampTab('COUPON')}
+                                                className={`flex-1 text-center py-2 text-[12px] font-bold rounded-lg transition-all ${activeStampTab === 'COUPON' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100 hover:bg-espresso-900/10'} flex justify-center items-center gap-1.5`}
+                                            >
+                                                {t('profile.tab_coupon', '무료 쿠폰')}
+                                                {myStampCoupons.length > 0 && (
+                                                    <span className="bg-red-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center font-mono">
+                                                        {myStampCoupons.length}
+                                                    </span>
+                                                )}
+                                            </button>
+                                        </div>
 
-                            {/* 탭 바디 */}
-                            {activeStampTab === 'REGULAR' || activeStampTab === 'PROMOTION' ? (
-                                <div className="space-y-4">
-                                    {myStampCards.filter(c => c.cardType === activeStampTab).length > 0 ? (
-                                        myStampCards.filter(c => c.cardType === activeStampTab).map((card) => {
-                                            const dots = Array.from({ length: card.maxStamps }, (_, i) => i < card.currentStamps);
-                                            
-                                            return (
-                                                <div key={card.id} className="bg-espresso-950/40 p-4 rounded-2xl border border-espresso-700 space-y-3">
-                                                    <div className="flex justify-between items-center gap-2">
-                                                        <div className="flex items-center gap-2 flex-1 min-w-0">
-                                                            {card.storeLogo ? (
-                                                                <img src={`${API_BASE}${card.storeLogo}`} className="w-8 h-8 rounded-full border border-espresso-700 flex-shrink-0" alt={card.storeName} />
-                                                            ) : (
-                                                                <div className="w-8 h-8 rounded-full bg-espresso-800 border border-espresso-700 flex items-center justify-center text-espresso-200 text-xs flex-shrink-0">☕</div>
-                                                            )}
-                                                            <div className="min-w-0 flex-1">
-                                                                <h4 className="font-bold text-[14px] text-espresso-50 leading-tight truncate">{card.storeName}</h4>
-                                                                <p className="text-[10px] text-espresso-300 truncate">{t(card.cardTitle, card.cardTitle) as string}</p>
+                                        {/* 탭 바디 */}
+                                        {activeStampTab === 'REGULAR' || activeStampTab === 'PROMOTION' ? (
+                                            <div className="space-y-4">
+                                                {myStampCards.filter(c => c.cardType === activeStampTab).length > 0 ? (
+                                                    myStampCards.filter(c => c.cardType === activeStampTab).map((card) => {
+                                                        const dots = Array.from({ length: card.maxStamps }, (_, i) => i < card.currentStamps);
+
+                                                        return (
+                                                            <div key={card.id} className="bg-espresso-950/40 p-4 rounded-2xl border border-espresso-700 space-y-3">
+                                                                <div className="flex justify-between items-center gap-2">
+                                                                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                                                                        {card.storeLogo ? (
+                                                                            <img src={`${API_BASE}${card.storeLogo}`} className="w-8 h-8 rounded-full border border-espresso-700 flex-shrink-0" alt={card.storeName} />
+                                                                        ) : (
+                                                                            <div className="w-8 h-8 rounded-full bg-espresso-800 border border-espresso-700 flex items-center justify-center text-espresso-200 text-xs flex-shrink-0">☕</div>
+                                                                        )}
+                                                                        <div className="min-w-0 flex-1">
+                                                                            <h4 className="font-bold text-[14px] text-espresso-50 leading-tight truncate">{card.storeName}</h4>
+                                                                            <p className="text-[10px] text-espresso-300 truncate">{t(card.cardTitle, card.cardTitle) as string}</p>
+                                                                            {(() => {
+                                                                                const remaining = getStampCardRemainingDays(card.updatedAt, card.validDays || 90);
+                                                                                if (remaining === null) return null;
+                                                                                const expireDate = new Date(new Date(card.updatedAt).getTime() + (card.validDays || 90) * 24 * 60 * 60 * 1000);
+                                                                                return (
+                                                                                    <p className="text-[9px] text-amber-500 font-mono mt-0.5 font-bold truncate">
+                                                                                        {t('profile.lbl_expiry', '유효기간')}: {expireDate.toLocaleDateString()} (D-{remaining})
+                                                                                    </p>
+                                                                                );
+                                                                            })()}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="text-right flex-shrink-0">
+                                                                        <span className="font-mono font-black text-amber-500 text-[16px]">{card.currentStamps}</span>
+                                                                        <span className="font-mono text-espresso-300 text-[12px]"> / {card.maxStamps}</span>
+                                                                        <p className="text-[9px] text-[#D4AF37] font-bold mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">{t('profile.lbl_reward_on_complete', '완성 시')}: {card.rewardDesc}</p>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* 도장판 그리드 또는 복합 카테고리별 분할 도장판 */}
                                                                 {(() => {
-                                                                    const remaining = getStampCardRemainingDays(card.updatedAt, card.validDays || 90);
-                                                                    if (remaining === null) return null;
-                                                                    const expireDate = new Date(new Date(card.updatedAt).getTime() + (card.validDays || 90) * 24 * 60 * 60 * 1000);
-                                                                    return (
-                                                                        <p className="text-[9px] text-amber-500 font-mono mt-0.5 font-bold truncate">
-                                                                            {t('profile.lbl_expiry', '유효기간')}: {expireDate.toLocaleDateString()} (D-{remaining})
-                                                                        </p>
-                                                                    );
-                                                                })()}
-                                                            </div>
-                                                        </div>
-                                                        <div className="text-right flex-shrink-0">
-                                                            <span className="font-mono font-black text-amber-500 text-[16px]">{card.currentStamps}</span>
-                                                            <span className="font-mono text-espresso-300 text-[12px]"> / {card.maxStamps}</span>
-                                                            <p className="text-[9px] text-[#D4AF37] font-bold mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">{t('profile.lbl_reward_on_complete', '완성 시')}: {card.rewardDesc}</p>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* 도장판 그리드 또는 복합 카테고리별 분할 도장판 */}
-                                                    {(() => {
-                                                        const resolvedItemsConfig = getItemsConfig(card);
-                                                        const isPromotion = card.cardType === "PROMOTION" && resolvedItemsConfig !== null;
-                                                        if (isPromotion && resolvedItemsConfig) {
-                                                            const itemsProgress = typeof card.itemsProgress === 'string' ? JSON.parse(card.itemsProgress) : (card.itemsProgress || {});
-                                                            return (
-                                                                <div className="space-y-3 pt-2">
-                                                                    {resolvedItemsConfig.map((item: any) => {
-                                                                        const currentVal = itemsProgress[item.key] || 0;
-                                                                        const targetVal = item.target;
-                                                                        const itemDots = Array.from({ length: targetVal }, (_, i) => i < currentVal);
+                                                                    const resolvedItemsConfig = getItemsConfig(card);
+                                                                    const isPromotion = card.cardType === "PROMOTION" && resolvedItemsConfig !== null;
+                                                                    if (isPromotion && resolvedItemsConfig) {
+                                                                        const itemsProgress = typeof card.itemsProgress === 'string' ? JSON.parse(card.itemsProgress) : (card.itemsProgress || {});
                                                                         return (
-                                                                            <div key={item.key} className="space-y-1 bg-espresso-950/20 p-2.5 rounded-xl border border-espresso-700/60">
-                                                                                <div className="flex justify-between items-center text-[10px] font-bold">
-                                                                                    <span className="text-espresso-100">{t('profile.lbl_stamp_card_title', { label: item.label, defaultValue: `${item.label} 도장판` })}</span>
-                                                                                    <span className="font-mono text-[#D4AF37]">{currentVal} / {t('profile.unit_stamps', { count: targetVal, defaultValue: `${targetVal}개` })}</span>
-                                                                                </div>
-                                                                                <div className="grid grid-cols-6 gap-2.5 pt-1">
-                                                                                    {itemDots.map((isStamped, dIdx) => (
-                                                                                        <div 
-                                                                                            key={dIdx} 
-                                                                                            className={`aspect-square rounded-lg border flex items-center justify-center transition-all ${isStamped ? 'bg-gradient-to-br from-amber-500 to-amber-700 border-amber-400 shadow-md shadow-amber-500/10 scale-105' : 'border-dashed border-espresso-500 bg-espresso-900/40'}`}
-                                                                                        >
-                                                                                            {isStamped ? (
-                                                                                                <span className="text-espresso-950 font-black text-[10px]">☕</span>
-                                                                                            ) : (
-                                                                                                <span className="text-[9px] font-mono text-espresso-400 font-bold">{dIdx + 1}</span>
-                                                                                            )}
+                                                                            <div className="space-y-3 pt-2">
+                                                                                {resolvedItemsConfig.map((item: any) => {
+                                                                                    const currentVal = itemsProgress[item.key] || 0;
+                                                                                    const targetVal = item.target;
+                                                                                    const itemDots = Array.from({ length: targetVal }, (_, i) => i < currentVal);
+                                                                                    return (
+                                                                                        <div key={item.key} className="space-y-1 bg-espresso-950/20 p-2.5 rounded-xl border border-espresso-700/60">
+                                                                                            <div className="flex justify-between items-center text-[10px] font-bold">
+                                                                                                <span className="text-espresso-100">{t('profile.lbl_stamp_card_title', { label: item.label, defaultValue: `${item.label} 도장판` })}</span>
+                                                                                                <span className="font-mono text-[#D4AF37]">{currentVal} / {t('profile.unit_stamps', { count: targetVal, defaultValue: `${targetVal}개` })}</span>
+                                                                                            </div>
+                                                                                            <div className="grid grid-cols-6 gap-2.5 pt-1">
+                                                                                                {itemDots.map((isStamped, dIdx) => (
+                                                                                                    <div
+                                                                                                        key={dIdx}
+                                                                                                        className={`aspect-square rounded-lg border flex items-center justify-center transition-all ${isStamped ? 'bg-gradient-to-br from-amber-500 to-amber-700 border-amber-400 shadow-md shadow-amber-500/10 scale-105' : 'border-dashed border-espresso-500 bg-espresso-900/40'}`}
+                                                                                                    >
+                                                                                                        {isStamped ? (
+                                                                                                            <span className="text-espresso-950 font-black text-[10px]">☕</span>
+                                                                                                        ) : (
+                                                                                                            <span className="text-[9px] font-mono text-espresso-400 font-bold">{dIdx + 1}</span>
+                                                                                                        )}
+                                                                                                    </div>
+                                                                                                ))}
+                                                                                            </div>
                                                                                         </div>
-                                                                                    ))}
-                                                                                </div>
+                                                                                    );
+                                                                                })}
                                                                             </div>
                                                                         );
-                                                                    })}
-                                                                </div>
-                                                            );
-                                                        }
+                                                                    }
 
-                                                        // 기존 일반 그리드
-                                                        return (
-                                                            <div className="grid grid-cols-5 gap-2.5 pt-2">
-                                                                {dots.map((isStamped, dIdx) => (
-                                                                    <div 
-                                                                        key={dIdx} 
-                                                                        className={`aspect-square rounded-full border flex items-center justify-center transition-all ${isStamped ? 'bg-gradient-to-br from-amber-500 to-amber-700 border-amber-400 shadow-md shadow-amber-500/10 scale-105' : 'border-dashed border-espresso-500 bg-espresso-900/50'}`}
-                                                                    >
-                                                                        {isStamped ? (
-                                                                            <span className="text-espresso-950 font-black text-[13px]">☕</span>
-                                                                        ) : (
-                                                                            <span className="text-[11px] font-mono text-espresso-400 font-bold">{dIdx + 1}</span>
-                                                                        )}
-                                                                    </div>
-                                                                ))}
+                                                                    // 기존 일반 그리드
+                                                                    return (
+                                                                        <div className="grid grid-cols-5 gap-2.5 pt-2">
+                                                                            {dots.map((isStamped, dIdx) => (
+                                                                                <div
+                                                                                    key={dIdx}
+                                                                                    className={`aspect-square rounded-full border flex items-center justify-center transition-all ${isStamped ? 'bg-gradient-to-br from-amber-500 to-amber-700 border-amber-400 shadow-md shadow-amber-500/10 scale-105' : 'border-dashed border-espresso-500 bg-espresso-900/50'}`}
+                                                                                >
+                                                                                    {isStamped ? (
+                                                                                        <span className="text-espresso-950 font-black text-[13px]">☕</span>
+                                                                                    ) : (
+                                                                                        <span className="text-[11px] font-mono text-espresso-400 font-bold">{dIdx + 1}</span>
+                                                                                    )}
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    );
+                                                                })()}
+
+                                                                <div className="flex justify-between items-center pt-1.5 border-t border-espresso-800/40 mt-1">
+                                                                    <span className="text-[9.5px] text-espresso-300">
+                                                                        {t('profile.lbl_total_stamps', '총 누적 적립')}: <span className="text-[#D4AF37] font-black font-mono">{t('profile.unit_stamps', { count: (card.completedCount * card.maxStamps) + card.currentStamps, defaultValue: `${(card.completedCount * card.maxStamps) + card.currentStamps}개` })}</span>
+                                                                    </span>
+                                                                    <span className="text-[9.5px] text-espresso-300">
+                                                                        {t('profile.lbl_complete_count', '완성 횟수')}: <span className="text-amber-500 font-black">{t('profile.unit_times', { count: card.completedCount, defaultValue: `${card.completedCount}회` })}</span>
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         );
-                                                    })()}
-
-                                                    <div className="flex justify-between items-center pt-1.5 border-t border-espresso-800/40 mt-1">
-                                                        <span className="text-[9.5px] text-espresso-300">
-                                                            {t('profile.lbl_total_stamps', '총 누적 적립')}: <span className="text-[#D4AF37] font-black font-mono">{t('profile.unit_stamps', { count: (card.completedCount * card.maxStamps) + card.currentStamps, defaultValue: `${(card.completedCount * card.maxStamps) + card.currentStamps}개` })}</span>
-                                                        </span>
-                                                        <span className="text-[9.5px] text-espresso-300">
-                                                            {t('profile.lbl_complete_count', '완성 횟수')}: <span className="text-amber-500 font-black">{t('profile.unit_times', { count: card.completedCount, defaultValue: `${card.completedCount}회` })}</span>
-                                                        </span>
+                                                    })
+                                                ) : (
+                                                    <div className="text-center py-8 text-espresso-300 text-xs opacity-75">
+                                                        {t('profile.no_stamp_cards', { type: activeStampTab === 'REGULAR' ? t('profile.tab_regular', '일반 음료') : t('profile.tab_promotion', '프로모션'), defaultValue: `적립된 ${activeStampTab === 'REGULAR' ? '일반' : '시즌 프로모션'} 스탬프 카드가 없습니다.` })}
                                                     </div>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            // 무료 쿠폰함
+                                            <div className="space-y-4">
+                                                {/* 무료 쿠폰 서브 탭 (사용 가능 / 사용 내역) */}
+                                                <div className="flex justify-center bg-espresso-950/40 rounded-xl p-1 mb-2 border border-espresso-800/60 max-w-[280px] mx-auto">
+                                                    <button
+                                                        onClick={() => setCouponSubTab('UNUSED')}
+                                                        className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${couponSubTab === 'UNUSED' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
+                                                    >
+                                                        {t('profile.coupon_subtab_unused', '사용 가능한 쿠폰')}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setCouponSubTab('USED')}
+                                                        className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${couponSubTab === 'USED' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
+                                                    >
+                                                        {t('profile.coupon_subtab_used', '사용/만료 내역')}
+                                                    </button>
                                                 </div>
-                                            );
-                                        })
-                                    ) : (
-                                        <div className="text-center py-8 text-espresso-300 text-xs opacity-75">
-                                            {t('profile.no_stamp_cards', { type: activeStampTab === 'REGULAR' ? t('profile.tab_regular', '일반 음료') : t('profile.tab_promotion', '프로모션'), defaultValue: `적립된 ${activeStampTab === 'REGULAR' ? '일반' : '시즌 프로모션'} 스탬프 카드가 없습니다.` })}
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                // 무료 쿠폰함
-                                <div className="space-y-4">
-                                    {/* 무료 쿠폰 서브 탭 (사용 가능 / 사용 내역) */}
-                                    <div className="flex justify-center bg-espresso-950/40 rounded-xl p-1 mb-2 border border-espresso-800/60 max-w-[280px] mx-auto">
-                                        <button
-                                            onClick={() => setCouponSubTab('UNUSED')}
-                                            className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${couponSubTab === 'UNUSED' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
-                                        >
-                                            {t('profile.coupon_subtab_unused', '사용 가능한 쿠폰')}
-                                        </button>
-                                        <button
-                                            onClick={() => setCouponSubTab('USED')}
-                                            className={`flex-1 text-center py-1.5 text-[11px] font-bold rounded-lg transition-all ${couponSubTab === 'USED' ? 'bg-amber-600 text-white shadow-sm' : 'text-espresso-300 hover:text-espresso-100'}`}
-                                        >
-                                            {t('profile.coupon_subtab_used', '사용/만료 내역')}
-                                        </button>
-                                    </div>
 
-                                    {couponSubTab === 'UNUSED' ? (
-                                        <div className="space-y-3">
-                                            {myStampCoupons.length > 0 ? (
-                                                myStampCoupons.map((coupon) => (
-                                                    <div key={coupon.id} className="bg-gradient-to-r from-amber-900/30 to-espresso-900 p-4 rounded-2xl border border-amber-500/10 flex justify-between items-center relative overflow-hidden ticket-cutout">
-                                                        <div className="absolute right-0 top-0 bg-amber-500 text-espresso-950 text-[9px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">
-                                                            FREE
-                                                        </div>
-                                                        <div className="space-y-1">
-                                                            <h4 className="font-bold text-[14px] text-espresso-50">{t('profile.coupon_reward_title', { storeName: coupon.storeName, defaultValue: `${coupon.storeName} 무료 혜택` })}</h4>
-                                                            {coupon.rewardDesc && (
-                                                                <p className="text-[12px] text-amber-400 font-bold mt-0.5">{coupon.rewardDesc}</p>
-                                                            )}
-                                                            <p className="text-[11px] text-[#D4AF37]/80 font-bold">{t('profile.lbl_coupon_code', '쿠폰 코드')}: {coupon.couponCode}</p>
-                                                            <p className="text-[10px] text-espresso-300">
-                                                                {t('profile.lbl_expire_date', '만료일')}: {new Date(coupon.expiresAt).toLocaleDateString()}
-                                                            </p>
-                                                        </div>
-                                                        <button 
-                                                            onClick={() => {
-                                                                setCurrentCouponForQR(coupon);
-                                                                setIsCouponQRModalOpen(true);
-                                                            }}
-                                                            className="bg-amber-500 text-espresso-950 font-black text-xs px-3.5 py-2 rounded-xl active:scale-95 transition-all shadow-sm shrink-0 cursor-pointer"
-                                                        >
-                                                            {t('profile.btn_use_now', '사용하기')}
-                                                        </button>
+                                                {couponSubTab === 'UNUSED' ? (
+                                                    <div className="space-y-3">
+                                                        {myStampCoupons.length > 0 ? (
+                                                            myStampCoupons.map((coupon) => (
+                                                                <div key={coupon.id} className="bg-gradient-to-r from-amber-900/30 to-espresso-900 p-4 rounded-2xl border border-amber-500/10 flex justify-between items-center relative overflow-hidden ticket-cutout">
+                                                                    <div className="absolute right-0 top-0 bg-amber-500 text-espresso-950 text-[9px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-wider">
+                                                                        FREE
+                                                                    </div>
+                                                                    <div className="space-y-1">
+                                                                        <h4 className="font-bold text-[14px] text-espresso-50">{t('profile.coupon_reward_title', { storeName: coupon.storeName, defaultValue: `${coupon.storeName} 무료 혜택` })}</h4>
+                                                                        {coupon.rewardDesc && (
+                                                                            <p className="text-[12px] text-amber-400 font-bold mt-0.5">{coupon.rewardDesc}</p>
+                                                                        )}
+                                                                        <p className="text-[11px] text-[#D4AF37]/80 font-bold">{t('profile.lbl_coupon_code', '쿠폰 코드')}: {coupon.couponCode}</p>
+                                                                        <p className="text-[10px] text-espresso-300">
+                                                                            {t('profile.lbl_expire_date', '만료일')}: {new Date(coupon.expiresAt).toLocaleDateString()}
+                                                                        </p>
+                                                                    </div>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setCurrentCouponForQR(coupon);
+                                                                            setIsCouponQRModalOpen(true);
+                                                                        }}
+                                                                        className="bg-amber-500 text-espresso-950 font-black text-xs px-3.5 py-2 rounded-xl active:scale-95 transition-all shadow-sm shrink-0 cursor-pointer"
+                                                                    >
+                                                                        {t('profile.btn_use_now', '사용하기')}
+                                                                    </button>
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <div className="text-center py-8 text-espresso-300 text-xs opacity-75">
+                                                                {t('profile.no_free_coupons', '사용 가능한 무료 쿠폰이 없습니다.')}
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                ))
-                                            ) : (
-                                                <div className="text-center py-8 text-espresso-300 text-xs opacity-75">
-                                                    {t('profile.no_free_coupons', '사용 가능한 무료 쿠폰이 없습니다.')}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-3">
-                                            {myCouponHistory.length > 0 ? (
-                                                myCouponHistory.map((coupon) => {
-                                                    const isExpired = coupon.status === 'EXPIRED';
-                                                    return (
-                                                        <div key={coupon.id} className="bg-espresso-950/20 p-4 rounded-2xl border border-espresso-850 flex justify-between items-center relative overflow-hidden ticket-cutout opacity-60 grayscale">
-                                                            <div className={`absolute right-0 top-0 text-espresso-950 text-[9px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-wider ${isExpired ? 'bg-red-500/80 text-white' : 'bg-espresso-700 text-espresso-200'}`}>
-                                                                {isExpired ? t('profile.coupon_status_expired', '만료') : t('profile.coupon_status_used', '사용완료')}
+                                                ) : (
+                                                    <div className="space-y-3">
+                                                        {myCouponHistory.length > 0 ? (
+                                                            myCouponHistory.map((coupon) => {
+                                                                const isExpired = coupon.status === 'EXPIRED';
+                                                                return (
+                                                                    <div key={coupon.id} className="bg-espresso-950/20 p-4 rounded-2xl border border-espresso-850 flex justify-between items-center relative overflow-hidden ticket-cutout opacity-60 grayscale">
+                                                                        <div className={`absolute right-0 top-0 text-espresso-950 text-[9px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-wider ${isExpired ? 'bg-red-500/80 text-white' : 'bg-espresso-700 text-espresso-200'}`}>
+                                                                            {isExpired ? t('profile.coupon_status_expired', '만료') : t('profile.coupon_status_used', '사용완료')}
+                                                                        </div>
+                                                                        <div className="space-y-1">
+                                                                            <h4 className="font-bold text-[14px] text-espresso-400">{coupon.storeName} {t('profile.coupon_history_title_suffix', '무료 쿠폰')}</h4>
+                                                                            {coupon.rewardDesc && (
+                                                                                <p className="text-[12px] text-espresso-300 font-bold mt-0.5">{coupon.rewardDesc}</p>
+                                                                            )}
+                                                                            <p className="text-[11px] text-espresso-400">{t('profile.lbl_coupon_code', '쿠폰 코드')}: {coupon.couponCode}</p>
+                                                                            {coupon.usedAt ? (
+                                                                                <p className="text-[10px] text-amber-500/80 font-bold">
+                                                                                    {t('profile.lbl_used_date', '사용일')}: {new Date(coupon.usedAt).toLocaleDateString()} {new Date(coupon.usedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                                </p>
+                                                                            ) : (
+                                                                                <p className="text-[10px] text-red-400/80 font-bold">
+                                                                                    {t('profile.lbl_expired_date', '만료일')}: {new Date(coupon.expiresAt).toLocaleDateString()}
+                                                                                </p>
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="text-[11px] font-bold text-espresso-500 px-3.5 py-2 select-none border border-espresso-800 rounded-xl">
+                                                                            {isExpired ? t('profile.lbl_expired', '기간 만료') : t('profile.lbl_used', '사용 완료')}
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })
+                                                        ) : (
+                                                            <div className="text-center py-8 text-espresso-300 text-xs opacity-75">
+                                                                {t('profile.no_coupon_history', '사용 완료되거나 만료된 쿠폰 내역이 없습니다.')}
                                                             </div>
-                                                            <div className="space-y-1">
-                                                                <h4 className="font-bold text-[14px] text-espresso-400">{coupon.storeName} {t('profile.coupon_history_title_suffix', '무료 쿠폰')}</h4>
-                                                                {coupon.rewardDesc && (
-                                                                    <p className="text-[12px] text-espresso-300 font-bold mt-0.5">{coupon.rewardDesc}</p>
-                                                                )}
-                                                                <p className="text-[11px] text-espresso-400">{t('profile.lbl_coupon_code', '쿠폰 코드')}: {coupon.couponCode}</p>
-                                                                {coupon.usedAt ? (
-                                                                    <p className="text-[10px] text-amber-500/80 font-bold">
-                                                                        {t('profile.lbl_used_date', '사용일')}: {new Date(coupon.usedAt).toLocaleDateString()} {new Date(coupon.usedAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-                                                                    </p>
-                                                                ) : (
-                                                                    <p className="text-[10px] text-red-400/80 font-bold">
-                                                                        {t('profile.lbl_expired_date', '만료일')}: {new Date(coupon.expiresAt).toLocaleDateString()}
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                            <div className="text-[11px] font-bold text-espresso-500 px-3.5 py-2 select-none border border-espresso-800 rounded-xl">
-                                                                {isExpired ? t('profile.lbl_expired', '기간 만료') : t('profile.lbl_used', '사용 완료')}
-                                                            </div>
-                                                        </div>
-                                                    );
-                                                })
-                                            ) : (
-                                                <div className="text-center py-8 text-espresso-300 text-xs opacity-75">
-                                                    {t('profile.no_coupon_history', '사용 완료되거나 만료된 쿠폰 내역이 없습니다.')}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -2327,7 +2317,7 @@ export default function Profile() {
                         <section className="bg-[#1e1e21] rounded-2xl border border-white/20 overflow-hidden relative shadow-lg">
                             <div className="px-5 py-4 flex items-center justify-between border-b border-espresso-700">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-amber-500 font-serif font-bold text-lg pt-0.5" style={{lineHeight: 1}}>✨</span>
+                                    <span className="text-amber-500 font-serif font-bold text-lg pt-0.5" style={{ lineHeight: 1 }}>✨</span>
                                     <span className="font-bold text-[15px] text-amber-500 tracking-tight">{t('profile.title_taste_matrix', '마이 취향 매트릭스')}</span>
                                 </div>
                                 <Link to="/profile/tasting-note" className="text-xs bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-full font-bold">
@@ -2380,12 +2370,12 @@ export default function Profile() {
                     {/* Taste Profile Editor */}
                     {isAuthenticated && (
                         <section className="bg-espresso-900 rounded-2xl border border-white/20 overflow-hidden">
-                            <button 
-                                onClick={() => setIsTasteProfileOpen(!isTasteProfileOpen)} 
+                            <button
+                                onClick={() => setIsTasteProfileOpen(!isTasteProfileOpen)}
                                 className="w-full px-5 py-4 flex items-center justify-between active:bg-espresso-950 transition-colors"
                             >
                                 <div className="flex items-center gap-2">
-                                    <span className="text-amber-500 font-serif font-bold text-lg text-center pt-0.5" style={{lineHeight: 1}}>☕</span>
+                                    <span className="text-amber-500 font-serif font-bold text-lg text-center pt-0.5" style={{ lineHeight: 1 }}>☕</span>
                                     <span className="font-bold text-[15px] text-amber-500 tracking-tight">{t('profile.menu_taste_profile', '내 커피 취향 (Taste Profile)')}</span>
                                 </div>
                                 <motion.div animate={{ rotate: isTasteProfileOpen ? 90 : 0 }} transition={{ duration: 0.2 }}>
@@ -2398,7 +2388,7 @@ export default function Profile() {
                                         <p className="text-[12px] text-espresso-200 mb-5 leading-relaxed">
                                             {t('profile.taste_desc', '설정하신 프로필은 커뮤니티의 취향 매칭 피드에 반영되어 나와 가장 잘 맞는 스페셜티 커피를 찾아줍니다.')}
                                         </p>
-                                        
+
                                         {/* Sliders */}
                                         <div className="space-y-4">
                                             {[
@@ -2418,8 +2408,8 @@ export default function Profile() {
                                                         value={tastePref[key as keyof typeof tastePref]}
                                                         onChange={(e) => setTastePref({ ...tastePref, [key]: parseFloat(e.target.value) })}
                                                         className="w-full h-1.5 rounded-lg appearance-none cursor-pointer bg-espresso-800"
-                                                        style={{ 
-                                                            background: `linear-gradient(to right, #f59e0b 0%, #d97706 ${(Number(tastePref[key as keyof typeof tastePref])/5)*100}%, #27272a ${(Number(tastePref[key as keyof typeof tastePref])/5)*100}%, #27272a 100%)` 
+                                                        style={{
+                                                            background: `linear-gradient(to right, #f59e0b 0%, #d97706 ${(Number(tastePref[key as keyof typeof tastePref]) / 5) * 100}%, #27272a ${(Number(tastePref[key as keyof typeof tastePref]) / 5) * 100}%, #27272a 100%)`
                                                         }}
                                                     />
                                                     <div className="flex justify-between px-1 mt-1">
@@ -2458,7 +2448,7 @@ export default function Profile() {
                                                                     }
                                                                     newTags.push(tag);
                                                                 }
-                                                                setTastePref({...tastePref, aroma: newTags.join(',')});
+                                                                setTastePref({ ...tastePref, aroma: newTags.join(',') });
                                                             }}
                                                             className={`px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${isSelected ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' : 'bg-espresso-800 text-espresso-300 border-espresso-700 hover:border-espresso-600'}`}
                                                         >
@@ -2470,7 +2460,7 @@ export default function Profile() {
                                             </div>
                                         </div>
 
-                                        <button 
+                                        <button
                                             onClick={async () => {
                                                 setIsLoading(true);
                                                 try {
@@ -2515,7 +2505,7 @@ export default function Profile() {
                     {isAuthenticated && (
                         <section className="bg-coffee-900 rounded-[2rem] border border-white/20 overflow-hidden relative shadow-2xl">
                             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=1000&auto=format&fit=crop')] opacity-10 mix-blend-overlay pointer-events-none"></div>
-                            
+
                             <div className="px-6 py-5 relative z-10 flex justify-between items-center">
                                 <div>
                                     <h3 className="text-xl font-serif font-bold text-coffee-50 tracking-tight flex items-center gap-2">
@@ -2531,7 +2521,7 @@ export default function Profile() {
                             {prescriptions.length > 0 ? (
                                 <div className="px-5 pb-6 overflow-x-auto hide-scrollbar flex gap-4 snap-x snap-mandatory relative z-10">
                                     {prescriptions.map((p, idx) => (
-                                        <div 
+                                        <div
                                             key={p.id || idx}
                                             onClick={() => setSelectedPrescription(p)}
                                             className="shrink-0 w-40 h-52 snap-center bg-[#fdfcfb] rounded-2xl p-4 flex flex-col justify-between shadow-xl cursor-pointer active:scale-95 transition-transform border border-espresso-700 relative overflow-hidden ticket-cutout"
@@ -2569,8 +2559,8 @@ export default function Profile() {
                     {isAuthenticated && (
                         <section className="bg-espresso-900 rounded-[2rem] border border-white/20 overflow-hidden relative shadow-2xl">
                             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1507133750070-4ed0b28e62d4?q=80&w=1000&auto=format&fit=crop')] opacity-10 mix-blend-overlay pointer-events-none"></div>
-                            
-                            <div 
+
+                            <div
                                 className="px-6 py-5 relative z-10 flex justify-between items-start bg-espresso-950/40 gap-4 cursor-pointer active:bg-espresso-900/50 transition-colors"
                                 onClick={() => setIsPassportExpanded(!isPassportExpanded)}
                             >
@@ -2588,16 +2578,16 @@ export default function Profile() {
                                         <span className="text-amber-500 font-mono text-[11px] sm:text-xs font-bold">{t('profile.lbl_places', { count: passportCheckins.length, defaultValue: '{{count}} Places' })}</span>
                                     </div>
                                     <div className="flex gap-2">
-                                        <button 
-                                            onClick={passportCheckins.length > 0 ? (e) => { e.stopPropagation(); navigate('/map?passport=true'); } : undefined} 
+                                        <button
+                                            onClick={passportCheckins.length > 0 ? (e) => { e.stopPropagation(); navigate('/map?passport=true'); } : undefined}
                                             disabled={passportCheckins.length === 0}
-                                            className={`p-1.5 rounded-full shadow-sm transition-colors border ${passportCheckins.length > 0 ? 'bg-espresso-800/80 hover:bg-espresso-700 text-amber-500 border-amber-700/50' : 'bg-espresso-900 text-espresso-700 border-espresso-700 cursor-not-allowed'}`} 
+                                            className={`p-1.5 rounded-full shadow-sm transition-colors border ${passportCheckins.length > 0 ? 'bg-espresso-800/80 hover:bg-espresso-700 text-amber-500 border-amber-700/50' : 'bg-espresso-900 text-espresso-700 border-espresso-700 cursor-not-allowed'}`}
                                             title="View Route map"
                                         >
                                             <MapPin size={16} />
                                         </button>
-                                        <button 
-                                            onClick={passportCheckins.length > 0 ? (e) => { e.stopPropagation(); handleSharePassport(); } : undefined} 
+                                        <button
+                                            onClick={passportCheckins.length > 0 ? (e) => { e.stopPropagation(); handleSharePassport(); } : undefined}
                                             disabled={passportCheckins.length === 0}
                                             className={`p-1.5 rounded-full shadow-sm transition-colors border ${passportCheckins.length > 0 ? 'bg-espresso-800/80 hover:bg-espresso-700 text-espresso-50 border-espresso-700' : 'bg-espresso-900 text-espresso-700 border-espresso-700 cursor-not-allowed'}`}
                                         >
@@ -2606,7 +2596,7 @@ export default function Profile() {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {/* Expandable Body */}
                             <AnimatePresence>
                                 {isPassportExpanded && (
@@ -2617,98 +2607,98 @@ export default function Profile() {
                                         transition={{ duration: 0.3, ease: 'easeInOut' }}
                                         className="overflow-hidden"
                                     >
-                            
-                            {/* Progress Bar UI */}
-                            <div className="px-6 pb-4 relative z-10 bg-espresso-950/40 border-b border-espresso-700">
-                                <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-wider mb-2">
-                                    <span className="text-espresso-300">{t('profile.lbl_progression', 'Progression')}</span>
-                                    {currentBadge.next ? (
-                                        <span className="text-amber-500/90">{passportCheckins.length} / {currentBadge.next} {t('profile.lbl_to_next_tier', 'TO NEXT TIER')}</span>
-                                    ) : (
-                                        <span className="text-amber-500/90">{t('profile.lbl_max_level', 'MAX LEVEL ACHIEVED')}</span>
-                                    )}
-                                </div>
-                                <div className="w-full bg-espresso-950 rounded-full h-2.5 overflow-hidden border border-espresso-700">
-                                    <div 
-                                        className="bg-gradient-to-r from-amber-600 to-amber-400 h-2.5 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)] transition-all duration-1000" 
-                                        style={{ width: `${currentBadge.progress}%` }}
-                                    ></div>
-                                </div>
-                            </div>
 
-                            {passportCheckins.length > 0 ? (
-                                <div className="px-6 py-6 grid grid-cols-2 gap-4 relative z-10 bg-espresso-950/20">
-                                    {passportCheckins.map((checkin, idx) => {
-                                        const store = checkin.store;
-                                        // Use same fallback mapping logic as main map
-                                        let heroImage = store?.markerImageUrl || store?.mainImageUrl;
-                                        if (heroImage?.startsWith('/mock-bucket')) heroImage = 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800';
-                                        
-                                        let finalHeroImage = heroImage;
-                                        if (finalHeroImage && finalHeroImage.startsWith('/') && !finalHeroImage.startsWith('http')) {
-                                            finalHeroImage = `${API_BASE}${finalHeroImage}`;
-                                        }
-                                        
-                                        const imageUrl = finalHeroImage || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=40&w=200';
-                                        
-                                        return (
-                                            <div key={checkin.id || idx} className="relative aspect-square rounded-[1.5rem] bg-espresso-800 border-2 border-espresso-700 overflow-hidden shadow-lg group pointer-events-auto cursor-pointer active:scale-95 transition-transform" onClick={() => navigate('/map', { state: { targetShopId: store?.id, targetLat: store?.lat, targetLng: store?.lng, targetName: store?.name } })}>
-                                                <img src={imageUrl} alt={store?.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-espresso-950 via-espresso-950/20 to-transparent pointer-events-none"></div>
-                                                
-                                                {/* Record button overlay */}
-                                                <button 
-                                                    className={`absolute top-2 left-2 w-10 h-10 border-[2px] rounded-full flex items-center justify-center rotate-[-10deg] backdrop-blur-md shadow-md z-[15] transition-transform hover:scale-105 active:scale-95 ${checkin.memo || checkin.memoImageUrl ? 'border-amber-500/90 bg-amber-950/60 text-amber-500' : 'border-espresso-400/90 bg-espresso-950/60 text-espresso-400'}`}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setSelectedCheckinForMemo(checkin);
-                                                        setMemoInput(checkin.memo || '');
-                                                        let initialPreviews: string[] = [];
-                                                        if (checkin.memoImageUrl) {
-                                                            if (checkin.memoImageUrl.startsWith('[')) {
-                                                                try {
-                                                                    const urls = JSON.parse(checkin.memoImageUrl);
-                                                                    initialPreviews = urls.map((u: string) => u.startsWith('/') ? `${API_BASE}${u}` : u);
-                                                                } catch(e) {}
-                                                            } else {
-                                                                initialPreviews = [checkin.memoImageUrl.startsWith('/') ? `${API_BASE}${checkin.memoImageUrl}` : checkin.memoImageUrl];
-                                                            }
-                                                        }
-                                                        setMemoImagePreviews(initialPreviews);
-                                                        setMemoImageFiles([]);
-                                                    }}
-                                                >
-                                                    <span className="text-[10px] font-black uppercase whitespace-nowrap rotate-[10deg]">
-                                                        {checkin.memo || checkin.memoImageUrl ? t('profile.btn_recorded', '기록됨') : t('profile.btn_record', '기록')}
-                                                    </span>
-                                                </button>
-                                                
-                                                {/* Stamp overlay */}
-                                                <div className="absolute top-2 right-2 w-10 h-10 border-[2px] border-amber-500/90 rounded-full flex items-center justify-center rotate-[15deg] bg-amber-950/60 backdrop-blur-md shadow-md pointer-events-none">
-                                                    <span className="text-amber-500 text-[10px] font-black uppercase whitespace-nowrap -rotate-[15deg]">{t('profile.lbl_visited', 'VISITED')}</span>
-                                                </div>
-
-                                                <div className="absolute bottom-0 left-0 w-full p-3 pointer-events-none">
-                                                    <h4 className="text-[13px] font-black text-espresso-50 leading-tight drop-shadow-md truncate">{store?.name}</h4>
-                                                    <p className="text-[10px] font-medium text-espresso-200 truncate mt-0.5">{store?.address}</p>
-                                                    <p className="text-[9px] font-mono font-bold text-amber-500 mt-1 opacity-80">{new Date(checkin.createdAt).toLocaleDateString()}</p>
-                                                </div>
+                                        {/* Progress Bar UI */}
+                                        <div className="px-6 pb-4 relative z-10 bg-espresso-950/40 border-b border-espresso-700">
+                                            <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-wider mb-2">
+                                                <span className="text-espresso-300">{t('profile.lbl_progression', 'Progression')}</span>
+                                                {currentBadge.next ? (
+                                                    <span className="text-amber-500/90">{passportCheckins.length} / {currentBadge.next} {t('profile.lbl_to_next_tier', 'TO NEXT TIER')}</span>
+                                                ) : (
+                                                    <span className="text-amber-500/90">{t('profile.lbl_max_level', 'MAX LEVEL ACHIEVED')}</span>
+                                                )}
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                            ) : (
-                                <div className="px-6 py-10 relative z-10 flex flex-col items-center justify-center text-center bg-espresso-950/20">
-                                    <div className="w-16 h-16 rounded-full border-2 border-dashed border-espresso-700 flex items-center justify-center mb-4 bg-espresso-900">
-                                        <MapPin className="text-espresso-400" size={24} />
-                                    </div>
-                                    <p className="text-sm text-espresso-100 font-bold mb-1">{t('profile.msg_empty_passport')}</p>
-                                    <p className="text-xs text-espresso-300 font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: t('profile.desc_empty_passport') }}></p>
-                                    <button onClick={() => navigate('/map')} className="mt-4 px-5 py-2 bg-espresso-800 hover:bg-espresso-700 focus:outline-none text-amber-500 text-xs font-bold rounded-full transition-colors font-mono tracking-wider">
-                                        {t('profile.btn_explore_map')}
-                                    </button>
-                                </div>
-                            )}
+                                            <div className="w-full bg-espresso-950 rounded-full h-2.5 overflow-hidden border border-espresso-700">
+                                                <div
+                                                    className="bg-gradient-to-r from-amber-600 to-amber-400 h-2.5 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)] transition-all duration-1000"
+                                                    style={{ width: `${currentBadge.progress}%` }}
+                                                ></div>
+                                            </div>
+                                        </div>
+
+                                        {passportCheckins.length > 0 ? (
+                                            <div className="px-6 py-6 grid grid-cols-2 gap-4 relative z-10 bg-espresso-950/20">
+                                                {passportCheckins.map((checkin, idx) => {
+                                                    const store = checkin.store;
+                                                    // Use same fallback mapping logic as main map
+                                                    let heroImage = store?.markerImageUrl || store?.mainImageUrl;
+                                                    if (heroImage?.startsWith('/mock-bucket')) heroImage = 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800';
+
+                                                    let finalHeroImage = heroImage;
+                                                    if (finalHeroImage && finalHeroImage.startsWith('/') && !finalHeroImage.startsWith('http')) {
+                                                        finalHeroImage = `${API_BASE}${finalHeroImage}`;
+                                                    }
+
+                                                    const imageUrl = finalHeroImage || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=40&w=200';
+
+                                                    return (
+                                                        <div key={checkin.id || idx} className="relative aspect-square rounded-[1.5rem] bg-espresso-800 border-2 border-espresso-700 overflow-hidden shadow-lg group pointer-events-auto cursor-pointer active:scale-95 transition-transform" onClick={() => navigate('/map', { state: { targetShopId: store?.id, targetLat: store?.lat, targetLng: store?.lng, targetName: store?.name } })}>
+                                                            <img src={imageUrl} alt={store?.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                                            <div className="absolute inset-0 bg-gradient-to-t from-espresso-950 via-espresso-950/20 to-transparent pointer-events-none"></div>
+
+                                                            {/* Record button overlay */}
+                                                            <button
+                                                                className={`absolute top-2 left-2 w-10 h-10 border-[2px] rounded-full flex items-center justify-center rotate-[-10deg] backdrop-blur-md shadow-md z-[15] transition-transform hover:scale-105 active:scale-95 ${checkin.memo || checkin.memoImageUrl ? 'border-amber-500/90 bg-amber-950/60 text-amber-500' : 'border-espresso-400/90 bg-espresso-950/60 text-espresso-400'}`}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setSelectedCheckinForMemo(checkin);
+                                                                    setMemoInput(checkin.memo || '');
+                                                                    let initialPreviews: string[] = [];
+                                                                    if (checkin.memoImageUrl) {
+                                                                        if (checkin.memoImageUrl.startsWith('[')) {
+                                                                            try {
+                                                                                const urls = JSON.parse(checkin.memoImageUrl);
+                                                                                initialPreviews = urls.map((u: string) => u.startsWith('/') ? `${API_BASE}${u}` : u);
+                                                                            } catch (e) { }
+                                                                        } else {
+                                                                            initialPreviews = [checkin.memoImageUrl.startsWith('/') ? `${API_BASE}${checkin.memoImageUrl}` : checkin.memoImageUrl];
+                                                                        }
+                                                                    }
+                                                                    setMemoImagePreviews(initialPreviews);
+                                                                    setMemoImageFiles([]);
+                                                                }}
+                                                            >
+                                                                <span className="text-[10px] font-black uppercase whitespace-nowrap rotate-[10deg]">
+                                                                    {checkin.memo || checkin.memoImageUrl ? t('profile.btn_recorded', '기록됨') : t('profile.btn_record', '기록')}
+                                                                </span>
+                                                            </button>
+
+                                                            {/* Stamp overlay */}
+                                                            <div className="absolute top-2 right-2 w-10 h-10 border-[2px] border-amber-500/90 rounded-full flex items-center justify-center rotate-[15deg] bg-amber-950/60 backdrop-blur-md shadow-md pointer-events-none">
+                                                                <span className="text-amber-500 text-[10px] font-black uppercase whitespace-nowrap -rotate-[15deg]">{t('profile.lbl_visited', 'VISITED')}</span>
+                                                            </div>
+
+                                                            <div className="absolute bottom-0 left-0 w-full p-3 pointer-events-none">
+                                                                <h4 className="text-[13px] font-black text-espresso-50 leading-tight drop-shadow-md truncate">{store?.name}</h4>
+                                                                <p className="text-[10px] font-medium text-espresso-200 truncate mt-0.5">{store?.address}</p>
+                                                                <p className="text-[9px] font-mono font-bold text-amber-500 mt-1 opacity-80">{new Date(checkin.createdAt).toLocaleDateString()}</p>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        ) : (
+                                            <div className="px-6 py-10 relative z-10 flex flex-col items-center justify-center text-center bg-espresso-950/20">
+                                                <div className="w-16 h-16 rounded-full border-2 border-dashed border-espresso-700 flex items-center justify-center mb-4 bg-espresso-900">
+                                                    <MapPin className="text-espresso-400" size={24} />
+                                                </div>
+                                                <p className="text-sm text-espresso-100 font-bold mb-1">{t('profile.msg_empty_passport')}</p>
+                                                <p className="text-xs text-espresso-300 font-medium leading-relaxed" dangerouslySetInnerHTML={{ __html: t('profile.desc_empty_passport') }}></p>
+                                                <button onClick={() => navigate('/map')} className="mt-4 px-5 py-2 bg-espresso-800 hover:bg-espresso-700 focus:outline-none text-amber-500 text-xs font-bold rounded-full transition-colors font-mono tracking-wider">
+                                                    {t('profile.btn_explore_map')}
+                                                </button>
+                                            </div>
+                                        )}
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -2724,8 +2714,8 @@ export default function Profile() {
                     {isAuthenticated && (
                         <section className="bg-[#121215] rounded-[2rem] border border-white/20 overflow-hidden relative shadow-2xl">
                             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent pointer-events-none"></div>
-                            
-                            <div 
+
+                            <div
                                 className="px-6 py-5 relative z-10 flex justify-between items-center bg-espresso-950/40 gap-4 cursor-pointer active:bg-espresso-900/50 transition-colors"
                                 onClick={() => setIsCoursesExpanded(!isCoursesExpanded)}
                             >
@@ -2752,93 +2742,93 @@ export default function Profile() {
                                         className="overflow-hidden p-6 pt-4"
                                     >
 
-                            {myCourses.length > 0 ? (
-                                <div className="px-6 pb-6 overflow-x-auto hide-scrollbar flex gap-4 snap-x snap-mandatory relative z-10">
-                                    {myCourses.map((course, idx) => {
-                                        let rawImageUrl = course.coverImageUrl || course.items?.[0]?.store?.mainImageUrl || 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=600&auto=format&fit=crop';
-                                        if (rawImageUrl.includes('/uploads/')) {
-                                            rawImageUrl = `${API_BASE}${rawImageUrl.substring(rawImageUrl.indexOf('/uploads/'))}`;
-                                        } else if (!rawImageUrl.startsWith('http')) {
-                                            rawImageUrl = `${API_BASE}${rawImageUrl}`;
-                                        }
-                                        const coverImage = rawImageUrl;
-                                        const validItemCount = course.placesCount ?? (course._count?.items || 0);
-                                        
-                                        return (
-                                            <div 
-                                                key={course.id || idx}
-                                                className="shrink-0 w-56 h-64 snap-center bg-espresso-950 rounded-[1.5rem] flex flex-col shadow-xl cursor-pointer active:scale-95 transition-transform border border-espresso-700 relative overflow-hidden group"
-                                                onClick={() => navigate(`/course/${course.id}`)}
-                                            >
-                                                <div className="h-32 w-full relative overflow-hidden">
-                                                    <img src={coverImage} alt={course.name} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105" />
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-espresso-950 to-transparent"></div>
-                                                    {course.isPublic ? (
-                                                        <div 
-                                                            onClick={(e) => handleToggleCoursePublic(e, course.id, course.isPublic)}
-                                                            className="absolute top-3 right-3 bg-amber-500 hover:bg-amber-400 text-espresso-950 text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm transition-colors cursor-pointer flex items-center gap-1 z-10"
+                                        {myCourses.length > 0 ? (
+                                            <div className="px-6 pb-6 overflow-x-auto hide-scrollbar flex gap-4 snap-x snap-mandatory relative z-10">
+                                                {myCourses.map((course, idx) => {
+                                                    let rawImageUrl = course.coverImageUrl || course.items?.[0]?.store?.mainImageUrl || 'https://images.unsplash.com/photo-1559525839-b184a4d698c7?q=80&w=600&auto=format&fit=crop';
+                                                    if (rawImageUrl.includes('/uploads/')) {
+                                                        rawImageUrl = `${API_BASE}${rawImageUrl.substring(rawImageUrl.indexOf('/uploads/'))}`;
+                                                    } else if (!rawImageUrl.startsWith('http')) {
+                                                        rawImageUrl = `${API_BASE}${rawImageUrl}`;
+                                                    }
+                                                    const coverImage = rawImageUrl;
+                                                    const validItemCount = course.placesCount ?? (course._count?.items || 0);
+
+                                                    return (
+                                                        <div
+                                                            key={course.id || idx}
+                                                            className="shrink-0 w-56 h-64 snap-center bg-espresso-950 rounded-[1.5rem] flex flex-col shadow-xl cursor-pointer active:scale-95 transition-transform border border-espresso-700 relative overflow-hidden group"
+                                                            onClick={() => navigate(`/course/${course.id}`)}
                                                         >
-                                                            <Globe size={10} /> PUBLIC
+                                                            <div className="h-32 w-full relative overflow-hidden">
+                                                                <img src={coverImage} alt={course.name} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105" />
+                                                                <div className="absolute inset-0 bg-gradient-to-t from-espresso-950 to-transparent"></div>
+                                                                {course.isPublic ? (
+                                                                    <div
+                                                                        onClick={(e) => handleToggleCoursePublic(e, course.id, course.isPublic)}
+                                                                        className="absolute top-3 right-3 bg-amber-500 hover:bg-amber-400 text-espresso-950 text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm transition-colors cursor-pointer flex items-center gap-1 z-10"
+                                                                    >
+                                                                        <Globe size={10} /> PUBLIC
+                                                                    </div>
+                                                                ) : (
+                                                                    <div
+                                                                        onClick={(e) => handleToggleCoursePublic(e, course.id, course.isPublic)}
+                                                                        className="absolute top-3 right-3 bg-espresso-800 hover:bg-espresso-700 text-espresso-300 text-[10px] items-center flex gap-1 font-black uppercase px-2 py-0.5 rounded shadow-sm border border-espresso-700 transition-colors cursor-pointer z-10"
+                                                                    >
+                                                                        <Lock size={10} /> PRIVATE
+                                                                    </div>
+                                                                )}
+                                                                {/* Actions */}
+                                                                <div className="absolute bottom-3 right-3 flex gap-2 z-10">
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            setUploadingCourseId(course.id);
+                                                                            if (courseImageInputRef.current) courseImageInputRef.current.click();
+                                                                        }}
+                                                                        className="p-2 w-8 h-8 flex items-center justify-center bg-espresso-950/80 hover:bg-amber-900/80 rounded-full text-amber-500 backdrop-blur-sm border border-amber-900/50 shadow-lg transition-transform active:scale-95"
+                                                                    >
+                                                                        <ImageIcon size={14} />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={(e) => handleDeleteCourse(e, course.id)}
+                                                                        className="p-2 w-8 h-8 flex items-center justify-center bg-espresso-950/80 hover:bg-red-900/80 rounded-full text-red-500 backdrop-blur-sm border border-red-900/50 shadow-lg transition-transform active:scale-95"
+                                                                    >
+                                                                        <Trash2 size={14} />
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={(e) => handleShareCourse(e, course)}
+                                                                        className="p-2 w-8 h-8 flex items-center justify-center bg-espresso-950/80 hover:bg-espresso-800 rounded-full text-amber-500 backdrop-blur-sm border border-espresso-700 shadow-lg transition-transform active:scale-95"
+                                                                    >
+                                                                        <Share2 size={14} />
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex-1 p-4 flex flex-col justify-between">
+                                                                <div>
+                                                                    <h4 className="text-[14px] font-black text-espresso-50 leading-tight line-clamp-2 mb-1">{course.name}</h4>
+                                                                    {course.description && (
+                                                                        <p className="text-[11px] text-espresso-300 line-clamp-2">{course.description}</p>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex items-center justify-between text-[11px] text-amber-500 font-bold border-t border-espresso-700 pt-2">
+                                                                    <span>{t('profile.lbl_places', { count: validItemCount, defaultValue: '{{count}} Places' })}</span>
+                                                                    <ChevronRight size={14} className="opacity-70 group-hover:opacity-100 transition-opacity" />
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    ) : (
-                                                        <div 
-                                                            onClick={(e) => handleToggleCoursePublic(e, course.id, course.isPublic)}
-                                                            className="absolute top-3 right-3 bg-espresso-800 hover:bg-espresso-700 text-espresso-300 text-[10px] items-center flex gap-1 font-black uppercase px-2 py-0.5 rounded shadow-sm border border-espresso-700 transition-colors cursor-pointer z-10"
-                                                        >
-                                                            <Lock size={10} /> PRIVATE
-                                                        </div>
-                                                    )}
-                                                    {/* Actions */}
-                                                    <div className="absolute bottom-3 right-3 flex gap-2 z-10">
-                                                        <button 
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setUploadingCourseId(course.id);
-                                                                if (courseImageInputRef.current) courseImageInputRef.current.click();
-                                                            }}
-                                                            className="p-2 w-8 h-8 flex items-center justify-center bg-espresso-950/80 hover:bg-amber-900/80 rounded-full text-amber-500 backdrop-blur-sm border border-amber-900/50 shadow-lg transition-transform active:scale-95"
-                                                        >
-                                                            <ImageIcon size={14} />
-                                                        </button>
-                                                        <button 
-                                                            onClick={(e) => handleDeleteCourse(e, course.id)}
-                                                            className="p-2 w-8 h-8 flex items-center justify-center bg-espresso-950/80 hover:bg-red-900/80 rounded-full text-red-500 backdrop-blur-sm border border-red-900/50 shadow-lg transition-transform active:scale-95"
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                        <button 
-                                                            onClick={(e) => handleShareCourse(e, course)}
-                                                            className="p-2 w-8 h-8 flex items-center justify-center bg-espresso-950/80 hover:bg-espresso-800 rounded-full text-amber-500 backdrop-blur-sm border border-espresso-700 shadow-lg transition-transform active:scale-95"
-                                                        >
-                                                            <Share2 size={14} />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                <div className="flex-1 p-4 flex flex-col justify-between">
-                                                    <div>
-                                                        <h4 className="text-[14px] font-black text-espresso-50 leading-tight line-clamp-2 mb-1">{course.name}</h4>
-                                                        {course.description && (
-                                                            <p className="text-[11px] text-espresso-300 line-clamp-2">{course.description}</p>
-                                                        )}
-                                                    </div>
-                                                    <div className="flex items-center justify-between text-[11px] text-amber-500 font-bold border-t border-espresso-700 pt-2">
-                                                        <span>{t('profile.lbl_places', { count: validItemCount, defaultValue: '{{count}} Places' })}</span>
-                                                        <ChevronRight size={14} className="opacity-70 group-hover:opacity-100 transition-opacity" />
-                                                    </div>
-                                                </div>
+                                                    );
+                                                })}
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                            ) : (
-                                <div className="px-6 py-10 relative z-10 flex flex-col items-center justify-center text-center">
-                                    <div className="w-16 h-16 rounded-full border-2 border-dashed border-espresso-700 flex items-center justify-center mb-4 bg-espresso-950/50">
-                                        <Globe className="text-espresso-500" size={24} />
-                                    </div>
-                                    <p className="text-sm text-espresso-100 font-bold mb-1">{t('profile.msg_no_courses')}</p>
-                                    <p className="text-xs text-espresso-300 font-medium leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: t('profile.desc_no_courses') }}></p>
-                                </div>
-                            )}
+                                        ) : (
+                                            <div className="px-6 py-10 relative z-10 flex flex-col items-center justify-center text-center">
+                                                <div className="w-16 h-16 rounded-full border-2 border-dashed border-espresso-700 flex items-center justify-center mb-4 bg-espresso-950/50">
+                                                    <Globe className="text-espresso-500" size={24} />
+                                                </div>
+                                                <p className="text-sm text-espresso-100 font-bold mb-1">{t('profile.msg_no_courses')}</p>
+                                                <p className="text-xs text-espresso-300 font-medium leading-relaxed mb-4" dangerouslySetInnerHTML={{ __html: t('profile.desc_no_courses') }}></p>
+                                            </div>
+                                        )}
                                     </motion.div>
                                 )}
                             </AnimatePresence>
@@ -2871,11 +2861,11 @@ export default function Profile() {
 
 
                     </section>
-                    
 
 
 
-                    
+
+
                     {/* Spacer to push account settings down */}
                     <div className="flex-1"></div>
 
@@ -2913,11 +2903,11 @@ export default function Profile() {
                             </div>
 
                             <div className="bg-white p-4 rounded-2xl inline-block shadow-inner mx-auto border-2 border-amber-500/20">
-                                <img 
-                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentUser.id)}&color=0f172a`} 
-                                    alt="User Stamp QR" 
+                                <img
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentUser.id)}&color=0f172a`}
+                                    alt="User Stamp QR"
                                     className="w-48 h-48 mx-auto"
-                                
+
                                 />
                             </div>
 
@@ -2926,7 +2916,7 @@ export default function Profile() {
                                 <p className="font-mono text-xs font-black text-amber-400 select-all truncate">{currentUser.id}</p>
                             </div>
 
-                            <button 
+                            <button
                                 onClick={() => {
                                     setIsStampModalOpen(false);
                                     fetchStampData();
@@ -2964,9 +2954,9 @@ export default function Profile() {
                             </div>
 
                             <div className="bg-white p-4 rounded-2xl inline-block shadow-inner mx-auto border-2 border-amber-500/20">
-                                <img 
-                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentCouponForQR.id)}&color=0f172a`} 
-                                    alt="Coupon QR" 
+                                <img
+                                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentCouponForQR.id)}&color=0f172a`}
+                                    alt="Coupon QR"
                                     className="w-48 h-48 mx-auto"
                                 />
                             </div>
@@ -2977,7 +2967,7 @@ export default function Profile() {
                             </div>
 
                             <div className="flex gap-2">
-                                <button 
+                                <button
                                     onClick={async () => {
                                         // 수동 모바일 사용 처리 지원
                                         if (window.confirm(t('profile.confirm_manual_use', '쿠폰을 지금 사용 처리하시겠습니까?'))) {
@@ -3004,7 +2994,7 @@ export default function Profile() {
                                 >
                                     {t('profile.btn_manual_use', '수동 사용하기')}
                                 </button>
-                                <button 
+                                <button
                                     onClick={() => {
                                         setIsCouponQRModalOpen(false);
                                         fetchStampData();
@@ -3022,8 +3012,8 @@ export default function Profile() {
             {/* 🎫 Host QR Stamp Scanner Modal */}
             <AnimatePresence>
                 {isHostScannerOpen && (
-                    <HostQRScannerModal 
-                        isOpen={isHostScannerOpen} 
+                    <HostQRScannerModal
+                        isOpen={isHostScannerOpen}
                         onClose={() => {
                             setIsHostScannerOpen(false);
                             fetchStampData(); // 스캔 완료 후 유저 데이터 갱신 지원
@@ -3074,14 +3064,14 @@ export default function Profile() {
                                                 </svg>
                                                 {t('profile.google_start')}
                                             </button>
-                                            
+
                                             <button
                                                 onClick={() => handleAppleLogin()}
                                                 disabled={isLoading}
                                                 className="w-full bg-white text-black h-14 rounded-2xl border border-transparent shadow-sm flex items-center justify-center gap-3 font-bold text-[15px] active:scale-95 transition-transform disabled:opacity-50"
                                             >
                                                 <svg viewBox="0 0 384 512" className="w-5 h-5" fill="black">
-                                                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+                                                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
                                                 </svg>
                                                 {t('profile.btn_apple_login', 'Continue with Apple')}
                                             </button>
@@ -3092,7 +3082,7 @@ export default function Profile() {
                                                 className="w-full bg-[#03C75A] text-white h-14 rounded-2xl border border-transparent shadow-sm flex items-center justify-center gap-3 font-bold text-[15px] active:scale-95 transition-transform disabled:opacity-50"
                                             >
                                                 <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-                                                    <path d="M16.273 12.845 7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727v12.845z"/>
+                                                    <path d="M16.273 12.845 7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727v12.845z" />
                                                 </svg>
                                                 {t('profile.btn_naver_login', 'Continue with Naver')}
                                             </button>
@@ -3144,7 +3134,7 @@ export default function Profile() {
                                         <h3 className="text-2xl font-serif font-bold text-espresso-50 tracking-tight">{t('profile.verify_title')}</h3>
                                         <p className="text-sm text-espresso-200 mt-2 break-keep">
                                             {t('profile.verify_desc_req').split('\n').map((line, i) => (
-                                                <React.Fragment key={i}>{line}<br/></React.Fragment>
+                                                <React.Fragment key={i}>{line}<br /></React.Fragment>
                                             ))}
                                         </p>
                                     </div>
@@ -3188,9 +3178,9 @@ export default function Profile() {
                                         </div>
                                         <h3 className="text-2xl font-serif font-bold text-espresso-50 tracking-tight">{t('profile.verify_title')}</h3>
                                         <p className="text-sm text-espresso-200 mt-2">
-                                            <span className="font-bold text-espresso-200">{email || 'Email'}</span> 
+                                            <span className="font-bold text-espresso-200">{email || 'Email'}</span>
                                             {t('profile.verify_desc_sent').split('\n').map((line, i) => (
-                                                <React.Fragment key={i}>{line}<br/></React.Fragment>
+                                                <React.Fragment key={i}>{line}<br /></React.Fragment>
                                             ))}
                                         </p>
                                     </div>
@@ -3544,7 +3534,7 @@ export default function Profile() {
                                         <h3 className="text-2xl font-serif font-bold text-espresso-50 tracking-tight">{t('profile.find_pw_title')}</h3>
                                         <p className="text-sm text-espresso-200 mt-2 break-keep">
                                             {t('profile.find_pw_desc').split('\n').map((line, i) => (
-                                                <React.Fragment key={i}>{line}<br/></React.Fragment>
+                                                <React.Fragment key={i}>{line}<br /></React.Fragment>
                                             ))}
                                         </p>
                                     </div>
@@ -3574,7 +3564,7 @@ export default function Profile() {
                                         <h3 className="text-2xl font-serif font-bold text-espresso-50 tracking-tight">{t('profile.reset_pw_title')}</h3>
                                         <p className="text-sm text-espresso-200 mt-2 break-keep">
                                             {t('profile.reset_pw_desc').split('\n').map((line, i) => (
-                                                <React.Fragment key={i}>{line}<br/></React.Fragment>
+                                                <React.Fragment key={i}>{line}<br /></React.Fragment>
                                             ))}
                                         </p>
                                     </div>
@@ -3617,13 +3607,13 @@ export default function Profile() {
             {/* Prescription Zoom Modal */}
             <AnimatePresence>
                 {selectedPrescription && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
                         className="fixed inset-0 z-[300] bg-espresso-950/80 backdrop-blur-md flex flex-col pt-safe px-0 pb-6 overflow-y-auto overflow-x-hidden hide-scrollbar w-full h-full"
                         onClick={() => setSelectedPrescription(null)}
                     >
                         <div className="flex justify-end pt-4 pb-2 px-4 w-full max-w-sm mx-auto sticky top-0 z-[310]" onClick={(e) => e.stopPropagation()}>
-                            <button 
+                            <button
                                 onClick={() => setSelectedPrescription(null)}
                                 className="w-10 h-10 bg-espresso-800/80 rounded-full flex items-center justify-center text-espresso-100 hover:text-espresso-50 border border-espresso-600 shadow-xl backdrop-blur-sm"
                             >
@@ -3637,9 +3627,9 @@ export default function Profile() {
                                         try {
                                             const match = selectedPrescription.aiComment?.match(/<!-- BEANDATA: (.*?) -->/);
                                             if (match) return JSON.parse(match[1]);
-                                        } catch(e) {}
-                                        return COFFEE_BEANS.find(b => b.name === selectedPrescription.beanName) || { 
-                                            name: selectedPrescription.beanName, roast: 'Blend/Single', region: 'Global' 
+                                        } catch (e) { }
+                                        return COFFEE_BEANS.find(b => b.name === selectedPrescription.beanName) || {
+                                            name: selectedPrescription.beanName, roast: 'Blend/Single', region: 'Global'
                                         };
                                     })() as any,
                                     brand: BRANDS.find(b => b.name === selectedPrescription.brand) || { name: selectedPrescription.brand } as any
@@ -3657,7 +3647,7 @@ export default function Profile() {
                                         await Share.share({ title: 'My Coffee Prescription', url: window.location.href, dialogTitle: 'My Coffee Prescription' });
                                     } catch (err) {
                                         if (navigator.share) {
-                                            navigator.share({ title: 'My Coffee Prescription', url: window.location.href }).catch(() => {});
+                                            navigator.share({ title: 'My Coffee Prescription', url: window.location.href }).catch(() => { });
                                         }
                                     }
                                 }}
@@ -3690,7 +3680,7 @@ export default function Profile() {
                             <p className="text-xs text-espresso-200 mb-5 leading-relaxed font-medium">
                                 {t('profile.desc_share_coffeetalk')}
                             </p>
-                            
+
                             <textarea
                                 value={shareMessage}
                                 onChange={(e) => setShareMessage(e.target.value)}
@@ -3698,7 +3688,7 @@ export default function Profile() {
                                 className="w-full bg-espresso-950 border border-espresso-700 rounded-2xl p-4 text-[13px] text-espresso-50 placeholder:text-espresso-400 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 min-h-[120px] resize-none mb-6 shadow-inner"
                                 disabled={isLoading}
                             />
-                            
+
                             <div className="flex gap-3 mt-auto">
                                 <button
                                     onClick={() => setSharePrescriptionTarget(null)}
@@ -3741,7 +3731,7 @@ export default function Profile() {
                                 <h3 className="text-lg font-serif font-black text-amber-500">{selectedCheckinForMemo?.store?.name} {t('profile.title_visit_record', '방문 기록')}</h3>
                                 <button onClick={() => setSelectedCheckinForMemo(null)} className="text-espresso-400 hover:text-white p-1"><Trash2 size={16} className="opacity-0" />✕</button>
                             </div>
-                            
+
                             <textarea
                                 value={memoInput}
                                 onChange={(e) => setMemoInput(e.target.value)}
@@ -3751,13 +3741,13 @@ export default function Profile() {
                             />
 
                             <div className="mb-6">
-                                <input 
-                                    type="file" 
-                                    accept="image/*" 
+                                <input
+                                    type="file"
+                                    accept="image/*"
                                     multiple
-                                    className="hidden" 
-                                    ref={memoFileInputRef} 
-                                    onChange={handleMemoFileChange} 
+                                    className="hidden"
+                                    ref={memoFileInputRef}
+                                    onChange={handleMemoFileChange}
                                     disabled={isLoading}
                                 />
                                 {memoImagePreviews.length > 0 && (
@@ -3765,7 +3755,7 @@ export default function Profile() {
                                         {memoImagePreviews.map((preview, idx) => (
                                             <div key={idx} className="relative flex-shrink-0 w-28 h-28 border border-espresso-700 rounded-xl overflow-hidden snap-center group">
                                                 <img src={preview} alt="Memo preview" className="w-full h-full object-cover" />
-                                                <button 
+                                                <button
                                                     onClick={() => {
                                                         const existingCount = memoImagePreviews.length - memoImageFiles.length;
                                                         if (idx >= existingCount) {
@@ -3782,7 +3772,7 @@ export default function Profile() {
                                     </div>
                                 )}
                                 {memoImagePreviews.length < 5 && (
-                                    <button 
+                                    <button
                                         onClick={() => memoFileInputRef.current?.click()}
                                         className="w-full py-4 border-2 border-dashed border-espresso-700 rounded-xl text-espresso-400 font-bold hover:bg-espresso-800 hover:text-espresso-300 transition-colors text-sm flex items-center justify-center gap-2"
                                     >
@@ -3790,9 +3780,9 @@ export default function Profile() {
                                     </button>
                                 )}
                             </div>
-                            
+
                             <div className="flex gap-3 mt-auto pt-2 border-t border-espresso-700">
-                                { (selectedCheckinForMemo.memo || selectedCheckinForMemo.memoImageUrl) && (
+                                {(selectedCheckinForMemo.memo || selectedCheckinForMemo.memoImageUrl) && (
                                     <button
                                         onClick={() => { setMemoInput(''); setMemoImagePreviews([]); setMemoImageFiles([]); }}
                                         className="flex-shrink-0 px-4 py-3.5 rounded-xl font-bold bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors border border-red-500/20"
@@ -3813,13 +3803,13 @@ export default function Profile() {
                     </motion.div>
                 )}
             </AnimatePresence>
-            
-            <input 
-                type="file" 
-                ref={courseImageInputRef} 
-                onChange={handleCourseImageChange} 
-                className="hidden" 
-                accept="image/*" 
+
+            <input
+                type="file"
+                ref={courseImageInputRef}
+                onChange={handleCourseImageChange}
+                className="hidden"
+                accept="image/*"
             />
         </div>
     );
