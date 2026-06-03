@@ -1064,12 +1064,21 @@ export default function CoffeeTalk() {
                   const targetContainer = document.getElementById('coffee-feed-container');
                   if (targetContainer) {
                       targetContainer.scrollTop = scrollPos;
+                      // 80ms 경과하여 레이아웃이 어느 정도 고정되는 유의미한 시점에 잠금 해제를 시도
+                      if (delay === 80) {
+                          setIsScrollJumping(false);
+                      }
                   }
               }, delay);
           });
 
           container.style.scrollBehavior = '';
-          setIsScrollJumping(false);
+          
+          // 0ms 시점에 바로 풀지 않고, 스크롤이 완전히 안착되는 150ms 시점에 최종 잠금 해제 안전 장치 가동
+          setTimeout(() => {
+              setIsScrollJumping(false);
+          }, 150);
+          
           return true;
         }
         return false;
