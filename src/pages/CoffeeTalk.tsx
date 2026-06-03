@@ -226,6 +226,13 @@ export default function CoffeeTalk() {
   const [isDeepLinked, setIsDeepLinked] = useState(!!location.state?.activePost || !!window.location.hash);
   const [isScrollJumping, setIsScrollJumping] = useState(() => {
       if (!!location.state?.activePost || !!window.location.hash) return true;
+      try {
+          const filter = location.state?.filter || savedLastFilter;
+          const savedScroll = localStorage.getItem(`coffeeTalkScrollTop_${filter}`);
+          if (savedScroll && parseInt(savedScroll, 10) > 0) {
+              return true;
+          }
+      } catch (e) {}
       return false;
   });
   const currentFilterRef = useRef(activeFilter);
@@ -1880,7 +1887,7 @@ export default function CoffeeTalk() {
 
       {/* Main Feed Content */}
       <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto scroll-smooth ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24'}`}>
-        <div className={`mx-auto transition-opacity duration-200 ${isScrollJumping ? 'opacity-0' : 'opacity-100'} ${activeFilter === 'shorts' ? 'w-full max-w-md md:max-w-2xl h-full' : 'max-w-md md:max-w-2xl sm:px-4 sm:pb-4'}`}>
+        <div className={`mx-auto ${isScrollJumping ? 'opacity-0' : 'opacity-100'} ${activeFilter === 'shorts' ? 'w-full max-w-md md:max-w-2xl h-full' : 'max-w-md md:max-w-2xl sm:px-4 sm:pb-4'}`}>
           {activeFilter === 'near_live' && <HotspotMap />}
           {isLoading && <p className="text-center text-espresso-200 mt-10">{t('coffee_talk.loading_feed', '피드를 불러오는 중입니다...')}</p>}
           {!isLoading && filteredPosts.length === 0 && (
