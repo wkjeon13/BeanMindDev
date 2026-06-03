@@ -6,5 +6,10 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:www.beanmindcurator.com</string>
+		<string>applinks:beanmindcurator.com</string>
+	</array>
 </dict>
 </plist>

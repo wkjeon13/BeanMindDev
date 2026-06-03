@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "YOUR_DEVELOPER_TEAM_ID.com.beanmind.curator",
+        "paths": [
+          "/community",
+          "/community/*"
+        ]
+      }
+    ]
+  }
+}
