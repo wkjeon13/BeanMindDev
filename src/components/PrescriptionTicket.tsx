@@ -43,6 +43,14 @@ export default function PrescriptionTicket({
     const displayDate = date || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     const ticketId = useMemo(() => Math.random().toString().substring(2, 10), []);
 
+    if (!recommendation || !recommendation.bean || !recommendation.brand) {
+        return (
+            <div className="w-full p-6 text-center bg-coffee-950 rounded-[1.5rem] border border-coffee-800 text-coffee-300">
+                {t('curator.invalid_prescription', '올바르지 않은 처방전 데이터입니다.')}
+            </div>
+        );
+    }
+
     const displayExplanation = useMemo(() => {
         if (hideSave && aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다...") {
             return `고객님의 취향에 최적화된 **${recommendation.bean.name}** 원두 처방전입니다.\n\n해당 처방전은 생성 도중 이탈되었거나 에세이 작성이 완료되지 않은 상태로 저장되었습니다. 아래의 상세 커피 프로필 정보(산미, 단맛, 쓴맛, 바디감)를 참고해 주세요!`;

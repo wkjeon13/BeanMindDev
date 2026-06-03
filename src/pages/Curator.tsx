@@ -129,7 +129,7 @@ export default function App() {
         syncHandled.current = true;
         try {
           const parsed = JSON.parse(needsSync);
-          if (parsed.recommendation) {
+          if (parsed.recommendation && parsed.recommendation.bean && parsed.recommendation.brand) {
             // Instantly restore visual state
             useCuratorStore.setState({
               recommendation: parsed.recommendation,
@@ -197,7 +197,7 @@ export default function App() {
               const matchedBrand = BRANDS.find(b => b.name === latest.brand);
               if (matchedBean && matchedBrand) {
                 setRecommendation({ bean: matchedBean, brand: matchedBrand });
-                setAiExplanation(latest.aiComment);
+                setAiExplanation(latest.aiComment || "");
                 setStep(4);
               } else {
                 setStep(0);
@@ -225,7 +225,7 @@ export default function App() {
   // This listener auto-triggers the genuine AI generation if it detects the mockup signature while authenticated.
   useEffect(() => {
     const userRole = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}').role; } catch { return 'USER'; } })();
-    if (isLoggedIn && step === 4 && aiExplanation.includes("🚨") && userRole !== 'ADMIN' && userRole !== 'MODERATOR') {
+    if (isLoggedIn && step === 4 && aiExplanation && typeof aiExplanation === 'string' && aiExplanation.includes("🚨") && userRole !== 'ADMIN' && userRole !== 'MODERATOR') {
         useCuratorStore.getState().startMatch(i18n.language);
     }
   }, [isLoggedIn, step, aiExplanation, i18n.language]);
