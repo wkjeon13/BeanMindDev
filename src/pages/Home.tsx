@@ -348,7 +348,14 @@ export default function HomeDashboard() {
     const [fetchError, setFetchError] = React.useState<string>('');
   const [homeNativeAd, setHomeNativeAd] = useState<any>(globalHomeCache?.homeNativeAd || null);
   
-  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const currentUser = (() => {
+    try {
+      const u = localStorage.getItem('user');
+      return u && u !== 'undefined' ? JSON.parse(u) : {};
+    } catch {
+      return {};
+    }
+  })();
   const isLoggedIn = !!localStorage.getItem('token');
 
   const [layoutConfigs, setLayoutConfigs] = useState<HomeSectionConfig[]>(globalHomeCache?.layoutConfigs || DEFAULT_LAYOUT);
@@ -459,7 +466,7 @@ export default function HomeDashboard() {
                             if (!a.isRecruiting && b.isRecruiting) return 1;
                             return a._distance - b._distance;
                         });
-                    } else if (currentUser?.location) {
+                    } else if (currentUser?.location && typeof currentUser.location === 'string') {
                         const userLoc = currentUser.location.split(' ')[0];
                         sortedClubs = sortedClubs.filter((c: any) => c.locationName && c.locationName.includes(userLoc));
                         sortedClubs.sort((a: any, b: any) => {
@@ -510,19 +517,30 @@ export default function HomeDashboard() {
       if (!silent || !fastLat) {
           // Fast GPS Fetch (max 1.5 seconds)
           new Promise<{lat: string, lng: string}>((resolve) => {
-              Geolocation.getCurrentPosition({ enableHighAccuracy: false, timeout: 1500 })
-                  .then(pos => resolve({ lat: pos.coords.latitude.toString(), lng: pos.coords.longitude.toString() }))
-                  .catch(() => {
-                      if (navigator.geolocation) {
-                          navigator.geolocation.getCurrentPosition(
-                              pos => resolve({ lat: pos.coords.latitude.toString(), lng: pos.coords.longitude.toString() }),
-                              err => resolve({ lat: '', lng: '' }),
-                              { timeout: 1500, maximumAge: 600000 }
-                          );
-                      } else {
-                          resolve({ lat: '', lng: '' });
-                      }
-                  });
+              const hasCapacitorGeo = typeof Geolocation !== 'undefined' && Geolocation && typeof Geolocation.getCurrentPosition === 'function';
+              if (hasCapacitorGeo) {
+                  Geolocation.getCurrentPosition({ enableHighAccuracy: false, timeout: 1500 })
+                      .then(pos => resolve({ lat: pos.coords.latitude.toString(), lng: pos.coords.longitude.toString() }))
+                      .catch(() => {
+                          if (navigator.geolocation) {
+                              navigator.geolocation.getCurrentPosition(
+                                  pos => resolve({ lat: pos.coords.latitude.toString(), lng: pos.coords.longitude.toString() }),
+                                  err => resolve({ lat: '', lng: '' }),
+                                  { timeout: 1500, maximumAge: 600000 }
+                              );
+                          } else {
+                              resolve({ lat: '', lng: '' });
+                          }
+                      });
+              } else if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(
+                      pos => resolve({ lat: pos.coords.latitude.toString(), lng: pos.coords.longitude.toString() }),
+                      err => resolve({ lat: '', lng: '' }),
+                      { timeout: 1500, maximumAge: 600000 }
+                  );
+              } else {
+                  resolve({ lat: '', lng: '' });
+              }
           }).then(gpsData => {
               if (gpsData.lat) {
                   fastLat = gpsData.lat;
