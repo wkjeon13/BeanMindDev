@@ -1085,10 +1085,18 @@ export default function CoffeeTalk() {
           if (settled) return;
           settled = true;
           cancelAnimationFrame(rafId);
-          // 최종 앵커: 콘텐츠 공개 직전 scrollTop 한 번 더 확정
+          container.style.scrollBehavior = 'auto';
           container.scrollTop = scrollPos;
-          container.style.scrollBehavior = '';
-          setIsScrollJumping(false);
+          // iOS WKWebView는 scrollTop을 렌더링 스레드에 비동기 커밋함.
+          // double RAF: 1차 프레임에서 커밋 요청 수신, 2차 프레임에서 올바른 위치로 페인트 완료.
+          // 그 이후에 opacity를 1로 전환해야 튀는 현상이 없음.
+          requestAnimationFrame(() => {
+            container.scrollTop = scrollPos; // 1차 프레임에서 재확인 (드롭 방어)
+            requestAnimationFrame(() => {
+              container.style.scrollBehavior = '';
+              setIsScrollJumping(false);
+            });
+          });
         };
 
         // RAF 루프로 scrollHeight(실제 콘텐츠 높이) 변화를 직접 감지
