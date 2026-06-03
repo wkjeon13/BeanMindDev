@@ -719,18 +719,37 @@ export default function CoffeeTalk() {
             setIsBookmarked(prev => ({...prev, ...initialBookmarks}));
             
             // 기존 포스트와 새로 가져온 포스트 목록이 동일한 경우 상태 업데이트를 생략하여 불필요한 리렌더링 및 껌벅거림 차단
+            // silent 모드(백그라운드 갱신)일 때는 setPosts 전 scrollTop을 저장하고 재렌더링 후 복원
+            const containerForScroll = silent ? document.getElementById('coffee-feed-container') : null;
+            const savedScrollTop = containerForScroll ? containerForScroll.scrollTop : 0;
+
             setPosts(prevPosts => {
                 const isSame = prevPosts.length === mappedPosts.length && prevPosts.every((p, idx) => {
                     const np = mappedPosts[idx];
-                    return p.id === np?.id && 
-                           p.likes === np?.likes && 
-                           p.comments === np?.comments && 
+                    return p.id === np?.id &&
+                           p.likes === np?.likes &&
+                           p.comments === np?.comments &&
                            p.shareCount === np?.shareCount &&
                            p.content === np?.content &&
                            p.image === np?.image;
                 });
                 return isSame ? prevPosts : mappedPosts;
             });
+
+            // 백그라운드 갱신 후 스크롤 위치 복원 (double RAF: 첫 번째는 React 커밋, 두 번째는 레이아웃 확정 대기)
+            if (silent && savedScrollTop > 0) {
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        const c = document.getElementById('coffee-feed-container');
+                        if (c) {
+                            c.style.scrollBehavior = 'auto';
+                            c.scrollTop = savedScrollTop;
+                            // 한 프레임 후 scrollBehavior 복원 (즉시 복원 시 animation 방지)
+                            requestAnimationFrame(() => { c.style.scrollBehavior = ''; });
+                        }
+                    });
+                });
+            }
           }
           
           const cacheKey = filterToFetch + '_' + sortOption;
@@ -1044,60 +1063,62 @@ export default function CoffeeTalk() {
         }, 10);
       }
     } 
-    // 2. 이전 탭 및 이력 스크롤 위치 복원 (0ms 즉시 스크롤 & 마이크로 폴링)
+    // 2. 이전 탭 및 이력 스크롤 위치 복원 (ResizeObserver로 레이아웃 안정화 감지 후 1회 정확 복원)
     else if (posts.length > 0 && restoreScrollTop.current !== null) {
       const scrollPos = restoreScrollTop.current;
       restoreScrollTop.current = null; // 중복 복원 즉시 해제
 
       const performScrollRestore = () => {
         const container = document.getElementById('coffee-feed-container');
-        if (container) {
-          container.style.scrollBehavior = 'auto';
-          
-          // 가림막 뒤에서 최초 즉각 스크롤 위치 강제 지정 (첫 렌더 시 0px 노출 방어)
+        if (!container) return false;
+
+        // 즉시 스크롤 위치 선점 (마스킹 뒤에서 0px 노출 방어)
+        container.style.scrollBehavior = 'auto';
+        container.scrollTop = scrollPos;
+
+        let settled = false;
+        let lastHeight = container.scrollHeight;
+        let stableCount = 0;
+
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          observer.disconnect();
+          // scrollBehavior는 CSS scroll-smooth 클래스가 isScrollJumping=false 이후 적용되므로 인라인 스타일만 제거
+          container.style.scrollBehavior = '';
+          setIsScrollJumping(false);
+        };
+
+        // ResizeObserver: 컨테이너 높이가 변할 때마다(이미지 로드 등) scrollTop 재지정
+        const observer = new ResizeObserver(() => {
           container.scrollTop = scrollPos;
-          
-          let attempts = 0;
-          const maxAttempts = 30; // 최대 30회 (약 900ms) 대기하며 검증
-          
-          const interval = setInterval(() => {
-            const targetContainer = document.getElementById('coffee-feed-container');
-            if (targetContainer) {
-              // 1. 스크롤 위치 강제 지정
-              targetContainer.scrollTop = scrollPos;
-              
-              // 2. 컨테이너 내부의 모든 이미지들이 실제로 브라우저 상에 다운로드/디코딩 완료되었는지 검사
-              const images = Array.from(targetContainer.getElementsByTagName('img'));
-              const allImagesLoaded = images.every(img => img.complete);
-              
-              // 3. 스크롤 안착 상태 체크
-              const diff = Math.abs(targetContainer.scrollTop - scrollPos);
-              const isAtTarget = diff <= 2;
-              
-              // 이미지 로딩도 완전히 끝났고 스크롤도 목표에 도달한 경우에만 해제
-              if ((allImagesLoaded && isAtTarget) || attempts >= maxAttempts) {
-                clearInterval(interval);
-                targetContainer.style.scrollBehavior = '';
-                setIsScrollJumping(false); // 로딩 및 정렬 완료 시점에 가림막 해제
-              }
-            }
-            attempts++;
-          }, 30);
-          
-          return true;
-        }
-        return false;
+          const currentHeight = container.scrollHeight;
+          if (currentHeight === lastHeight) {
+            stableCount++;
+            // 연속 3프레임 동안 높이가 고정되면 레이아웃 완료로 판단
+            if (stableCount >= 3) finish();
+          } else {
+            lastHeight = currentHeight;
+            stableCount = 0;
+          }
+        });
+
+        observer.observe(container);
+
+        // 폴백: 최대 1초 후 강제 해제 (ResizeObserver가 트리거되지 않는 엣지케이스 대비)
+        setTimeout(() => finish(), 1000);
+
+        return true;
       };
 
       if (!performScrollRestore()) {
+        // 컨테이너가 아직 마운트되지 않은 경우 RAF로 재시도
         let attempts = 0;
-        const interval = setInterval(() => {
-          if (performScrollRestore() || attempts > 10) {
-            clearInterval(interval);
-            setIsScrollJumping(false);
-          }
-          attempts++;
-        }, 10);
+        const retry = () => {
+          if (performScrollRestore() || attempts++ > 10) return;
+          requestAnimationFrame(retry);
+        };
+        requestAnimationFrame(retry);
       }
     }
   }, [posts, window.location.hash]);
@@ -1961,7 +1982,7 @@ export default function CoffeeTalk() {
       </header>
 
       {/* Main Feed Content */}
-      <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto scroll-smooth ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24'}`} style={{ opacity: isScrollJumping ? 0 : 1, pointerEvents: isScrollJumping ? 'none' : 'auto' }}>
+      <PullToRefresh id="coffee-feed-container" onRefresh={async () => { await fetchPosts(true); }} className={`flex-1 overflow-y-auto ${isScrollJumping ? '' : 'scroll-smooth'} ${activeFilter === 'shorts' ? 'snap-y snap-mandatory pb-0 pt-0 bg-black no-scrollbar' : 'pb-24'}`} style={{ opacity: isScrollJumping ? 0 : 1, pointerEvents: isScrollJumping ? 'none' : 'auto' }}>
         <div className={`mx-auto ${activeFilter === 'shorts' ? 'w-full max-w-md md:max-w-2xl h-full' : 'max-w-md md:max-w-2xl sm:px-4 sm:pb-4'}`}>
           {activeFilter === 'near_live' && <HotspotMap />}
           {isLoading && <p className="text-center text-espresso-200 mt-10">{t('coffee_talk.loading_feed', '피드를 불러오는 중입니다...')}</p>}
