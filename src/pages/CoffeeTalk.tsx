@@ -1492,10 +1492,21 @@ export default function CoffeeTalk() {
                 formData.append('recipeData', JSON.stringify(recipeData));
             }
 
-            if (hasPoll && pollDraft.question?.trim() && pollDraft.options.filter(o => typeof o === 'string' && o.trim()).length >= 2) {
+            if (hasPoll) {
+                const validOptions = pollDraft.options.filter(o => typeof o === 'string' && o.trim());
+                if (!pollDraft.question?.trim()) {
+                    alert("투표 질문을 입력해주세요.");
+                    setIsSubmitting(false);
+                    return;
+                }
+                if (validOptions.length < 2) {
+                    alert("투표 항목을 최소 2개 이상 입력해주세요.");
+                    setIsSubmitting(false);
+                    return;
+                }
                 formData.append('pollData', JSON.stringify({
                     question: pollDraft.question.trim(),
-                    options: pollDraft.options.filter(o => typeof o === 'string' && o.trim()),
+                    options: validOptions,
                     durationHours: pollDraft.durationHours
                 }));
             } else if (editPostId && !hasPoll) {
