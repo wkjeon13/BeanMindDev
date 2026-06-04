@@ -538,16 +538,22 @@ export default function Profile() {
 
     const handleSharePassport = async () => {
         const text = t('profile.passport_share_template', { nickname: currentUser?.nickname || '유저', icon: currentBadge.icon, badge: currentBadge.name, count: passportCheckins.length });
+        let shareUrl = window.location.href;
+        const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+        if (isNative || shareUrl.includes('localhost') || shareUrl.startsWith('capacitor://')) {
+            shareUrl = 'https://www.beanmindcurator.com/profile';
+        }
+
         try {
-            await Share.share({ title: t('profile.passport_share_title'), text, url: window.location.href, dialogTitle: t('profile.passport_share_title') });
+            await Share.share({ title: t('profile.passport_share_title'), text, url: shareUrl, dialogTitle: t('profile.passport_share_title') });
         } catch (err) {
             if (navigator.share) {
-                navigator.share({ title: t('profile.passport_share_title'), text, url: window.location.href }).catch(() => {
-                    navigator.clipboard.writeText(text);
+                navigator.share({ title: t('profile.passport_share_title'), text, url: shareUrl }).catch(() => {
+                    navigator.clipboard.writeText(`${text}\n${shareUrl}`);
                     alert(t('profile.pass_share_copied'));
                 });
             } else {
-                navigator.clipboard.writeText(text);
+                navigator.clipboard.writeText(`${text}\n${shareUrl}`);
                 alert(t('profile.pass_share_copied'));
             }
         }
@@ -608,7 +614,12 @@ export default function Profile() {
             course.isPublic = true;
         }
 
-        const shareUrl = `${window.location.origin}/map?courseId=${course.id}`;
+        let shareUrl = `${window.location.origin}/map?courseId=${course.id}`;
+        const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+        if (isNative || shareUrl.includes('localhost') || shareUrl.startsWith('capacitor://')) {
+            shareUrl = `https://www.beanmindcurator.com/map?courseId=${course.id}`;
+        }
+        
         const text = t('profile.course_share_template', { name: course.name, desc: course.description ? `"${course.description}"\n` : '', count: course.items?.length || course._count?.items || 0 });
 
         try {
@@ -3906,11 +3917,16 @@ export default function Profile() {
                                 date={new Date(selectedPrescription.createdAt).toLocaleDateString(i18n.language === 'en' ? 'en-US' : 'ko-KR', { year: 'numeric', month: 'short', day: 'numeric' })}
                                 onShareCoffeeTalk={() => handleShareCoffeeTalk(selectedPrescription)}
                                 onShare={async () => {
+                                    let shareUrl = window.location.href;
+                                    const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+                                    if (isNative || shareUrl.includes('localhost') || shareUrl.startsWith('capacitor://')) {
+                                        shareUrl = 'https://www.beanmindcurator.com/profile';
+                                    }
                                     try {
-                                        await Share.share({ title: 'My Coffee Prescription', url: window.location.href, dialogTitle: 'My Coffee Prescription' });
+                                        await Share.share({ title: 'My Coffee Prescription', url: shareUrl, dialogTitle: 'My Coffee Prescription' });
                                     } catch (err) {
                                         if (navigator.share) {
-                                            navigator.share({ title: 'My Coffee Prescription', url: window.location.href }).catch(() => { });
+                                            navigator.share({ title: 'My Coffee Prescription', url: shareUrl }).catch(() => { });
                                         }
                                     }
                                 }}

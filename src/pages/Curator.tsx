@@ -932,7 +932,12 @@ export default function App() {
                          onShare={async () => {
                              const shareText = `${recommendation.bean.name} - ${recommendation.brand.name}`;
                              const shareTitle = t('curator.share_title', '나의 AI 커피 처방전');
-                             const shareUrl = window.location.href;
+                             
+                             let shareUrl = window.location.href;
+                             const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+                             if (isNative || shareUrl.includes('localhost') || shareUrl.startsWith('capacitor://')) {
+                                 shareUrl = 'https://www.beanmindcurator.com/curator';
+                             }
 
                              try {
                                  await Share.share({
