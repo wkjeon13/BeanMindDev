@@ -2358,23 +2358,15 @@ export default function CoffeeTalk() {
                                                                 {bgm && (
                                                                     <button
                                                                         onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            e.preventDefault();
-                                                                            if (activeBgmPostId === post.id && isBgmPlaying) {
-                                                                                setIsBgmPlaying(false);
-                                                                                pauseBgmAudio();
-                                                                            } else {
-                                                                                setActiveBgmVideoId(bgm.videoId);
-                                                                                setActiveBgmTitle(bgm.title);
-                                                                                setActiveBgmPostId(post.id);
-                                                                                setIsBgmPlaying(true);
-                                                                                playBgmAudio(bgm.videoId, bgmVolume);
-                                                                            }
-                                                                        }}
-                                                                        className={`absolute z-30 px-3 py-1.5 bg-espresso-950/85 hover:bg-espresso-900/95 backdrop-blur-md text-amber-400 border border-amber-500/30 rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-1.5 text-[11px] font-black tracking-wider bottom-4 right-4 ${activeBgmPostId === post.id && isBgmPlaying ? 'animate-pulse border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.4)]' : ''}`}
+    e.stopPropagation();
+    e.preventDefault();
+    const query = encodeURIComponent(bgm.title);
+    window.open(`https://music.youtube.com/search?q=${query}`, '_blank');
+}}
+                                                                        className={`absolute z-30 px-3 py-1.5 bg-espresso-950/85 hover:bg-espresso-900/95 backdrop-blur-md text-amber-400 border border-amber-500/30 rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-1.5 text-[11px] font-black tracking-wider bottom-4 right-4`}
                                                                     >
-                                                                        <Music size={13} className={activeBgmPostId === post.id && isBgmPlaying ? 'animate-spin' : ''} />
-                                                                        {activeBgmPostId === post.id && isBgmPlaying ? 'BGM ON' : 'BGM 페어링'}
+                                                                        <Music size={13} className="" />
+                                                                        BGM 페어링
                                                                     </button>
                                                                 )}
                                                             </div>
@@ -2415,23 +2407,15 @@ export default function CoffeeTalk() {
                                                     {bgm && (
                                                         <button
                                                             onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                e.preventDefault();
-                                                                if (activeBgmPostId === post.id && isBgmPlaying) {
-                                                                    setIsBgmPlaying(false);
-                                                                    pauseBgmAudio();
-                                                                } else {
-                                                                    setActiveBgmVideoId(bgm.videoId);
-                                                                    setActiveBgmTitle(bgm.title);
-                                                                    setActiveBgmPostId(post.id);
-                                                                    setIsBgmPlaying(true);
-                                                                    playBgmAudio(bgm.videoId, bgmVolume);
-                                                                }
-                                                            }}
-                                                            className={`absolute z-[25] px-3.5 py-2 bg-black/75 hover:bg-black/90 backdrop-blur-md text-amber-400 border border-amber-500/40 rounded-xl shadow-2xl active:scale-95 transition-all flex items-center gap-1.5 text-xs font-black tracking-widest top-[140px] right-5 ${activeBgmPostId === post.id && isBgmPlaying ? 'animate-pulse border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.4)]' : ''}`}
+    e.stopPropagation();
+    e.preventDefault();
+    const query = encodeURIComponent(bgm.title);
+    window.open(`https://music.youtube.com/search?q=${query}`, '_blank');
+}}
+                                                            className="absolute z-[25] px-3.5 py-2 bg-black/75 hover:bg-black/90 backdrop-blur-md text-amber-400 border border-amber-500/40 rounded-xl shadow-2xl active:scale-95 transition-all flex items-center gap-1.5 text-xs font-black tracking-widest top-[140px] right-5"
                                                         >
-                                                            <Music size={14} className={activeBgmPostId === post.id && isBgmPlaying ? 'animate-spin' : ''} />
-                                                            {activeBgmPostId === post.id && isBgmPlaying ? 'BGM ON' : 'BGM 페어링'}
+                                                            <Music size={14} className="" />
+                                                            BGM 페어링
                                                         </button>
                                                     )}
                                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none"></div>
@@ -2680,24 +2664,16 @@ export default function CoffeeTalk() {
                                                             {bgm && (
                                                                 <button
                                                                     onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        e.preventDefault();
-                                                                        if (activeBgmPostId === post.id && isBgmPlaying) {
-                                                                            setIsBgmPlaying(false);
-                                                                            pauseBgmAudio();
-                                                                        } else {
-                                                                            setActiveBgmVideoId(bgm.videoId);
-                                                                            setActiveBgmTitle(bgm.title);
-                                                                            setActiveBgmPostId(post.id);
-                                                                            setIsBgmPlaying(true);
-                                                                            playBgmAudio(bgm.videoId, bgmVolume);
-                                                                        }
-                                                                    }}
+    e.stopPropagation();
+    e.preventDefault();
+    const query = encodeURIComponent(bgm.title);
+    window.open(`https://music.youtube.com/search?q=${query}`, '_blank');
+}}
                                                                     className={`absolute z-30 px-3 py-1.5 bg-espresso-950/85 hover:bg-espresso-900/95 backdrop-blur-md text-amber-400 border border-amber-500/30 rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-1.5 text-[11px] font-black tracking-wider ${activeFilter === 'shorts' ? 'bottom-[280px] right-4' : (urls.length > 1 ? 'bottom-4 right-[96px]' : 'bottom-4 right-4')
-                                                                        } ${activeBgmPostId === post.id && isBgmPlaying ? 'animate-pulse border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.4)]' : ''}`}
+                                                                        }`}
                                                                 >
-                                                                    <Music size={13} className={activeBgmPostId === post.id && isBgmPlaying ? 'animate-spin' : ''} />
-                                                                    {activeBgmPostId === post.id && isBgmPlaying ? 'BGM ON' : 'BGM 페어링'}
+                                                                    <Music size={13} className="" />
+                                                                    BGM 페어링
                                                                 </button>
                                                             )}
 
@@ -2854,24 +2830,15 @@ export default function CoffeeTalk() {
                                                 {bgm && !post.image && (
                                                     <button
                                                         onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            e.preventDefault();
-                                                            if (activeBgmPostId === post.id && isBgmPlaying) {
-                                                                setIsBgmPlaying(false);
-                                                                pauseBgmAudio();
-                                                            } else {
-                                                                setActiveBgmVideoId(bgm.videoId);
-                                                                setActiveBgmTitle(bgm.title);
-                                                                setActiveBgmPostId(post.id);
-                                                                setIsBgmPlaying(true);
-                                                                playBgmAudio(bgm.videoId, bgmVolume);
-                                                            }
-                                                        }}
-                                                        className={`ml-3 px-3 py-1.5 rounded-full bg-espresso-800 text-[11px] font-black border transition-all flex items-center gap-1.5 ${activeBgmPostId === post.id && isBgmPlaying ? 'bg-amber-500/10 text-amber-500 border-amber-500 shadow-sm animate-pulse' : 'text-amber-500/90 border-amber-500/20 hover:border-amber-500/50'
-                                                            }`}
+    e.stopPropagation();
+    e.preventDefault();
+    const query = encodeURIComponent(bgm.title);
+    window.open(`https://music.youtube.com/search?q=${query}`, '_blank');
+}}
+                                                        className="ml-3 px-3 py-1.5 rounded-full bg-espresso-800 text-[11px] font-black border text-amber-500/90 border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-1.5"
                                                     >
-                                                        <Music size={12} className={activeBgmPostId === post.id && isBgmPlaying ? 'animate-spin' : ''} />
-                                                        {activeBgmPostId === post.id && isBgmPlaying ? 'BGM ON' : 'BGM 페어링'}
+                                                        <Music size={12} className="" />
+                                                        BGM 페어링
                                                     </button>
                                                 )}
                                             </div>

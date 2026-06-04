@@ -838,10 +838,18 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                                     <div className="mb-4">
                                         <p className="text-[14px] leading-relaxed text-espresso-50 whitespace-pre-wrap">{renderWithLinks(cleanContent)}</p>
                                         {bgm && (
-                                            <div className="mt-2 text-xs text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1.5 rounded-lg w-fit flex items-center gap-1.5 font-semibold">
-                                                🎵 BGM: {bgm.title}
-                                            </div>
-                                        )}
+    <button
+        onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            const query = encodeURIComponent(bgm.title);
+            window.open(`https://music.youtube.com/search?q=${query}`, '_blank');
+        }}
+        className="mt-2 text-xs text-amber-400/90 bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 px-2.5 py-1.5 rounded-lg w-fit flex items-center gap-1.5 font-semibold active:scale-95 transition-all cursor-pointer"
+    >
+        🎵 BGM: {bgm.title}
+    </button>
+)}
                                     </div>
                                 );
                             })()}
