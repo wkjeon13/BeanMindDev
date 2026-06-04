@@ -86,6 +86,49 @@ const renderWithLinks = (text: string | undefined): React.ReactNode => {
     });
 };
 
+interface ParsedBgm {
+    title: string;
+    videoId: string;
+}
+
+const parseBgmFromContent = (content: string | undefined): { cleanContent: string; bgm: ParsedBgm | null } => {
+    if (!content) return { cleanContent: '', bgm: null };
+    
+    // 1. Try to parse normal HTML comment BGM
+    const bgmRegex = /<!--BM_BGM:([\s\S]*?)-->/;
+    const match = content.match(bgmRegex);
+    if (match && match[1]) {
+        try {
+            const bgm = JSON.parse(match[1]) as ParsedBgm;
+            const cleanContent = content.replace(bgmRegex, '').trim();
+            return { cleanContent, bgm };
+        } catch (e) {
+            console.error('BGM parse error (normal):', e);
+        }
+    }
+    
+    // 2. Try to parse HTML entity BGM
+    const entityRegex = /&lt;!--BM_BGM:([\s\S]*?)--&gt;/;
+    const matchEntity = content.match(entityRegex);
+    if (matchEntity && matchEntity[1]) {
+        try {
+            const decodedJsonStr = matchEntity[1]
+                .replace(/&quot;/g, '"')
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&#39;/g, "'");
+            const bgm = JSON.parse(decodedJsonStr) as ParsedBgm;
+            const cleanContent = content.replace(entityRegex, '').trim();
+            return { cleanContent, bgm };
+        } catch (e) {
+            console.error('BGM parse error (entity):', e);
+        }
+    }
+    
+    return { cleanContent: content, bgm: null };
+};
+
 export default function CommentSheet({ postId, isOpen, onClose, post, isInline, isEmbedded, isLiked, isBookmarked, onLike, onBookmark, onShare, onCommentCountChange }: CommentSheetProps) {
   const { t } = useTranslation(['translation']);
     const [comments, setComments] = useState<Comment[]>([]);
@@ -789,7 +832,19 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                             })()}
 
                             {/* Content */}
-                            <p className="text-[14px] leading-relaxed text-espresso-50 mb-4 whitespace-pre-wrap">{renderWithLinks(post.content)}</p>
+                            {(() => {
+                                const { cleanContent, bgm } = parseBgmFromContent(post.content);
+                                return (
+                                    <div className="mb-4">
+                                        <p className="text-[14px] leading-relaxed text-espresso-50 whitespace-pre-wrap">{renderWithLinks(cleanContent)}</p>
+                                        {bgm && (
+                                            <div className="mt-2 text-xs text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1.5 rounded-lg w-fit flex items-center gap-1.5 font-semibold">
+                                                🎵 BGM: {bgm.title}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })()}
 
                             {/* Geo Tag */}
                             {post.cafeName && (
