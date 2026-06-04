@@ -41,7 +41,7 @@ function MapClickHandler({ setHarvestCoords, setHarvestRegion }: any) {
 
 export default function AdminDashboard() {
     const navigate = useNavigate();
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [metrics, setMetrics] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
@@ -111,7 +111,12 @@ export default function AdminDashboard() {
                 mapsResponse = await fetch(`${API_BASE}/api/ai-features/map-shops`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ promptStr: fullPrompt })
+                    body: JSON.stringify({ 
+                        promptStr: fullPrompt,
+                        currentLatitude: harvestCoords ? harvestCoords[0] : 37.5665,
+                        currentLongitude: harvestCoords ? harvestCoords[1] : 126.9780,
+                        language: i18n?.language === 'ko' || i18n?.language?.startsWith('ko') ? 'Korean' : 'English'
+                    })
                 });
                 if (!mapsResponse.ok) throw new Error("Backend Map API Failed");
             } catch (aiErr: any) {
