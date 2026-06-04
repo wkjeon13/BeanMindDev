@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Geolocation } from '@capacitor/geolocation';
 import { Coffee, Droplet, Pill, Beaker, ChevronRight, ChevronLeft, MapPin, Zap, ExternalLink, RefreshCw, Wind, Droplets, Flame, Search, Info, Save, Sunrise, Sun, Sunset, Moon, CloudRain, Cloud, Snowflake, ThermometerSun, ThermometerSnowflake, BatteryWarning, Brain, Sparkles, CheckCircle2, HeartPulse, Leaf, Activity, Stethoscope, Trophy, Flower2, Citrus, Cherry, Apple, CloudFog, Sprout, Music, Headphones, Mic2, Guitar, Radio, Tv, Speaker, Volume2, Milk, Gem, X } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -103,6 +104,78 @@ export default function App() {
       season: detectedSeason,
       timeOfDay: detectedTime
     }));
+
+    // Auto-detect weather based on GPS and Open-Meteo API
+    const detectWeather = async () => {
+      let lat = 37.4020;
+      let lng = 127.1086;
+      let hasCoords = false;
+
+      try {
+        const isNative = typeof (window as any).Capacitor !== 'undefined' && typeof (window as any).Capacitor.isNativePlatform === 'function' && (window as any).Capacitor.isNativePlatform();
+        if (isNative) {
+          const perm = await Geolocation.checkPermissions();
+          if (perm.location !== 'granted') {
+            await Geolocation.requestPermissions();
+          }
+          const position = await Geolocation.getCurrentPosition({ enableHighAccuracy: false, timeout: 5000 });
+          lat = position.coords.latitude;
+          lng = position.coords.longitude;
+          hasCoords = true;
+        }
+      } catch (e) {
+        console.warn("Capacitor location failed in Curator:", e);
+      }
+
+      if (!hasCoords && navigator.geolocation) {
+        try {
+          const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+          });
+          lat = pos.coords.latitude;
+          lng = pos.coords.longitude;
+          hasCoords = true;
+        } catch (e) {
+          console.warn("HTML5 Geolocation failed in Curator:", e);
+        }
+      }
+
+      try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
+        if (res.ok) {
+          const data = await res.json();
+          const temp = data.current_weather?.temperature;
+          const code = data.current_weather?.weathercode;
+
+          let detectedWeather: UserPreferences['weather'] = 'Sunny';
+
+          if (temp !== undefined && temp >= 30) {
+            detectedWeather = 'Hot';
+          } else if (temp !== undefined && temp <= 5) {
+            detectedWeather = 'Cold';
+          } else if (code !== undefined) {
+            if ([71, 73, 75, 77, 85, 86].includes(code)) {
+              detectedWeather = 'Snowy';
+            } else if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code)) {
+              detectedWeather = 'Rainy';
+            } else if ([1, 2, 3, 45, 48].includes(code)) {
+              detectedWeather = 'Cloudy';
+            } else {
+              detectedWeather = 'Sunny';
+            }
+          }
+
+          setPrefs(prev => ({
+            ...prev,
+            weather: detectedWeather
+          }));
+        }
+      } catch (err) {
+        console.warn("Weather API fetch failed in Curator:", err);
+      }
+    };
+
+    detectWeather();
   }, []);
 
   // Hydrate latest prescription on login OR restore anonymous prescription
