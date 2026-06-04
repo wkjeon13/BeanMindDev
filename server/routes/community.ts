@@ -104,6 +104,7 @@ router.get('/system-notices', async (req, res) => {
         let whereClause: any = {
             postType: 'ANNOUNCEMENT',
             isSystemPopup: true,
+            isDeleted: false,
             AND: [
                 { OR: [{ pinnedStartDate: null }, { pinnedStartDate: { lte: now } }] },
                 { OR: [{ pinnedEndDate: null }, { pinnedEndDate: { gte: now } }] }
@@ -139,7 +140,8 @@ router.get('/hotspots', async (req, res) => {
             where: {
                 createdAt: { gte: testWindow },
                 cafeLat: { not: null },
-                cafeLng: { not: null }
+                cafeLng: { not: null },
+                isDeleted: false
             },
             select: {
                 cafeLat: true,
@@ -172,7 +174,7 @@ router.get('/posts', async (req, res) => {
     try {
         const { storeId, filter, countryCode, sort } = req.query;
         console.log(`[DEBUG] GET /posts sort=${sort} filter=${filter}`);
-        let whereClause: any = { isHidden: false, isSystemPopup: false };
+        let whereClause: any = { isHidden: false, isSystemPopup: false, isDeleted: false };
 
         if (countryCode && countryCode !== 'GLOBAL') {
             whereClause.countryCode = { in: [String(countryCode), 'GLOBAL'] };
@@ -447,8 +449,8 @@ router.get('/announcements/unread', authenticateToken, async (req, res) => {
 router.get('/posts/:id', async (req, res) => {
     try {
         const postId = req.params.id;
-        const post = await (prisma as any).post.findUnique({
-            where: { id: postId },
+        const post = await (prisma as any).post.findFirst({
+            where: { id: postId, isDeleted: false },
             include: {
                 author: { select: { id: true, nickname: true, profileImageUrl: true, role: true , stores: { select: { name: true } }} },
                 _count: { select: { likes: true, comments: true, bookmarks: true } },
@@ -787,7 +789,7 @@ router.get('/posts/:id/comments', async (req, res) => {
         const safeLimit = limit > 100 ? 100 : limit;
 
         const comments = await (prisma as any).comment.findMany({
-            where: { postId, parentId: null, isHidden: false },
+            where: { postId, parentId: null, isHidden: false, isDeleted: false },
             take: safeLimit,
             skip: skip,
             orderBy: [{ isPinned: 'desc' }, { createdAt: 'asc' }],
@@ -798,7 +800,7 @@ router.get('/posts/:id/comments', async (req, res) => {
                 },
                 reactions: true,
                 replies: {
-                    where: { isHidden: false },
+                    where: { isHidden: false, isDeleted: false },
                     orderBy: { createdAt: 'asc' },
                     take: 50, // Hard limit nested replies to prevent massive explosion
                     include: {
@@ -823,7 +825,8 @@ router.get('/posts/:id/comment-images', async (req, res) => {
             where: { 
                 postId,
                 imageUrl: { not: null },
-                isHidden: false
+                isHidden: false,
+                isDeleted: false
             },
             orderBy: { createdAt: 'desc' },
             include: {

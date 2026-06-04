@@ -75,6 +75,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                 followingFeeds = await (prisma as any).post.findMany({
                     where: {
                         isHidden: false,
+                        isDeleted: false,
                         clubId: null,
                         OR: [
                             { authorId: { in: followedUserIds } },
@@ -112,6 +113,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
         let rawTasteFeeds = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
+                isDeleted: false,
                 clubId: null,
                 postType: 'NORMAL',
                 image: { not: null },
@@ -140,6 +142,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             rawTasteFeeds = await (prisma as any).post.findMany({
                 where: {
                     isHidden: false,
+                    isDeleted: false,
                     clubId: null,
                     postType: 'NORMAL',
                     image: { not: null }
@@ -238,6 +241,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             const rawFeeds = await (prisma as any).post.findMany({
                 where: { 
                     isHidden: false,
+                    isDeleted: false,
                     clubId: { in: myClubIds } 
                 },
                 orderBy: { createdAt: 'desc' },
@@ -354,6 +358,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
         let userPairings = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
+                isDeleted: false,
                 countryCode: reqCountryCode,
                 content: { contains: pairingTag },
                 image: { not: null }
@@ -370,6 +375,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             userPairings = await (prisma as any).post.findMany({
                 where: {
                     isHidden: false,
+                    isDeleted: false,
                     OR: [
                         { content: { contains: '#Pairing' } },
                         { content: { contains: '#페어링' } }
@@ -392,6 +398,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
         let recentNormalPosts = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
+                isDeleted: false,
                 clubId: null,
                 postType: 'NORMAL',
                 isShorts: false,
@@ -421,6 +428,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             recentNormalPosts = await (prisma as any).post.findMany({
                 where: {
                     isHidden: false,
+                    isDeleted: false,
                     clubId: null,
                     postType: 'NORMAL',
                     isShorts: false
@@ -456,6 +464,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
         let newestCoffeeTalkFeeds = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
+                isDeleted: false,
                 clubId: null,
                 postType: 'NORMAL',
                 isShorts: false,
@@ -484,6 +493,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             newestCoffeeTalkFeeds = await (prisma as any).post.findMany({
                 where: {
                     isHidden: false,
+                    isDeleted: false,
                     clubId: null,
                     postType: 'NORMAL',
                     isShorts: false

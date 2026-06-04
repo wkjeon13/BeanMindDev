@@ -7,13 +7,15 @@ import { API_BASE } from '@/utils/apiConfig';
 export default function AdminModeration() {
     const navigate = useNavigate();
     const { t } = useTranslation();
-    const [activeTab, setActiveTab] = useState<'SPAM' | 'BLIND' | 'REPORT'>('BLIND');
+    const [activeTab, setActiveTab] = useState<'SPAM' | 'BLIND' | 'REPORT' | 'DELETED'>('BLIND');
     const [showHelp, setShowHelp] = useState(false);
     
     const [spamLogs, setSpamLogs] = useState<any[]>([]);
     const [blindedPosts, setBlindedPosts] = useState<any[]>([]);
     const [blindedComments, setBlindedComments] = useState<any[]>([]);
     const [otherReports, setOtherReports] = useState<any[]>([]);
+    const [deletedPosts, setDeletedPosts] = useState<any[]>([]);
+    const [deletedComments, setDeletedComments] = useState<any[]>([]);
     
     const [isLoading, setIsLoading] = useState(true);
 
@@ -23,11 +25,12 @@ export default function AdminModeration() {
             const token = localStorage.getItem('token');
             const headers = { 'Authorization': `Bearer ${token}` };
 
-            // Fetch Stage 1, 2 & 3 concurrently
-            const [spamRes, blindRes, reportRes] = await Promise.all([
+            // Fetch Stage 1, 2, 3 & 4 concurrently
+            const [spamRes, blindRes, reportRes, deletedRes] = await Promise.all([
                 fetch(`${API_BASE}/api/admin/moderation/spam-logs`, { headers }),
                 fetch(`${API_BASE}/api/admin/moderation/blinded-content`, { headers }),
-                fetch(`${API_BASE}/api/admin/moderation/other-reports`, { headers })
+                fetch(`${API_BASE}/api/admin/moderation/other-reports`, { headers }),
+                fetch(`${API_BASE}/api/admin/moderation/deleted-content`, { headers })
             ]);
 
             if (spamRes.ok) {
@@ -42,6 +45,11 @@ export default function AdminModeration() {
             if (reportRes.ok) {
                 const reports = await reportRes.json();
                 setOtherReports(reports || []);
+            }
+            if (deletedRes.ok) {
+                const deleted = await deletedRes.json();
+                setDeletedPosts(deleted.posts || []);
+                setDeletedComments(deleted.comments || []);
             }
         } catch (error) {
             console.error("Failed to load moderation data", error);
@@ -72,6 +80,31 @@ export default function AdminModeration() {
             }
         } catch (error) {
             console.error("Restore failed", error);
+        }
+    };
+
+    const handleRestoreDeleted = async (type: 'POST' | 'COMMENT', id: string) => {
+        if (!window.confirm('정말 이 항목을 복구하시겠습니까? 일반 사용자 화면에 다시 노출됩니다.')) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_BASE}/api/admin/content/restore`, {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ type, id })
+            });
+
+            if (res.ok) {
+                alert('복구되었습니다.');
+                fetchModerationData(); // Refresh list
+            } else {
+                alert('복구 실패');
+            }
+        } catch (error) {
+            console.error("Restore deleted content failed", error);
         }
     };
 
@@ -200,6 +233,14 @@ export default function AdminModeration() {
                         }`}
                     >
                         <Ban size={16}/> 1단계: 도배 차단 내역
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('DELETED')}
+                        className={`flex-1 py-3 text-xs sm:text-sm font-bold rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                            activeTab === 'DELETED' ? 'bg-emerald-600 text-white' : 'text-coffee-300 hover:text-coffee-100'
+                        }`}
+                    >
+                        <RefreshCw size={16}/> 4단계: 강제 삭제 및 복구
                     </button>
                 </div>
 
@@ -382,9 +423,83 @@ export default function AdminModeration() {
                                     </div>
                                 )}
                             </div>
+                          )}
+
+                        {/* TAB 4: DELETED CONTENT */}
+                        {activeTab === 'DELETED' && (
+                            <div className="space-y-6">
+                                <h2 className="text-lg font-bold text-amber-100 mb-2 border-b border-espresso-700 pb-2">강제 삭제된 게시글 ({deletedPosts.length})</h2>
+                                {deletedPosts.length === 0 ? (
+                                    <div className="text-center py-10 text-coffee-400">강제 삭제된 게시글이 없습니다.</div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {deletedPosts.map(post => (
+                                            <div key={post.id} className="bg-espresso-900 p-4 rounded-xl border border-red-500/30">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <span className="text-xs font-bold bg-red-500/20 text-red-400 px-2 py-1 rounded">POST</span>
+                                                    <span className="text-xs text-coffee-400">삭제일: {post.deletedAt ? new Date(post.deletedAt).toLocaleString() : '-'}</span>
+                                                </div>
+                                                <div className="text-sm text-coffee-200 mb-1 break-words">
+                                                    작성자: {post.author?.nickname || '알수없음'} ({post.author?.email})
+                                                </div>
+                                                <div className="text-xs text-red-400 mb-3 font-semibold">
+                                                    삭제 관리자: {post.deletedBy || '시스템'} | 사유: {post.deleteReason || '없음'}
+                                                </div>
+                                                <div className="p-3 bg-espresso-950 rounded-lg text-sm text-amber-50 mb-4 whitespace-pre-wrap">
+                                                    {post.content || '(내용 없음 - 사진 게시물 등)'}
+                                                </div>
+                                                <div className="flex justify-end">
+                                                    <button 
+                                                        onClick={() => handleRestoreDeleted('POST', post.id)}
+                                                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-bold transition-colors flex items-center gap-1 shadow-md shadow-emerald-950/20"
+                                                    >
+                                                        <RefreshCw size={14} /> 콘텐츠 복구 (Restore)
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <h2 className="text-lg font-bold text-amber-100 mb-2 border-b border-espresso-700 pb-2 mt-8">강제 삭제된 댓글 ({deletedComments.length})</h2>
+                                {deletedComments.length === 0 ? (
+                                    <div className="text-center py-10 text-coffee-400">강제 삭제된 댓글이 없습니다.</div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        {deletedComments.map(comment => (
+                                            <div key={comment.id} className="bg-espresso-900 p-4 rounded-xl border border-red-500/30">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <span className="text-xs font-bold bg-orange-500/20 text-orange-400 px-2 py-1 rounded">COMMENT</span>
+                                                    <span className="text-xs text-coffee-400">삭제일: {comment.deletedAt ? new Date(comment.deletedAt).toLocaleString() : '-'}</span>
+                                                </div>
+                                                <div className="text-sm text-coffee-200 mb-1 break-words">
+                                                    작성자: {comment.author?.nickname || '알수없음'} ({comment.author?.email})
+                                                </div>
+                                                <div className="text-sm text-coffee-400 mb-1 break-words">
+                                                    원문 게시글 일부: {comment.post?.content ? (comment.post.content.length > 50 ? comment.post.content.substring(0, 50) + '...' : comment.post.content) : '없음'}
+                                                </div>
+                                                <div className="text-xs text-red-400 mb-3 font-semibold">
+                                                    삭제 관리자: {comment.deletedBy || '시스템'} | 사유: {comment.deleteReason || '없음'}
+                                                </div>
+                                                <div className="p-3 bg-espresso-950 rounded-lg text-sm text-amber-50 mb-4 whitespace-pre-wrap">
+                                                    {comment.content}
+                                                </div>
+                                                <div className="flex justify-end">
+                                                    <button 
+                                                        onClick={() => handleRestoreDeleted('COMMENT', comment.id)}
+                                                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-bold transition-colors flex items-center gap-1 shadow-md shadow-emerald-950/20"
+                                                    >
+                                                        <RefreshCw size={14} /> 콘텐츠 복구 (Restore)
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         )}
-                    </>
-                )}
+                      </>
+                  )}
             </div>
 
             {/* Help Modal */}

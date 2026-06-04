@@ -1570,7 +1570,7 @@ router.get('/me/activity', authenticateToken, async (req: any, res: any) => {
         if (typeFilter === 'all' || typeFilter === 'post') {
             const posts = await prisma.post.findMany({
                 take: 100,
-                where: { authorId: userId },
+                where: { authorId: userId, isDeleted: false },
                 select: { id: true, content: true, image: true, createdAt: true, earnedBeans: true, store: { select: { id: true, name: true } } },
                 orderBy: { createdAt: 'desc' }
             });
@@ -1589,7 +1589,7 @@ router.get('/me/activity', authenticateToken, async (req: any, res: any) => {
         if (typeFilter === 'all' || typeFilter === 'comment') {
             const comments = await prisma.comment.findMany({
                 take: 100,
-                where: { authorId: userId },
+                where: { authorId: userId, isDeleted: false },
                 select: { id: true, content: true, createdAt: true, postId: true, post: { select: { content: true } } },
                 orderBy: { createdAt: 'desc' }
             });

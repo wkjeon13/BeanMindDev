@@ -252,14 +252,16 @@ router.put('/moderation/reports/:id/accept', async (req: any, res: any) => {
     }
 });
 
-// Delete community post or comment directly
-router.post('/content/delete', async (req: any, res: any) => {
+// Delete community post or comment directly (Soft Delete)
+router.post('/content/delete', logAdminAction('DELETE', 'CONTENT', (req) => `${req.body.type} 강제 삭제: ${req.body.id} (사유: ${req.body.reason})`), async (req: any, res: any) => {
     try {
         const { type, id, reason } = req.body;
         
         if (!type || !id || !reason) {
             return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
         }
+
+        const adminEmail = req.user.email || 'unknown_admin';
 
         if (type === 'POST') {
             const post = await prisma.post.findUnique({
@@ -268,7 +270,15 @@ router.post('/content/delete', async (req: any, res: any) => {
             });
             if (!post) return res.status(404).json({ error: ERROR_CODES.POST_NOT_FOUND });
 
-            await prisma.post.delete({ where: { id } });
+            await prisma.post.update({
+                where: { id },
+                data: {
+                    isDeleted: true,
+                    deletedAt: new Date(),
+                    deletedBy: adminEmail,
+                    deleteReason: reason
+                }
+            });
 
             if (post.author && post.author.email) {
                 // Send background email
@@ -281,7 +291,15 @@ router.post('/content/delete', async (req: any, res: any) => {
             });
             if (!comment) return res.status(404).json({ error: ERROR_CODES.COMMENT_NOT_FOUND });
 
-            await prisma.comment.delete({ where: { id } });
+            await prisma.comment.update({
+                where: { id },
+                data: {
+                    isDeleted: true,
+                    deletedAt: new Date(),
+                    deletedBy: adminEmail,
+                    deleteReason: reason
+                }
+            });
 
             if (comment.author && comment.author.email) {
                 // Send background email
@@ -294,6 +312,71 @@ router.post('/content/delete', async (req: any, res: any) => {
         res.json({ success: true });
     } catch (error) {
         console.error('Failed to admin-delete content:', error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// GET: Fetch Soft-Deleted Content (Recycle Bin)
+router.get('/moderation/deleted-content', async (req: any, res: any) => {
+    try {
+        const posts = await prisma.post.findMany({
+            where: { isDeleted: true },
+            orderBy: { deletedAt: 'desc' },
+            include: { author: { select: { nickname: true, email: true, profileImageUrl: true } } }
+        });
+        
+        const comments = await prisma.comment.findMany({
+            where: { isDeleted: true },
+            orderBy: { deletedAt: 'desc' },
+            include: { 
+                author: { select: { nickname: true, email: true, profileImageUrl: true } },
+                post: { select: { content: true } }
+            }
+        });
+
+        res.json({ posts, comments });
+    } catch (error) {
+        console.error("Fetch deleted content error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// POST: Restore Soft-Deleted Content
+router.post('/content/restore', logAdminAction('UPDATE', 'CONTENT', (req) => `${req.body.type} 복구: ${req.body.id}`), async (req: any, res: any) => {
+    try {
+        const { type, id } = req.body;
+        
+        if (!type || !id) {
+            return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
+        }
+
+        if (type === 'POST') {
+            await prisma.post.update({
+                where: { id },
+                data: {
+                    isDeleted: false,
+                    deletedAt: null,
+                    deletedBy: null,
+                    deleteReason: null
+                }
+            });
+        } else if (type === 'COMMENT') {
+            await prisma.comment.update({
+                where: { id },
+                data: {
+                    isDeleted: false,
+                    deletedAt: null,
+                    deletedBy: null,
+                    deleteReason: null
+                }
+            });
+        } else {
+            return res.status(400).json({ error: ERROR_CODES.INVALID_DATA_FORMAT });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Failed to admin-restore content:', error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
     }
 });

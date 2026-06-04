@@ -1,6 +1,6 @@
 generator client {
   provider   = "prisma-client-js"
-  output     = "../node_modules/.prisma/client-stamp-tmp"
+  output     = "../node_modules/.prisma/client-stamp-new"
   engineType = "binary"
 }
 
@@ -365,6 +365,10 @@ model Post {
   equipmentTag       String?
   shortsCategory     String?
   isHidden           Boolean          @default(false)
+  isDeleted          Boolean          @default(false)
+  deletedAt          DateTime?
+  deletedBy          String?
+  deleteReason       String?          @db.Text
   countryCode        String           @default("KR")
   contentEn          String?          @db.Text
   imageEn            String?          @db.LongText
@@ -397,6 +401,10 @@ model Comment {
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   isHidden    Boolean           @default(false)
+  isDeleted   Boolean           @default(false)
+  deletedAt   DateTime?
+  deletedBy   String?
+  deleteReason String?          @db.Text
   author      User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
   parent      Comment?          @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies     Comment[]         @relation("CommentReplies")
