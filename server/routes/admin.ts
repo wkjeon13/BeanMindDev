@@ -72,7 +72,25 @@ router.get('/moderation/blinded-content', async (req: any, res: any) => {
         const posts = await (prisma as any).post.findMany({
             where: { isHidden: true },
             orderBy: { createdAt: 'desc' },
-            include: { author: { select: { nickname: true, email: true, profileImageUrl: true } } }
+            include: { 
+                author: { select: { nickname: true, email: true, profileImageUrl: true } },
+                attachedCourse: { 
+                    select: { 
+                        id: true,
+                        name: true, 
+                        _count: { select: { items: true } } 
+                    } 
+                },
+                poll: {
+                    include: {
+                        options: {
+                            include: {
+                                _count: { select: { votes: true } }
+                            }
+                        }
+                    }
+                }
+            }
         });
         
         const comments = await (prisma as any).comment.findMany({
@@ -322,7 +340,25 @@ router.get('/moderation/deleted-content', async (req: any, res: any) => {
         const posts = await prisma.post.findMany({
             where: { isDeleted: true },
             orderBy: { deletedAt: 'desc' },
-            include: { author: { select: { nickname: true, email: true, profileImageUrl: true } } }
+            include: { 
+                author: { select: { nickname: true, email: true, profileImageUrl: true } },
+                attachedCourse: { 
+                    select: { 
+                        id: true,
+                        name: true, 
+                        _count: { select: { items: true } } 
+                    } 
+                },
+                poll: {
+                    include: {
+                        options: {
+                            include: {
+                                _count: { select: { votes: true } }
+                            }
+                        }
+                    }
+                }
+            }
         });
         
         const comments = await prisma.comment.findMany({

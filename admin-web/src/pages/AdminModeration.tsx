@@ -314,6 +314,29 @@ export default function AdminModeration() {
                                                             🎵 BGM: {extractBgm(post.content).title}
                                                         </div>
                                                     )}
+                                                    {post.attachedCourse && (
+                                                        <div className="mt-2 text-xs text-emerald-400/90 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1.5 rounded-lg w-fit flex items-center gap-1.5 font-semibold">
+                                                            🗺️ 성지코스: {post.attachedCourse.name} {post.attachedCourse._count?.items ? `(성지 ${post.attachedCourse._count.items}개)` : ''}
+                                                        </div>
+                                                    )}
+                                                    {post.poll && (
+                                                        <div className="mt-3 p-3 bg-espresso-900/80 rounded-xl border border-indigo-500/20 text-xs text-left">
+                                                            <div className="font-bold text-indigo-400 mb-2 flex items-center gap-1.5">
+                                                                📊 투표: {post.poll.question}
+                                                            </div>
+                                                            <div className="space-y-1.5">
+                                                                {post.poll.options?.map((opt: any) => {
+                                                                    const votesCount = opt._count?.votes || 0;
+                                                                    return (
+                                                                        <div key={opt.id} className="flex justify-between items-center text-coffee-200 bg-espresso-950/50 p-2 rounded border border-espresso-800">
+                                                                            <span>{opt.text}</span>
+                                                                            <span className="font-bold text-indigo-300">{votesCount}표</span>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <div className="flex justify-end">
                                                     <button 
@@ -495,6 +518,29 @@ export default function AdminModeration() {
                                                     {extractBgm(post.content) && (
                                                         <div className="mt-2 text-xs text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1.5 rounded-lg w-fit flex items-center gap-1.5 font-semibold">
                                                             🎵 BGM: {extractBgm(post.content).title}
+                                                        </div>
+                                                    )}
+                                                    {post.attachedCourse && (
+                                                        <div className="mt-2 text-xs text-emerald-400/90 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1.5 rounded-lg w-fit flex items-center gap-1.5 font-semibold">
+                                                            🗺️ 성지코스: {post.attachedCourse.name} {post.attachedCourse._count?.items ? `(성지 ${post.attachedCourse._count.items}개)` : ''}
+                                                        </div>
+                                                    )}
+                                                    {post.poll && (
+                                                        <div className="mt-3 p-3 bg-espresso-900/80 rounded-xl border border-indigo-500/20 text-xs text-left">
+                                                            <div className="font-bold text-indigo-400 mb-2 flex items-center gap-1.5">
+                                                                📊 투표: {post.poll.question}
+                                                            </div>
+                                                            <div className="space-y-1.5">
+                                                                {post.poll.options?.map((opt: any) => {
+                                                                    const votesCount = opt._count?.votes || 0;
+                                                                    return (
+                                                                        <div key={opt.id} className="flex justify-between items-center text-coffee-200 bg-espresso-950/50 p-2 rounded border border-espresso-800">
+                                                                            <span>{opt.text}</span>
+                                                                            <span className="font-bold text-indigo-300">{votesCount}표</span>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
                                                         </div>
                                                     )}
                                                 </div>
