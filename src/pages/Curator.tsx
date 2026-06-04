@@ -529,18 +529,26 @@ export default function App() {
         })
       });
       if (response.ok) {
+        let savedPrescriptionId: string | null = null;
+        try {
+            const savedData = await response.json();
+            if (savedData && savedData.prescription) {
+                savedPrescriptionId = savedData.prescription.id;
+            }
+        } catch (e) {
+            console.error("Failed to parse save response:", e);
+        }
+
+        if (savedPrescriptionId) {
+            setPrescriptionId(savedPrescriptionId);
+        }
+
         alert(t('curator.alert_save_success'));
         setShowSavePrompt(false);
         // Wipe local caches explicitly so the background bot doesn't bother next time
         localStorage.removeItem('bm_sync_presc');
         sessionStorage.removeItem('bm_sync_presc');
         clearHomeCache(); // Clear home cache to refresh personalized banner
-        try {
-            const savedData = await response.json();
-            if (savedData && savedData.prescription) {
-                setPrescriptionId(savedData.prescription.id);
-            }
-        } catch (e) {}
       } else if (response.status === 403) {
         const errorData = await response.json();
         const cost = errorData.cost || 100;
