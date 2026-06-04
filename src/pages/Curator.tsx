@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Geolocation } from '@capacitor/geolocation';
+import { Share } from '@capacitor/share';
 import { Coffee, Droplet, Pill, Beaker, ChevronRight, ChevronLeft, MapPin, Zap, ExternalLink, RefreshCw, Wind, Droplets, Flame, Search, Info, Save, Sunrise, Sun, Sunset, Moon, CloudRain, Cloud, Snowflake, ThermometerSun, ThermometerSnowflake, BatteryWarning, Brain, Sparkles, CheckCircle2, HeartPulse, Leaf, Activity, Stethoscope, Trophy, Flower2, Citrus, Cherry, Apple, CloudFog, Sprout, Music, Headphones, Mic2, Guitar, Radio, Tv, Speaker, Volume2, Milk, Gem, X } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -928,16 +929,29 @@ export default function App() {
                          isLoggedIn={!!isLoggedIn}
                          isSaving={isSaving}
                          onSave={handleSavePrescription}
-                         onShare={() => {
-                             if (navigator.share) {
-                                 navigator.share({ 
-                                     title: t('curator.share_title', '나의 AI 커피 처방전'), 
-                                     text: `${recommendation.bean.name} - ${recommendation.brand.name}`,
-                                     url: window.location.href 
-                                 }).catch(e => console.error(e));
-                             } else {
-                                 navigator.clipboard.writeText(window.location.href);
-                                 alert(t('shared.copied', '링크가 클립보드에 복사되었습니다.'));
+                         onShare={async () => {
+                             const shareText = `${recommendation.bean.name} - ${recommendation.brand.name}`;
+                             const shareTitle = t('curator.share_title', '나의 AI 커피 처방전');
+                             const shareUrl = window.location.href;
+
+                             try {
+                                 await Share.share({
+                                     title: shareTitle,
+                                     text: shareText,
+                                     url: shareUrl,
+                                     dialogTitle: shareTitle
+                                 });
+                             } catch (e) {
+                                 if (navigator.share) {
+                                     navigator.share({
+                                         title: shareTitle,
+                                         text: shareText,
+                                         url: shareUrl
+                                     }).catch(err => console.error(err));
+                                 } else {
+                                     navigator.clipboard.writeText(shareUrl);
+                                     alert(t('shared.copied', '링크가 클립보드에 복사되었습니다.'));
+                                 }
                              }
                          }}
                          onGoToLogin={() => navigate('/profile')}
