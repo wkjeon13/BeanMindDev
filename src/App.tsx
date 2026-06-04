@@ -157,9 +157,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         }
         const parsedUrl = new URL(targetUrl);
         const activePost = parsedUrl.searchParams.get('activePost');
+        const prescriptionId = parsedUrl.searchParams.get('prescriptionId');
         
         if ((parsedUrl.pathname === '/community' || parsedUrl.host === 'community') && activePost) {
           navigate('/community', { state: { activePost } });
+        } else if ((parsedUrl.pathname === '/curator' || parsedUrl.host === 'curator') && prescriptionId) {
+          navigate('/curator', { state: { prescriptionId } });
         }
       } catch (err) {
         console.error('Failed to handle deep link url:', url, err);

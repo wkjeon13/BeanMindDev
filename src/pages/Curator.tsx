@@ -44,6 +44,13 @@ export default function App() {
   const [confirmModalMessage, setConfirmModalMessage] = useState('');
   const [alertModalMessage, setAlertModalMessage] = useState('');
   const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
+  const [prescriptionId, setPrescriptionId] = useState<string | null>(null);
+  const [isPublicLoading, setIsPublicLoading] = useState(false);
+
+  const handleReset = () => {
+    reset();
+    setPrescriptionId(null);
+  };
 
   const triggerConfirm = (message: string, onConfirm: () => void) => {
     setConfirmModalMessage(message);
@@ -60,9 +67,50 @@ export default function App() {
   // Handle startFresh navigation state
   useEffect(() => {
     if (location.state?.startFresh) {
-      reset();
+      handleReset();
     }
-  }, [location.state, reset]);
+  }, [location.state]);
+
+  // Handle direct navigation via query params or route state for public/deep-linked prescriptions
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const queryPrescriptionId = searchParams.get('prescriptionId') || location.state?.prescriptionId;
+    
+    if (queryPrescriptionId) {
+      const fetchPublicPrescription = async () => {
+        setIsPublicLoading(true);
+        try {
+          const res = await fetch(`${API_BASE}/api/users/prescriptions/public/${queryPrescriptionId}`);
+          if (res.ok) {
+            const data = await res.json();
+            const matchedBean = (() => {
+              try {
+                const match = data.aiComment?.match(/<!-- BEANDATA: (.*?) -->/);
+                if (match) return JSON.parse(match[1]);
+              } catch (e) {}
+              return COFFEE_BEANS.find(b => b.name === data.beanName) || { name: data.beanName, roast: 'Blend/Single', region: 'Global' } as any;
+            })();
+            const matchedBrand = BRANDS.find(b => b.name === data.brand) || { name: data.brand } as any;
+            
+            useCuratorStore.setState({
+              recommendation: { bean: matchedBean, brand: matchedBrand },
+              subRecommendations: [],
+              aiExplanation: data.aiComment || "",
+              step: 4
+            });
+            setPrescriptionId(data.id);
+          } else {
+            console.error("Failed to fetch public prescription:", res.status);
+          }
+        } catch (e) {
+          console.error("Error fetching public prescription:", e);
+        } finally {
+          setIsPublicLoading(false);
+        }
+      };
+      fetchPublicPrescription();
+    }
+  }, [location.search, location.state]);
 
   // Auto-scroll to top when step changes
   useEffect(() => {
@@ -231,6 +279,12 @@ export default function App() {
                     });
                     if (res.ok) {
                         clearHomeCache();
+                        try {
+                            const savedData = await res.json();
+                            if (savedData && savedData.prescription) {
+                                setPrescriptionId(savedData.prescription.id);
+                            }
+                        } catch (e) {}
                     }
                     if (res.status === 403) {
                         const isHiddenByUser = localStorage.getItem('bm_hide_limit_warning') === 'true';
@@ -272,6 +326,7 @@ export default function App() {
               if (matchedBean && matchedBrand) {
                 setRecommendation({ bean: matchedBean, brand: matchedBrand });
                 setAiExplanation(latest.aiComment || "");
+                setPrescriptionId(latest.id);
                 setStep(4);
               } else {
                 setStep(0);
@@ -432,6 +487,12 @@ export default function App() {
         localStorage.removeItem('bm_sync_presc');
         sessionStorage.removeItem('bm_sync_presc');
         clearHomeCache(); // Clear home cache to refresh personalized banner
+        try {
+            const savedData = await response.json();
+            if (savedData && savedData.prescription) {
+                setPrescriptionId(savedData.prescription.id);
+            }
+        } catch (e) {}
       } else if (response.status === 403) {
         const errorData = await response.json();
         const cost = errorData.cost || 100;
@@ -502,7 +563,7 @@ export default function App() {
         {step > 0 && step < 4 && (
           <div className="px-6 pt-safe mt-[max(env(safe-area-inset-top),32px)] mb-2 z-20 shrink-0 flex flex-col items-center relative w-full">
             <button 
-              onClick={() => { reset(); navigate('/', { replace: true }); }}
+              onClick={() => { handleReset(); navigate('/', { replace: true }); }}
               className="absolute right-4 top-0 p-2 text-espresso-300 hover:text-espresso-50 transition-colors bg-espresso-900/50 rounded-full backdrop-blur-sm border border-espresso-700/50"
             >
               <X size={20} />
@@ -899,8 +960,8 @@ export default function App() {
 
         {/* Step 4: Loading & Result */}
         {step === 4 && (
-              <div className={`flex-1 flex flex-col animate-in fade-in duration-700 ${isLoading || aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다..." ? 'justify-center overflow-hidden' : 'overflow-x-hidden overflow-y-auto hide-scrollbar'}`}>
-                {isLoading || aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다..." ? (
+              <div className={`flex-1 flex flex-col animate-in fade-in duration-700 ${isLoading || isPublicLoading || aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다..." ? 'justify-center overflow-hidden' : 'overflow-x-hidden overflow-y-auto hide-scrollbar'}`}>
+                {isLoading || isPublicLoading || aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다..." ? (
                    <div className="flex flex-col items-center justify-center p-8 text-center space-y-6 -mt-32 min-h-[60vh]">
                      <div className="relative">
                        <div className="w-20 h-20 border-4 border-espresso-700 border-t-amber-600 rounded-full animate-spin"></div>
@@ -914,7 +975,7 @@ export default function App() {
                      </div>
                      <GlobalAdBanner placement="CURATOR_LOADING" className="w-full max-w-[280px] my-2 p-2 bg-espresso-900/40 rounded-2xl border border-espresso-700/50" />
                      <button
-                        onClick={reset}
+                        onClick={handleReset}
                         className="mt-6 px-8 py-2.5 bg-espresso-800/50 hover:bg-espresso-800 border-2 border-espresso-700 text-espresso-300 font-bold rounded-full transition-all active:scale-95"
                      >
                         {t('curator.btn_cancel_extract')}
@@ -933,10 +994,16 @@ export default function App() {
                              const shareText = `${recommendation.bean.name} - ${recommendation.brand.name}`;
                              const shareTitle = t('curator.share_title', '나의 AI 커피 처방전');
                              
-                             let shareUrl = window.location.href;
                              const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+                             let shareUrl = window.location.href;
                              if (isNative || shareUrl.includes('localhost') || shareUrl.startsWith('capacitor://')) {
-                                 shareUrl = 'https://www.beanmindcurator.com/curator';
+                                 shareUrl = prescriptionId 
+                                     ? `https://www.beanmindcurator.com/curator?prescriptionId=${prescriptionId}`
+                                     : 'https://www.beanmindcurator.com/curator';
+                             } else {
+                                 shareUrl = prescriptionId 
+                                     ? `${window.location.origin}/curator?prescriptionId=${prescriptionId}`
+                                     : window.location.href;
                              }
 
                              try {
@@ -1122,7 +1189,7 @@ export default function App() {
 
                      {/* Result Actions */}
                      <div className="flex flex-col gap-3 pt-4">
-                       <button onClick={reset} className="w-full py-4 bg-espresso-700 hover:bg-espresso-600 text-espresso-50 font-bold rounded-[1.25rem] transition-all active:scale-[0.98] border border-espresso-600">
+                       <button onClick={handleReset} className="w-full py-4 bg-espresso-700 hover:bg-espresso-600 text-espresso-50 font-bold rounded-[1.25rem] transition-all active:scale-[0.98] border border-espresso-600">
                          {t('curator.btn_restart')}
                        </button>
                      </div>
@@ -1181,7 +1248,7 @@ export default function App() {
                   &lt; Back
                 </button>
                 <button 
-                  onClick={reset}
+                  onClick={handleReset}
                   className="text-[12px] uppercase tracking-wider font-bold text-espresso-300 hover:text-espresso-50 active:scale-95 px-4 py-2 transition-colors"
                 >
                   Quit

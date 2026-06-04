@@ -1917,4 +1917,21 @@ router.put('/profile/shared', authenticateToken, uploadLimiter, upload.array('im
     }
 });
 
+// GET: Fetch a public saved prescription by ID (No token authentication required)
+router.get('/prescriptions/public/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const prescription = await prisma.prescription.findUnique({
+            where: { id }
+        });
+        if (!prescription) {
+            return res.status(404).json({ message: 'Prescription not found' });
+        }
+        res.status(200).json(prescription);
+    } catch (error) {
+        console.error("Fetch public prescription error:", error);
+        res.status(500).json({ errorCode: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
 export default router;

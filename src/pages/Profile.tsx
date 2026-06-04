@@ -3917,10 +3917,16 @@ export default function Profile() {
                                 date={new Date(selectedPrescription.createdAt).toLocaleDateString(i18n.language === 'en' ? 'en-US' : 'ko-KR', { year: 'numeric', month: 'short', day: 'numeric' })}
                                 onShareCoffeeTalk={() => handleShareCoffeeTalk(selectedPrescription)}
                                 onShare={async () => {
-                                    let shareUrl = window.location.href;
                                     const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+                                    let shareUrl = window.location.href;
                                     if (isNative || shareUrl.includes('localhost') || shareUrl.startsWith('capacitor://')) {
-                                        shareUrl = 'https://www.beanmindcurator.com/profile';
+                                        shareUrl = selectedPrescription.id
+                                            ? `https://www.beanmindcurator.com/curator?prescriptionId=${selectedPrescription.id}`
+                                            : 'https://www.beanmindcurator.com/curator';
+                                    } else {
+                                        shareUrl = selectedPrescription.id
+                                            ? `${window.location.origin}/curator?prescriptionId=${selectedPrescription.id}`
+                                            : window.location.href;
                                     }
                                     try {
                                         await Share.share({ title: 'My Coffee Prescription', url: shareUrl, dialogTitle: 'My Coffee Prescription' });
