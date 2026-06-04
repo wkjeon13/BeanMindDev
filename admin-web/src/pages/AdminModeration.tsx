@@ -6,19 +6,41 @@ import { API_BASE } from '@/utils/apiConfig';
 
 const cleanContent = (content: string) => {
     if (!content) return '';
-    return content.replace(/<!--BM_BGM:[\s\S]*?-->/g, '').trim();
+    return content
+        .replace(/<!--BM_BGM:[\s\S]*?-->/g, '')
+        .replace(/&lt;!--BM_BGM:[\s\S]*?--&gt;/g, '')
+        .trim();
 };
 
 const extractBgm = (content: string) => {
     if (!content) return null;
-    const match = content.match(/<!--BM_BGM:([\s\S]*?)-->/);
-    if (match && match[1]) {
+    
+    // Try to match normal HTML comment
+    const matchNormal = content.match(/<!--BM_BGM:([\s\S]*?)-->/);
+    if (matchNormal && matchNormal[1]) {
         try {
-            return JSON.parse(match[1]);
+            return JSON.parse(matchNormal[1]);
         } catch (e) {
-            return null;
+            // ignore
         }
     }
+    
+    // Try to match HTML entity comment
+    const matchEntity = content.match(/&lt;!--BM_BGM:([\s\S]*?)--&gt;/);
+    if (matchEntity && matchEntity[1]) {
+        try {
+            const decodedJsonStr = matchEntity[1]
+                .replace(/&quot;/g, '"')
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&#39;/g, "'");
+            return JSON.parse(decodedJsonStr);
+        } catch (e) {
+            // ignore
+        }
+    }
+    
     return null;
 };
 

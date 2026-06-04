@@ -198,7 +198,9 @@ interface ParsedBgm {
 
 const parseBgmFromContent = (content: string | undefined): { cleanContent: string; bgm: ParsedBgm | null } => {
     if (!content) return { cleanContent: '', bgm: null };
-    const bgmRegex = /<!--BM_BGM:({.*?})-->/;
+    
+    // 1. Try to parse normal HTML comment BGM
+    const bgmRegex = /<!--BM_BGM:([\s\S]*?)-->/;
     const match = content.match(bgmRegex);
     if (match && match[1]) {
         try {
@@ -206,9 +208,29 @@ const parseBgmFromContent = (content: string | undefined): { cleanContent: strin
             const cleanContent = content.replace(bgmRegex, '').trim();
             return { cleanContent, bgm };
         } catch (e) {
-            console.error('BGM parse error:', e);
+            console.error('BGM parse error (normal):', e);
         }
     }
+    
+    // 2. Try to parse HTML entity BGM
+    const entityRegex = /&lt;!--BM_BGM:([\s\S]*?)--&gt;/;
+    const matchEntity = content.match(entityRegex);
+    if (matchEntity && matchEntity[1]) {
+        try {
+            const decodedJsonStr = matchEntity[1]
+                .replace(/&quot;/g, '"')
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&#39;/g, "'");
+            const bgm = JSON.parse(decodedJsonStr) as ParsedBgm;
+            const cleanContent = content.replace(entityRegex, '').trim();
+            return { cleanContent, bgm };
+        } catch (e) {
+            console.error('BGM parse error (entity):', e);
+        }
+    }
+    
     return { cleanContent: content, bgm: null };
 };
 
