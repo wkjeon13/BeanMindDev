@@ -232,6 +232,13 @@ export default function App() {
 
   useEffect(() => {
     const checkSync = async () => {
+      // If we are navigating to a specific public prescription via URL params, skip the entire history restore sync!
+      const searchParams = new URLSearchParams(location.search);
+      if (searchParams.get('prescriptionId') || location.state?.prescriptionId) {
+          syncHandled.current = true;
+          return;
+      }
+
       // If we are starting fresh, do not restore old history or pending syncs
       if (location.state?.startFresh) {
           syncHandled.current = true;
@@ -1032,6 +1039,17 @@ export default function App() {
                          isSaving={isSaving}
                          onSave={handleSavePrescription}
                          onShare={async () => {
+                             if (!prescriptionId) {
+                                 if (isLoggedIn) {
+                                     if (window.confirm("공유 링크를 생성하려면 먼저 처방전을 저장해야 합니다. 저장하시겠습니까?")) {
+                                         handleSavePrescription();
+                                     }
+                                 } else {
+                                     alert("공유 링크를 생성하려면 로그인이 필요합니다. 로그인 후 처방전을 저장하여 공유해 주세요.");
+                                     navigate('/profile');
+                                 }
+                                 return;
+                             }
                              const shareText = `${recommendation.bean.name} - ${recommendation.brand.name}`;
                              const shareTitle = t('curator.share_title', '나의 AI 커피 처방전');
                              
