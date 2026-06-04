@@ -349,6 +349,47 @@ export default function App() {
     }
   }, [step, recommendation, subRecommendations, aiExplanation, nearbyShops]);
 
+  // Auto-save fresh curation to server once generation completes
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (
+      step === 4 && 
+      !isLoading && 
+      aiExplanation && 
+      aiExplanation !== "☕ 특별한 커피 에세이를 작성하는 중입니다..." && 
+      aiExplanation.includes("<!-- BEANDATA:") &&
+      !prescriptionId && 
+      isLoggedIn && 
+      token
+    ) {
+      const autoSaveOnComplete = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/users/prescriptions`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({
+              title: t('curator.save_modal_ph') || "AI 맞춤 커피 처방전",
+              beanName: recommendation?.bean.name,
+              brand: recommendation?.brand.name,
+              aiComment: aiExplanation,
+              usePoints: false
+            })
+          });
+          if (res.ok) {
+            clearHomeCache();
+            const savedData = await res.json();
+            if (savedData && savedData.prescription) {
+              setPrescriptionId(savedData.prescription.id);
+            }
+          }
+        } catch (e) {
+          console.warn("Auto-save on completion failed:", e);
+        }
+      };
+      autoSaveOnComplete();
+    }
+  }, [step, isLoading, aiExplanation, prescriptionId, isLoggedIn, recommendation]);
+
   // Escape hatch for the Mockup State trap
   // If the user viewed the guest mockup, clicked login, and returned, the mocked state persists in memory.
   // This listener auto-triggers the genuine AI generation if it detects the mockup signature while authenticated.
