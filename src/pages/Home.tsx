@@ -868,7 +868,7 @@ export default function HomeDashboard() {
                <h3 className="text-[20px] font-serif tracking-tight text-white flex items-center gap-2">
                  <Flame className="text-amber-500 w-4 h-4" /> {t('home.title_hot_feeds', '인기 커피톡')}
                </h3>
-               <button onClick={() => navigate('/community', { state: { filter: 'hot_3m' } })} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '더보기')}</button>
+               <button onClick={() => navigate('/community', { state: { filter: 'all', forceScrollTop: true } })} className="text-[12px] text-espresso-400 font-medium">{t('home.btn_more', '더보기')}</button>
              </div>
              <div className="flex gap-3 overflow-x-auto px-4 pb-6 snap-x hide-scrollbar">
                 {(!personalizedData.hotCoffeeTalkFeeds || personalizedData.hotCoffeeTalkFeeds.length === 0) ? (

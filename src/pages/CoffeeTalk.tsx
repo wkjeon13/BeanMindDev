@@ -956,16 +956,11 @@ export default function CoffeeTalk() {
 
         // 딥링크가 아닌 경우 이전 스크롤 복원 대상 확보
         const targetId = window.location.hash ? window.location.hash.substring(1) : targetPostIdToScroll.current;
+        const forceScrollTop = location.state?.forceScrollTop;
+        
         if (!targetId) {
-            const savedScroll = localStorage.getItem(`coffeeTalkScrollTop_${activeFilter}`);
-            const savedScrollNum = savedScroll ? parseInt(savedScroll, 10) : 0;
-            if (savedScrollNum > 0) {
-                restoreScrollTop.current = savedScrollNum;
-                setIsScrollJumping(true); // 스크롤 복원 전까지 투명 마스킹
-            } else {
+            if (forceScrollTop) {
                 restoreScrollTop.current = null;
-                // 스크롤 복원 불필요: 오버레이가 켜진 상태에서 scrollTop=0 강제 설정
-                // (캐시 히트 시 setPosts([])를 거치지 않아 이전 필터의 scrollTop이 남아있을 수 있음)
                 const container = document.getElementById('coffee-feed-container');
                 if (container) {
                     container.style.scrollBehavior = 'auto';
@@ -973,6 +968,24 @@ export default function CoffeeTalk() {
                     container.style.scrollBehavior = '';
                 }
                 setIsScrollJumping(false);
+            } else {
+                const savedScroll = localStorage.getItem(`coffeeTalkScrollTop_${activeFilter}`);
+                const savedScrollNum = savedScroll ? parseInt(savedScroll, 10) : 0;
+                if (savedScrollNum > 0) {
+                    restoreScrollTop.current = savedScrollNum;
+                    setIsScrollJumping(true); // 스크롤 복원 전까지 투명 마스킹
+                } else {
+                    restoreScrollTop.current = null;
+                    // 스크롤 복원 불필요: 오버레이가 켜진 상태에서 scrollTop=0 강제 설정
+                    // (캐시 히트 시 setPosts([])를 거치지 않아 이전 필터의 scrollTop이 남아있을 수 있음)
+                    const container = document.getElementById('coffee-feed-container');
+                    if (container) {
+                        container.style.scrollBehavior = 'auto';
+                        container.scrollTop = 0;
+                        container.style.scrollBehavior = '';
+                    }
+                    setIsScrollJumping(false);
+                }
             }
         } else {
             restoreScrollTop.current = null;
