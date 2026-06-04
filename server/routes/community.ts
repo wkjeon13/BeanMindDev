@@ -631,14 +631,15 @@ router.post('/posts', authenticateToken, uploadLimiter, postUploadMiddleware, as
                 ...(pollData ? (() => {
                     try {
                         const parsed = typeof pollData === 'string' ? JSON.parse(pollData) : pollData;
+                        const duration = parsed.durationHours ? Number(parsed.durationHours) : 0;
+                        const expiresAt = duration > 0 && !isNaN(duration) ? new Date(Date.now() + duration * 60 * 60 * 1000) : null;
                         return {
                             poll: {
                                 create: {
                                     question: parsed.question,
-                                    expiresAt: parsed.durationHours ? new Date(Date.now() + parsed.durationHours * 60 * 60 * 1000) : null,
+                                    expiresAt,
                                     options: {
-                                        create: parsed.options.map((opt: string, idx: number) => ({
-                                            id: `pollopt-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 9)}`,
+                                        create: parsed.options.map((opt: string) => ({
                                             text: opt
                                         }))
                                     }
@@ -1340,14 +1341,15 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, postUploadMiddleware,
                 ...(req.body.pollData ? (() => {
                     try {
                         const parsed = typeof req.body.pollData === 'string' ? JSON.parse(req.body.pollData) : req.body.pollData;
+                        const duration = parsed.durationHours ? Number(parsed.durationHours) : 0;
+                        const expiresAt = duration > 0 && !isNaN(duration) ? new Date(Date.now() + duration * 60 * 60 * 1000) : null;
                         return {
                             poll: {
                                 create: {
                                     question: parsed.question,
-                                    expiresAt: parsed.durationHours ? new Date(Date.now() + parsed.durationHours * 60 * 60 * 1000) : null,
+                                    expiresAt,
                                     options: {
-                                        create: parsed.options.map((opt: string, idx: number) => ({
-                                            id: `pollopt-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 9)}`,
+                                        create: parsed.options.map((opt: string) => ({
                                             text: opt
                                         }))
                                     }
