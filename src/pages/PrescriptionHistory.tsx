@@ -176,7 +176,7 @@ export default function PrescriptionHistory() {
                                         >
                                             <div className="pt-4">
                                                 <div className="bg-espresso-950 p-4 rounded-xl text-espresso-100 text-[13px] leading-relaxed break-keep tracking-tight shadow-inner">
-                                                    <div className="prose prose-sm max-w-none prose-headings:font-serif prose-headings:text-espresso-50 prose-p:text-espresso-200 prose-p:font-medium prose-p:leading-relaxed prose-strong:text-espresso-50 prose-hr:border-espresso-700 prose-li:marker:text-espresso-300">
+                                                    <div className="prose prose-sm max-w-none prose-headings:font-serif prose-headings:text-white prose-p:text-white prose-p:font-medium prose-p:leading-relaxed prose-strong:text-white prose-hr:border-espresso-700 prose-li:marker:text-espresso-300 prose-li:text-white">
                                                         <ReactMarkdown
                                                             components={{
                                                                 strong: ({ node, ...props }) => <strong {...props} className="text-amber-600 font-bold bg-amber-500/10 px-1 py-0.5 rounded" />,
@@ -196,7 +196,7 @@ export default function PrescriptionHistory() {
                                                                 }
                                                             }}
                                                         >
-                                                            {p.aiComment}
+                                                            {p.aiComment ? p.aiComment.replace(/<!-- BEANDATA:[\s\S]*?-->/g, '').replace(/<!-- BEANDATA:[\s\S]*/g, '').trim() : ''}
                                                         </ReactMarkdown>
                                                     </div>
                                                 </div>
