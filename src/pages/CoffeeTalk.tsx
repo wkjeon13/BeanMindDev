@@ -280,7 +280,12 @@ export default function CoffeeTalk() {
         window.addEventListener('pagehide', clearTimers);
     };
     const savedLastFilter = (() => {
-        try { return localStorage.getItem('coffeeTalkLastActiveFilter') || 'all'; } catch { return 'all'; }
+        try { 
+            const filter = localStorage.getItem('coffeeTalkLastActiveFilter') || 'all';
+            return filter === 'hot_3m' ? 'all' : filter;
+        } catch { 
+            return 'all'; 
+        }
     })();
     const initialFilter = location.state?.filter || savedLastFilter;
     const [activeFilter, setActiveFilter] = useState(initialFilter);
@@ -941,7 +946,11 @@ export default function CoffeeTalk() {
 
         currentFilterRef.current = activeFilter;
         try {
-            localStorage.setItem('coffeeTalkLastActiveFilter', activeFilter);
+            if (activeFilter !== 'hot_3m') {
+                localStorage.setItem('coffeeTalkLastActiveFilter', activeFilter);
+            } else {
+                localStorage.setItem('coffeeTalkLastActiveFilter', 'all');
+            }
         } catch (e) {}
         const cacheKey = activeFilter + '_' + sortOption;
 
