@@ -4,6 +4,24 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { API_BASE } from '@/utils/apiConfig';
 
+const cleanContent = (content: string) => {
+    if (!content) return '';
+    return content.replace(/<!--BM_BGM:[\s\S]*?-->/g, '').trim();
+};
+
+const extractBgm = (content: string) => {
+    if (!content) return null;
+    const match = content.match(/<!--BM_BGM:([\s\S]*?)-->/);
+    if (match && match[1]) {
+        try {
+            return JSON.parse(match[1]);
+        } catch (e) {
+            return null;
+        }
+    }
+    return null;
+};
+
 export default function AdminModeration() {
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -268,7 +286,12 @@ export default function AdminModeration() {
                                                     작성자: {post.author?.nickname || '알수없음'} ({post.author?.email})
                                                 </div>
                                                 <div className="p-3 bg-espresso-950 rounded-lg text-sm text-amber-50 mb-4 whitespace-pre-wrap">
-                                                    {post.content || '(내용 없음 - 사진 게시물 등)'}
+                                                    {cleanContent(post.content) || '(내용 없음 - 사진 게시물 등)'}
+                                                    {extractBgm(post.content) && (
+                                                        <div className="mt-2 text-xs text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1.5 rounded-lg w-fit flex items-center gap-1.5 font-semibold">
+                                                            🎵 BGM: {extractBgm(post.content).title}
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <div className="flex justify-end">
                                                     <button 
@@ -446,7 +469,12 @@ export default function AdminModeration() {
                                                     삭제 관리자: {post.deletedBy || '시스템'} | 사유: {post.deleteReason || '없음'}
                                                 </div>
                                                 <div className="p-3 bg-espresso-950 rounded-lg text-sm text-amber-50 mb-4 whitespace-pre-wrap">
-                                                    {post.content || '(내용 없음 - 사진 게시물 등)'}
+                                                    {cleanContent(post.content) || '(내용 없음 - 사진 게시물 등)'}
+                                                    {extractBgm(post.content) && (
+                                                        <div className="mt-2 text-xs text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1.5 rounded-lg w-fit flex items-center gap-1.5 font-semibold">
+                                                            🎵 BGM: {extractBgm(post.content).title}
+                                                        </div>
+                                                    )}
                                                 </div>
                                                 <div className="flex justify-end">
                                                     <button 
@@ -482,7 +510,7 @@ export default function AdminModeration() {
                                                     삭제 관리자: {comment.deletedBy || '시스템'} | 사유: {comment.deleteReason || '없음'}
                                                 </div>
                                                 <div className="p-3 bg-espresso-950 rounded-lg text-sm text-amber-50 mb-4 whitespace-pre-wrap">
-                                                    {comment.content}
+                                                    {cleanContent(comment.content)}
                                                 </div>
                                                 <div className="flex justify-end">
                                                     <button 
