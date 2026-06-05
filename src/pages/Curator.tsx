@@ -1046,6 +1046,12 @@ export default function App() {
                          isLoggedIn={!!isLoggedIn}
                          isSaving={isSaving}
                          onSave={handleSavePrescription}
+                         userTasteProfile={prefs ? {
+                             acidity: prefs.tasteAcidity,
+                             sweetness: prefs.tasteSweetness,
+                             bitterness: prefs.tasteBitterness,
+                             body: prefs.tasteBody
+                         } : null}
                          onShare={async () => {
                              if (!prescriptionId) {
                                  if (isLoggedIn) {

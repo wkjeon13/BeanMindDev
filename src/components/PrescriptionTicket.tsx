@@ -20,6 +20,7 @@ interface PrescriptionTicketProps {
     onGoToLogin?: () => void;
     onDelete?: () => void;
     isDeleting?: boolean;
+    userTasteProfile?: { acidity: number; sweetness: number; bitterness: number; body: number; } | null;
 }
 
 export default function PrescriptionTicket({
@@ -37,7 +38,8 @@ export default function PrescriptionTicket({
     onShareCoffeeTalk,
     onGoToLogin,
     onDelete,
-    isDeleting = false
+    isDeleting = false,
+    userTasteProfile
 }: PrescriptionTicketProps) {
     const { t } = useTranslation();
     const displayDate = date || new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
@@ -57,6 +59,30 @@ export default function PrescriptionTicket({
         }
         return aiExplanation;
     }, [aiExplanation, hideSave, recommendation.bean.name]);
+
+    const parsedPrefs = useMemo(() => {
+        if (userTasteProfile) return userTasteProfile;
+        try {
+            const match = aiExplanation?.match(/<!-- PREFDATA: (.*?) -->/);
+            if (match) {
+                const parsed = JSON.parse(match[1]);
+                return {
+                    acidity: parsed.tasteAcidity,
+                    sweetness: parsed.tasteSweetness,
+                    bitterness: parsed.tasteBitterness,
+                    body: parsed.tasteBody
+                };
+            }
+        } catch (e) {
+            console.warn("Failed to parse embedded pref data:", e);
+        }
+        return null;
+    }, [userTasteProfile, aiExplanation]);
+
+    const displayAcidity = parsedPrefs ? parsedPrefs.acidity : recommendation.bean.acidity;
+    const displaySweetness = parsedPrefs ? parsedPrefs.sweetness : recommendation.bean.sweetness;
+    const displayBitterness = parsedPrefs ? parsedPrefs.bitterness : recommendation.bean.bitterness;
+    const displayBody = parsedPrefs ? parsedPrefs.body : recommendation.bean.body;
 
     return (
         <div className="w-full relative">
@@ -98,24 +124,22 @@ export default function PrescriptionTicket({
 
                         {/* Badges */}
                         <div className="flex flex-wrap gap-2 mb-8">
-                            <span className="bg-coffee-900 px-3 py-1.5 rounded-lg text-sm font-bold border border-coffee-700 text-coffee-200">
+                            <div className="px-4 py-2 bg-coffee-900/60 rounded-xl border border-coffee-800/80 text-[13px] font-bold text-coffee-200 shadow-inner">
                                 {recommendation.bean.roastLevel} Roast
-                            </span>
-                            {recommendation.bean.origin && (
-                                <span className="bg-coffee-900 px-3 py-1.5 rounded-lg text-sm font-bold border border-coffee-700 text-coffee-200">
-                                    {recommendation.bean.origin}
-                                </span>
-                            )}
+                            </div>
+                            <div className="px-4 py-2 bg-coffee-900/60 rounded-xl border border-coffee-800/80 text-[13px] font-bold text-coffee-200 shadow-inner">
+                                {recommendation.bean.origin}
+                            </div>
                         </div>
 
                         {/* Taste Profile (Minimalist Bars) */}
                         <div className="space-y-4 mb-10 bg-coffee-900/40 p-5 rounded-2xl border border-coffee-800/50">
                             <h3 className="text-[13px] font-bold text-espresso-300 uppercase tracking-[0.2em] mb-5">Taste Profile</h3>
                             {[ 
-                                { label: t('curator.t_acidity_title', 'Acidity'), val: recommendation.bean.acidity, color: 'bg-amber-400' },
-                                { label: t('curator.t_sweetness_title', 'Sweetness'), val: recommendation.bean.sweetness, color: 'bg-rose-400' },
-                                { label: t('curator.t_bitterness_title', 'Bitterness'), val: recommendation.bean.bitterness, color: 'bg-coffee-400' },
-                                { label: t('curator.t_body_title', 'Body'), val: recommendation.bean.body, color: 'bg-amber-600' }
+                                { label: t('curator.t_acidity_title', 'Acidity'), val: displayAcidity, color: 'bg-amber-400' },
+                                { label: t('curator.t_sweetness_title', 'Sweetness'), val: displaySweetness, color: 'bg-rose-400' },
+                                { label: t('curator.t_bitterness_title', 'Bitterness'), val: displayBitterness, color: 'bg-coffee-400' },
+                                { label: t('curator.t_body_title', 'Body'), val: displayBody, color: 'bg-amber-600' }
                             ].map(t => (
                                 <div key={t.label} className="flex items-center gap-4">
                                     <span className="w-20 text-[14px] font-bold text-coffee-300">{t.label}</span>

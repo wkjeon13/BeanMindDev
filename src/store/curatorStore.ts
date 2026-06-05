@@ -3,6 +3,7 @@ import { UserPreferences, CoffeeBean, Brand } from '../types';
 import { COFFEE_BEANS, BRANDS } from '../data/coffeeData';
 import { API_BASE } from '../utils/apiConfig';
 import { Geolocation } from '@capacitor/geolocation';
+import { clearHomeCache } from '../pages/Home';
 
 export const getUserId = () => {
   try {
@@ -27,6 +28,78 @@ const saveLocal = (baseKey: string, value: any) => {
     try {
         localStorage.setItem(`${baseKey}_${getUserId()}`, JSON.stringify(value));
     } catch {}
+}
+
+function findBestLocalBeans(prefs: any) {
+  const targetAcidity = prefs.tasteAcidity ?? 3;
+  const targetSweetness = prefs.tasteSweetness ?? 3;
+  const targetBitterness = prefs.tasteBitterness ?? 3;
+  const targetBody = prefs.tasteBody ?? 3;
+
+  const scoredBeans = COFFEE_BEANS.map(bean => {
+    const dAcidity = bean.acidity - targetAcidity;
+    const dSweetness = bean.sweetness - targetSweetness;
+    const dBitterness = bean.bitterness - targetBitterness;
+    const dBody = bean.body - targetBody;
+    const distance = dAcidity*dAcidity + dSweetness*dSweetness + dBitterness*dBitterness + dBody*dBody;
+    return { bean, distance };
+  });
+
+  scoredBeans.sort((a, b) => a.distance - b.distance);
+
+  const bestBean = scoredBeans[0].bean;
+  const secondBean = scoredBeans[1].bean;
+
+  const bestBrand = BRANDS.find(b => b.beans.includes(bestBean.id)) || BRANDS[0];
+  const secondBrand = BRANDS.find(b => b.beans.includes(secondBean.id)) || BRANDS[1];
+
+  return {
+    matchRec: { bean: bestBean, brand: bestBrand },
+    subRecs: [
+      { bean: secondBean, brand: secondBrand },
+      { bean: scoredBeans[2]?.bean || COFFEE_BEANS[2], brand: BRANDS.find(b => b.beans.includes(scoredBeans[2]?.bean?.id)) || BRANDS[2] }
+    ]
+  };
+}
+
+function generateLocalEssay(bean: CoffeeBean, brand: Brand, prefs: any, language: string) {
+  const isEnglish = language.startsWith('en');
+  
+  if (isEnglish) {
+    return `### 🌸 A Moment of Clarity with ${bean.name}
+
+**1. Perfectly Tuned Flavors**
+This selection features an acidity level of ${bean.acidity}/5 and sweetness of ${bean.sweetness}/5, designed specifically to match your preference for a ${prefs.caffeine} ${prefs.base} brew during this ${prefs.timeOfDay} time under ${prefs.weather} weather.
+
+**2. Premium Craftsmanship**
+Roasted by **${brand.name}**, the ${bean.roastLevel} roast level provides a body of ${bean.body}/5, creating a balanced and comforting sensation that perfectly suits your ${prefs.condition} mood.
+
+---
+
+### 🥐 Recommended Dessert Pairing
+We highly recommend pairing this with a fresh **${bean.foodPairing?.[0]?.name || 'Butter Croissant'}**. ${bean.foodPairing?.[0]?.description || 'The light, flaky texture balances the coffee profile beautifully.'}
+
+### 🎵 Recommended Music Playlist
+While savoring the coffee, we recommend tuning in to some soft **${prefs.musicGenre === 'Any' ? 'Acoustic Pop' : prefs.musicGenre}** music. Let the gentle melodies blend seamlessly with the warm aroma of the coffee and the current ${prefs.weather} weather.`;
+  } else {
+    return `어느덧 하루의 끝자락, ${prefs.weather} 날씨 속에서 당신의 지친 마음을 어루만져줄 특별한 한 잔을 준비했습니다.
+
+### 🌸 ${bean.name}, 당신을 위한 완벽한 선택인 이유
+
+**1. 맞춤형 향미 밸런스**
+산미 ${bean.acidity}/5와 단맛 ${bean.sweetness}/5의 정교한 프로파일은 현재 ${prefs.timeOfDay}에 즐기기에 이상적이며, 사용자가 선호하는 ${prefs.base} 스타일의 매력을 극대화해 줍니다.
+
+**2. 숙련된 로스팅의 깊이**
+**${brand.name}**에서 세심히 다듬은 ${bean.roastLevel} 로스팅은 바디감 ${bean.body}/5를 선사하여, 지금의 ${prefs.condition} 기분과 차분하게 녹아드는 편안함을 안겨줍니다.
+
+---
+
+### 🥐 추천 디저트 페어링
+이 커피와 가장 잘 어울리는 디저트로 달콤하고 고소한 **${bean.foodPairing?.[0]?.name || '버터 크로와상'}**을 추천합니다. ${bean.foodPairing?.[0]?.description || '바삭하고 고소한 식감이 원두 고유의 산미와 밸런스를 조화롭게 이루어 줍니다.'}
+
+### 🎵 추천 음악 플레이리스트
+따뜻한 커피를 음미하는 동안, 사용자의 음악 취향(${prefs.musicGenre === 'Any' ? '인디 음악' : prefs.musicGenre})에 맞춰 선별한 편안한 플레이리스트를 들어보세요. 부드러운 음악의 선율이 ${prefs.weather} 날씨의 감성을 한층 더 풍요롭게 채워줄 것입니다.`;
+  }
 }
 
 function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -304,9 +377,9 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
           ];
       } catch (err) {
           console.error("AI Recommendation API Error, falling back to heuristic:", err);
-          // Fallback to the first local bean if API fails
-          matchRec = { bean: COFFEE_BEANS[0], brand: BRANDS[0] };
-          subRecs = [{ bean: COFFEE_BEANS[1], brand: BRANDS[1] }];
+          const fallbackMatch = findBestLocalBeans(state.prefs);
+          matchRec = fallbackMatch.matchRec;
+          subRecs = fallbackMatch.subRecs;
       }
       
       const bestBean = matchRec.bean;
@@ -358,8 +431,6 @@ Environment: ${state.prefs.season} season, ${state.prefs.timeOfDay} time, feelin
 Preferences: ${JSON.stringify(state.prefs)}
 Randomization Seed: ${Math.random() * Date.now()}`;
 
-      const USE_OPENAI = false;   
-      
       measure(`7. Gemini 스트리밍 재생 기동`);
       
       let fullText = "☕ 특별한 커피 에세이를 작성하는 중입니다...";
@@ -404,13 +475,27 @@ Randomization Seed: ${Math.random() * Date.now()}`;
              }
           }
       } catch (err) {
-          set({ aiExplanation: "에세이 작성 중 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요." });
+          console.warn("Gemini stream error, falling back to local essay:", err);
+          const localEssay = generateLocalEssay(bestBean, bestBrand, state.prefs, language);
+          set({ aiExplanation: localEssay });
+      }
+      
+      // 최종 검증: 에세이가 없거나 로딩 문구 상태로 멈춘 경우
+      if (!get().aiExplanation || get().aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다...") {
+          const localEssay = generateLocalEssay(bestBean, bestBrand, state.prefs, language);
+          set({ aiExplanation: localEssay });
       }
       
       measure(`8-2. 타자 애니메이션 완료`);
 
       // Inject the generated bean metadata silently
-      const encodedData = `\n\n<!-- BEANDATA: ${JSON.stringify(bestBean)} -->`;
+      const prefData = {
+          tasteAcidity: state.prefs.tasteAcidity,
+          tasteSweetness: state.prefs.tasteSweetness,
+          tasteBitterness: state.prefs.tasteBitterness,
+          tasteBody: state.prefs.tasteBody
+      };
+      const encodedData = `\n\n<!-- BEANDATA: ${JSON.stringify(bestBean)} -->\n<!-- PREFDATA: ${JSON.stringify(prefData)} -->`;
       set({ aiExplanation: get().aiExplanation + encodedData });
 
       const finalState = get();
@@ -426,14 +511,26 @@ Randomization Seed: ${Math.random() * Date.now()}`;
       }));
     } catch (error: any) {
       console.error("AI Error:", error);
+      const fallbackMatch = findBestLocalBeans(state.prefs);
+      const localEssay = generateLocalEssay(fallbackMatch.matchRec.bean, fallbackMatch.matchRec.brand, state.prefs, language);
+      const prefData = {
+          tasteAcidity: state.prefs.tasteAcidity,
+          tasteSweetness: state.prefs.tasteSweetness,
+          tasteBitterness: state.prefs.tasteBitterness,
+          tasteBody: state.prefs.tasteBody
+      };
+      const encodedData = `\n\n<!-- BEANDATA: ${JSON.stringify(fallbackMatch.matchRec.bean)} -->\n<!-- PREFDATA: ${JSON.stringify(prefData)} -->`;
+      const finalEssay = localEssay + encodedData;
       set({
          isLoading: false,
          isMapLoading: false,
-         recommendation: { bean: COFFEE_BEANS[0], brand: BRANDS[0] },
-         aiExplanation: `고객님의 취향과 현재 상황을 분석하여 가장 잘 어울리는 원두를 선정했습니다.\n\n*(Error info: ${error.message})*`
+         recommendation: fallbackMatch.matchRec,
+         subRecommendations: fallbackMatch.subRecs,
+         aiExplanation: finalEssay
       });
-      saveLocal('coffee_rec', { bean: COFFEE_BEANS[0], brand: BRANDS[0] });
-      saveLocal('coffee_exp', `고객님의 취향과 현재 상황을 분석하여 가장 잘 어울리는 원두를 선정했습니다.\n\n*(Error info: ${error.message})*`);
+      saveLocal('coffee_rec', fallbackMatch.matchRec);
+      saveLocal('coffee_sub_rec', fallbackMatch.subRecs);
+      saveLocal('coffee_exp', finalEssay);
     }
 
     try {

@@ -536,6 +536,12 @@ router.post('/stream-curation', optionalAuthenticateToken, async (req: any, res:
             body: JSON.stringify(req.body)
         });
 
+        if (!fetchRes.ok) {
+            const errText = await fetchRes.text();
+            console.error("Gemini stream API error:", errText);
+            return res.status(fetchRes.status).json({ error: "Gemini stream error", details: errText });
+        }
+
         res.writeHead(200, {
             'Content-Type': 'text/event-stream',
             'Cache-Control': 'no-cache',
