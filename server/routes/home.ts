@@ -458,7 +458,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             const aScore = (a._count?.likes || 0) + (a._count?.comments || 0);
             const bScore = (b._count?.likes || 0) + (b._count?.comments || 0);
             return bScore - aScore;
-        }).slice(0, 4);
+        }).slice(0, 8);
         
         // 6b. Newest Coffee Talk Feeds
         let newestCoffeeTalkFeeds = await (prisma as any).post.findMany({
