@@ -191,7 +191,7 @@ export default function PrescriptionTicket({
                                             }
                                         }}
                                     >
-                                        {displayExplanation ? displayExplanation.replace(/<!-- BEANDATA:[\s\S]*?-->/g, '').replace(/<!-- BEANDATA:[\s\S]*/g, '').trim() : ''}
+                                        {displayExplanation ? displayExplanation.replace(/<!-- BEANDATA:[\s\S]*?-->/g, '').replace(/<!-- PREFDATA:[\s\S]*?-->/g, '').replace(/<!-- BEANDATA:[\s\S]*/g, '').replace(/<!-- PREFDATA:[\s\S]*/g, '').trim() : ''}
                                     </ReactMarkdown>
                                 )}
                             </div>

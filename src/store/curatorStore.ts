@@ -62,8 +62,52 @@ function findBestLocalBeans(prefs: any) {
   };
 }
 
+function getRecommendedSongs(genre: string) {
+  const songs: Record<string, { kr: string; en: string }> = {
+    'K-pop': {
+      kr: `- **국내 추천**: [아이유 - 밤편지](https://music.youtube.com/search?q=아이유+밤편지)\n- **해외 추천**: [NewJeans - Ditto](https://music.youtube.com/search?q=NewJeans+Ditto)`,
+      en: `- **Korean**: [IU - Through the Night](https://music.youtube.com/search?q=IU+Through+the+Night)\n- **Global**: [NewJeans - Ditto](https://music.youtube.com/search?q=NewJeans+Ditto)`
+    },
+    'Jazz': {
+      kr: `- **국내 추천**: [윤석철 트리오 - 즐겁게, 음악.](https://music.youtube.com/search?q=윤석철+트리오+즐겁게+음악)\n- **해외 추천**: [Bill Evans - My Foolish Heart](https://music.youtube.com/search?q=Bill+Evans+My+Foolish+Heart)`,
+      en: `- **Korean**: [Yun Seok Cheol Trio - Merry-Go-Round](https://music.youtube.com/search?q=Yun+Seok+Cheol+Trio+Merry-Go-Round)\n- **Global**: [Bill Evans - My Foolish Heart](https://music.youtube.com/search?q=Bill+Evans+My+Foolish+Heart)`
+    },
+    'Pop': {
+      kr: `- **국내 추천**: [백예린 - Square (2017)](https://music.youtube.com/search?q=백예린+Square)\n- **해외 추천**: [Lauv - Paris in the Rain](https://music.youtube.com/search?q=Lauv+Paris+in+the+Rain)`,
+      en: `- **Korean**: [Yerin Baek - Square (2017)](https://music.youtube.com/search?q=Yerin+Baek+Square)\n- **Global**: [Lauv - Paris in the Rain](https://music.youtube.com/search?q=Lauv+Paris+in+the+Rain)`
+    },
+    'R&B': {
+      kr: `- **국내 추천**: [딘(DEAN) - D (Half Moon)](https://music.youtube.com/search?q=DEAN+D+Half+Moon)\n- **해외 추천**: [H.E.R. - Best Part](https://music.youtube.com/search?q=H.E.R.+Best+Part)`,
+      en: `- **Korean**: [DEAN - D (Half Moon)](https://music.youtube.com/search?q=DEAN+D+Half+Moon)\n- **Global**: [H.E.R. - Best Part](https://music.youtube.com/search?q=H.E.R.+Best+Part)`
+    },
+    'Classical': {
+      kr: `- **국내 추천**: [임윤찬 - Liszt: Transcendental Études](https://music.youtube.com/search?q=Lim+Yunchan+Liszt)\n- **해외 추천**: [Chopin - Nocturne No. 2](https://music.youtube.com/search?q=Chopin+Nocturne+No.2)`,
+      en: `- **Korean**: [Yunchan Lim - Liszt: Transcendental Études](https://music.youtube.com/search?q=Lim+Yunchan+Liszt)\n- **Global**: [Chopin - Nocturne No. 2](https://music.youtube.com/search?q=Chopin+Nocturne+No.2)`
+    },
+    'Rock': {
+      kr: `- **국내 추천**: [넬(NELL) - 기억을 걷는 시간](https://music.youtube.com/search?q=NELL+기억을+걷는+시간)\n- **해외 추천**: [Coldplay - Yellow](https://music.youtube.com/search?q=Coldplay+Yellow)`,
+      en: `- **Korean**: [NELL - Time Walking on Memory](https://music.youtube.com/search?q=NELL+Time+Walking+on+Memory)\n- **Global**: [Coldplay - Yellow](https://music.youtube.com/search?q=Coldplay+Yellow)`
+    },
+    'Hip Hop': {
+      kr: `- **국내 추천**: [빈지노 - 여행 Next 30](https://music.youtube.com/search?q=빈지노+여행)\n- **해외 추천**: [Loyle Carner - Ottolenghi](https://music.youtube.com/search?q=Loyle+Carner+Ottolenghi)`,
+      en: `- **Korean**: [Beenzino - Travel](https://music.youtube.com/search?q=Beenzino+Travel)\n- **Global**: [Loyle Carner - Ottolenghi](https://music.youtube.com/search?q=Loyle+Carner+Ottolenghi)`
+    },
+    'EDM': {
+      kr: `- **국내 추천**: [SHAUN - Way Back Home](https://music.youtube.com/search?q=SHAUN+Way+Back+Home)\n- **해외 추천**: [Avicii - Wake Me Up](https://music.youtube.com/search?q=Avicii+Wake+Me+Up)`,
+      en: `- **Korean**: [SHAUN - Way Back Home](https://music.youtube.com/search?q=SHAUN+Way+Back+Home)\n- **Global**: [Avicii - Wake Me Up](https://music.youtube.com/search?q=Avicii+Wake+Me+Up)`
+    },
+    'Any': {
+      kr: `- **국내 추천**: [김동률 - 출발](https://music.youtube.com/search?q=김동률+출발)\n- **해외 추천**: [Norah Jones - Don't Know Why](https://music.youtube.com/search?q=Norah+Jones+Don't+Know+Why)`,
+      en: `- **Korean**: [Kim Dong Ryul - Departure](https://music.youtube.com/search?q=Kim+Dong+Ryul+Departure)\n- **Global**: [Norah Jones - Don't Know Why](https://music.youtube.com/search?q=Norah+Jones+Don't+Know+Why)`
+    }
+  };
+  return songs[genre] || songs['Any'];
+}
+
 function generateLocalEssay(bean: CoffeeBean, brand: Brand, prefs: any, language: string) {
   const isEnglish = language.startsWith('en');
+  const userGenre = prefs.music || prefs.musicGenre || 'Any';
+  const recSongs = getRecommendedSongs(userGenre);
   
   if (isEnglish) {
     return `### 🌸 A Moment of Clarity with ${bean.name}
@@ -80,7 +124,10 @@ Roasted by **${brand.name}**, the ${bean.roastLevel} roast level provides a body
 We highly recommend pairing this with a fresh **${bean.foodPairing?.[0]?.name || 'Butter Croissant'}**. ${bean.foodPairing?.[0]?.description || 'The light, flaky texture balances the coffee profile beautifully.'}
 
 ### 🎵 Recommended Music Playlist
-While savoring the coffee, we recommend tuning in to some soft **${prefs.musicGenre === 'Any' ? 'Acoustic Pop' : prefs.musicGenre}** music. Let the gentle melodies blend seamlessly with the warm aroma of the coffee and the current ${prefs.weather} weather.`;
+While savoring the coffee, we recommend tuning in to these tracks matching your music taste (**${userGenre}**):
+${recSongs.en}
+
+Let the gentle melodies blend seamlessly with the warm aroma of the coffee and the current ${prefs.weather} weather.`;
   } else {
     return `어느덧 하루의 끝자락, ${prefs.weather} 날씨 속에서 당신의 지친 마음을 어루만져줄 특별한 한 잔을 준비했습니다.
 
@@ -98,7 +145,10 @@ While savoring the coffee, we recommend tuning in to some soft **${prefs.musicGe
 이 커피와 가장 잘 어울리는 디저트로 달콤하고 고소한 **${bean.foodPairing?.[0]?.name || '버터 크로와상'}**을 추천합니다. ${bean.foodPairing?.[0]?.description || '바삭하고 고소한 식감이 원두 고유의 산미와 밸런스를 조화롭게 이루어 줍니다.'}
 
 ### 🎵 추천 음악 플레이리스트
-따뜻한 커피를 음미하는 동안, 사용자의 음악 취향(${prefs.musicGenre === 'Any' ? '인디 음악' : prefs.musicGenre})에 맞춰 선별한 편안한 플레이리스트를 들어보세요. 부드러운 음악의 선율이 ${prefs.weather} 날씨의 감성을 한층 더 풍요롭게 채워줄 것입니다.`;
+따뜻한 커피를 음미하는 동안, 선택하신 음악 취향(**${userGenre === 'Any' ? '인디 음악' : userGenre}**)에 맞춰 선별한 아래 플레이리스트를 들어보세요. 
+${recSongs.kr}
+
+부드러운 음악의 선율이 ${prefs.weather} 날씨의 감성을 한층 더 풍요롭게 채워줄 것입니다.`;
   }
 }
 
@@ -418,7 +468,7 @@ You MUST write exactly in this format structure with these EXACT headers:
 [CRITICAL: You MUST wrap the specific dessert name in bold markdown (**Dessert Name**) so it can be highlighted in the UI.]
 
 ### 🎵 ${targetLanguage === 'English' ? 'Recommended Music Playlist' : '추천 음악 플레이리스트'}
-[Suggest at least one domestic song (from ${countryName}) and at least one international/foreign song. If the user selected a specific music genre ("${state.prefs.musicGenre}"), you MUST heavily prioritize that genre. If it is "Any", choose whatever fits best.]
+[Suggest at least one domestic song (from ${countryName}) and at least one international/foreign song. If the user selected a specific music genre ("${state.prefs.music || state.prefs.musicGenre || 'Any'}"), you MUST heavily prioritize that genre. If it is "Any", choose whatever fits best.]
 [CRITICAL: Ensure you highly prioritize the Nostalgia element (User age: ${userAgeGroup}, gender: ${userGender}).]
 [CRITICAL: Use the Randomization Seed below to avoid cliché tracks. Relevancy to weather(${state.prefs.weather}) and mood(${state.prefs.condition}) is paramount.]
 [CRITICAL: DO NOT use simple bullet point lists for the songs. Instead, weave the recommended song titles seamlessly into an emotional, poetic paragraph describing how the music blends with the coffee and current weather. You MUST format the embedded song names as YouTube Music markdown hyperlinks. Example format: "창밖으로 내리는 빗소리를 들으며, [Neil Young - Harvest Moon](https://music.youtube.com/search?q=Neil+Young+Harvest+Moon)의 아련한 선율이 따스한 커피 향과 어울립니다..."]
