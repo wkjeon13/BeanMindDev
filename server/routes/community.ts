@@ -172,8 +172,8 @@ router.get('/hotspots', async (req, res) => {
 // GET: Fetch Posts (Feed)
 router.get('/posts', async (req, res) => {
     try {
-        const { storeId, filter, countryCode, sort } = req.query;
-        console.log(`[DEBUG] GET /posts sort=${sort} filter=${filter}`);
+        const { storeId, filter, countryCode, sort, limit, skip } = req.query;
+        console.log(`[DEBUG] GET /posts sort=${sort} filter=${filter} limit=${limit} skip=${skip}`);
         let whereClause: any = { isHidden: false, isSystemPopup: false, isDeleted: false };
 
         if (countryCode && countryCode !== 'GLOBAL') {
@@ -283,7 +283,8 @@ router.get('/posts', async (req, res) => {
             whereClause.isShorts = false;
         }
 
-        let takeCount = 30; // Optimized from 50
+        let takeCount = limit ? parseInt(limit as string) : 30;
+        const skipCount = skip ? parseInt(skip as string) : 0;
         if (filter === 'hot_3m' || filter === 'hot_today' || sort === 'popular') {
             takeCount = 100; // Fetch more to sort by reactions in memory
         }
@@ -301,6 +302,7 @@ router.get('/posts', async (req, res) => {
             where: whereClause,
             orderBy: orderByClause,
             take: takeCount,
+            skip: skipCount,
             include: {
                 author: { select: {
                         id: true,

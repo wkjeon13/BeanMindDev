@@ -53,7 +53,7 @@ interface Post {
     equipmentTag?: string;
     earnedBeans: number;
     storeOwnerId?: string;
-    tastingNote?: { acidity: number; sweetness: number; body: number; bitterness?: number; aroma?: number };
+    tastingNote?: { acidity: number; sweetness: number; body: number; bitterness?: number; aroma?: number; flavorTags?: string | null };
     taggedBean?: string;
     recipeData?: any;
     storeId?: string;
@@ -353,6 +353,8 @@ export default function CoffeeTalk() {
 
     const [posts, setPosts] = useState<Post[]>(globalFeedCache[initialCacheKey]?.posts || []);
     const [isLoading, setIsLoading] = useState(!globalFeedCache[initialCacheKey]?.posts);
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
 
 
     // New Post Modal State
@@ -644,11 +646,19 @@ export default function CoffeeTalk() {
         }
     }, [location]);
 
-    const fetchPosts = async (silent = false) => {
+    const fetchPosts = async (isRefresh = false, silent = false) => {
         try {
-            if (!silent) setIsLoading(true);
+            if (isRefresh) {
+                if (!silent) setIsLoading(true);
+                setHasMore(true);
+            } else {
+                setIsLoadingMore(true);
+            }
+
             const filterToFetch = activeFilter || 'all';
-            const url = `${API_BASE}/api/community/posts?filter=${filterToFetch}&sort=${sortOption}&countryCode=${getDeviceCountryCode()}&_t=${Date.now()}`;
+            const limit = 20;
+            const skip = isRefresh ? 0 : posts.length;
+            const url = `${API_BASE}/api/community/posts?filter=${filterToFetch}&sort=${sortOption}&countryCode=${getDeviceCountryCode()}&limit=${limit}&skip=${skip}&_t=${Date.now()}`;
             const token = localStorage.getItem('token');
             const headers: any = {};
             if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -697,6 +707,7 @@ export default function CoffeeTalk() {
                         likes: d._count?.likes || 0,
                         comments: d._count?.comments || 0,
                         commentImages: d.comments || [],
+                        shareCount: d.shareCount || 0,
                         timeAgo: formatRelativeTime(d.createdAt),
                         isPinned: d.isPinned,
                         earnedBeans: d.earnedBeans || 0,
@@ -720,11 +731,15 @@ export default function CoffeeTalk() {
                     };
                 });
 
+                if (data.length < limit) {
+                    setHasMore(false);
+                } else {
+                    setHasMore(true);
+                }
+
                 // Fetch the targeted active post if it's missing from the feed (e.g., old hot post)
-                // location.state?.activePost는 window.history.replaceState 이후에도 React Router가 유지하므로
-                // 필터 전환 시 stale 값으로 일반 포스트가 잘못 주입되는 버그 방지 → ref만 사용
                 const activePostId = targetPostIdToScroll.current;
-                if (activePostId && !mappedPosts.some(p => p.id === activePostId)) {
+                if (isRefresh && activePostId && !mappedPosts.some(p => p.id === activePostId)) {
                     try {
                         const singleRes = await fetch(`${API_BASE}/api/community/posts/${activePostId}`, { headers });
                         if (singleRes.ok) {
@@ -753,6 +768,7 @@ export default function CoffeeTalk() {
                                 likes: d._count?.likes || 0,
                                 comments: d._count?.comments || 0,
                                 commentImages: d.comments || [],
+                                shareCount: d.shareCount || 0,
                                 timeAgo: formatRelativeTime(d.createdAt),
                                 isPinned: d.isPinned,
                                 earnedBeans: d.earnedBeans || 0,
@@ -794,20 +810,30 @@ export default function CoffeeTalk() {
                 if (filterToFetch === currentFilterRef.current) {
                     setIsLiked(prev => ({ ...prev, ...initialLikes }));
                     setIsBookmarked(prev => ({ ...prev, ...initialBookmarks }));
-                    setPosts(mappedPosts);
+                    if (isRefresh) {
+                        setPosts(mappedPosts);
+                    } else {
+                        setPosts(prev => [...prev, ...mappedPosts]);
+                    }
                 }
 
-                const cacheKey = filterToFetch + '_' + sortOption;
-                globalFeedCache[cacheKey] = {
-                    posts: mappedPosts,
-                    likes: initialLikes,
-                    bookmarks: initialBookmarks
-                };
+                if (isRefresh) {
+                    const cacheKey = filterToFetch + '_' + sortOption;
+                    globalFeedCache[cacheKey] = {
+                        posts: mappedPosts,
+                        likes: initialLikes,
+                        bookmarks: initialBookmarks
+                    };
+                }
             }
         } catch (e) {
             console.error("Failed to fetch posts", e);
         } finally {
-            if (!silent) setIsLoading(false);
+            if (isRefresh) {
+                if (!silent) setIsLoading(false);
+            } else {
+                setIsLoadingMore(false);
+            }
         }
     };
 
@@ -1029,12 +1055,13 @@ export default function CoffeeTalk() {
             setIsLiked(globalFeedCache[cacheKey].likes);
             setIsBookmarked(globalFeedCache[cacheKey].bookmarks);
             setIsLoading(false); // MUST clear spinner immediately
-            fetchPosts(true); // Silent background sync
+            setHasMore(true);
+            fetchPosts(true, true); // Silent background sync
         } else {
             setIsLoading(true); // Initial load with spinner
             // Clear posts to prevent flickering old posts while waiting for the target post
             setPosts([]); // Always clear posts when switching filters/sorts to show loading spinner
-            fetchPosts(false);
+            fetchPosts(true, false);
         }
     }, [activeFilter, sortOption]);
 
@@ -1097,6 +1124,26 @@ export default function CoffeeTalk() {
             return () => clearTimeout(timer);
         }
     }, [activeFilter, currentUser]);
+
+    React.useEffect(() => {
+        const container = document.getElementById('coffee-feed-container');
+        if (!container) return;
+
+        const handleScrollLoadMore = () => {
+            if (activeFilter === 'shorts' || activeFilter === 'near_live') return;
+            if (isLoading || isLoadingMore || !hasMore) return;
+
+            const { scrollTop, scrollHeight, clientHeight } = container;
+            if (scrollHeight - scrollTop - clientHeight < 300) {
+                fetchPosts(false, true); // fetch next page silently
+            }
+        };
+
+        container.addEventListener('scroll', handleScrollLoadMore);
+        return () => {
+            container.removeEventListener('scroll', handleScrollLoadMore);
+        };
+    }, [posts.length, activeFilter, isLoading, isLoadingMore, hasMore, sortOption]);
 
     React.useEffect(() => {
         const targetId = window.location.hash ? window.location.hash.substring(1) : targetPostIdToScroll.current;
@@ -1404,7 +1451,7 @@ export default function CoffeeTalk() {
                 alert(t('coffee_talk.alert_reward_ok', '{{name}}님에게 커피콩 선물을 완료했습니다! ☕🎁', { name: selectedRewardTarget.name }));
                 setShowRewardModal(false);
                 setSelectedRewardTarget(null);
-                fetchPosts(true); // Refresh feed silently to update earned beans without losing scroll position
+                fetchPosts(true, true); // Refresh feed silently to update earned beans without losing scroll position
             } else {
                 const errData = await res.json();
                 let errMsg = errData.error || '선물에 실패했습니다.';
@@ -1576,16 +1623,16 @@ export default function CoffeeTalk() {
                 setComposeMode('GENERAL');
 
                 // Re-fetch posts smoothly to stay on the current tab
-                fetchPosts();
+                fetchPosts(true, false);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
                 let errText = await res.text();
                 try {
                     const errJson = JSON.parse(errText);
                     if (errJson.errorCode) {
-                        errText = t(`api_error.${errJson.errorCode}`, errJson.error || errText);
+                        errText = t(`api_error.${errJson.errorCode}`, errJson.error || errText) as string;
                     } else if (errJson.error) {
-                        errText = t(`api_error.${errJson.error}`, errJson.error); // Fallback for raw string matching
+                        errText = t(`api_error.${errJson.error}`, errJson.error) as string; // Fallback for raw string matching
                         if (errText === `api_error.${errJson.error}`) errText = errJson.error; // If no translation, use raw string
                     }
                 } catch (e) {
@@ -3069,6 +3116,16 @@ export default function CoffeeTalk() {
                             </React.Fragment>
                         );
                     })}
+                    {isLoadingMore && (
+                        <div className="flex justify-center items-center py-6 text-espresso-300">
+                            <span className="text-[12px] font-semibold animate-pulse">{t('coffee_talk.loading_more_posts', '추가 피드를 불러오는 중...')}</span>
+                        </div>
+                    )}
+                    {!hasMore && filteredPosts.length > 0 && activeFilter !== 'shorts' && (
+                        <div className="text-center py-8 text-[11px] text-espresso-400 font-medium tracking-wide">
+                            {t('coffee_talk.no_more_posts', '마지막 피드입니다. 모든 소식을 확인하셨습니다.')}
+                        </div>
+                    )}
                 </div>
             </PullToRefresh>
 
