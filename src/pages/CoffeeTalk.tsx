@@ -355,6 +355,7 @@ export default function CoffeeTalk() {
     const [isLoading, setIsLoading] = useState(!globalFeedCache[initialCacheKey]?.posts);
     const [hasMore, setHasMore] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const isLoadingMoreRef = useRef(false);
 
 
     // New Post Modal State
@@ -653,6 +654,7 @@ export default function CoffeeTalk() {
                 setHasMore(true);
             } else {
                 setIsLoadingMore(true);
+                isLoadingMoreRef.current = true;
             }
 
             const filterToFetch = activeFilter || 'all';
@@ -833,6 +835,7 @@ export default function CoffeeTalk() {
                 if (!silent) setIsLoading(false);
             } else {
                 setIsLoadingMore(false);
+                isLoadingMoreRef.current = false;
             }
         }
     };
@@ -1131,10 +1134,11 @@ export default function CoffeeTalk() {
 
         const handleScrollLoadMore = () => {
             if (activeFilter === 'shorts' || activeFilter === 'near_live') return;
-            if (isLoading || isLoadingMore || !hasMore) return;
+            if (isLoading || isLoadingMore || isLoadingMoreRef.current || !hasMore) return;
 
             const { scrollTop, scrollHeight, clientHeight } = container;
             if (scrollHeight - scrollTop - clientHeight < 300) {
+                isLoadingMoreRef.current = true;
                 fetchPosts(false, true); // fetch next page silently
             }
         };
