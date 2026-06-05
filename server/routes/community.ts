@@ -359,14 +359,14 @@ router.get('/posts', async (req, res) => {
         });
 
         const now = new Date();
-
-        const processedPosts = posts.filter((post: any) => {
-            if (post.postType === 'ANNOUNCEMENT' || post.postType === 'EVENT' || post.isSystemPopup || post.isPinned) {
-                if (post.pinnedStartDate && new Date(post.pinnedStartDate) > now) return false;
-                if (post.pinnedEndDate && new Date(post.pinnedEndDate) < now) return false;
-            }
-            return true;
-        });
+ 
+         const processedPosts = posts.filter((post: any) => {
+             if (post.postType === 'ANNOUNCEMENT' || post.postType === 'EVENT' || post.isSystemPopup || post.isPinned) {
+                 if (post.pinnedStartDate && new Date(post.pinnedStartDate) > now) return false;
+                 if (post.pinnedEndDate && new Date(post.pinnedEndDate) < now) return false;
+             }
+             return true;
+         });
 
         if (filter === 'hot_3m' || filter === 'hot_today') {
             processedPosts.sort((a: any, b: any) => {

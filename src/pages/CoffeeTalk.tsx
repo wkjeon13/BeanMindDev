@@ -656,7 +656,7 @@ export default function CoffeeTalk() {
             }
 
             const filterToFetch = activeFilter || 'all';
-            const limit = 20;
+            const limit = 30;
             const skip = isRefresh ? 0 : posts.length;
             const url = `${API_BASE}/api/community/posts?filter=${filterToFetch}&sort=${sortOption}&countryCode=${getDeviceCountryCode()}&limit=${limit}&skip=${skip}&_t=${Date.now()}`;
             const token = localStorage.getItem('token');
