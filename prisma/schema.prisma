@@ -149,7 +149,7 @@ model Store {
   status                String             @default("PENDING")
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
-  websiteUrl            String?
+  websiteUrl            String?            @db.Text
   lat                   Float?
   lng                   Float?
   approvalRequestsCount Int                @default(1)
