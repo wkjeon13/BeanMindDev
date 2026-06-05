@@ -176,6 +176,38 @@ router.get('/posts', async (req, res) => {
         console.log(`[DEBUG] GET /posts sort=${sort} filter=${filter} limit=${limit} skip=${skip}`);
         let whereClause: any = { isHidden: false, isSystemPopup: false, isDeleted: false };
 
+        const now = new Date();
+        whereClause.AND = [
+            {
+                OR: [
+                    {
+                        postType: 'NORMAL',
+                        isPinned: false
+                    },
+                    {
+                        OR: [
+                            { postType: { in: ['ANNOUNCEMENT', 'EVENT'] } },
+                            { isPinned: true }
+                        ],
+                        AND: [
+                            {
+                                OR: [
+                                    { pinnedStartDate: null },
+                                    { pinnedStartDate: { lte: now } }
+                                ]
+                            },
+                            {
+                                OR: [
+                                    { pinnedEndDate: null },
+                                    { pinnedEndDate: { gte: now } }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ];
+
         if (countryCode && countryCode !== 'GLOBAL') {
             whereClause.countryCode = { in: [String(countryCode), 'GLOBAL'] };
         }
@@ -284,9 +316,10 @@ router.get('/posts', async (req, res) => {
         }
 
         let takeCount = limit ? parseInt(limit as string) : 30;
+        let dbTakeCount = takeCount;
         const skipCount = skip ? parseInt(skip as string) : 0;
         if (filter === 'hot_3m' || filter === 'hot_today' || sort === 'popular') {
-            takeCount = 100; // Fetch more to sort by reactions in memory
+            dbTakeCount = 100; // Fetch more to sort by reactions in memory
         }
 
         let orderByClause: any[] = [];
@@ -301,7 +334,7 @@ router.get('/posts', async (req, res) => {
         const posts = await (prisma as any).post.findMany({
             where: whereClause,
             orderBy: orderByClause,
-            take: takeCount,
+            take: dbTakeCount,
             skip: skipCount,
             include: {
                 author: { select: {
@@ -357,16 +390,8 @@ router.get('/posts', async (req, res) => {
                 }
             }
         });
-
-        const now = new Date();
  
-         const processedPosts = posts.filter((post: any) => {
-             if (post.postType === 'ANNOUNCEMENT' || post.postType === 'EVENT' || post.isSystemPopup || post.isPinned) {
-                 if (post.pinnedStartDate && new Date(post.pinnedStartDate) > now) return false;
-                 if (post.pinnedEndDate && new Date(post.pinnedEndDate) < now) return false;
-             }
-             return true;
-         });
+        const processedPosts = [...posts];
 
         if (filter === 'hot_3m' || filter === 'hot_today') {
             processedPosts.sort((a: any, b: any) => {
@@ -397,7 +422,7 @@ router.get('/posts', async (req, res) => {
             });
         }
 
-        res.json(processedPosts);
+        res.json(processedPosts.slice(0, takeCount));
     } catch (error) {
         console.error("Fetch Posts Error:", error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
