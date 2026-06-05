@@ -1133,7 +1133,6 @@ export default function CoffeeTalk() {
         if (!container) return;
 
         const handleScrollLoadMore = () => {
-            if (activeFilter === 'shorts' || activeFilter === 'near_live') return;
             if (isLoading || isLoadingMore || isLoadingMoreRef.current || !hasMore) return;
 
             const { scrollTop, scrollHeight, clientHeight } = container;
