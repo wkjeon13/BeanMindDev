@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Heart, MessageCircle, Share2, MapPin, MoreVertical, X, Clock, Navigation, CheckCircle, Store, Send, Image as ImageIcon, Flame, TrendingUp, Droplets, Trophy, Lock, Users, Target, UserCheck, Shield, Bookmark, Edit, Trash2, Calendar, Coffee, ListChecks, Link, Globe, Info, Search, ChevronDown, Camera, Star, Map, User, Edit2, Gift, PenSquare, Scale, Thermometer, Timer, Settings, BarChart2, Plus, Minus, Crown, ChevronRight, Check, Smile, ChevronLeft, Play, Music, Pause, Sparkles } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MapPin, MoreVertical, X, Clock, Navigation, CheckCircle, Store, Send, Image as ImageIcon, Flame, TrendingUp, Droplets, Trophy, Lock, Users, Target, UserCheck, Shield, Bookmark, Edit, Trash2, Calendar, Coffee, ListChecks, Link, Globe, Info, Search, ChevronDown, Camera, Star, Map, User, Edit2, Gift, PenSquare, Scale, Thermometer, Timer, Settings, BarChart2, Plus, Minus, Crown, ChevronRight, Check, Smile, ChevronLeft, Play, Music, Pause, Sparkles, LoaderCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share } from '@capacitor/share';
@@ -2192,7 +2192,12 @@ export default function CoffeeTalk() {
 
             {/* 스크롤 복원 중 마스킹 오버레이: 스크롤 컨테이너는 항상 visible로 유지하여 iOS WKWebView 컴포지팅 레이어 초기화 방지 */}
             {isScrollJumping && (
-                <div className="absolute inset-0 z-40 bg-espresso-950" />
+                <div className="absolute inset-0 z-40 bg-espresso-950/70 backdrop-blur-md flex flex-col items-center justify-center gap-3">
+                    <LoaderCircle className="w-8 h-8 text-amber-500 animate-spin" />
+                    <span className="text-[12px] font-semibold text-espresso-200 tracking-wider">
+                        {t('coffee_talk.restoring_scroll', '피드 위치를 정렬하는 중입니다...')}
+                    </span>
+                </div>
             )}
 
             {/* Main Feed Content */}
