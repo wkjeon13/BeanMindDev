@@ -46,6 +46,8 @@ import prisma from './utils/prisma.js';
 const app = express();
 const port = 3001; // API server running on 3001 (Vite frontend on 3002)
 
+
+
 // 1. CORS Hardening (Must be first to allow cross-origin static assets in Capacitor)
 app.options('*', cors());
 app.use(cors({

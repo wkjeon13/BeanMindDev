@@ -1,6 +1,6 @@
 generator client {
   provider   = "prisma-client-js"
-  output     = "../node_modules/.prisma/client-stamp-new"
+  output     = "../node_modules/.prisma/client-stamp-v2"
   engineType = "binary"
 }
 
@@ -687,11 +687,12 @@ model Poll {
 }
 
 model PollOption {
-  id     String     @id @default(uuid())
-  pollId String
-  text   String
-  poll   Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
-  votes  PollVote[]
+  id        String     @id @default(uuid())
+  pollId    String
+  text      String
+  sortOrder Int        @default(0)
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes     PollVote[]
 
   @@index([pollId])
 }

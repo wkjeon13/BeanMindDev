@@ -377,7 +377,7 @@ router.get('/posts', async (req, res) => {
                 poll: {
                     include: {
                         options: {
-                            orderBy: { id: 'asc' },
+                            orderBy: { sortOrder: 'asc' },
                             include: {
                                 _count: { select: { votes: true } },
                                 votes: currentUserId ? {
@@ -498,7 +498,7 @@ router.get('/posts/:id', async (req, res) => {
                 poll: {
                     include: {
                         options: {
-                            orderBy: { id: 'asc' },
+                            orderBy: { sortOrder: 'asc' },
                             include: {
                                 _count: { select: { votes: true } },
                                 votes: { select: { userId: true } }
@@ -666,8 +666,9 @@ router.post('/posts', authenticateToken, uploadLimiter, postUploadMiddleware, as
                                     question: parsed.question,
                                     expiresAt,
                                     options: {
-                                        create: parsed.options.map((opt: string) => ({
-                                            text: opt
+                                        create: parsed.options.map((opt: string, idx: number) => ({
+                                            text: opt,
+                                            sortOrder: idx
                                         }))
                                     }
                                 }
@@ -695,7 +696,7 @@ router.post('/posts', authenticateToken, uploadLimiter, postUploadMiddleware, as
                 poll: {
                     include: {
                         options: {
-                            orderBy: { id: 'asc' },
+                            orderBy: { sortOrder: 'asc' },
                             include: { _count: { select: { votes: true } }, votes: { select: { userId: true } } }
                         }
                     }
@@ -1395,7 +1396,7 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, postUploadMiddleware,
                 poll: {
                     include: {
                         options: {
-                            orderBy: { id: 'asc' },
+                            orderBy: { sortOrder: 'asc' },
                             include: { _count: { select: { votes: true } }, votes: { select: { userId: true } } }
                         }
                     }

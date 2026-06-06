@@ -936,6 +936,205 @@ router.put('/email-templates/:type', requireSuperAdmin, async (req: any, res: an
     }
 });
 
+// GET: Aggregated Content Dashboard Metrics with date filtering and Sparkline/Reason statistics
+router.get('/content-metrics', async (req: any, res: any) => {
+    try {
+        const { startDate, endDate } = req.query;
+
+        // 1. 기본 WHERE 조건 객체 생성
+        let dateFilter: any = {};
+        let dateDeleteFilter: any = {};
+        
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+            
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+
+            dateFilter = {
+                createdAt: {
+                    gte: start,
+                    lte: end
+                }
+            };
+            
+            dateDeleteFilter = {
+                deletedAt: {
+                    gte: start,
+                    lte: end
+                }
+            };
+        }
+
+        // 오늘 날짜 범위 구하기 (KST 기준)
+        // 한국 시간(KST)으로 오늘 자정과 오늘 밤 11시 59분을 UTC 시간으로 역계산하거나, 단순 로컬 타임 계산
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const todayEnd = new Date();
+        todayEnd.setHours(23, 59, 59, 999);
+
+        // 2. 병렬로 DB 쿼리 실행
+        const [
+            totalPostsCount,
+            todayPostsCount,
+            feedPostsCount,
+            shortsPostsCount,
+            deletedPostsCount,
+            allDeletedPostsWithReason
+        ] = await Promise.all([
+            // 총 등록된 콘텐츠 수
+            prisma.post.count({
+                where: {
+                    ...dateFilter
+                }
+            }),
+            // 오늘 총 등록건수
+            prisma.post.count({
+                where: {
+                    createdAt: {
+                        gte: todayStart,
+                        lte: todayEnd
+                    }
+                }
+            }),
+            // 커피톡 피드수
+            prisma.post.count({
+                where: {
+                    isShorts: false,
+                    isDeleted: false,
+                    ...dateFilter
+                }
+            }),
+            // 커피숏폼/ASMR 등록수
+            prisma.post.count({
+                where: {
+                    isShorts: true,
+                    isDeleted: false,
+                    ...dateFilter
+                }
+            }),
+            // 관리자 삭제건수
+            prisma.post.count({
+                where: {
+                    isDeleted: true,
+                    ...(startDate && endDate ? dateDeleteFilter : {})
+                }
+            }),
+            // 삭제 사유 분석용 데이터 조회
+            prisma.post.findMany({
+                where: {
+                    isDeleted: true,
+                    deleteReason: { not: null },
+                    ...(startDate && endDate ? dateDeleteFilter : {})
+                },
+                select: {
+                    deleteReason: true
+                }
+            })
+        ]);
+
+        // 3. 삭제 사유 분석 통계 가공
+        const reasonCounts: { [key: string]: number } = {};
+        allDeletedPostsWithReason.forEach(post => {
+            const reason = post.deleteReason ? post.deleteReason.trim() : '기타/미기재';
+            let simplifiedReason = reason;
+            if (reason.includes('광고') || reason.includes('홍보') || reason.includes('스팸') || reason.includes('spam') || reason.includes('ad')) {
+                simplifiedReason = '스팸/광고성 홍보';
+            } else if (reason.includes('욕설') || reason.includes('비방') || reason.includes('비하') || reason.includes('비매너')) {
+                simplifiedReason = '욕설 및 비방';
+            } else if (reason.includes('음란') || reason.includes('선정') || reason.includes('19금') || reason.includes('성적')) {
+                simplifiedReason = '음란물/선정적 내용';
+            } else if (reason.length > 20) {
+                simplifiedReason = reason.substring(0, 20) + '...';
+            }
+            reasonCounts[simplifiedReason] = (reasonCounts[simplifiedReason] || 0) + 1;
+        });
+
+        const deleteReasons = Object.entries(reasonCounts)
+            .map(([reason, count]) => ({ reason, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+
+        // 4. Sparkline 데이터용 일별 등록 건수 집계
+        let graphStartDate = new Date();
+        graphStartDate.setDate(graphStartDate.getDate() - 6); // 기본값 최근 7일
+        let graphEndDate = new Date();
+
+        if (startDate && endDate) {
+            graphStartDate = new Date(startDate);
+            graphEndDate = new Date(endDate);
+        }
+        graphStartDate.setHours(0, 0, 0, 0);
+        graphEndDate.setHours(23, 59, 59, 999);
+
+        // 일별 등록 추이 쿼리
+        const dailyPosts = await prisma.post.findMany({
+            where: {
+                createdAt: {
+                    gte: graphStartDate,
+                    lte: graphEndDate
+                }
+            },
+            select: {
+                createdAt: true,
+                isShorts: true,
+                isDeleted: true
+            }
+        });
+
+        // 날짜별 매핑
+        const postMap: { [key: string]: { feeds: number, shorts: number, deleted: number } } = {};
+        dailyPosts.forEach(post => {
+            // KST 보정 (UTC + 9시간)
+            const localTime = new Date(post.createdAt.getTime() + (9 * 60 * 60 * 1000));
+            const dateStr = localTime.toISOString().substring(5, 10); // "MM-DD"
+            if (!postMap[dateStr]) {
+                postMap[dateStr] = { feeds: 0, shorts: 0, deleted: 0 };
+            }
+            if (post.isDeleted) {
+                postMap[dateStr].deleted++;
+            } else if (post.isShorts) {
+                postMap[dateStr].shorts++;
+            } else {
+                postMap[dateStr].feeds++;
+            }
+        });
+
+        // 결과 배열 생성 (최대 60일 한도 루프)
+        const sparklineData = [];
+        const tempDate = new Date(graphStartDate);
+        const diffDays = Math.ceil(Math.abs(graphEndDate.getTime() - graphStartDate.getTime()) / (1000 * 60 * 60 * 24));
+        const limitDays = Math.min(diffDays, 60);
+
+        for (let i = 0; i <= limitDays; i++) {
+            const dateStr = tempDate.toISOString().substring(5, 10); // "MM-DD"
+            const dataPoint = postMap[dateStr] || { feeds: 0, shorts: 0, deleted: 0 };
+            sparklineData.push({
+                date: dateStr,
+                feeds: dataPoint.feeds,
+                shorts: dataPoint.shorts,
+                deleted: dataPoint.deleted,
+                total: dataPoint.feeds + dataPoint.shorts + dataPoint.deleted
+            });
+            tempDate.setDate(tempDate.getDate() + 1);
+        }
+
+        res.json({
+            totalPosts: totalPostsCount,
+            todayPosts: todayPostsCount,
+            feedPosts: feedPostsCount,
+            shortsPosts: shortsPostsCount,
+            deletedPosts: deletedPostsCount,
+            deleteReasons,
+            sparklineData
+        });
+    } catch (error) {
+        console.error("Content metrics error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
 // GET: Aggregated Dashboard Metrics
 router.get('/metrics', async (req: any, res: any) => {
     try {
@@ -943,7 +1142,7 @@ router.get('/metrics', async (req: any, res: any) => {
             totalGeneralUsers,
             totalHostUsers,
             totalAnonymousVisitors,
-            aiPrescriptionsLoggedIn,
+            aiPrescriptionsLoggedInSum,
             aiUsersLoggedIn,
             aiUsersAnonymous,
             anonymousUsageSum
@@ -951,12 +1150,13 @@ router.get('/metrics', async (req: any, res: any) => {
             prisma.user.count({ where: { role: 'USER' } }),
             prisma.user.count({ where: { role: 'OWNER' } }),
             prisma.anonymousVisitor.count(),
-            prisma.prescription.count(),
+            prisma.user.aggregate({ _sum: { aiUsageCount: true } }),
             prisma.user.count({ where: { aiUsageCount: { gt: 0 } } }),
             prisma.anonymousVisitor.count({ where: { hasUsedAi: true } }),
             prisma.anonymousVisitor.aggregate({ _sum: { aiUsageCount: true } })
         ]);
         
+        const aiPrescriptionsLoggedIn = aiPrescriptionsLoggedInSum._sum.aiUsageCount || 0;
         const aiPrescriptionsAnonymous = anonymousUsageSum._sum.aiUsageCount || 0;
         const totalPrescriptions = aiPrescriptionsLoggedIn + aiPrescriptionsAnonymous;
 

@@ -91,7 +91,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                         poll: {
                             include: {
                                 options: {
-                                    orderBy: { id: 'asc' },
+                                    orderBy: { sortOrder: 'asc' },
                                     include: {
                                         _count: { select: { votes: true } },
                                         votes: { select: { userId: true } }
@@ -127,7 +127,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                 poll: {
                     include: {
                         options: {
-                            orderBy: { id: 'asc' },
+                            orderBy: { sortOrder: 'asc' },
                             include: {
                                 _count: { select: { votes: true } },
                                 votes: { select: { userId: true } }
@@ -155,7 +155,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                     poll: {
                         include: {
                             options: {
-                                orderBy: { id: 'asc' },
+                                orderBy: { sortOrder: 'asc' },
                                 include: {
                                     _count: { select: { votes: true } },
                                     votes: { select: { userId: true } }
@@ -253,7 +253,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                     poll: {
                         include: {
                             options: {
-                                orderBy: { id: 'asc' },
+                                orderBy: { sortOrder: 'asc' },
                                 include: {
                                     _count: { select: { votes: true } },
                                     votes: { select: { userId: true } }
@@ -413,7 +413,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                 poll: {
                     include: {
                         options: {
-                            orderBy: { id: 'asc' },
+                            orderBy: { sortOrder: 'asc' },
                             include: {
                                 _count: { select: { votes: true } },
                                 votes: { select: { userId: true } }
@@ -441,7 +441,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                     poll: {
                         include: {
                             options: {
-                                orderBy: { id: 'asc' },
+                                orderBy: { sortOrder: 'asc' },
                                 include: {
                                     _count: { select: { votes: true } },
                                     votes: { select: { userId: true } }
@@ -478,7 +478,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                 poll: {
                     include: {
                         options: {
-                            orderBy: { id: 'asc' },
+                            orderBy: { sortOrder: 'asc' },
                             include: {
                                 _count: { select: { votes: true } },
                                 votes: { select: { userId: true } }
@@ -506,7 +506,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                     poll: {
                         include: {
                             options: {
-                                orderBy: { id: 'asc' },
+                                orderBy: { sortOrder: 'asc' },
                                 include: {
                                     _count: { select: { votes: true } },
                                     votes: { select: { userId: true } }
