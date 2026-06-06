@@ -1377,8 +1377,9 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, postUploadMiddleware,
                                     question: parsed.question,
                                     expiresAt,
                                     options: {
-                                        create: parsed.options.map((opt: string) => ({
-                                            text: opt
+                                        create: parsed.options.map((opt: string, idx: number) => ({
+                                            text: opt,
+                                            sortOrder: idx
                                         }))
                                     }
                                 }
@@ -1954,6 +1955,7 @@ router.get('/posts/:id', authenticateToken, async (req: any, res) => {
                 poll: {
                     include: {
                         options: {
+                            orderBy: { sortOrder: 'asc' },
                             include: {
                                 _count: { select: { votes: true } },
                                 votes: currentUserId ? {

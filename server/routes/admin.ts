@@ -84,6 +84,7 @@ router.get('/moderation/blinded-content', async (req: any, res: any) => {
                 poll: {
                     include: {
                         options: {
+                            orderBy: { sortOrder: 'asc' },
                             include: {
                                 _count: { select: { votes: true } }
                             }
@@ -352,6 +353,7 @@ router.get('/moderation/deleted-content', async (req: any, res: any) => {
                 poll: {
                     include: {
                         options: {
+                            orderBy: { sortOrder: 'asc' },
                             include: {
                                 _count: { select: { votes: true } }
                             }
