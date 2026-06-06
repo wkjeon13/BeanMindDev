@@ -457,7 +457,14 @@ export default function AdminDashboard() {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-bold text-espresso-300">{t('admin_dashboard.dash_ai_users')}</p>
-                                                <p className="text-2xl font-black text-espresso-50">{metrics.totalAiUsers || 0} <span className="text-lg text-purple-600">{t('admin_dashboard.dash_ai_sub', { loggedIn: metrics.aiUsersLoggedIn || 0 })}</span></p>
+                                                <p className="text-2xl font-black text-espresso-50">
+                                                    {metrics.totalAiUsers || 0}
+                                                    {t('admin_dashboard.dash_ai_sub') && (
+                                                        <span className="text-lg text-purple-600 ml-1">
+                                                            {t('admin_dashboard.dash_ai_sub', { loggedIn: metrics.aiUsersLoggedIn || 0 })}
+                                                        </span>
+                                                    )}
+                                                </p>
                                                 <p className="text-xs text-purple-500 font-semibold mt-1">{t('admin_dashboard.dash_ai_desc', { anon: metrics.aiUsersAnonymous || 0 })}</p>
                                             </div>
                                         </div>

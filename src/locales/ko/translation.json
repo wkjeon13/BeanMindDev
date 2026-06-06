@@ -778,8 +778,9 @@
         "dash_px_sub": "(로그인 : {{loggedIn}}회, 비로그인 : {{anon}}회)",
         "dash_px_desc": "누적 분석 생성량",
         "dash_ai_users": "AI 서비스 이용 유저",
-        "dash_ai_sub": "(로그인 : {{loggedIn}}명)",
-        "dash_ai_desc": "1회 이상 처방 받은 유저 (비로그인 : {{anon}}명)",
+        "dash_ai_sub": "",
+        "dash_ai_desc": "1회 이상 처방 받은 유저",
+
         "tab_users": "유저 관리",
         "user_search_result": "검색 결과 ({{count}})",
         "user_total": "등록 유저 ({{count}})",
