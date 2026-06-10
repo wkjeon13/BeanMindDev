@@ -2808,117 +2808,213 @@ export default function CoffeeTalk() {
                                                 </div>
                                             )}
 
-                                            <div className={`flex items-center justify-between mb-3 ${activeFilter === 'shorts' ? 'pointer-events-auto' : ''}`}>
-                                                <div className="flex items-center gap-4">
-                                                    <button
+                                            {activeFilter === 'shorts' ? (
+                                                <>
+                                                    {/* Shorts Mode: Content Text first */}
+                                                    <div
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            e.preventDefault();
-                                                            handleLike(post.id, post.likes);
+                                                            if (post.content && post.content.length > 80) {
+                                                                setExpandedPosts(prev => {
+                                                                    const next = new Set(prev);
+                                                                    if (next.has(post.id)) next.delete(post.id);
+                                                                    else next.add(post.id);
+                                                                    return next;
+                                                                });
+                                                            }
                                                         }}
-                                                        className="flex items-center gap-1.5 group transition-colors"
+                                                        className={`${activeFilter === 'shorts' ? 'pointer-events-auto' : ''} ${post.content && post.content.length > 80 && !expandedPosts.has(post.id) ? "cursor-pointer active:opacity-70 transition-opacity" : ""}`}
                                                     >
-                                                        <Heart
-                                                            size={24}
-                                                            className={`transition-all duration-300 ${isLiked[post.id] ? 'fill-rose-500 text-rose-500 scale-110 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]' : 'text-espresso-200 group-hover:text-rose-400'}`}
-                                                        />
-                                                        <span className={`text-[13px] font-medium ${isLiked[post.id] ? 'text-rose-500' : 'text-espresso-200'}`}>
-                                                            {post.likes}
-                                                        </span>
-                                                    </button>
-                                                    <button onClick={() => setActiveCommentPostId(post.id)} className="flex items-center gap-1.5 text-espresso-200 hover:text-amber-500 transition-colors">
-                                                        <MessageCircle size={22} />
-                                                        <span className="text-[13px] font-medium">{post.comments}</span>
-                                                    </button>
-                                                    <button onClick={() => handleShare(post.id)} className="flex items-center gap-1.5 text-espresso-200 hover:text-emerald-400 transition-colors">
-                                                        <Send size={20} className="-mt-0.5" />
-                                                        <span className="text-[13px] font-medium">{post.shareCount}</span>
-                                                    </button>
+                                                        <p className={`text-[14px] leading-[1.6] text-espresso-50 whitespace-pre-wrap break-words ${!expandedPosts.has(post.id) ? 'line-clamp-3 landscape:line-clamp-1' : ''}`}>
+                                                            {renderWithLinks(cleanContent)}
+                                                        </p>
+                                                        {!expandedPosts.has(post.id) && cleanContent && cleanContent.length > 80 && (
+                                                            <div className="text-espresso-300 text-[13px] mt-1 font-medium">{t('coffee_talk.btn_more', '... 더보기')}</div>
+                                                        )}
+                                                    </div>
 
-                                                    {(post.recipeData || post.tastingNote) && activeFilter === 'shorts' && (
-                                                        <button onClick={() => setActiveRecipeNotePost(post)} className="flex items-center gap-1.5 pl-3 border-l border-espresso-700 ml-1 text-espresso-200 hover:text-amber-500 transition-colors group pointer-events-auto">
-                                                            <div className="relative">
-                                                                <div className="absolute inset-0 bg-emerald-400/20 blur-md rounded-full animate-pulse group-hover:bg-emerald-400/40"></div>
-                                                                <ListChecks size={20} className="text-emerald-400 relative z-10 -mt-0.5" />
-                                                            </div>
-                                                            <span className="text-[13px] font-medium text-emerald-400">레시피</span>
-                                                        </button>
-                                                    )}
+                                                    {/* Shorts Mode: Interaction Bar below content */}
+                                                    <div className={`flex items-center justify-between mt-3 pointer-events-auto`}>
+                                                        <div className="flex items-center gap-4">
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    e.preventDefault();
+                                                                    handleLike(post.id, post.likes);
+                                                                }}
+                                                                className="flex items-center gap-1.5 group transition-colors"
+                                                            >
+                                                                <Heart
+                                                                    size={24}
+                                                                    className={`transition-all duration-300 ${isLiked[post.id] ? 'fill-rose-500 text-rose-500 scale-110 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]' : 'text-espresso-200 group-hover:text-rose-400'}`}
+                                                                />
+                                                                <span className={`text-[13px] font-medium ${isLiked[post.id] ? 'text-rose-500' : 'text-espresso-200'}`}>
+                                                                    {post.likes}
+                                                                </span>
+                                                            </button>
+                                                            <button onClick={() => setActiveCommentPostId(post.id)} className="flex items-center gap-1.5 text-espresso-200 hover:text-amber-500 transition-colors">
+                                                                <MessageCircle size={22} />
+                                                                <span className="text-[13px] font-medium">{post.comments}</span>
+                                                            </button>
+                                                            <button onClick={() => handleShare(post.id)} className="flex items-center gap-1.5 text-espresso-200 hover:text-emerald-400 transition-colors">
+                                                                <Send size={20} className="-mt-0.5" />
+                                                                <span className="text-[13px] font-medium">{post.shareCount}</span>
+                                                            </button>
 
-                                                    {post.commentImages && post.commentImages.length > 0 && (
+                                                            {(post.recipeData || post.tastingNote) && (
+                                                                <button onClick={() => setActiveRecipeNotePost(post)} className="flex items-center gap-1.5 pl-3 border-l border-espresso-700 ml-1 text-espresso-200 hover:text-amber-500 transition-colors group pointer-events-auto">
+                                                                    <div className="relative">
+                                                                        <div className="absolute inset-0 bg-emerald-400/20 blur-md rounded-full animate-pulse group-hover:bg-emerald-400/40"></div>
+                                                                        <ListChecks size={20} className="text-emerald-400 relative z-10 -mt-0.5" />
+                                                                    </div>
+                                                                    <span className="text-[13px] font-medium text-emerald-400">레시피</span>
+                                                                </button>
+                                                            )}
+
+                                                            {post.commentImages && post.commentImages.length > 0 && (
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); setGalleryPostId(post.id); }}
+                                                                    className="flex items-center gap-1.5 pl-3 border-l border-espresso-700 ml-1 text-espresso-200 hover:text-amber-500 transition-colors"
+                                                                >
+                                                                    <ImageIcon size={18} className="opacity-80" />
+                                                                    <div className="flex -space-x-2 opacity-90">
+                                                                        {post.commentImages.map((c: any, i: number) => {
+                                                                            if (i > 3) return null;
+                                                                            let url = '';
+                                                                            try {
+                                                                                const parsed = JSON.parse(c.imageUrl);
+                                                                                url = Array.isArray(parsed) ? parsed[0] : c.imageUrl;
+                                                                            } catch (e) {
+                                                                                url = c.imageUrl;
+                                                                            }
+                                                                            return (
+                                                                                <div key={i} className="w-5 h-5 rounded-full border-2 border-[#18181b] bg-espresso-800 overflow-hidden ring-1 ring-zinc-800 relative shadow-sm">
+                                                                                    <MediaRenderer src={url} className="w-full h-full object-cover" />
+                                                                                </div>
+                                                                            );
+                                                                        })}
+                                                                    </div>
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                         <button
-                                                            onClick={(e) => { e.stopPropagation(); setGalleryPostId(post.id); }}
-                                                            className="flex items-center gap-1.5 pl-3 border-l border-espresso-700 ml-1 text-espresso-200 hover:text-amber-500 transition-colors"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                e.preventDefault();
+                                                                setCollectionPostId(post.id);
+                                                            }}
+                                                            className={`transition-colors ${isBookmarked[post.id] ? 'text-amber-400' : 'text-espresso-200 hover:text-amber-400'}`}
                                                         >
-                                                            <ImageIcon size={18} className="opacity-80" />
-                                                            <div className="flex -space-x-2 opacity-90">
-                                                                {post.commentImages.map((c: any, i: number) => {
-                                                                    if (i > 3) return null;
-                                                                    let url = '';
-                                                                    try {
-                                                                        const parsed = JSON.parse(c.imageUrl);
-                                                                        url = Array.isArray(parsed) ? parsed[0] : c.imageUrl;
-                                                                    } catch (e) {
-                                                                        url = c.imageUrl;
-                                                                    }
-                                                                    return (
-                                                                        <div key={i} className="w-5 h-5 rounded-full border-2 border-[#18181b] bg-espresso-800 overflow-hidden ring-1 ring-zinc-800 relative shadow-sm">
-                                                                            <MediaRenderer src={url} className="w-full h-full object-cover" />
-                                                                        </div>
-                                                                    );
-                                                                })}
-                                                            </div>
+                                                            <Bookmark size={22} className={isBookmarked[post.id] ? 'fill-amber-400' : ''} />
                                                         </button>
-                                                    )}
-                                                </div>
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        e.preventDefault();
-                                                        setCollectionPostId(post.id);
-                                                    }}
-                                                    className={`transition-colors ${isBookmarked[post.id] ? 'text-amber-400' : 'text-espresso-200 hover:text-amber-400'}`}
-                                                >
-                                                    <Bookmark size={22} className={isBookmarked[post.id] ? 'fill-amber-400' : ''} />
-                                                </button>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {/* Standard Mode: Interaction Bar first */}
+                                                    <div className={`flex items-center justify-between mb-3`}>
+                                                        <div className="flex items-center gap-4">
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    e.preventDefault();
+                                                                    handleLike(post.id, post.likes);
+                                                                }}
+                                                                className="flex items-center gap-1.5 group transition-colors"
+                                                            >
+                                                                <Heart
+                                                                    size={24}
+                                                                    className={`transition-all duration-300 ${isLiked[post.id] ? 'fill-rose-500 text-rose-500 scale-110 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]' : 'text-espresso-200 group-hover:text-rose-400'}`}
+                                                                />
+                                                                <span className={`text-[13px] font-medium ${isLiked[post.id] ? 'text-rose-500' : 'text-espresso-200'}`}>
+                                                                    {post.likes}
+                                                                </span>
+                                                            </button>
+                                                            <button onClick={() => setActiveCommentPostId(post.id)} className="flex items-center gap-1.5 text-espresso-200 hover:text-amber-500 transition-colors">
+                                                                <MessageCircle size={22} />
+                                                                <span className="text-[13px] font-medium">{post.comments}</span>
+                                                            </button>
+                                                            <button onClick={() => handleShare(post.id)} className="flex items-center gap-1.5 text-espresso-200 hover:text-emerald-400 transition-colors">
+                                                                <Send size={20} className="-mt-0.5" />
+                                                                <span className="text-[13px] font-medium">{post.shareCount}</span>
+                                                            </button>
 
-                                                {bgm && !post.image && (
-                                                    <button
+                                                            {post.commentImages && post.commentImages.length > 0 && (
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); setGalleryPostId(post.id); }}
+                                                                    className="flex items-center gap-1.5 pl-3 border-l border-espresso-700 ml-1 text-espresso-200 hover:text-amber-500 transition-colors"
+                                                                >
+                                                                    <ImageIcon size={18} className="opacity-80" />
+                                                                    <div className="flex -space-x-2 opacity-90">
+                                                                        {post.commentImages.map((c: any, i: number) => {
+                                                                            if (i > 3) return null;
+                                                                            let url = '';
+                                                                            try {
+                                                                                const parsed = JSON.parse(c.imageUrl);
+                                                                                url = Array.isArray(parsed) ? parsed[0] : c.imageUrl;
+                                                                            } catch (e) {
+                                                                                url = c.imageUrl;
+                                                                            }
+                                                                            return (
+                                                                                <div key={i} className="w-5 h-5 rounded-full border-2 border-[#18181b] bg-espresso-800 overflow-hidden ring-1 ring-zinc-800 relative shadow-sm">
+                                                                                    <MediaRenderer src={url} className="w-full h-full object-cover" />
+                                                                                </div>
+                                                                            );
+                                                                        })}
+                                                                    </div>
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                e.preventDefault();
+                                                                setCollectionPostId(post.id);
+                                                            }}
+                                                            className={`transition-colors ${isBookmarked[post.id] ? 'text-amber-400' : 'text-espresso-200 hover:text-amber-400'}`}
+                                                        >
+                                                            <Bookmark size={22} className={isBookmarked[post.id] ? 'fill-amber-400' : ''} />
+                                                        </button>
+
+                                                        {bgm && !post.image && (
+                                                            <button
+                                                                onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            const query = encodeURIComponent(bgm.title);
+                                            window.open(`https://music.youtube.com/search?q=${query}`, '_blank');
+                                        }}
+                                                                className="ml-3 px-3 py-1.5 rounded-full bg-espresso-800 text-[11px] font-black border text-amber-500/90 border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-1.5"
+                                                            >
+                                                                <Music size={12} className="" />
+                                                                BGM 페어링
+                                                            </button>
+                                                        )}
+                                                    </div>
+
+                                                    <div
                                                         onClick={(e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    const query = encodeURIComponent(bgm.title);
-    window.open(`https://music.youtube.com/search?q=${query}`, '_blank');
-}}
-                                                        className="ml-3 px-3 py-1.5 rounded-full bg-espresso-800 text-[11px] font-black border text-amber-500/90 border-amber-500/20 hover:border-amber-500/50 transition-all flex items-center gap-1.5"
+                                                            e.stopPropagation();
+                                                            if (post.content && post.content.length > 80) {
+                                                                setExpandedPosts(prev => {
+                                                                    const next = new Set(prev);
+                                                                    if (next.has(post.id)) next.delete(post.id);
+                                                                    else next.add(post.id);
+                                                                    return next;
+                                                                });
+                                                            }
+                                                        }}
+                                                        className={`${post.content && post.content.length > 80 && !expandedPosts.has(post.id) ? "cursor-pointer active:opacity-70 transition-opacity" : ""}`}
                                                     >
-                                                        <Music size={12} className="" />
-                                                        BGM 페어링
-                                                    </button>
-                                                )}
-                                            </div>
-
-                                            <div
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    if (post.content && post.content.length > 80) {
-                                                        setExpandedPosts(prev => {
-                                                            const next = new Set(prev);
-                                                            if (next.has(post.id)) next.delete(post.id);
-                                                            else next.add(post.id);
-                                                            return next;
-                                                        });
-                                                    }
-                                                }}
-                                                className={`${activeFilter === 'shorts' ? 'pointer-events-auto' : ''} ${post.content && post.content.length > 80 && !expandedPosts.has(post.id) ? "cursor-pointer active:opacity-70 transition-opacity" : ""}`}
-                                            >
-                                                <p className={`text-[14px] leading-[1.6] text-espresso-50 whitespace-pre-wrap break-words ${!expandedPosts.has(post.id) ? 'line-clamp-3 landscape:line-clamp-1' : ''}`}>
-                                                    {renderWithLinks(cleanContent)}
-                                                </p>
-                                                {!expandedPosts.has(post.id) && cleanContent && cleanContent.length > 80 && (
-                                                    <div className="text-espresso-300 text-[13px] mt-1 font-medium">{t('coffee_talk.btn_more', '... 더보기')}</div>
-                                                )}
-                                            </div>
+                                                        <p className={`text-[14px] leading-[1.6] text-espresso-50 whitespace-pre-wrap break-words ${!expandedPosts.has(post.id) ? 'line-clamp-3' : ''}`}>
+                                                            {renderWithLinks(cleanContent)}
+                                                        </p>
+                                                        {!expandedPosts.has(post.id) && cleanContent && cleanContent.length > 80 && (
+                                                            <div className="text-espresso-300 text-[13px] mt-1 font-medium">{t('coffee_talk.btn_more', '... 더보기')}</div>
+                                                        )}
+                                                    </div>
+                                                </>
+                                            )}
 
                                             {/* Shop Tag Thumbnail Card (Only shown if NO post image exists to host the floating tag) */}
                                             {post.store && !post.image && (
