@@ -2724,7 +2724,7 @@ export default function CoffeeTalk() {
     const query = encodeURIComponent(bgm.title);
     window.open(`https://music.youtube.com/search?q=${query}`, '_blank');
 }}
-                                                                    className={`absolute z-30 px-3 py-1.5 bg-espresso-950/85 hover:bg-espresso-900/95 backdrop-blur-md text-amber-400 border border-amber-500/30 rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-1.5 text-[11px] font-black tracking-wider ${activeFilter === 'shorts' ? 'bottom-[125px] right-4' : (urls.length > 1 ? 'bottom-4 right-[96px]' : 'bottom-4 right-4')
+                                                                    className={`absolute z-30 px-3 py-1.5 bg-espresso-950/85 hover:bg-espresso-900/95 backdrop-blur-md text-amber-400 border border-amber-500/30 rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-1.5 text-[11px] font-black tracking-wider ${activeFilter === 'shorts' ? 'bottom-[180px] right-4' : (urls.length > 1 ? 'bottom-4 right-[96px]' : 'bottom-4 right-4')
                                                                         }`}
                                                                 >
                                                                     <Music size={13} className="" />
