@@ -2724,7 +2724,7 @@ export default function CoffeeTalk() {
     const query = encodeURIComponent(bgm.title);
     window.open(`https://music.youtube.com/search?q=${query}`, '_blank');
 }}
-                                                                    className={`absolute z-30 px-3 py-1.5 bg-espresso-950/85 hover:bg-espresso-900/95 backdrop-blur-md text-amber-400 border border-amber-500/30 rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-1.5 text-[11px] font-black tracking-wider ${activeFilter === 'shorts' ? 'bottom-[180px] right-4' : (urls.length > 1 ? 'bottom-4 right-[96px]' : 'bottom-4 right-4')
+                                                                    className={`absolute z-30 px-3 py-1.5 bg-espresso-950/85 hover:bg-espresso-900/95 backdrop-blur-md text-amber-400 border border-amber-500/30 rounded-full shadow-lg active:scale-95 transition-all flex items-center gap-1.5 text-[11px] font-black tracking-wider ${activeFilter === 'shorts' ? 'bottom-[125px] right-4' : (urls.length > 1 ? 'bottom-4 right-[96px]' : 'bottom-4 right-4')
                                                                         }`}
                                                                 >
                                                                     <Music size={13} className="" />
@@ -2752,7 +2752,7 @@ export default function CoffeeTalk() {
                                         )}
 
                                         {/* Interactions & Content */}
-                                        <div className={activeFilter === 'shorts' ? "absolute bottom-0 left-0 right-0 z-[50] pl-4 pr-[80px] pt-32 landscape:pt-4 pb-[110px] landscape:pb-4 flex flex-col justify-end pointer-events-none bg-gradient-to-t from-black/80 via-black/20 to-transparent" : "relative z-20 p-4 pt-3 flex flex-col justify-end mt-auto"}>
+                                        <div className={activeFilter === 'shorts' ? "absolute bottom-0 left-0 right-0 z-[50] pl-4 pr-[80px] pt-32 landscape:pt-4 pb-[55px] landscape:pb-4 flex flex-col justify-end pointer-events-none bg-gradient-to-t from-black/80 via-black/20 to-transparent" : "relative z-20 p-4 pt-3 flex flex-col justify-end mt-auto"}>
                                             {/* Shorts / Pilgrimage Meta Tags Area */}
                                             {(post.isPilgrimageLedger || activeFilter === 'shorts') && (post.cafeName || post.taggedBean || post.shortsCategory || post.equipmentTag) && (
                                                 <div className={`flex flex-col gap-2 mb-3 ${post.isPilgrimageLedger ? 'pb-2 w-full border-b border-white/5' : ''}`}>
