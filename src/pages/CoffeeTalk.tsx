@@ -234,6 +234,111 @@ const parseBgmFromContent = (content: string | undefined): { cleanContent: strin
     return { cleanContent: content, bgm: null };
 };
 
+const BG_THEMES = [
+  {
+    id: 'GRADIENT_ESPRESSO',
+    label: '☕ 에스프레소 리치',
+    class: 'bg-gradient-to-br from-[#1b0f0a] via-[#3a2312] to-[#4f331d]',
+    textClass: 'text-[#f5ebd6]',
+    accentClass: 'text-amber-500/20',
+    pattern: () => (
+      <svg className="absolute inset-0 w-full h-full opacity-[0.06] pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50%" cy="50%" r="40%" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="5 5" />
+        <circle cx="50%" cy="50%" r="30%" fill="none" stroke="currentColor" strokeWidth="2" />
+        <circle cx="50%" cy="50%" r="20%" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="50%" cy="50%" r="10%" fill="currentColor" fillOpacity="0.2" />
+      </svg>
+    )
+  },
+  {
+    id: 'GRADIENT_CARAMEL',
+    label: '🍯 카라멜 웜스',
+    class: 'bg-gradient-to-br from-[#301c10] via-[#59381e] to-[#804e28]',
+    textClass: 'text-[#fff4e6]',
+    accentClass: 'text-orange-400/25',
+    pattern: () => (
+      <svg className="absolute inset-0 w-full h-full opacity-[0.07] pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M-20 40 Q 20 80, 60 40 T 140 40" fill="none" stroke="currentColor" strokeWidth="3" />
+        <path d="M-20 60 Q 20 100, 60 60 T 140 60" fill="none" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M-20 20 Q 20 60, 60 20 T 140 20" fill="none" stroke="currentColor" strokeWidth="2" />
+      </svg>
+    )
+  },
+  {
+    id: 'GRADIENT_BERRY',
+    label: '🍇 스위트 베리',
+    class: 'bg-gradient-to-br from-[#240c17] via-[#401229] to-[#25103a]',
+    textClass: 'text-[#ffe5f1]',
+    accentClass: 'text-pink-400/20',
+    pattern: () => (
+      <svg className="absolute inset-0 w-full h-full opacity-[0.08] pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20%" cy="30%" r="15" fill="currentColor" />
+        <circle cx="80%" cy="70%" r="25" fill="currentColor" />
+        <circle cx="75%" cy="25%" r="10" fill="currentColor" />
+        <circle cx="25%" cy="75%" r="18" fill="currentColor" />
+        <line x1="20%" y1="30%" x2="25%" y2="75%" stroke="currentColor" strokeWidth="1" />
+        <line x1="80%" y1="70%" x2="75%" y2="25%" stroke="currentColor" strokeWidth="1" />
+      </svg>
+    )
+  },
+  {
+    id: 'GRADIENT_FOREST',
+    label: '🌲 그린 포레스트',
+    class: 'bg-gradient-to-br from-[#071d10] via-[#122e1c] to-[#254530]',
+    textClass: 'text-[#e6f4ea]',
+    accentClass: 'text-emerald-400/20',
+    pattern: () => (
+      <svg className="absolute inset-0 w-full h-full opacity-[0.06] pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 0,0 L 100,100 M 20,-10 L 120,90 M -20,10 L 80,110" stroke="currentColor" strokeWidth="2" strokeDasharray="10 15" />
+        <circle cx="50%" cy="30%" r="30" fill="none" stroke="currentColor" strokeWidth="1" />
+        <circle cx="50%" cy="30%" r="45" fill="none" stroke="currentColor" strokeWidth="0.5" />
+      </svg>
+    )
+  },
+  {
+    id: 'GRADIENT_MIDNIGHT',
+    label: '🌃 모던 미드나잇',
+    class: 'bg-gradient-to-br from-[#0c0f12] via-[#1a2332] to-[#12161f]',
+    textClass: 'text-[#e1e9f5]',
+    accentClass: 'text-blue-400/15',
+    pattern: () => (
+      <svg className="absolute inset-0 w-full h-full opacity-[0.06] pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" strokeWidth="0.5" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+        <circle cx="85%" cy="20%" r="35" fill="currentColor" fillOpacity="0.1" />
+      </svg>
+    )
+  }
+];
+
+const parseBgFromContent = (content: string | undefined): { cleanContent: string; bgTheme: string | null } => {
+    if (!content) return { cleanContent: '', bgTheme: null };
+    
+    // 1. Try to parse normal HTML comment BG
+    const bgRegex = /<!--BM_BG:([\s\S]*?)-->/;
+    const match = content.match(bgRegex);
+    if (match && match[1]) {
+        const bgTheme = match[1].trim();
+        const cleanContent = content.replace(bgRegex, '').trim();
+        return { cleanContent, bgTheme };
+    }
+    
+    // 2. Try to parse HTML entity BG
+    const entityRegex = /&lt;!--BM_BG:([\s\S]*?)--&gt;/;
+    const matchEntity = content.match(entityRegex);
+    if (matchEntity && matchEntity[1]) {
+        const bgTheme = matchEntity[1].trim();
+        const cleanContent = content.replace(entityRegex, '').trim();
+        return { cleanContent, bgTheme };
+    }
+    
+    return { cleanContent: content, bgTheme: null };
+};
+
 export default function CoffeeTalk() {
     const { t, i18n } = useTranslation(['translation']);
     const navigate = useNavigate();
@@ -397,6 +502,8 @@ export default function CoffeeTalk() {
     const [isBgmPlaying, setIsBgmPlaying] = useState<boolean>(false);
     const [bgmVolume, setBgmVolume] = useState<number>(50);
     const [selectedBgmTheme, setSelectedBgmTheme] = useState<string>(''); // For write/edit modal
+    const [selectedBgTheme, setSelectedBgTheme] = useState<string>('GRADIENT_ESPRESSO'); // For write/edit modal (background theme)
+
 
     // BGM Audio Singleton Instance Ref & Control Helpers
     const bgmAudioRef = React.useRef<HTMLAudioElement | null>(null);
@@ -1589,6 +1696,14 @@ export default function CoffeeTalk() {
                 formData.append('removeBgm', 'true');
             }
 
+            // Background Theme injection
+            const hasMedia = newImages.length > 0 || existingImages.length > 0 || composeMode === 'SHORTS';
+            if (!hasMedia && selectedBgTheme) {
+                formData.append('bgTheme', selectedBgTheme);
+            } else if (editPostId) {
+                formData.append('removeBg', 'true');
+            }
+
             if (composeMode === 'SHORTS') {
                 formData.append('isShorts', 'true');
             } else {
@@ -1607,6 +1722,7 @@ export default function CoffeeTalk() {
                 setIsWriteModalOpen(false);
                 setNewContent('');
                 setSelectedBgmTheme('');
+                setSelectedBgTheme('GRADIENT_ESPRESSO');
                 setNewImages([]);
                 setNewImagePreviews([]);
                 setExistingImages([]);
@@ -1691,13 +1807,21 @@ export default function CoffeeTalk() {
         setActivePostMenuId(null);
         setEditPostId(post.id);
 
-        const { cleanContent, bgm } = parseBgmFromContent(post.content);
-        setNewContent(cleanContent);
-        if (bgm && bgm.videoId) {
-            const matchingTheme = BGM_THEMES.find(t => t.videoId === bgm.videoId);
+        const parsedBgmResult = parseBgmFromContent(post.content);
+        const parsedBgResult = parseBgFromContent(parsedBgmResult.cleanContent);
+        setNewContent(parsedBgResult.cleanContent);
+
+        if (parsedBgmResult.bgm && parsedBgmResult.bgm.videoId) {
+            const matchingTheme = BGM_THEMES.find(t => t.videoId === parsedBgmResult.bgm.videoId);
             setSelectedBgmTheme(matchingTheme ? matchingTheme.id : '');
         } else {
             setSelectedBgmTheme('');
+        }
+
+        if (parsedBgResult.bgTheme) {
+            setSelectedBgTheme(parsedBgResult.bgTheme);
+        } else {
+            setSelectedBgTheme('GRADIENT_ESPRESSO');
         }
 
         if (post.isShorts) {
@@ -2238,7 +2362,14 @@ export default function CoffeeTalk() {
                         );
                     })()}
                     {!isLoading && filteredPosts.map((post, idx) => {
-                        const { cleanContent, bgm } = parseBgmFromContent(((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && post.contentEn) ? post.contentEn : post.content);
+                        const rawContent = ((i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US') && post.contentEn) ? post.contentEn : post.content;
+                        const parsedBgmResult = parseBgmFromContent(rawContent);
+                        const parsedBgResult = parseBgFromContent(parsedBgmResult.cleanContent);
+                        const cleanContent = parsedBgResult.cleanContent;
+                        const bgm = parsedBgmResult.bgm;
+                        const bgTheme = parsedBgResult.bgTheme;
+                        const matchedBgTheme = bgTheme ? BG_THEMES.find(t => t.id === bgTheme) : null;
+                        const isEditorialCard = !post.image && !post.isPilgrimageLedger && activeFilter !== 'shorts' && matchedBgTheme;
                         return (
                             <React.Fragment key={post.id}>
 
@@ -2447,7 +2578,22 @@ export default function CoffeeTalk() {
                                         </div>
                                     </article>
                                 ) : (
-                                    <article id={`post-${post.id}`} className={`${activeFilter === 'shorts' ? 'snap-start snap-always h-full w-full mx-0 border-0 sm:border-x sm:border-espresso-800 rounded-none mb-0 flex flex-col pt-0 shrink-0 bg-black relative' : post.isPilgrimageLedger ? 'min-h-[500px] border-amber-500/20 shadow-2xl flex flex-col group rounded-none sm:rounded-3xl mx-0 border-y sm:border border-x-0 mb-0' : (post.isPinned ? 'bg-gradient-to-b from-[#251b0f] to-[#1a1205] border-amber-500/40 rounded-none sm:rounded-3xl mx-0 border-y sm:border border-x-0 mb-0' : 'bg-espresso-900 border-espresso-600 rounded-none sm:rounded-3xl mx-0 border-y sm:border border-x-0 mb-0')} overflow-hidden relative hover:border-amber-500/50 transition-colors`}>
+                                    <article id={`post-${post.id}`} className={`${activeFilter === 'shorts' ? 'snap-start snap-always h-full w-full mx-0 border-0 sm:border-x sm:border-espresso-800 rounded-none mb-0 flex flex-col pt-0 shrink-0 bg-black relative' : post.isPilgrimageLedger ? 'min-h-[500px] border-amber-500/20 shadow-2xl flex flex-col group rounded-none sm:rounded-3xl mx-0 border-y sm:border border-x-0 mb-0' : isEditorialCard ? `${matchedBgTheme.class} border-amber-500/25 rounded-none sm:rounded-3xl mx-0 border-y sm:border border-x-0 mb-0 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.4)]` : (post.isPinned ? 'bg-gradient-to-b from-[#251b0f] to-[#1a1205] border-amber-500/40 rounded-none sm:rounded-3xl mx-0 border-y sm:border border-x-0 mb-0' : 'bg-espresso-900 border-espresso-600 rounded-none sm:rounded-3xl mx-0 border-y sm:border border-x-0 mb-0')} overflow-hidden relative hover:border-amber-500/50 transition-all duration-300`}>
+
+                                        {/* --- EDITORIAL BACKGROUND AND DECO FOR TEXT ONLY --- */}
+                                        {isEditorialCard && matchedBgTheme.pattern && (
+                                            <div className={`absolute inset-0 ${matchedBgTheme.accentClass} pointer-events-none z-0 overflow-hidden`}>
+                                                {matchedBgTheme.pattern()}
+                                            </div>
+                                        )}
+                                        {isEditorialCard && (
+                                            <>
+                                                {/* 상단 큰따옴표 */}
+                                                <span className="absolute top-2 left-4 font-serif text-[5rem] text-white/5 pointer-events-none select-none leading-none z-0">“</span>
+                                                {/* 하단 큰따옴표 */}
+                                                <span className="absolute bottom-16 right-4 font-serif text-[5rem] text-white/5 pointer-events-none select-none leading-none z-0">”</span>
+                                            </>
+                                        )}
 
                                         {/* --- MAGAZINE BACKGROUND FOR PILGRIMAGE --- */}
                                         {post.isPilgrimageLedger && post.image && (() => {
@@ -3006,7 +3152,13 @@ export default function CoffeeTalk() {
                                                         }}
                                                         className={`${post.content && post.content.length > 80 && !expandedPosts.has(post.id) ? "cursor-pointer active:opacity-70 transition-opacity" : ""}`}
                                                     >
-                                                        <p className={`text-[14px] leading-[1.6] text-espresso-50 whitespace-pre-wrap break-words ${!expandedPosts.has(post.id) ? 'line-clamp-3' : ''}`}>
+                                                        <p className={`leading-[1.6] whitespace-pre-wrap break-words z-10 relative overflow-hidden transition-all duration-300 ${
+                                                            isEditorialCard && cleanContent.length < 80
+                                                                ? 'font-serif text-[18px] text-amber-100/95 text-center font-extrabold px-4 my-2 leading-relaxed'
+                                                                : isEditorialCard
+                                                                ? `font-sans text-[14px] ${matchedBgTheme.textClass} font-medium`
+                                                                : 'text-[14px] text-espresso-50'
+                                                        } ${!expandedPosts.has(post.id) ? 'line-clamp-3' : ''}`}>
                                                             {renderWithLinks(cleanContent)}
                                                         </p>
                                                         {!expandedPosts.has(post.id) && cleanContent && cleanContent.length > 80 && (
@@ -3522,6 +3674,39 @@ export default function CoffeeTalk() {
                                         })}
                                     </div>
                                 </div>
+
+                                {/* 에디토리얼 카드 배경 테마 선택 (Premium Gradient Theme Picker) */}
+                                {newImages.length === 0 && existingImages.length === 0 && composeMode !== 'SHORTS' && (
+                                    <div className="flex flex-col gap-2 p-3 bg-espresso-950/50 rounded-xl border border-amber-500/10 w-full mb-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                                        <p className="text-[11px] font-bold text-amber-500 flex items-center gap-1.5">
+                                            <Sparkles size={12} className="text-amber-500" />
+                                            ✨ 에디토리얼 카드 배경 테마 선택 (텍스트 전용)
+                                        </p>
+                                        <div className="flex gap-2 overflow-x-auto pb-1.5 snap-x no-scrollbar">
+                                            {BG_THEMES.map(theme => {
+                                                const isSelected = selectedBgTheme === theme.id;
+                                                return (
+                                                    <button
+                                                        key={theme.id}
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            setSelectedBgTheme(isSelected ? '' : theme.id);
+                                                        }}
+                                                        className={`shrink-0 snap-center px-3 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-2 active:scale-95 ${
+                                                            isSelected
+                                                                ? 'bg-amber-500 text-espresso-950 border-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
+                                                                : 'bg-espresso-900 text-espresso-200 border-espresso-800 hover:border-amber-500/20'
+                                                        }`}
+                                                    >
+                                                        <span className={`w-3.5 h-3.5 rounded-full ${theme.class} border border-white/20`} />
+                                                        {theme.label.split(' ')[1] /* 이모지 제외 라벨 */}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Home Cafe Tags */}
                                 <div className="w-full flex flex-wrap gap-2">
