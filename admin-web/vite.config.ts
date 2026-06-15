@@ -14,7 +14,7 @@ export default defineConfig({
     dedupe: ['react', 'react-dom', 'react-router-dom', 'react-i18next', 'i18next']
   },
   server: {
-    port: 3003,
+    port: 4003,
     strictPort: true,
     host: '0.0.0.0',
     fs: {
@@ -25,11 +25,11 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://127.0.0.1:3001',
+        target: 'http://127.0.0.1:4000',
         changeOrigin: true,
       },
       '/uploads': {
-        target: 'http://127.0.0.1:3001',
+        target: 'http://127.0.0.1:4000',
         changeOrigin: true,
       }
     }

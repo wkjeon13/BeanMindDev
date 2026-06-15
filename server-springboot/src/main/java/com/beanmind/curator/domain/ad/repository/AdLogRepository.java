@@ -1,0 +1,12 @@
+package com.beanmind.curator.domain.ad.repository;
+
+import com.beanmind.curator.domain.ad.entity.AdLog;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface AdLogRepository extends JpaRepository<AdLog, String> {
+    List<AdLog> findByCreativeId(String creativeId);
+}
