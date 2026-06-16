@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Save, X, Image as ImageIcon, Loader2, Timer, Zap } from 'lucide-react';
 
-const API_BASE = 'http://localhost:3001/api'; // Or use env var if available
+const API_BASE = '/api';
 
 interface FlashDrop {
     id: string;

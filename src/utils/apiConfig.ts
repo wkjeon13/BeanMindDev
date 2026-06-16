@@ -21,24 +21,24 @@ if (!isNative) {
                 apiBase = `http://10.0.2.2:4000`;
             } else {
                 // 2. 실제 안드로이드 스마트폰 기기에서는 공인 프로덕션 API 서버로 직결
-                let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:3001';
+                let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
                 if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
-                    rawBase = 'http://www.beanmindcurator.com:3001';
+                    rawBase = 'http://www.beanmindcurator.com:4000';
                 }
                 apiBase = rawBase.replace(/\/$/, '');
             }
         } else {
             // iOS 및 기타 네이티브 환경은 공인 프로덕션 혹은 기존 설정 유지
-            let rawBase = apiBase || 'http://www.beanmindcurator.com:3001';
+            let rawBase = apiBase || 'http://www.beanmindcurator.com:4000';
             if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
-                rawBase = 'http://www.beanmindcurator.com:3001';
+                rawBase = 'http://www.beanmindcurator.com:4000';
             }
             apiBase = rawBase.replace(/\/$/, '');
         }
     } catch (e) {
-        let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:3001';
+        let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
         if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
-            rawBase = 'http://www.beanmindcurator.com:3001';
+            rawBase = 'http://www.beanmindcurator.com:4000';
         }
         apiBase = rawBase.replace(/\/$/, '');
     }
