@@ -55,7 +55,7 @@ export default defineConfig(({ mode }) => {
         ignored: ['**/public/uploads/**', '**/data/**', '**/systemSettings.json', '**/logs/**']
       },
       host: true,
-      allowedHosts: true,
+      allowedHosts: ['dev.beanmindcurator.com', 'localhost'],
       proxy: {
         '/api': {
           target: 'http://127.0.0.1:4000',

@@ -32,9 +32,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
-            .cors(AbstractHttpConfigurer::disable)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Permit preflight
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers("/api/auth/**").permitAll() // Open authentication paths
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/shops/**").permitAll() // Allow public shop searches
@@ -42,6 +43,11 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/clubs", "/api/clubs/**").permitAll() // Allow guest reads for clubs
                 .requestMatchers("/api/ads/**").permitAll() // Allow guest views and tracking for ads
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/reward-tiers").permitAll() // Allow public reward tier views
+                .requestMatchers("/api/analytics/**").permitAll() // Allow visitor logs
+                .requestMatchers("/uploads/**").permitAll() // Allow static uploads access
+                .requestMatchers("/api/compliance/policies/active", "/api/compliance/request").permitAll() // Allow public compliance paths
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/retention/**").permitAll() // Allow public retention/flash-drops
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/home/**").permitAll() // Allow guest home personalized feeds
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger UI & docs paths
                 .anyRequest().authenticated() // Protect all other routes
             )
@@ -49,5 +55,31 @@ public class SecurityConfig {
                     UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
+    }
+
+    @Bean
+    public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+        org.springframework.web.cors.CorsConfiguration configuration = new org.springframework.web.cors.CorsConfiguration();
+        
+        configuration.setAllowedOriginPatterns(java.util.List.of(
+            "http://localhost*",
+            "https://localhost*",
+            "http://127.0.0.1*",
+            "https://127.0.0.1*",
+            "http://*.beanmindcurator.com*",
+            "https://*.beanmindcurator.com*",
+            "https://appleid.apple.com*",
+            "capacitor://localhost",
+            "ionic://localhost"
+        ));
+        
+        configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
+        configuration.setAllowedHeaders(java.util.List.of("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

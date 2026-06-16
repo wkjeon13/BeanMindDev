@@ -16,6 +16,7 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, String> 
     List<ClubMember> findByUserIdAndRoleIn(String userId, List<ClubRole> roles);
     List<ClubMember> findByClubIdAndRoleInOrderByRoleAscJoinedAtDesc(String clubId, List<ClubRole> roles);
     List<ClubMember> findByClubIdOrderByJoinedAtDesc(String clubId);
+    List<ClubMember> findByUserId(String userId);
     
     @Query("SELECT cm.club.id, COUNT(cm) FROM ClubMember cm WHERE cm.club.id IN :clubIds AND cm.role = :role GROUP BY cm.club.id")
     List<Object[]> countPendingMembersByClubIds(@Param("clubIds") List<String> clubIds, @Param("role") ClubRole role);

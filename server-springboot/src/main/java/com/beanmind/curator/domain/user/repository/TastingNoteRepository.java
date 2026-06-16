@@ -10,4 +10,5 @@ import java.util.List;
 public interface TastingNoteRepository extends JpaRepository<TastingNote, String> {
     List<TastingNote> findByUserId(String userId);
     List<TastingNote> findByUserIdOrderByCreatedAtDesc(String userId);
+    long countByUserId(String userId);
 }

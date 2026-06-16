@@ -52,6 +52,8 @@ public class PostResponse {
     private String countryCode;
     private String contentEn;
     private String imageEn;
+    private String matchReason;
+    private Double matchScore;
     
     private AuthorDto author;
     

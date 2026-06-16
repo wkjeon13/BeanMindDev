@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark, String> {
     List<Bookmark> findByUserId(String userId);
+    long countByUserId(String userId);
 }

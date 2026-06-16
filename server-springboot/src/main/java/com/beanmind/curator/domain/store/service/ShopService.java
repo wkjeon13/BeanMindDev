@@ -8,6 +8,7 @@ import com.beanmind.curator.domain.store.dto.ShopSearchRequest;
 import com.beanmind.curator.domain.store.entity.Store;
 import com.beanmind.curator.domain.store.entity.StoreTranslation;
 import com.beanmind.curator.domain.store.repository.StoreRepository;
+import com.beanmind.curator.domain.post.repository.PostRepository;
 import com.beanmind.curator.domain.user.entity.User;
 import com.beanmind.curator.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,7 @@ public class ShopService {
 
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
+    private final PostRepository postRepository;
 
     @Transactional
     public List<ShopResponse> searchShops(ShopSearchRequest request, String userEmail) {
@@ -238,5 +241,61 @@ public class ShopService {
                 .isPremiumTop(store.getIsPremiumTop())
                 .media(mediaList)
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ShopResponse> getTrendingShops(String countryCode, String userEmail) {
+        String finalCountryCode = (countryCode != null && !"GLOBAL".equalsIgnoreCase(countryCode)) ? countryCode : null;
+
+        if (StringUtils.hasText(userEmail)) {
+            try {
+                User dbUser = userRepository.findByEmail(userEmail).orElse(null);
+                if (dbUser != null && StringUtils.hasText(dbUser.getCountryCode()) && !"GLOBAL".equalsIgnoreCase(dbUser.getCountryCode())) {
+                    finalCountryCode = dbUser.getCountryCode();
+                }
+            } catch (Exception e) {
+                log.error("Failed to fetch user country code in trending", e);
+            }
+        }
+
+        LocalDateTime threeMonthsAgo = LocalDateTime.now().minusMonths(3);
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(0, 5);
+        List<String> topStoreIds = postRepository.findTrendingStoreIds(threeMonthsAgo, finalCountryCode, pageable);
+
+        List<Store> stores = new ArrayList<>();
+        if (topStoreIds != null && !topStoreIds.isEmpty()) {
+            stores = storeRepository.findByIdInAndStatus(topStoreIds, "APPROVED");
+        }
+
+        if (stores.isEmpty()) {
+            stores = storeRepository.findTop5ByStatusOrderByCreatedAtDesc("APPROVED");
+        }
+
+        final List<String> finalTopStoreIds = topStoreIds != null ? topStoreIds : new ArrayList<>();
+
+        List<ShopResponse> responses = stores.stream()
+                .map(store -> {
+                    String decryptedAddress = EncryptionUtil.decryptPII(store.getAddress());
+                    return ShopResponse.builder()
+                            .id(store.getId())
+                            .name(store.getName())
+                            .address(decryptedAddress)
+                            .lat(store.getLat())
+                            .lng(store.getLng())
+                            .mainImageUrl(store.getMainImageUrl())
+                            .markerImageUrl(store.getMarkerImageUrl())
+                            .primaryCoffeeType(store.getPrimaryCoffeeType() != null ? store.getPrimaryCoffeeType().name() : null)
+                            .isPremiumTop(store.getIsPremiumTop())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        responses.sort((a, b) -> {
+            int idxA = finalTopStoreIds.indexOf(a.getId());
+            int idxB = finalTopStoreIds.indexOf(b.getId());
+            return Integer.compare(idxA, idxB);
+        });
+
+        return responses;
     }
 }

@@ -28,6 +28,15 @@ public class ShopController {
         return ResponseEntity.ok(ApiResponse.success(responses));
     }
 
+    @GetMapping("/trending")
+    public ResponseEntity<List<ShopResponse>> getTrendingShops(
+            @RequestParam(value = "countryCode", required = false) String countryCode,
+            Principal principal) {
+        String email = principal != null ? principal.getName() : null;
+        List<ShopResponse> responses = shopService.getTrendingShops(countryCode, email);
+        return ResponseEntity.ok(responses);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ShopResponse>> getShopDetail(@PathVariable("id") String id) {
         ShopResponse response = shopService.getShopDetail(id);

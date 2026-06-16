@@ -29,7 +29,7 @@ public class TodayPairing {
     @Builder.Default
     private Boolean isActive = true;
 
-    @Column(name = "orderIndex", nullable = false) // Note: Map 'order' to 'orderIndex' or name = "`order`" to avoid SQL syntax error
+    @Column(name = "`order`", nullable = false) // Map to actual column 'order' using backticks to avoid SQL syntax error
     @Builder.Default
     private Integer order = 0;
 
