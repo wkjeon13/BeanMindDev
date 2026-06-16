@@ -351,12 +351,13 @@ export default function HomeDashboard() {
   const currentUser = (() => {
     try {
       const u = localStorage.getItem('user');
-      return u && u !== 'undefined' ? JSON.parse(u) : {};
+      return u && u !== 'undefined' && u !== 'null' ? JSON.parse(u) : {};
     } catch {
       return {};
     }
   })();
-  const isLoggedIn = !!localStorage.getItem('token');
+  const token = localStorage.getItem('token');
+  const isLoggedIn = !!token && token !== 'undefined' && token !== 'null' && token.trim() !== '' && currentUser && typeof currentUser === 'object' && !!currentUser.id;
 
   const [layoutConfigs, setLayoutConfigs] = useState<HomeSectionConfig[]>(globalHomeCache?.layoutConfigs || DEFAULT_LAYOUT);
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -634,6 +635,12 @@ export default function HomeDashboard() {
             <div className="flex items-center gap-3">
               <button 
                 onClick={() => {
+                  console.log("Settings Clicked - Auth State:", {
+                    token: localStorage.getItem('token'),
+                    user: localStorage.getItem('user'),
+                    currentUser,
+                    isLoggedIn
+                  });
                   if (!isLoggedIn) {
                     alert(t('home.login_required_layout', '설정 기능은 로그인 후에 이용하실 수 있습니다.'));
                     return;
