@@ -38,6 +38,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers("/api/auth/**").permitAll() // Open authentication paths
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/shops/**").permitAll() // Allow public shop searches
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/community/**").permitAll() // Allow guest reads for posts & announcements
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/clubs", "/api/clubs/**").permitAll() // Allow guest reads for clubs
+                .requestMatchers("/api/ads/**").permitAll() // Allow guest views and tracking for ads
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/reward-tiers").permitAll() // Allow public reward tier views
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger UI & docs paths
                 .anyRequest().authenticated() // Protect all other routes
             )

@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/community")
 @RequiredArgsConstructor
 public class PostController {
 
@@ -183,5 +183,19 @@ public class PostController {
         }
         long count = postService.countUnreadAnnouncements(userId, lastRead);
         return ResponseEntity.ok(Map.of("count", count));
+    }
+
+    @GetMapping("/system-notices")
+    public ResponseEntity<List<PostResponse>> getSystemNotices(
+            @RequestParam(value = "countryCode", required = false) String countryCode
+    ) {
+        List<PostResponse> notices = postService.getSystemNotices(countryCode);
+        return ResponseEntity.ok(notices);
+    }
+
+    @GetMapping("/hotspots")
+    public ResponseEntity<List<Map<String, Object>>> getHotspots() {
+        List<Map<String, Object>> hotspots = postService.getHotspots();
+        return ResponseEntity.ok(hotspots);
     }
 }

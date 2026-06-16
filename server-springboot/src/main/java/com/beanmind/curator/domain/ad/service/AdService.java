@@ -265,4 +265,151 @@ public class AdService {
             }
         }
     }
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getCommunityAds(String country, String tags) {
+        String targetCountry = country != null ? country.toUpperCase() : "GLOBAL";
+        LocalDateTime now = LocalDateTime.now();
+        int currentDayNum = now.getDayOfWeek().getValue() % 7; 
+        int currentHourNum = now.getHour();
+
+        List<AdCreative> creatives = adCreativeRepository.findAll(); 
+        List<Map<String, Object>> formattedAds = new ArrayList<>();
+
+        for (AdCreative c : creatives) {
+            if (c.getStatus() != AdCreative.CreativeStatus.ACTIVE) {
+                continue;
+            }
+            Campaign camp = c.getCampaign();
+            if (camp == null || camp.getStatus() != Campaign.CampaignStatus.ACTIVE ||
+                camp.getStartDate().isAfter(now) || camp.getEndDate().isBefore(now)) {
+                continue;
+            }
+            boolean countryMatch = "GLOBAL".equalsIgnoreCase(camp.getTargetCountry()) ||
+                    targetCountry.equalsIgnoreCase(camp.getTargetCountry());
+            if (!countryMatch) {
+                continue;
+            }
+
+            Contract contract = camp.getContract();
+            if (contract == null || contract.getStatus() != Contract.ContractStatus.ACTIVE ||
+                contract.getStartDate().isAfter(now) || contract.getEndDate().isBefore(now)) {
+                continue;
+            }
+
+            if (contract.getPricingModel() != Contract.PricingModel.FIXED &&
+                contract.getTotalBudget() > 0 &&
+                contract.getSpentBudget() >= contract.getTotalBudget()) {
+                continue;
+            }
+
+            if (camp.getTargetDays() != null && !camp.getTargetDays().trim().isEmpty()) {
+                String[] dayParts = camp.getTargetDays().split(",");
+                boolean dayMatched = false;
+                for (String part : dayParts) {
+                    part = part.trim();
+                    if (part.contains("~") || part.contains("-")) {
+                        String sep = part.contains("~") ? "~" : "-";
+                        String[] range = part.split(sep);
+                        if (range.length == 2) {
+                            try {
+                                int start = Integer.parseInt(range[0].trim());
+                                int end = Integer.parseInt(range[1].trim());
+                                if (currentDayNum >= start && currentDayNum <= end) {
+                                    dayMatched = true;
+                                    break;
+                                }
+                            } catch (NumberFormatException e) {
+                            }
+                        }
+                    } else {
+                        try {
+                            if (Integer.parseInt(part) == currentDayNum) {
+                                dayMatched = true;
+                                break;
+                            }
+                        } catch (NumberFormatException e) {
+                        }
+                    }
+                }
+                if (!dayMatched) continue;
+            }
+
+            if (camp.getTargetHours() != null && !camp.getTargetHours().trim().isEmpty()) {
+                String[] hourParts = camp.getTargetHours().split(",");
+                boolean hourMatched = false;
+                for (String part : hourParts) {
+                    part = part.trim();
+                    if (part.contains("~") || part.contains("-")) {
+                        String sep = part.contains("~") ? "~" : "-";
+                        String[] range = part.split(sep);
+                        if (range.length == 2) {
+                            try {
+                                int start = Integer.parseInt(range[0].trim());
+                                int end = Integer.parseInt(range[1].trim());
+                                if (currentHourNum >= start && currentHourNum <= end) {
+                                    hourMatched = true;
+                                    break;
+                                }
+                            } catch (NumberFormatException e) {
+                            }
+                        }
+                    } else {
+                        try {
+                            if (Integer.parseInt(part) == currentHourNum) {
+                                hourMatched = true;
+                                break;
+                            }
+                        } catch (NumberFormatException e) {
+                        }
+                    }
+                }
+                if (!hourMatched) continue;
+            }
+
+            int score = c.getPriority() != null ? c.getPriority() : 1;
+            if (tags != null && !tags.trim().isEmpty()) {
+                String[] userTags = tags.split(",");
+                if (c.getFlavorTags() != null) {
+                    String[] adFlavors = c.getFlavorTags().split(",");
+                    for (String adFlavor : adFlavors) {
+                        for (String userTag : userTags) {
+                            if (adFlavor.trim().equalsIgnoreCase(userTag.trim())) {
+                                score += 10;
+                            }
+                        }
+                    }
+                }
+                if (c.getOriginTags() != null) {
+                    String[] adOrigins = c.getOriginTags().split(",");
+                    for (String adOrigin : adOrigins) {
+                        for (String userTag : userTags) {
+                            if (adOrigin.trim().equalsIgnoreCase(userTag.trim())) {
+                                score += 10;
+                            }
+                        }
+                    }
+                }
+            }
+
+            Map<String, Object> adMap = new HashMap<>();
+            adMap.put("id", c.getId());
+            adMap.put("title", c.getName());
+            adMap.put("type", c.getType() != null ? c.getType().name() : null);
+            adMap.put("size", c.getSize() != null ? c.getSize().name() : null);
+            adMap.put("content", c.getContent());
+            adMap.put("linkUrl", c.getLinkUrl());
+            adMap.put("placement", c.getPlacement() != null ? c.getPlacement().getLocationKey() : "FEED_STANDARD");
+            adMap.put("targetCountry", camp.getTargetCountry());
+            adMap.put("matchScore", score);
+            adMap.put("overlayText", c.getOverlayText());
+            adMap.put("overlayFontSize", c.getOverlayFontSize());
+            adMap.put("overlayColor", c.getOverlayColor());
+            adMap.put("overlayPosition", c.getOverlayPosition());
+            formattedAds.add(adMap);
+        }
+
+        formattedAds.sort((a, b) -> Integer.compare((Integer) b.get("matchScore"), (Integer) a.get("matchScore")));
+
+        return formattedAds;
+    }
 }

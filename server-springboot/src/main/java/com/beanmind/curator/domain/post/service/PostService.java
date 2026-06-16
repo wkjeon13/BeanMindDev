@@ -382,12 +382,10 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public long countUnreadAnnouncements(String userId, LocalDateTime lastRead) {
-        // Find followed stores
         List<String> followedStoreIds = storeFollowRepository.findByUserId(userId).stream()
                 .map(f -> f.getStore().getId())
                 .collect(Collectors.toList());
 
-        // Find followed users
         List<String> followedUserIds = userFollowRepository.findByFollowerId(userId).stream()
                 .map(f -> f.getFollowing().getId())
                 .collect(Collectors.toList());
@@ -397,5 +395,40 @@ public class PostService {
         }
 
         return postRepository.countUnreadAnnouncements(userId, followedStoreIds, followedUserIds, lastRead);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostResponse> getSystemNotices(String countryCode) {
+        LocalDateTime now = LocalDateTime.now();
+        String resolvedCountry = (countryCode != null && !countryCode.trim().isEmpty()) ? countryCode : "GLOBAL";
+        List<Post> notices = postRepository.findActiveSystemNotices(now, resolvedCountry);
+        return notices.stream()
+                .map(p -> PostResponse.of(p, null))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getHotspots() {
+        LocalDateTime startDate = LocalDateTime.now().minusDays(30);
+        List<Post> recentPosts = postRepository.findRecentHotspots(startDate);
+
+        List<Map<String, Object>> hotspots = new ArrayList<>();
+        for (Post p : recentPosts) {
+            Map<String, Object> h = new HashMap<>();
+            h.put("lat", p.getCafeLat());
+            h.put("lng", p.getCafeLng());
+            h.put("cafeName", p.getCafeName());
+            h.put("cafeLocation", p.getCafeLocation());
+            int weight = 1;
+            if (p.getLikes() != null) {
+                weight += p.getLikes().size();
+            }
+            if (p.getComments() != null) {
+                weight += p.getComments().size();
+            }
+            h.put("weight", weight);
+            hotspots.add(h);
+        }
+        return hotspots;
     }
 }

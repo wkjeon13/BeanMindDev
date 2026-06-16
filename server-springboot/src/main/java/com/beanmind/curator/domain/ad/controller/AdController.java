@@ -8,32 +8,39 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/ads")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class AdController {
 
     private final AdService adService;
 
-    @GetMapping("/serve")
+    @GetMapping("/ads/serve")
     public ResponseEntity<Map<String, Object>> serveAd(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal Object principal,
             @RequestParam(name = "tab", required = false) String tab,
             @RequestParam(name = "lang", defaultValue = "en") String lang,
             @RequestParam(name = "placementKey", required = false) String placementKey) {
-        String email = userDetails != null ? userDetails.getUsername() : null;
+        String email = null;
+        if (principal instanceof UserDetails) {
+            email = ((UserDetails) principal).getUsername();
+        }
         Map<String, Object> ad = adService.serveAd(email, tab, lang, placementKey);
         return ResponseEntity.ok(ad);
     }
 
-    @PostMapping("/track")
+    @PostMapping("/ads/track")
     public ResponseEntity<Map<String, Object>> trackAd(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal Object principal,
             @RequestBody Map<String, String> body,
             HttpServletRequest request) {
-        String email = userDetails != null ? userDetails.getUsername() : null;
+        String email = null;
+        if (principal instanceof UserDetails) {
+            email = ((UserDetails) principal).getUsername();
+        }
         String creativeId = body.get("creativeId");
         String actionType = body.get("actionType");
 
@@ -46,6 +53,34 @@ public class AdController {
 
         adService.trackAd(email, creativeId, actionType, ipAddress, userAgent);
 
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @GetMapping("/community/ads")
+    public ResponseEntity<List<Map<String, Object>>> getCommunityAds(
+            @RequestParam(name = "country", required = false) String country,
+            @RequestParam(name = "tags", required = false) String tags) {
+        List<Map<String, Object>> ads = adService.getCommunityAds(country, tags);
+        return ResponseEntity.ok(ads);
+    }
+
+    @PostMapping("/community/ads/{id}/click")
+    public ResponseEntity<Map<String, Object>> clickAd(
+            @PathVariable("id") String creativeId,
+            HttpServletRequest request) {
+        String ipAddress = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+        adService.trackAd(null, creativeId, "CLICK", ipAddress, userAgent);
+        return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    @PostMapping("/community/ads/{id}/impression")
+    public ResponseEntity<Map<String, Object>> impressionAd(
+            @PathVariable("id") String creativeId,
+            HttpServletRequest request) {
+        String ipAddress = request.getRemoteAddr();
+        String userAgent = request.getHeader("User-Agent");
+        adService.trackAd(null, creativeId, "IMPRESSION", ipAddress, userAgent);
         return ResponseEntity.ok(Map.of("success", true));
     }
 }
