@@ -17,8 +17,8 @@ if (!isNative) {
             const isEmulator = ua.includes('sdk_gphone') || ua.includes('emulator') || ua.includes('goldfish') || ua.includes('google_sdk') || ua.includes('ranchu');
 
             if (isEmulator) {
-                // 1. 에뮬레이터 환경에서는 PC 로컬 백엔드 서버(10.0.2.2:3001)로 직결
-                apiBase = `http://10.0.2.2:3001`;
+                // 1. 에뮬레이터 환경에서는 PC 로컬 백엔드 서버(10.0.2.2:4000)로 직결
+                apiBase = `http://10.0.2.2:4000`;
             } else {
                 // 2. 실제 안드로이드 스마트폰 기기에서는 공인 프로덕션 API 서버로 직결
                 let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:3001';
