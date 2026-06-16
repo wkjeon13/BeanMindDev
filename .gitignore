@@ -38,3 +38,6 @@ temp_extract/
 
 # OS specific
 Thumbs.db
+
+# Mobile nested git backup
+mobile/.git_backup
