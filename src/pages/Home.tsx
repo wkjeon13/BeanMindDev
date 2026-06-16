@@ -574,30 +574,32 @@ export default function HomeDashboard() {
 
 
   const handleSaveLayout = async (newLayout: HomeSectionConfig[]) => {
-    if (isLoggedIn) {
-      try {
-        const headers: any = { 
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        };
-        const res = await fetch(`${API_BASE}/api/users/me/home-layout`, {
-          method: 'PUT',
-          headers,
-          body: JSON.stringify({ layout: newLayout })
-        });
-        
-        if (!res.ok) {
-           alert("설정 저장에 실패했습니다. 다시 로그인해주세요.");
-           return; // Abort if save failed!
-        }
-      } catch (error) {
-        console.error("Failed to save layout", error);
-        alert("설정 저장에 실패했습니다. 네트워크를 확인해주세요.");
-        return;
+    if (!isLoggedIn) {
+      alert(t('home.login_required_layout', '설정 기능은 로그인 후에 이용하실 수 있습니다.'));
+      return;
+    }
+    try {
+      const headers: any = { 
+        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'application/json'
+      };
+      const res = await fetch(`${API_BASE}/api/users/me/home-layout`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ layout: newLayout })
+      });
+      
+      if (!res.ok) {
+         alert("설정 저장에 실패했습니다. 다시 로그인해주세요.");
+         return; // Abort if save failed!
       }
+    } catch (error) {
+      console.error("Failed to save layout", error);
+      alert("설정 저장에 실패했습니다. 네트워크를 확인해주세요.");
+      return;
     }
     
-    // Only update local state if save was successful (or if not logged in)
+    // Only update local state if save was successful
     setLayoutConfigs(newLayout);
     setIsEditorOpen(false);
     if (globalHomeCache) globalHomeCache.layoutConfigs = newLayout;
@@ -630,7 +632,16 @@ export default function HomeDashboard() {
             </h1>
             
             <div className="flex items-center gap-3">
-              <button onClick={() => setIsEditorOpen(true)} className="text-espresso-400 hover:text-amber-500 transition-colors p-1">
+              <button 
+                onClick={() => {
+                  if (!isLoggedIn) {
+                    alert(t('home.login_required_layout', '설정 기능은 로그인 후에 이용하실 수 있습니다.'));
+                    return;
+                  }
+                  setIsEditorOpen(true);
+                }} 
+                className="text-espresso-400 hover:text-amber-500 transition-colors p-1"
+              >
                 <Settings size={20} />
               </button>
               <Sparkles className="text-amber-500 w-5 h-5" />
