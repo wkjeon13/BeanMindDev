@@ -5,6 +5,10 @@ import com.beanmind.curator.domain.user.dto.AuthResponse;
 import com.beanmind.curator.domain.user.dto.LoginRequest;
 import com.beanmind.curator.domain.user.dto.RegisterRequest;
 import com.beanmind.curator.domain.user.dto.VerifyEmailRequest;
+import com.beanmind.curator.domain.user.dto.NaverRegisterRequest;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.MediaType;
 import com.beanmind.curator.domain.user.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -62,6 +66,31 @@ public class AuthController {
             @Valid @RequestBody VerifyEmailRequest request) {
 
         AuthResponse response = authService.verifyEmail(request);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping(value = "/naver/callback", produces = MediaType.TEXT_HTML_VALUE)
+    public ResponseEntity<String> naverCallback(
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String state,
+            @RequestParam(required = false) String error,
+            @RequestParam(required = false, name = "error_description") String errorDescription) {
+        
+        String htmlResult = authService.getNaverTokenAndRedirect(code, state, error, errorDescription);
+        return ResponseEntity.ok(htmlResult);
+    }
+
+    @PostMapping("/naver/register")
+    public ResponseEntity<ApiResponse<AuthResponse>> registerNaver(
+            @Valid @RequestBody NaverRegisterRequest request,
+            HttpServletRequest servletRequest) {
+
+        String ipAddress = servletRequest.getHeader("X-Forwarded-For");
+        if (ipAddress == null) {
+            ipAddress = servletRequest.getRemoteAddr();
+        }
+
+        AuthResponse response = authService.registerNaver(request, ipAddress);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

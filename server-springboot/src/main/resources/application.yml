@@ -43,6 +43,11 @@ jwt:
   secret: beanmind_secure_jwt_secret_key_2026_test
   expiration-ms: 86400000
 
+naver:
+  client:
+    id: ${NAVER_CLIENT_ID:}
+    secret: ${NAVER_CLIENT_SECRET:}
+
 gemini:
   api:
     key: ${GEMINI_API_KEY:}

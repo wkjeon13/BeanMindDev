@@ -38,6 +38,7 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Permit preflight
                 .requestMatchers("/api/health").permitAll()
                 .requestMatchers("/api/auth/**").permitAll() // Open authentication paths
+                .requestMatchers("/api/auth/naver/callback", "/api/auth/naver/register").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/shops/**").permitAll() // Allow public shop searches
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/community/**").permitAll() // Allow guest reads for posts & announcements
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/clubs", "/api/clubs/**").permitAll() // Allow guest reads for clubs
