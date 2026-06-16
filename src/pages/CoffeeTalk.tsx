@@ -755,6 +755,7 @@ export default function CoffeeTalk() {
     }, [location]);
 
     const fetchPosts = async (isRefresh = false, silent = false) => {
+        const activePostIdBackup = targetPostIdToScroll.current;
         try {
             if (isRefresh) {
                 if (!silent) setIsLoading(true);
@@ -847,10 +848,9 @@ export default function CoffeeTalk() {
                 }
 
                 // Fetch the targeted active post if it's missing from the feed (e.g., old hot post)
-                const activePostId = targetPostIdToScroll.current;
-                if (isRefresh && activePostId && !mappedPosts.some(p => p.id === activePostId)) {
+                if (isRefresh && activePostIdBackup && !mappedPosts.some(p => p.id === activePostIdBackup)) {
                     try {
-                        const singleRes = await fetch(`${API_BASE}/api/community/posts/${activePostId}`, { headers });
+                        const singleRes = await fetch(`${API_BASE}/api/community/posts/${activePostIdBackup}`, { headers });
                         if (singleRes.ok) {
                             const d = await singleRes.json();
                             const singlePost = {
