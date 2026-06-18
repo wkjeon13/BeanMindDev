@@ -151,6 +151,85 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newPost);
     }
 
+    @PutMapping(value = "/posts/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    public ResponseEntity<PostResponse> updatePost(
+            @PathVariable("id") String id,
+            @RequestParam(value = "content", required = false) String content,
+            @RequestParam(value = "cafeName", required = false) String cafeName,
+            @RequestParam(value = "cafeLocation", required = false) String cafeLocation,
+            @RequestParam(value = "cafeLat", required = false) Double cafeLat,
+            @RequestParam(value = "cafeLng", required = false) Double cafeLng,
+            @RequestParam(value = "acidity", required = false) Double acidity,
+            @RequestParam(value = "sweetness", required = false) Double sweetness,
+            @RequestParam(value = "body", required = false) Double body,
+            @RequestParam(value = "bitterness", required = false) Double bitterness,
+            @RequestParam(value = "aroma", required = false) Integer aroma,
+            @RequestParam(value = "taggedBean", required = false) String taggedBean,
+            @RequestParam(value = "recipeData", required = false) String recipeData,
+            @RequestParam(value = "existingImages", required = false) String existingImages,
+            @RequestParam(value = "storeId", required = false) String storeId,
+            @RequestParam(value = "attachedCourseId", required = false) String attachedCourseId,
+            @RequestParam(value = "bgmTheme", required = false) String bgmTheme,
+            @RequestParam(value = "removeBgm", required = false) Boolean removeBgm,
+            @RequestParam(value = "bgTheme", required = false) String bgTheme,
+            @RequestParam(value = "removeBg", required = false) Boolean removeBg,
+            @RequestParam(value = "pollData", required = false) String pollData,
+            @RequestParam(value = "removePoll", required = false) Boolean removePoll,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            HttpServletRequest request,
+            Principal principal
+    ) {
+        String userId = getRequiredUserId(principal);
+
+        List<MultipartFile> allFiles = new ArrayList<>();
+        if (files != null) {
+            allFiles.addAll(files);
+        }
+
+        List<String> base64Images = new ArrayList<>();
+
+        if (request instanceof org.springframework.web.multipart.MultipartHttpServletRequest) {
+            org.springframework.web.multipart.MultipartHttpServletRequest multipartRequest = 
+                    (org.springframework.web.multipart.MultipartHttpServletRequest) request;
+            
+            List<MultipartFile> imagesFiles = multipartRequest.getFiles("images");
+            if (imagesFiles != null && !imagesFiles.isEmpty()) {
+                allFiles.addAll(imagesFiles);
+            }
+            
+            List<MultipartFile> imageFilesList = multipartRequest.getFiles("image");
+            if (imageFilesList != null && !imageFilesList.isEmpty()) {
+                allFiles.addAll(imageFilesList);
+            }
+        }
+
+        String[] imagesParams = request.getParameterValues("images");
+        if (imagesParams != null) {
+            for (String val : imagesParams) {
+                if (StringUtils.hasText(val)) {
+                    base64Images.add(val);
+                }
+            }
+        }
+        String[] imageParams = request.getParameterValues("image");
+        if (imageParams != null) {
+            for (String val : imageParams) {
+                if (StringUtils.hasText(val)) {
+                    base64Images.add(val);
+                }
+            }
+        }
+
+        PostResponse updatedPost = postService.updatePost(
+                id, userId, content, cafeName, cafeLocation, cafeLat, cafeLng,
+                acidity, sweetness, body, bitterness, aroma, taggedBean,
+                recipeData, existingImages, storeId, attachedCourseId,
+                bgmTheme, removeBgm, bgTheme, removeBg, pollData, removePoll,
+                allFiles, base64Images
+        );
+        return ResponseEntity.ok(updatedPost);
+    }
+
     @PostMapping("/posts/{id}/like")
     public ResponseEntity<Map<String, Boolean>> toggleLike(
             @PathVariable("id") String id,

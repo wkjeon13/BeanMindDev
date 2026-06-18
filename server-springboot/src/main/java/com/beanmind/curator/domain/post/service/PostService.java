@@ -303,6 +303,190 @@ public class PostService {
     }
 
     @Transactional
+    public PostResponse updatePost(String postId, String userId, String content, String cafeName, String cafeLocation,
+                                   Double cafeLat, Double cafeLng, Double acidity, Double sweetness,
+                                   Double body, Double bitterness, Integer aroma, String taggedBean,
+                                   String recipeData, String existingImages, String storeId, String attachedCourseId,
+                                   String bgmTheme, Boolean removeBgm, String bgTheme, Boolean removeBg,
+                                   String pollData, Boolean removePoll,
+                                   List<MultipartFile> files, List<String> base64Images) {
+
+        Post post = postRepository.findById(postId)
+                .filter(p -> !p.getIsDeleted())
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        if (!post.getAuthor().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACTION);
+        }
+
+        // Auto-Moderation check
+        if (StringUtils.hasText(content)) {
+            ContentFilterService.BannedWordCheckResult modRes = contentFilterService.containsBannedWord(content);
+            if (modRes.isBanned()) {
+                throw new CustomException(ErrorCode.INVALID_DATA_FORMAT, "해당 게시물에 정책상 허용되지 않는 키워드(" + modRes.getWord() + ")가 포함되어 있습니다.");
+            }
+        }
+
+        String finalContent = content != null ? content : "";
+        
+        // BGM/BG Theme tags integration
+        // 1. Remove existing tags
+        finalContent = finalContent.replaceAll("(?s)<!--BM_BGM:(.*?)-->", "").trim();
+        finalContent = finalContent.replaceAll("(?s)<!--BM_BG:(.*?)-->", "").trim();
+
+        // 2. Append new tags if applicable
+        if (StringUtils.hasText(bgmTheme) && (removeBgm == null || !removeBgm)) {
+            try {
+                Map<String, Object> parsedBgm = objectMapper.readValue(bgmTheme, Map.class);
+                if (parsedBgm != null && parsedBgm.get("videoId") != null && parsedBgm.get("title") != null) {
+                    String bgmJson = objectMapper.writeValueAsString(Map.of(
+                            "title", parsedBgm.get("title"),
+                            "videoId", parsedBgm.get("videoId")
+                    ));
+                    finalContent = finalContent + "\n<!--BM_BGM:" + bgmJson + "-->";
+                }
+            } catch (Exception e) {
+                // fall back to string append
+                finalContent = finalContent + "\n<!--BM_BGM:" + bgmTheme.trim() + "-->";
+            }
+        }
+
+        if (StringUtils.hasText(bgTheme) && (removeBg == null || !removeBg)) {
+            finalContent = finalContent + "\n<!--BM_BG:" + bgTheme.trim() + "-->";
+        }
+
+        // Image uploads integration
+        List<String> imageUrls = new ArrayList<>();
+        
+        // Parse existing images
+        if (StringUtils.hasText(existingImages)) {
+            try {
+                List<String> parsedExisting = objectMapper.readValue(existingImages, List.class);
+                if (parsedExisting != null) {
+                    imageUrls.addAll(parsedExisting);
+                }
+            } catch (Exception e) {
+                log.error("Failed to parse existingImages", e);
+            }
+        }
+
+        String uploadDirRelative = "uploads/community";
+        String uploadDirAbsolute = new File(uploadDirRelative).getAbsolutePath();
+
+        try {
+            Files.createDirectories(Paths.get(uploadDirAbsolute));
+
+            // Standard Multipart Files
+            if (files != null && !files.isEmpty()) {
+                for (MultipartFile file : files) {
+                    String ext = StringUtils.getFilenameExtension(file.getOriginalFilename());
+                    String fileName = UUID.randomUUID() + (ext != null ? "." + ext : ".jpg");
+                    File dest = new File(uploadDirAbsolute, fileName);
+                    file.transferTo(dest);
+                    imageUrls.add("/" + uploadDirRelative + "/" + fileName);
+                }
+            }
+
+            // Capacitor Base64 Strings
+            if (base64Images != null && !base64Images.isEmpty()) {
+                for (String base64Data : base64Images) {
+                    if (base64Data.startsWith("data:")) {
+                        String mimeType = base64Data.split(";")[0].split(":")[1];
+                        String ext = mimeType.split("/")[1];
+                        String rawBase64 = base64Data.substring(base64Data.indexOf(",") + 1);
+                        byte[] decoded = Base64.getDecoder().decode(rawBase64);
+
+                        String fileName = "base64-" + System.currentTimeMillis() + "-" + (int)(Math.random() * 1000) + "." + ext;
+                        File dest = new File(uploadDirAbsolute, fileName);
+                        try (FileOutputStream fos = new FileOutputStream(dest)) {
+                            fos.write(decoded);
+                        }
+                        imageUrls.add("/" + uploadDirRelative + "/" + fileName);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            log.error("Image upload failed", e);
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다.");
+        }
+
+        String imageField = null;
+        if (!imageUrls.isEmpty()) {
+            try {
+                imageField = objectMapper.writeValueAsString(imageUrls);
+            } catch (Exception e) {
+                log.error("JSON stringify image list error", e);
+            }
+        }
+
+        // Poll integration
+        if (post.getPoll() != null && (StringUtils.hasText(pollData) || (removePoll != null && removePoll))) {
+            pollRepository.deleteByPostId(postId);
+            post.setPoll(null);
+        }
+
+        if (StringUtils.hasText(pollData) && (removePoll == null || !removePoll)) {
+            try {
+                Map<String, Object> parsed = objectMapper.readValue(pollData, Map.class);
+                if (parsed != null && parsed.get("question") != null) {
+                    String question = (String) parsed.get("question");
+                    List<String> options = (List<String>) parsed.get("options");
+                    Number durationHoursNum = (Number) parsed.get("durationHours");
+                    int durationHours = durationHoursNum != null ? durationHoursNum.intValue() : 0;
+                    LocalDateTime expiresAt = null;
+                    if (durationHours > 0) {
+                        expiresAt = LocalDateTime.now().plusHours(durationHours);
+                    }
+
+                    Poll newPoll = Poll.builder()
+                            .id(UUID.randomUUID().toString())
+                            .post(post)
+                            .question(question)
+                            .expiresAt(expiresAt)
+                            .options(new ArrayList<>())
+                            .build();
+
+                    if (options != null) {
+                        for (int i = 0; i < options.size(); i++) {
+                            PollOption opt = PollOption.builder()
+                                    .id(UUID.randomUUID().toString())
+                                    .poll(newPoll)
+                                    .text(options.get(i))
+                                    .sortOrder(i)
+                                    .build();
+                            newPoll.getOptions().add(opt);
+                        }
+                    }
+                    post.setPoll(newPoll);
+                }
+            } catch (Exception e) {
+                log.error("POLL CREATE ERROR IN PUT:", e);
+            }
+        }
+
+        Store store = StringUtils.hasText(storeId) ? storeRepository.findById(storeId).orElse(null) : null;
+
+        post.setContent(finalContent);
+        post.setImage(imageField);
+        post.setCafeName(cafeName);
+        post.setCafeLocation(cafeLocation);
+        post.setCafeLat(cafeLat);
+        post.setCafeLng(cafeLng);
+        post.setAcidity(acidity);
+        post.setSweetness(sweetness);
+        post.setBody(body);
+        post.setBitterness(bitterness);
+        post.setAroma(aroma);
+        post.setTaggedBean(taggedBean);
+        post.setRecipeData(recipeData);
+        post.setStore(store);
+        post.setAttachedCourseId(attachedCourseId);
+
+        Post savedPost = postRepository.save(post);
+        return PostResponse.of(savedPost, userId);
+    }
+
+    @Transactional
     public Map<String, Boolean> toggleLike(String postId, String userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
