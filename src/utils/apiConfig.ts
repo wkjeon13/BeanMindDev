@@ -28,10 +28,14 @@ if (!isNative) {
                 apiBase = rawBase.replace(/\/$/, '');
             }
         } else {
-            // iOS 및 기타 네이티브 환경은 공인 프로덕션 혹은 기존 설정 유지
-            let rawBase = apiBase || 'http://www.beanmindcurator.com:4000';
+            // iOS 및 기타 네이티브 환경은 에뮬레이터일 경우 localhost 사용, 아닐 경우 공인 프로덕션 유지
+            const ua = navigator.userAgent.toLowerCase();
+            const isIosSimulator = ua.includes('simulator') || ua.includes('iphonesimulator');
+            
+            let defaultBase = isIosSimulator ? 'http://localhost:4000' : 'http://www.beanmindcurator.com:4000';
+            let rawBase = apiBase || defaultBase;
             if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
-                rawBase = 'http://www.beanmindcurator.com:4000';
+                rawBase = defaultBase;
             }
             apiBase = rawBase.replace(/\/$/, '');
         }
@@ -101,4 +105,46 @@ export const getDeviceCountryCode = () => {
     if (lang.toLowerCase().startsWith('ja')) return 'JP';
     if (lang.toLowerCase().startsWith('zh')) return 'CN';
     return 'GLOBAL';
+};
+
+/**
+ * Resolves the absolute API URL for both Native (mobile) and Web environments.
+ * Routes specific endpoints to the Node.js API (port 4001) and other endpoints to port 4000.
+ */
+export const getApiUrl = (path: string): string => {
+    if (!isNative) {
+        return path;
+    }
+
+    const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+    
+    // Check if the path should go to the Node.js backend (4001)
+    const goesToNodeBackend = [
+        '/api/users/me/badge',
+        '/api/users/bookmarks',
+        '/api/users/prescriptions',
+        '/api/shops/ai-import',
+        '/api/users/checkins',
+        '/api/users/collections',
+        '/api/stamps',
+        '/api/users/prescriptions/' // for detail/rating/delete subpaths
+    ].some(prefix => {
+        if (prefix.endsWith('/')) {
+            return normalizedPath.startsWith(prefix);
+        }
+        return normalizedPath === prefix || normalizedPath.startsWith(prefix + '/');
+    });
+
+    let base = apiBase;
+    
+    if (goesToNodeBackend) {
+        if (base.includes(':4000')) {
+            base = base.replace(':4000', ':4001');
+        } else if (!base.includes(':4001')) {
+            // Fallback for domains without ports
+            base = base + ':4001';
+        }
+    }
+
+    return `${base}${normalizedPath}`;
 };

@@ -11,7 +11,7 @@ import { COFFEE_BEANS, BRANDS } from '../data/coffeeData';
 import SharedCoffeeMap from '../components/SharedCoffeeMap';
 import GlobalAdBanner from '../components/GlobalAdBanner';
 import NativeAdBanner from '../components/NativeAdBanner';
-import { API_BASE } from '../utils/apiConfig';
+import { API_BASE, getApiUrl } from '../utils/apiConfig';
 import { useTranslation } from 'react-i18next';
 import PrescriptionTicket from '../components/PrescriptionTicket';
 import { useCuratorStore } from '../store/curatorStore';
@@ -90,7 +90,7 @@ export default function App() {
       const fetchPublicPrescription = async () => {
         setIsPublicLoading(true);
         try {
-          const res = await fetch(`${API_BASE}/api/users/prescriptions/public/${queryPrescriptionId}`);
+          const res = await fetch(getApiUrl(`/api/users/prescriptions/public/${queryPrescriptionId}`));
           if (res.ok) {
             const data = await res.json();
             const matchedBean = (() => {
@@ -283,7 +283,7 @@ export default function App() {
                 // Consume it only if we're successfully saving it
                 localStorage.removeItem('bm_sync_presc'); 
                 try {
-                    const res = await fetch(`${API_BASE}/api/users/prescriptions`, {
+                    const res = await fetch(getApiUrl('/api/users/prescriptions'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify({
@@ -337,7 +337,7 @@ export default function App() {
       const currentStep = useCuratorStore.getState().step;
       if (isLoggedIn && token && !syncHandled.current && (currentStep === 0 || currentStep === 4)) {
         try {
-          const res = await fetch(`${API_BASE}/api/users/prescriptions`, { headers: { Authorization: `Bearer ${token}` } });
+          const res = await fetch(getApiUrl('/api/users/prescriptions'), { headers: { Authorization: `Bearer ${token}` } });
           if (res.ok) {
             const data = await res.json();
             if (data && data.length > 0) {
@@ -405,7 +405,7 @@ export default function App() {
     ) {
       const autoSaveOnComplete = async () => {
         try {
-          const res = await fetch(`${API_BASE}/api/users/prescriptions`, {
+          const res = await fetch(getApiUrl('/api/users/prescriptions'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({
@@ -456,7 +456,7 @@ export default function App() {
     let isMounted = true;
     if (step === 4 && recommendation) {
       const targetCountryCode = i18n.language?.startsWith('en') ? 'US' : 'KR';
-      fetch(`${API_BASE}/api/community/ads?tags=${encodeURIComponent(prefs.flavorNotes.join(','))}&country=${targetCountryCode}`)
+      fetch(getApiUrl(`/api/community/ads?tags=${encodeURIComponent(prefs.flavorNotes.join(','))}&country=${targetCountryCode}`))
         .then(res => res.json())
         .then(ads => {
           if (!isMounted) return;
@@ -493,7 +493,7 @@ export default function App() {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/api/users/ai-eligibility`, {
+      const res = await fetch(getApiUrl('/api/users/ai-eligibility'), {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
@@ -569,7 +569,7 @@ export default function App() {
 
     setIsSaving(true);
     try {
-      const response = await fetch(`${API_BASE}/api/users/prescriptions`, {
+      const response = await fetch(getApiUrl('/api/users/prescriptions'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
