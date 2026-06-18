@@ -8,19 +8,32 @@ import os from 'os';
 function getLocalIpAddress() {
   try {
     const interfaces = os.networkInterfaces();
+    let fallbackIp = 'localhost';
+    
+    // 192.168.x.x 대역을 최우선적으로 탐색 (Wi-Fi 무선랜 환경)
     for (const interfaceName in interfaces) {
+      const lowerName = interfaceName.toLowerCase();
+      // 가상 머신, 도커, VPN 어댑터 이름 필터링하여 명시적 제외
+      if (lowerName.includes('docker') || lowerName.includes('vbox') || lowerName.includes('virtual') || lowerName.includes('vmnet') || lowerName.includes('vpn') || lowerName.includes('wsl')) {
+        continue;
+      }
+      
       const addresses = interfaces[interfaceName];
       if (addresses) {
         for (const address of addresses) {
           if (address.family === 'IPv4' && !address.internal) {
             const ip = address.address;
-            if (ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.')) {
-              return ip;
+            if (ip.startsWith('192.168.')) {
+              return ip; // 진짜 Wi-Fi 사설 IP 주소 검출 즉시 반환
+            }
+            if (ip.startsWith('10.') || ip.startsWith('172.')) {
+              fallbackIp = ip; // 다른 사설 대역을 fallbackIp에 임시 저장
             }
           }
         }
       }
     }
+    return fallbackIp;
   } catch (e) {}
   return 'localhost';
 }
