@@ -16,7 +16,17 @@ import { useTranslation } from 'react-i18next';
 import PrescriptionTicket from '../components/PrescriptionTicket';
 import { useCuratorStore } from '../store/curatorStore';
 import { clearHomeCache } from './Home';
-const safeGetSession = () => { try { return !!localStorage.getItem('token'); } catch { return false; } };
+
+export const getSafeToken = () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token || token === 'null' || token === 'undefined') return null;
+    return token;
+  } catch {
+    return null;
+  }
+};
+const safeGetSession = () => getSafeToken() !== null;
 
 export default function App() {
   const { t, i18n } = useTranslation();
@@ -246,7 +256,7 @@ export default function App() {
       }
 
       const needsSync = localStorage.getItem('bm_sync_presc');
-      const token = localStorage.getItem('token');
+      const token = getSafeToken();
       const userRole = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}').role; } catch { return 'USER'; } })();
       
 
@@ -293,7 +303,17 @@ export default function App() {
                             }
                         } catch (e) {}
                     }
-                    if (res.status === 403) {
+                    if (res.status === 403 || res.status === 401) {
+                        try {
+                            const errorData = await res.json();
+                            if (errorData.errorCode === 'ERR_INVALID_TOKEN' || errorData.errorCode === 'ERR_MISSING_AUTH_HEADER' || errorData.errorCode === 'ERR_UNAUTHORIZED') {
+                                localStorage.removeItem('token');
+                                localStorage.removeItem('user');
+                                window.dispatchEvent(new Event('authStateChanged'));
+                                return;
+                            }
+                        } catch (e) {}
+
                         const isHiddenByUser = localStorage.getItem('bm_hide_limit_warning') === 'true';
                         if (!isHiddenByUser) {
                             setShowLimitWarning(true);
@@ -358,7 +378,7 @@ export default function App() {
 
   // Auto-save fresh curation to server once generation completes
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = getSafeToken();
     
     // Check if user has remaining free curation slots
     let canUseFree = true;
@@ -402,6 +422,15 @@ export default function App() {
             if (savedData && savedData.prescription) {
               setPrescriptionId(savedData.prescription.id);
             }
+          } else if (res.status === 403 || res.status === 401) {
+            try {
+              const errorData = await res.json();
+              if (errorData.errorCode === 'ERR_INVALID_TOKEN' || errorData.errorCode === 'ERR_MISSING_AUTH_HEADER' || errorData.errorCode === 'ERR_UNAUTHORIZED') {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.dispatchEvent(new Event('authStateChanged'));
+              }
+            } catch (e) {}
           }
         } catch (e) {
           console.warn("Auto-save on completion failed:", e);
@@ -457,7 +486,7 @@ export default function App() {
   const startSurvey = () => { setDirection(1); setStep(1); };
   
   const handleStartClick = async () => {
-    const token = localStorage.getItem('token');
+    const token = getSafeToken();
     if (!token) {
       startSurvey();
       return;
@@ -468,7 +497,19 @@ export default function App() {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       
-      if (res.status === 403) {
+      if (res.status === 403 || res.status === 401) {
+        try {
+          const errorData = await res.json();
+          if (errorData.errorCode === 'ERR_INVALID_TOKEN' || errorData.errorCode === 'ERR_MISSING_AUTH_HEADER' || errorData.errorCode === 'ERR_UNAUTHORIZED') {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.dispatchEvent(new Event('authStateChanged'));
+            triggerAlert("로그인 세션이 만료되었습니다. 다시 로그인 해 주세요.");
+            navigate('/profile');
+            return;
+          }
+        } catch (e) {}
+        
         triggerAlert("보유한 커피콩(포인트)이 부족하여 AI 추천을 진행할 수 없습니다.");
         return;
       }
@@ -518,7 +559,7 @@ export default function App() {
   };
 
   const executeSave = async (usePoints = false) => {
-    const token = localStorage.getItem('token');
+    const token = getSafeToken();
     if (!token || !recommendation) return;
 
     if (aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다..." || !aiExplanation) {
@@ -563,10 +604,20 @@ export default function App() {
         localStorage.removeItem('bm_sync_presc');
         sessionStorage.removeItem('bm_sync_presc');
         clearHomeCache(); // Clear home cache to refresh personalized banner
-      } else if (response.status === 403) {
+      } else if (response.status === 403 || response.status === 401) {
         const errorData = await response.json();
-        const cost = errorData.cost || 100;
         
+        if (errorData.errorCode === 'ERR_INVALID_TOKEN' || errorData.errorCode === 'ERR_MISSING_AUTH_HEADER' || errorData.errorCode === 'ERR_UNAUTHORIZED') {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.dispatchEvent(new Event('authStateChanged'));
+            triggerAlert("로그인 세션이 만료되었습니다. 다시 로그인 해 주세요.");
+            setShowSavePrompt(false);
+            navigate('/profile');
+            return;
+        }
+
+        const cost = errorData.cost || 100;
         if (errorData.pointBalance !== undefined && errorData.pointBalance < cost) {
             triggerAlert(t('curator.alert_no_points'));
             setShowSavePrompt(false);
