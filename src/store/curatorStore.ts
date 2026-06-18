@@ -765,10 +765,23 @@ Randomization Seed: ${Math.random() * Date.now()}`;
         
         // Fire-and-forget: Auto-Import top highly-matched curated shops into the Global Map DB
         const validShops = finalShops.filter(s => s && s.name && s.lat && s.lng);
-        if (validShops.length > 0) {
+        const token = localStorage.getItem('token');
+        let isAdmin = false;
+        try {
+            const userStr = localStorage.getItem('user');
+            if (userStr) {
+                const userObj = JSON.parse(userStr);
+                isAdmin = userObj.role === 'ADMIN' || userObj.role === 'MODERATOR';
+            }
+        } catch {}
+
+        if (validShops.length > 0 && token && isAdmin) {
             fetch(`${API_BASE}/api/shops/ai-import`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({ shops: validShops.slice(0, 10) })
             }).catch(err => console.warn("AI DB Auto-Import failed", err));
         }
