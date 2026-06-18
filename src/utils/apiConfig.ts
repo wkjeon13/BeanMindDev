@@ -30,14 +30,35 @@ if (!isNative) {
         } else {
             // iOS 및 기타 네이티브 환경은 에뮬레이터일 경우 localhost 사용, 아닐 경우 공인 프로덕션 유지
             const ua = navigator.userAgent.toLowerCase();
-            const isIosSimulator = ua.includes('simulator') || ua.includes('iphonesimulator');
+            let isIosSimulator = ua.includes('simulator') || ua.includes('iphonesimulator');
             
-            let defaultBase = isIosSimulator ? 'http://dev.beanmindcurator.com:4000' : 'http://www.beanmindcurator.com:4000';
-            let rawBase = apiBase || defaultBase;
-            if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
-                rawBase = defaultBase;
+            // WebGL Renderer 검사를 통해 에뮬레이터 여부 정밀 확인 (userAgent 우회 대응)
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    const debugInfo = (gl as WebGLRenderingContext).getExtension('WEBGL_debug_renderer_info');
+                    if (debugInfo) {
+                        const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL).toLowerCase();
+                        if (renderer.includes('apple software') || renderer.includes('software') || renderer.includes('simulator') || renderer.includes('llvmpipe')) {
+                            isIosSimulator = true;
+                        }
+                    }
+                }
+            } catch (e) {}
+
+            if (isIosSimulator) {
+                // 에뮬레이터 환경에서는 맥북 로컬 백엔드 서버(localhost:4000)로 직결
+                // 사설 IP(192.168.0.29)는 공유기 환경 변화에 따라 변경되어 타임아웃을 유발하므로 localhost를 우선 사용
+                apiBase = 'http://localhost:4000';
+            } else {
+                let defaultBase = 'http://www.beanmindcurator.com:4000';
+                let rawBase = apiBase || defaultBase;
+                if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
+                    rawBase = defaultBase;
+                }
+                apiBase = rawBase.replace(/\/$/, '');
             }
-            apiBase = rawBase.replace(/\/$/, '');
         }
     } catch (e) {
         let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
