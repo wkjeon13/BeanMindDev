@@ -504,7 +504,7 @@ export default function App() {
   const handleSavePrescription = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
-      alert(t('curator.alert_login_req'));
+      triggerAlert(t('curator.alert_login_req'));
       return;
     }
     if (!recommendation) return;
@@ -522,7 +522,7 @@ export default function App() {
     if (!token || !recommendation) return;
 
     if (aiExplanation === "☕ 특별한 커피 에세이를 작성하는 중입니다..." || !aiExplanation) {
-      alert(t('curator.alert_essay_generating', "AI 커피 에세이가 아직 작성 중입니다. 작성이 완료된 후 저장해 주세요!"));
+      triggerAlert(t('curator.alert_essay_generating', "AI 커피 에세이가 아직 작성 중입니다. 작성이 완료된 후 저장해 주세요!"));
       return;
     }
 
@@ -557,7 +557,7 @@ export default function App() {
             setPrescriptionId(savedPrescriptionId);
         }
 
-        alert(t('curator.alert_save_success'));
+        triggerAlert(t('curator.alert_save_success'));
         setShowSavePrompt(false);
         // Wipe local caches explicitly so the background bot doesn't bother next time
         localStorage.removeItem('bm_sync_presc');
@@ -568,24 +568,26 @@ export default function App() {
         const cost = errorData.cost || 100;
         
         if (errorData.pointBalance !== undefined && errorData.pointBalance < cost) {
-            alert(t('curator.alert_no_points'));
+            triggerAlert(t('curator.alert_no_points'));
             setShowSavePrompt(false);
             return;
         }
 
-        if (window.confirm(t('curator.alert_limit_reached', { current: errorData.current, limit: errorData.limit }))) {
-            executeSave(true);
-        } else {
-            setShowSavePrompt(false);
-        }
+        setShowSavePrompt(false);
+        triggerConfirm(
+            t('curator.alert_limit_reached', { current: errorData.current, limit: errorData.limit }),
+            () => {
+                executeSave(true);
+            }
+        );
       } else if (response.status === 400 && usePoints) {
-        alert(t('curator.alert_no_points'));
+        triggerAlert(t('curator.alert_no_points'));
         setShowSavePrompt(false);
       } else {
-        alert(t('curator.alert_save_fail'));
+        triggerAlert(t('curator.alert_save_fail'));
       }
     } catch (err) {
-      alert(t('curator.alert_server_error'));
+      triggerAlert(t('curator.alert_server_error'));
     } finally {
       setIsSaving(false);
     }
@@ -1069,11 +1071,14 @@ export default function App() {
                          onShare={async () => {
                              if (!prescriptionId) {
                                  if (isLoggedIn) {
-                                     if (window.confirm("공유 링크를 생성하려면 먼저 처방전을 저장해야 합니다. 저장하시겠습니까?")) {
-                                         handleSavePrescription();
-                                     }
+                                     triggerConfirm(
+                                         "공유 링크를 생성하려면 먼저 처방전을 저장해야 합니다. 저장하시겠습니까?",
+                                         () => {
+                                             handleSavePrescription();
+                                         }
+                                     );
                                  } else {
-                                     alert("공유 링크를 생성하려면 로그인이 필요합니다. 로그인 후 처방전을 저장하여 공유해 주세요.");
+                                     triggerAlert("공유 링크를 생성하려면 로그인이 필요합니다. 로그인 후 처방전을 저장하여 공유해 주세요.");
                                      navigate('/profile');
                                  }
                                  return;
@@ -1109,7 +1114,7 @@ export default function App() {
                                      }).catch(err => console.error(err));
                                  } else {
                                      navigator.clipboard.writeText(shareUrl);
-                                     alert(t('shared.copied', '링크가 클립보드에 복사되었습니다.'));
+                                      triggerAlert(t('shared.copied', '링크가 클립보드에 복사되었습니다.'));
                                  }
                              }
                          }}

@@ -76,70 +76,26 @@ router.get('/prescriptions', authenticateToken, async (req, res) => {
 router.post('/prescriptions', authenticateToken, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { title, beanName, brand, aiComment, usePoints } = req.body;
+        const { title, beanName, brand, aiComment } = req.body;
 
         if (!beanName || !brand || !aiComment) {
             return res.status(400).json({ errorCode: ERROR_CODES.MISSING_REQUIRED_FIELDS });
         }
-        
-        let prescriptionCost = 100;
 
         const userDb = await prisma.user.findUnique({ where: { id: userId } });
         if (!userDb) return res.status(404).json({ errorCode: ERROR_CODES.USER_NOT_FOUND });
-        
-        const canUseFree = userDb.aiUsageCount < userDb.aiPrescriptionLimit;
 
-        if (!canUseFree && !usePoints) {
-            return res.status(403).json({ 
-                errorCode: ERROR_CODES.DAILY_LIMIT_EXCEEDED, 
-                current: userDb.aiUsageCount, 
-                limit: userDb.aiPrescriptionLimit,
-                pointBalance: userDb.pointBalance,
-                cost: prescriptionCost
-            });
-        }
-
-        try {
-            const newPrescription = await prisma.$transaction(async (tx) => {
-                if (canUseFree) {
-                    const updated = await tx.user.updateMany({
-                        where: { id: userId, aiUsageCount: { lt: userDb.aiPrescriptionLimit } },
-                        data: { aiUsageCount: { increment: 1 } }
-                    });
-                    if (updated.count === 0) throw new Error("INSUFFICIENT_FREE");
-                } else {
-                    const updated = await tx.user.updateMany({
-                        where: { id: userId, pointBalance: { gte: prescriptionCost } },
-                        data: { pointBalance: { decrement: prescriptionCost }, aiUsageCount: { increment: 1 } }
-                    });
-                    if (updated.count === 0) throw new Error("INSUFFICIENT_BEANS");
-                    
-                    await tx.pointTransaction.create({ 
-                        data: { userId, amount: -prescriptionCost, type: 'USE', description: 'AI 커피 처방전 발급' }
-                    });
-                }
-
-                return await tx.prescription.create({
-                    data: {
-                        userId,
-                        title,
-                        beanName,
-                        brand,
-                        aiComment
-                    }
-                });
-            });
-
-            res.status(201).json({ message: 'Prescription saved successfully!', prescription: newPrescription });
-        } catch (txError: any) {
-            if (txError.message === "INSUFFICIENT_FREE") {
-                return res.status(403).json({ errorCode: ERROR_CODES.DAILY_LIMIT_EXCEEDED });
+        const newPrescription = await prisma.prescription.create({
+            data: {
+                userId,
+                title,
+                beanName,
+                brand,
+                aiComment
             }
-            if (txError.message === "INSUFFICIENT_BEANS") {
-                return res.status(400).json({ errorCode: ERROR_CODES.INSUFFICIENT_BEANS });
-            }
-            throw txError;
-        }
+        });
+
+        res.status(201).json({ message: 'Prescription saved successfully!', prescription: newPrescription });
     } catch (error) {
         console.error("Save prescription error:", error);
         res.status(500).json({ errorCode: ERROR_CODES.INTERNAL_SERVER_ERROR });
