@@ -40,7 +40,7 @@ if (!isNative) {
             } else {
                 // 2. 실제 안드로이드 스마트폰 기기에서는 빌드 타임 감지된 맥북 IP 또는 공인 프로덕션 API 서버로 직결
                 let rawBase = apiBase || 'http://www.beanmindcurator.com:3000';
-                if (!rawBase || rawBase.includes('https://www.beanmindcurator.com') || rawBase.includes('dev.beanmindcurator.com')) {
+                if (!rawBase || rawBase.includes('https://www.beanmindcurator.com') || rawBase.includes('beanmindcurator.com') || rawBase.includes('39.118.249.241')) {
                     rawBase = `http://${devHostIp}:3000`;
                 }
                 apiBase = rawBase.replace(/\/$/, '');
@@ -50,15 +50,15 @@ if (!isNative) {
             // iOS 및 기타 네이티브 환경 (시뮬레이터 & 실기 아이폰)
             // HSTS 정책 우회 및 로컬 통신을 위해 빌드 타임 검출된 사설 IP 주소를 사용합니다.
             let rawBase = apiBase || 'http://www.beanmindcurator.com:3000';
-            if (!rawBase || rawBase.includes('beanmindcurator.com')) {
+            if (!rawBase || rawBase.includes('beanmindcurator.com') || rawBase.includes('39.118.249.241')) {
                 rawBase = `http://${devHostIp}:3000`;
             }
             apiBase = rawBase.replace(/\/$/, '');
             console.log(`🔍 [apiConfig] 4. iOS Native (Simulator/Device) -> rawBase: "${rawBase}" -> apiBase: "${apiBase}"`);
         }
 
-        // 최종 폴백: 여전히 프로덕션 도메인이 남아있는 경우 모바일용 예외 처리
-        if (apiBase.includes('beanmindcurator.com')) {
+        // 최종 폴백: 여전히 프로덕션 도메인이거나 공인 IP가 남아있는 경우 모바일용 예외 처리
+        if (apiBase.includes('beanmindcurator.com') || apiBase.includes('39.118.249.241')) {
             apiBase = `http://${devHostIp}:3000`;
             console.log(`🔍 [apiConfig] 5. Fallback triggered -> final API_BASE: "${apiBase}"`);
         } else {
