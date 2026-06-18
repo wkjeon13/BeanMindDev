@@ -501,16 +501,31 @@ Randomization Seed: ${Math.random() * Date.now()}`;
           fullText = ""; // 스트리밍 시작되면 문구 지우기
           const reader = res.body?.getReader();
           const decoder = new TextDecoder("utf-8");
+          let streamBuffer = "";
+          
           if (reader) {
              while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-                const chunkStr = decoder.decode(value, { stream: true });
-                const lines = chunkStr.split('\n');
+                
+                streamBuffer += decoder.decode(value, { stream: true });
+                const lines = streamBuffer.split('\n');
+                
+                // Keep the last segment in the buffer as it may be incomplete
+                streamBuffer = lines.pop() || "";
+                
                 for (let line of lines) {
                    line = line.trim();
-                   if (line.startsWith('data: ')) {
-                      const dataStr = line.substring(6).trim();
+                   if (line.startsWith('data:')) {
+                      let dataStr = line.substring(line.indexOf(':') + 1).trim();
+                      
+                      // Handle double nested "data:data:" or "data: data:" formatting if it occurs
+                      if (dataStr.startsWith('data:')) {
+                         dataStr = dataStr.substring(dataStr.indexOf(':') + 1).trim();
+                      }
+                      
+                      if (!dataStr) continue;
+                      
                       try {
                          const dataObj = JSON.parse(dataStr);
                          const content = dataObj.candidates?.[0]?.content?.parts?.[0]?.text || "";
@@ -518,6 +533,29 @@ Randomization Seed: ${Math.random() * Date.now()}`;
                             fullText += content;
                             set({ aiExplanation: fullText });
                             await new Promise(r => setTimeout(r, 5));
+                         }
+                      } catch(e) {
+                         console.warn("Stream JSON parse error:", e, "Raw data segment:", dataStr);
+                      }
+                   }
+                }
+             }
+             
+             // Process any remaining data in the buffer after stream ends
+             if (streamBuffer.trim()) {
+                let line = streamBuffer.trim();
+                if (line.startsWith('data:')) {
+                   let dataStr = line.substring(line.indexOf(':') + 1).trim();
+                   if (dataStr.startsWith('data:')) {
+                      dataStr = dataStr.substring(dataStr.indexOf(':') + 1).trim();
+                   }
+                   if (dataStr) {
+                      try {
+                         const dataObj = JSON.parse(dataStr);
+                         const content = dataObj.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                         if (content) {
+                            fullText += content;
+                            set({ aiExplanation: fullText });
                          }
                       } catch(e) {}
                    }
