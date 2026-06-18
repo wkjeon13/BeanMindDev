@@ -5,21 +5,28 @@ const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as 
 // 빌드 타임에 정밀 감지된 로컬 호스트 PC(맥북)의 실제 Wi-Fi 사설 IP 주소
 const devHostIp = (import.meta.env.VITE_DEV_HOST_IP as string) || 'localhost';
 
-let apiBase = import.meta.env.VITE_API_BASE_URL || '';
+let rawEnvUrl = import.meta.env.VITE_API_BASE_URL || '';
+console.log(`🔍 [apiConfig] 1. Raw env VITE_API_BASE_URL: "${rawEnvUrl}"`);
+
+let apiBase = rawEnvUrl;
 
 // Node.js 포트(3001, 4001)로 잘못 지정되어 들어온 경우 스프링부트 API 포트(3000, 4000)로 자동 보정
 if (apiBase.includes(':3001')) {
     apiBase = apiBase.replace(':3001', ':3000');
+    console.log(`🔍 [apiConfig] 2. Port :3001 auto-corrected to :3000 -> "${apiBase}"`);
 } else if (apiBase.includes(':4001')) {
     apiBase = apiBase.replace(':4001', ':4000');
+    console.log(`🔍 [apiConfig] 2. Port :4001 auto-corrected to :4000 -> "${apiBase}"`);
 }
 
 if (!isNative) {
     apiBase = ''; // Force relative paths on Web to completely avoid CORS/SSL mismatch across different IPs
+    console.log(`🔍 [apiConfig] 3. Web environment (Relative Path) -> final API_BASE: "${apiBase}"`);
 } else if (isNative) {
     try {
         const cap = (window as any).Capacitor;
         const isAndroid = cap && cap.getPlatform && cap.getPlatform() === 'android';
+        console.log(`🔍 [apiConfig] 3. Native platform detected. OS: ${isAndroid ? 'Android' : 'iOS'}`);
 
         if (isAndroid) {
             // User Agent 분석을 통해 에뮬레이터와 실제 핸드폰 스마트폰 기기를 정밀 분별
@@ -29,13 +36,15 @@ if (!isNative) {
             if (isEmulator) {
                 // 1. 에뮬레이터 환경에서는 PC 로컬 백엔드 서버(10.0.2.2:3000)로 직결
                 apiBase = `http://10.0.2.2:3000`;
+                console.log(`🔍 [apiConfig] 4. Android Emulator bypass -> "${apiBase}"`);
             } else {
                 // 2. 실제 안드로이드 스마트폰 기기에서는 빌드 타임 감지된 맥북 IP 또는 공인 프로덕션 API 서버로 직결
                 let rawBase = apiBase || 'http://www.beanmindcurator.com:3000';
-                if (!rawBase || rawBase.includes('beanmindcurator.com')) {
+                if (!rawBase || rawBase.includes('https://www.beanmindcurator.com') || rawBase.includes('dev.beanmindcurator.com')) {
                     rawBase = `http://${devHostIp}:3000`;
                 }
                 apiBase = rawBase.replace(/\/$/, '');
+                console.log(`🔍 [apiConfig] 4. Android Device -> "${apiBase}"`);
             }
         } else {
             // iOS 및 기타 네이티브 환경 (시뮬레이터 & 실기 아이폰)
@@ -45,14 +54,19 @@ if (!isNative) {
                 rawBase = `http://${devHostIp}:3000`;
             }
             apiBase = rawBase.replace(/\/$/, '');
+            console.log(`🔍 [apiConfig] 4. iOS Native (Simulator/Device) -> rawBase: "${rawBase}" -> apiBase: "${apiBase}"`);
         }
 
         // 최종 폴백: 여전히 프로덕션 도메인이 남아있는 경우 모바일용 예외 처리
         if (apiBase.includes('beanmindcurator.com')) {
             apiBase = `http://${devHostIp}:3000`;
+            console.log(`🔍 [apiConfig] 5. Fallback triggered -> final API_BASE: "${apiBase}"`);
+        } else {
+            console.log(`🔍 [apiConfig] 5. No domain fallback needed -> final API_BASE: "${apiBase}"`);
         }
     } catch (e) {
         apiBase = `http://${devHostIp}:3000`;
+        console.log(`🔍 [apiConfig] Catch block fallback -> final API_BASE: "${apiBase}" (Error: ${e})`);
     }
 }
 export const API_BASE = apiBase;
