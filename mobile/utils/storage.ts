@@ -11,11 +11,14 @@ export const setItem = async (key: string, value: string) => {
 };
 
 export const getItem = async (key: string) => {
+    let val;
     if (Platform.OS === 'web') {
-        return localStorage.getItem(key);
+        val = localStorage.getItem(key);
     } else {
-        return await AsyncStorage.getItem(key);
+        val = await AsyncStorage.getItem(key);
     }
+    if (val === 'null' || val === 'undefined') return null;
+    return val;
 };
 
 export const removeItem = async (key: string) => {
@@ -36,11 +39,14 @@ export const setSecureItem = async (key: string, value: string) => {
 };
 
 export const getSecureItem = async (key: string) => {
+    let val;
     if (Platform.OS === 'web') {
-        return sessionStorage.getItem(key);
+        val = sessionStorage.getItem(key);
     } else {
-        return await SecureStore.getItemAsync(key);
+        val = await SecureStore.getItemAsync(key);
     }
+    if (val === 'null' || val === 'undefined') return null;
+    return val;
 };
 
 export const removeSecureItem = async (key: string) => {
