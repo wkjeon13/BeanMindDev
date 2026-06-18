@@ -60,6 +60,17 @@ if (!isNative) {
                 apiBase = rawBase.replace(/\/$/, '');
             }
         }
+
+        // [스마트 도메인 치환]
+        // 모바일 빌드에서 API 주소가 hosts 기반 로컬 개발 가상 도메인(dev.beanmindcurator.com)을 향하는 경우
+        // 모바일 기기는 hosts 설정을 몰라 DNS 타임아웃이 나므로, 플랫폼별 로컬 호스트 IP로 강제 치환해 줍니다.
+        if (apiBase.includes('dev.beanmindcurator.com')) {
+            if (isAndroid) {
+                apiBase = 'http://10.0.2.2:4000';
+            } else {
+                apiBase = 'http://localhost:4000';
+            }
+        }
     } catch (e) {
         let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
         if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
@@ -167,5 +178,7 @@ export const getApiUrl = (path: string): string => {
         }
     }
 
-    return `${base}${normalizedPath}`;
+    const finalUrl = `${base}${normalizedPath}`;
+    console.log(`⚡️ [CapacitorHttp API] path: ${path} -> finalUrl: ${finalUrl}`);
+    return finalUrl;
 };
