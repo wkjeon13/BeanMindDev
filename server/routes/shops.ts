@@ -1151,8 +1151,9 @@ router.put('/:id/resubmit', authenticateToken, async (req: any, res: any) => {
 // POST: Handle AI Regional Data Harvester imports
 router.post('/ai-import', authenticateToken, async (req: any, res: any) => {
     try {
-        // Ensure user is ADMIN or MODERATOR
-        if (req.user.role !== 'ADMIN' && req.user.role !== 'MODERATOR') {
+        // Ensure user is ADMIN or MODERATOR (compatible with both legacy role and Spring Boot auth claim)
+        const userRole = req.user.role || (req.user.auth ? req.user.auth.replace('ROLE_', '') : null);
+        if (userRole !== 'ADMIN' && userRole !== 'MODERATOR') {
             return res.status(403).json({ error: 'Require Admin privilege' });
         }
         
