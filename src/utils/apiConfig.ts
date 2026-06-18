@@ -2,9 +2,6 @@ import i18n from '../i18n';
 
 const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
 
-// 빌드 타임에 감지된 로컬 호스트 PC(맥북)의 사설 IP 주소
-const devHostIp = (import.meta.env.VITE_DEV_HOST_IP as string) || 'localhost';
-
 let apiBase = import.meta.env.VITE_API_BASE_URL || '';
 
 if (!isNative) {
@@ -23,29 +20,29 @@ if (!isNative) {
                 // 1. 에뮬레이터 환경에서는 PC 로컬 백엔드 서버(10.0.2.2:4000)로 직결
                 apiBase = `http://10.0.2.2:4000`;
             } else {
-                // 2. 실제 안드로이드 스마트폰 기기에서는 빌드 타임 감출된 맥북 IP 또는 공인 프로덕션 API 서버로 직결
+                // 2. 실제 안드로이드 스마트폰 기기에서는 공인 프로덕션 API 서버로 직결
                 let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
-                if (!rawBase || rawBase.includes('https://www.beanmindcurator.com') || rawBase.includes('dev.beanmindcurator.com')) {
-                    rawBase = `http://${devHostIp}:4000`;
+                if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
+                    rawBase = 'http://www.beanmindcurator.com:4000';
                 }
                 apiBase = rawBase.replace(/\/$/, '');
             }
         } else {
-            // iOS 및 기타 네이티브 환경은 시뮬레이터와 실기기 모두에서 맥북 호스트 서버에 연결하기 위해 localhost로 기본 설정!
-            // (Info.plist에 NSAllowsLocalNetworking 가 켜졌으므로 이제 시뮬레이터에서 localhost가 100% 정상 작동합니다)
+            // iOS 및 기타 네이티브 환경
+            // 이제 Info.plist에 NSAllowsLocalNetworking 가 정상 추가되었으므로,
+            // 별도의 IP 치환 꼼수 없이 환경변수(VITE_API_BASE_URL = dev.beanmindcurator.com) 또는 기본 주소를 그대로 사용하여 통신합니다.
             let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
-            if (!rawBase || rawBase.includes('https://www.beanmindcurator.com') || rawBase.includes('dev.beanmindcurator.com')) {
-                rawBase = 'http://localhost:4000';
+            if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
+                rawBase = 'http://www.beanmindcurator.com:4000';
             }
             apiBase = rawBase.replace(/\/$/, '');
         }
-
-        // 최종 폴백: 여전히 dev.beanmindcurator.com 도메인이 남아있는 경우 모바일용 예외 처리
-        if (apiBase.includes('dev.beanmindcurator.com')) {
-            apiBase = isAndroid ? 'http://10.0.2.2:4000' : 'http://localhost:4000';
-        }
     } catch (e) {
-        apiBase = 'http://localhost:4000';
+        let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
+        if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
+            rawBase = 'http://www.beanmindcurator.com:4000';
+        }
+        apiBase = rawBase.replace(/\/$/, '');
     }
 }
 export const API_BASE = apiBase;
