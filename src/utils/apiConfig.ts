@@ -32,7 +32,7 @@ if (!isNative) {
             const ua = navigator.userAgent.toLowerCase();
             const isIosSimulator = ua.includes('simulator') || ua.includes('iphonesimulator');
             
-            let defaultBase = isIosSimulator ? 'http://localhost:4000' : 'http://www.beanmindcurator.com:4000';
+            let defaultBase = isIosSimulator ? 'http://dev.beanmindcurator.com:4000' : 'http://www.beanmindcurator.com:4000';
             let rawBase = apiBase || defaultBase;
             if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
                 rawBase = defaultBase;
