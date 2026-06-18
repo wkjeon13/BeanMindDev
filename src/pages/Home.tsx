@@ -419,7 +419,9 @@ export default function HomeDashboard() {
                         if (globalHomeCache) globalHomeCache.layoutConfigs = mergedLayout;
                     }
                 }
-            }).catch(() => {});
+            }).catch((e) => {
+                console.error(`Failed to fetch user me. URL: ${API_BASE}/api/users/me`, e);
+            });
       }
 
       // 2. Fetch Shorts independently
@@ -429,7 +431,9 @@ export default function HomeDashboard() {
             const newShorts = (shortsData || []).slice(0, 10);
             setShorts(newShorts);
             if (globalHomeCache) globalHomeCache.shorts = newShorts;
-        }).catch(() => {});
+        }).catch((e) => {
+            console.error(`Failed to fetch shorts. URL: ${API_BASE}/api/community/posts?filter=shorts&countryCode=${countryCode}`, e);
+        });
 
       // 3. Fetch Trending independently
       fetch(`${API_BASE}/api/shops/trending?countryCode=${countryCode}`, { headers })
@@ -438,7 +442,9 @@ export default function HomeDashboard() {
             const newPilgrimageFeeds = trendingData || [];
             setPilgrimageFeeds(newPilgrimageFeeds);
             if (globalHomeCache) globalHomeCache.pilgrimageFeeds = newPilgrimageFeeds;
-        }).catch(() => {});
+        }).catch((e) => {
+            console.error(`Failed to fetch trending. URL: ${API_BASE}/api/shops/trending?countryCode=${countryCode}`, e);
+        });
 
       // 4. GPS & Location-dependent Data
       let fastLat = globalHomeCache?.gpsLat || '';
@@ -488,7 +494,9 @@ export default function HomeDashboard() {
                     setActiveClubs(newActiveClubs);
                     if (globalHomeCache) globalHomeCache.activeClubs = newActiveClubs;
                 }
-            }).catch(() => {});
+            }).catch((e) => {
+                console.error(`Failed to fetch clubs. URL: ${API_BASE}/api/clubs?countryCode=${countryCode}`, e);
+            });
 
           // Personalized Data (Now supports guests via optionalAuth)
           const qsBase = `countryCode=${countryCode}`;
@@ -511,7 +519,8 @@ export default function HomeDashboard() {
                     if (globalHomeCache) globalHomeCache.personalizedData = pData;
                 }
             }).catch((e) => {
-                console.error("Failed to load personalized home data", e);
+                const reqUrl = `${API_BASE}/api/home/personalized${qs}&_t=${Date.now()}`;
+                console.error(`Failed to load personalized home data. URL: ${reqUrl}, API_BASE: ${API_BASE}`, e, e?.message, JSON.stringify(e));
                 setPersonalizedData(null);
             });
       };
