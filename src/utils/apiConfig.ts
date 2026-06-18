@@ -31,21 +31,21 @@ if (!isNative) {
                 apiBase = rawBase.replace(/\/$/, '');
             }
         } else {
-            // iOS 및 기타 네이티브 환경은 시뮬레이터와 실기기 모두에서 맥북 호스트 서버에 연결하기 위해 빌드 타임 IP 사용
+            // iOS 및 기타 네이티브 환경은 시뮬레이터와 실기기 모두에서 맥북 호스트 서버에 연결하기 위해 localhost로 기본 설정!
+            // (Info.plist에 NSAllowsLocalNetworking 가 켜졌으므로 이제 시뮬레이터에서 localhost가 100% 정상 작동합니다)
             let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
             if (!rawBase || rawBase.includes('https://www.beanmindcurator.com') || rawBase.includes('dev.beanmindcurator.com')) {
-                // devHostIp가 localhost이면 그대로 localhost 사용, 사설 IP 주소이면 사설 IP 사용
-                rawBase = `http://${devHostIp}:4000`;
+                rawBase = 'http://localhost:4000';
             }
             apiBase = rawBase.replace(/\/$/, '');
         }
 
         // 최종 폴백: 여전히 dev.beanmindcurator.com 도메인이 남아있는 경우 모바일용 예외 처리
         if (apiBase.includes('dev.beanmindcurator.com')) {
-            apiBase = `http://${devHostIp}:4000`;
+            apiBase = isAndroid ? 'http://10.0.2.2:4000' : 'http://localhost:4000';
         }
     } catch (e) {
-        apiBase = `http://${devHostIp}:4000`;
+        apiBase = 'http://localhost:4000';
     }
 }
 export const API_BASE = apiBase;

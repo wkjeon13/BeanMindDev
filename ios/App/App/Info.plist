@@ -51,6 +51,8 @@
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>개발 환경에서 로컬 서버(DB)와 통신하기 위해 로컬 네트워크 권한이 필요합니다.</string>
