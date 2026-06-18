@@ -468,8 +468,8 @@ public class PostService {
 
         post.setContent(finalContent);
         post.setImage(imageField);
-        post.setCafeName(cafeName);
-        post.setCafeLocation(cafeLocation);
+        post.setCafeName(StringUtils.hasText(cafeName) ? cafeName : null);
+        post.setCafeLocation(StringUtils.hasText(cafeLocation) ? cafeLocation : null);
         post.setCafeLat(cafeLat);
         post.setCafeLng(cafeLng);
         post.setAcidity(acidity);
@@ -477,10 +477,10 @@ public class PostService {
         post.setBody(body);
         post.setBitterness(bitterness);
         post.setAroma(aroma);
-        post.setTaggedBean(taggedBean);
-        post.setRecipeData(recipeData);
+        post.setTaggedBean(StringUtils.hasText(taggedBean) ? taggedBean : null);
+        post.setRecipeData(StringUtils.hasText(recipeData) ? recipeData : null);
         post.setStore(store);
-        post.setAttachedCourseId(attachedCourseId);
+        post.setAttachedCourseId(StringUtils.hasText(attachedCourseId) ? attachedCourseId : null);
 
         Post savedPost = postRepository.save(post);
         return PostResponse.of(savedPost, userId);
