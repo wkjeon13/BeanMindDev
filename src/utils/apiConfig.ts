@@ -28,19 +28,18 @@ if (!isNative) {
                 apiBase = rawBase.replace(/\/$/, '');
             }
         } else {
-            // iOS 및 기타 네이티브 환경
-            // 이제 Info.plist에 NSAllowsLocalNetworking 가 정상 추가되었으므로,
-            // 별도의 IP 치환 꼼수 없이 환경변수(VITE_API_BASE_URL = dev.beanmindcurator.com) 또는 기본 주소를 그대로 사용하여 통신합니다.
+            // iOS 및 기타 네이티브 환경은 시뮬레이터와 실기기 모두에서 맥북 호스트 서버에 연결하기 위해 localhost로 설정!
+            // (Info.plist에 NSAllowsLocalNetworking 가 정상 추가되었으므로 이제 localhost가 100% 차단 없이 작동합니다)
             let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
-            if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
-                rawBase = 'http://www.beanmindcurator.com:4000';
+            if (!rawBase || rawBase.includes('https://www.beanmindcurator.com') || rawBase.includes('dev.beanmindcurator.com')) {
+                rawBase = 'http://localhost:4000';
             }
             apiBase = rawBase.replace(/\/$/, '');
         }
     } catch (e) {
         let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
-        if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
-            rawBase = 'http://www.beanmindcurator.com:4000';
+        if (!rawBase || rawBase.includes('https://www.beanmindcurator.com') || rawBase.includes('dev.beanmindcurator.com')) {
+            rawBase = 'http://localhost:4000';
         }
         apiBase = rawBase.replace(/\/$/, '');
     }
