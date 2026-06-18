@@ -119,23 +119,99 @@ const getFilterLabel = (key: string, t: any) => {
 };
 let globalFeedCache: Record<string, any> = {};
 
-interface BgmTheme {
-    id: string;
+interface BgmSong {
     title: string;
     videoId: string;
+}
+
+interface BgmTheme {
+    id: string;
     label: string;
+    songs: BgmSong[];
 }
 
 const BGM_THEMES: BgmTheme[] = [
-    { id: 'jazz', title: '바흐 골드베르크 아리아 커피 피아노', videoId: 'tN9ecELJ5A0', label: '☕ 아침 클래식 피아노' },
-    { id: 'lofi', title: '베토벤 월광 고요한 밤 피아노', videoId: 'Dx5qFeM4yMc', label: '🌙 고요한 밤 피아노' },
-    { id: 'acoustic', title: '비오는 날 잔잔한 어쿠스틱', videoId: '811QZGDysx0', label: '☔ 잔잔한 어쿠스틱' },
-    { id: 'bossanova', title: '오후의 나른하고 편안한 보사노바', videoId: 'jfKfPfyJRdk', label: '☀️ 나른한 보사노바' },
-    { id: 'classic', title: '에릭 사티 짐노페디 1번 힐링 건반', videoId: '57GfJ1A5e68', label: '🎻 짐노페디 1번 피아노' },
-    { id: 'rock', title: '감성 락 발라드 피아노 연주', videoId: 'jgpJVIg8DbM', label: '🎸 락 발라드 피아노' },
-    { id: 'hiphop', title: '힙합 시티팝 인스트루멘탈', videoId: 'mnd7nUqM5v0', label: '🎧 시티팝 힙합' },
-    { id: 'nature', title: '쇼팽 녹턴 2번 명작 빗방울 음악', videoId: 'L8g3c-t0HjM', label: '🍃 쇼팽 녹턴 피아노' },
-    { id: 'coffeetime', title: '드뷔시 베르가마스크 모음곡 달빛 피아노', videoId: 'NDGs9x04DkY', label: '☕ 커피 타임 고요한 피아노' }
+    {
+        id: 'jazz',
+        label: '☕ 아침 클래식 피아노',
+        songs: [
+            { title: '바흐 골드베르크 아리아 커피 피아노', videoId: 'tN9ecELJ5A0' },
+            { title: '고요한 카페 재즈 피아노 연주', videoId: '5r3t0xK5Mhk' },
+            { title: '가을 아침 따뜻한 재즈 멜로디', videoId: '1w7OgIMMRc4' }
+        ]
+    },
+    {
+        id: 'lofi',
+        label: '🌙 고요한 밤 피아노',
+        songs: [
+            { title: '베토벤 월광 고요한 밤 피아노', videoId: 'Dx5qFeM4yMc' },
+            { title: 'Lofi Hip Hop Radio - Beats to Relax/Study to', videoId: '5qap5aO4i9A' },
+            { title: '달콤한 커피와 함께하는 로파이 비트', videoId: 'tNkZs5bpHHU' }
+        ]
+    },
+    {
+        id: 'acoustic',
+        label: '☔ 잔잔한 어쿠스틱',
+        songs: [
+            { title: '비오는 날 잔잔한 어쿠스틱', videoId: '811QZGDysx0' },
+            { title: '햇살 가득한 오후의 어쿠스틱 기타', videoId: 'W4s7h42m1A0' },
+            { title: '주말 아침 감성 어쿠스틱 라이브', videoId: 'mD1lEux4Pz0' }
+        ]
+    },
+    {
+        id: 'bossanova',
+        label: '☀️ 나른한 보사노바',
+        songs: [
+            { title: '오후의 나른하고 편안한 보사노바', videoId: 'jfKfPfyJRdk' },
+            { title: '카페에서 듣기 좋은 상쾌한 보사노바', videoId: 'E0tP1_Y1wYg' },
+            { title: '브라질 해변 감성 보사노바 재즈', videoId: 'f6zM-vY0-jU' }
+        ]
+    },
+    {
+        id: 'classic',
+        label: '🎻 짐노페디 1번 피아노',
+        songs: [
+            { title: '에릭 사티 짐노페디 1번 힐링 건반', videoId: '57GfJ1A5e68' },
+            { title: '쇼팽 녹턴 2번 명작 빗방울 음악', videoId: 'L8g3c-t0HjM' },
+            { title: '드뷔시 베르가마스크 모음곡 달빛 피아노', videoId: 'NDGs9x04DkY' }
+        ]
+    },
+    {
+        id: 'rock',
+        label: '🎸 락 발라드 피아노',
+        songs: [
+            { title: '감성 락 발라드 피아노 연주', videoId: 'jgpJVIg8DbM' },
+            { title: '부드러운 모던 락 어쿠스틱 연주', videoId: '9wL07Z49e1o' },
+            { title: '석양 아래 잔잔한 인디 락 기타', videoId: 'kM2Z49_YmEs' }
+        ]
+    },
+    {
+        id: 'hiphop',
+        label: '🎧 시티팝 힙합',
+        songs: [
+            { title: '힙합 시티팝 인스트루멘탈', videoId: 'mnd7nUqM5v0' },
+            { title: '도심 밤거리 감성 힙합 비트', videoId: 'p8V3o9_v10E' },
+            { title: '빈티지 레트로 힙합 인스트루멘탈', videoId: 'hM39_12Yoe4' }
+        ]
+    },
+    {
+        id: 'nature',
+        label: '🍃 쇼팽 녹턴 피아노',
+        songs: [
+            { title: '쇼팽 녹턴 2번 명작 빗방울 음악', videoId: 'L8g3c-t0HjM' },
+            { title: '새들의 지저귐과 숲속 피아노 소리', videoId: '5G7oIMmRcA0' },
+            { title: '파도 소리와 함께하는 힐링 어쿠스틱', videoId: 'kX8g1-t0M4Y' }
+        ]
+    },
+    {
+        id: 'coffeetime',
+        label: '☕ 커피 타임 고요한 피아노',
+        songs: [
+            { title: '드뷔시 베르가마스크 모음곡 달빛 피아노', videoId: 'NDGs9x04DkY' },
+            { title: '커피 향 가득한 오후의 피아노 메들리', videoId: '1w7OgIMMRc4' },
+            { title: '바리스타가 추천하는 아늑한 음악', videoId: '5r3t0xK5Mhk' }
+        ]
+    }
 ];
 
 // 글로벌 인비디어스 인스턴스 목록 (유튜브 음원 프록시용 고가용성 서버 그룹 - Uptime 우선순위 재정렬)
@@ -1690,8 +1766,10 @@ export default function CoffeeTalk() {
             // BGM Theme injection
             if (selectedBgmTheme) {
                 const themeObj = BGM_THEMES.find(t => t.id === selectedBgmTheme);
-                if (themeObj) {
-                    formData.append('bgmTheme', JSON.stringify({ title: themeObj.title, videoId: themeObj.videoId }));
+                if (themeObj && themeObj.songs && themeObj.songs.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * themeObj.songs.length);
+                    const selectedSong = themeObj.songs[randomIndex];
+                    formData.append('bgmTheme', JSON.stringify({ title: selectedSong.title, videoId: selectedSong.videoId }));
                 }
             } else if (editPostId) {
                 formData.append('removeBgm', 'true');
@@ -1813,7 +1891,7 @@ export default function CoffeeTalk() {
         setNewContent(parsedBgResult.cleanContent);
 
         if (parsedBgmResult.bgm && parsedBgmResult.bgm.videoId) {
-            const matchingTheme = BGM_THEMES.find(t => t.videoId === parsedBgmResult.bgm.videoId);
+            const matchingTheme = BGM_THEMES.find(t => t.songs.some(s => s.videoId === parsedBgmResult.bgm.videoId));
             setSelectedBgmTheme(matchingTheme ? matchingTheme.id : '');
         } else {
             setSelectedBgmTheme('');
