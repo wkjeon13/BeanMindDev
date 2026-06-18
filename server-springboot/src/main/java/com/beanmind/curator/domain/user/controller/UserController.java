@@ -110,5 +110,12 @@ public class UserController {
         }
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/ai-usage")
+    public ResponseEntity<ApiResponse<AiUsageDto>> trackAiUsage(Principal principal) {
+        String email = principal.getName();
+        AiUsageDto response = userService.trackAiUsage(email);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 }
 

@@ -2,6 +2,8 @@ package com.beanmind.curator.domain.user.service;
 
 import com.beanmind.curator.common.exception.CustomException;
 import com.beanmind.curator.common.exception.ErrorCode;
+import com.beanmind.curator.domain.point.entity.PointTransaction;
+import com.beanmind.curator.domain.point.repository.PointTransactionRepository;
 import com.beanmind.curator.domain.store.repository.StoreRepository;
 import com.beanmind.curator.domain.user.dto.*;
 import com.beanmind.curator.domain.user.entity.User;
@@ -31,6 +33,7 @@ public class UserService {
     private final StoreRepository storeRepository;
     private final PasswordEncoder passwordEncoder;
     private final ObjectMapper objectMapper;
+    private final PointTransactionRepository pointTransactionRepository;
 
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
@@ -278,6 +281,61 @@ public class UserService {
                 .limit(user.getAiPrescriptionLimit())
                 .pointBalance(user.getPointBalance())
                 .build();
+    }
+
+    @Transactional
+    public AiUsageDto trackAiUsage(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        int prescriptionCost = 100;
+        try {
+            File file = new File("data/policy.json");
+            if (file.exists()) {
+                java.util.Map policy = objectMapper.readValue(file, java.util.Map.class);
+                if (policy != null && policy.containsKey("prescriptionCost")) {
+                    prescriptionCost = Integer.parseInt(policy.get("prescriptionCost").toString());
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to read point policy file", e);
+        }
+
+        boolean canUseFree = user.getAiUsageCount() < user.getAiPrescriptionLimit();
+
+        if (canUseFree) {
+            user.setAiUsageCount(user.getAiUsageCount() + 1);
+            userRepository.save(user);
+            return AiUsageDto.builder()
+                    .success(true)
+                    .type("free")
+                    .current(user.getAiUsageCount())
+                    .limit(user.getAiPrescriptionLimit())
+                    .build();
+        } else {
+            if (user.getPointBalance() < prescriptionCost) {
+                throw new CustomException(ErrorCode.INSUFFICIENT_BEANS);
+            }
+            user.setPointBalance(user.getPointBalance() - prescriptionCost);
+            user.setAiUsageCount(user.getAiUsageCount() + 1);
+            userRepository.save(user);
+
+            PointTransaction pointTx = PointTransaction.builder()
+                    .id(java.util.UUID.randomUUID().toString())
+                    .user(user)
+                    .amount(-prescriptionCost)
+                    .type("SPEND")
+                    .description("AI 커피 맞춤 큐레이션")
+                    .build();
+            pointTransactionRepository.save(pointTx);
+
+            return AiUsageDto.builder()
+                    .success(true)
+                    .type("paid")
+                    .current(user.getAiUsageCount())
+                    .limit(user.getAiPrescriptionLimit())
+                    .build();
+        }
     }
 }
 
