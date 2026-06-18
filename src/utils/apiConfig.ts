@@ -4,6 +4,13 @@ const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as 
 
 let apiBase = import.meta.env.VITE_API_BASE_URL || '';
 
+// Node.js 포트(3001, 4001)로 잘못 지정되어 들어온 경우 스프링부트 API 포트(3000, 4000)로 자동 보정
+if (apiBase.includes(':3001')) {
+    apiBase = apiBase.replace(':3001', ':3000');
+} else if (apiBase.includes(':4001')) {
+    apiBase = apiBase.replace(':4001', ':4000');
+}
+
 if (!isNative) {
     apiBase = ''; // Force relative paths on Web to completely avoid CORS/SSL mismatch across different IPs
 } else if (isNative) {
@@ -17,28 +24,29 @@ if (!isNative) {
             const isEmulator = ua.includes('sdk_gphone') || ua.includes('emulator') || ua.includes('goldfish') || ua.includes('google_sdk') || ua.includes('ranchu');
 
             if (isEmulator) {
-                // 1. 에뮬레이터 환경에서는 PC 로컬 백엔드 서버(10.0.2.2:4000)로 직결
-                apiBase = `http://10.0.2.2:4000`;
+                // 1. 에뮬레이터 환경에서는 PC 로컬 백엔드 서버로 직결
+                // 3000 포트 컨테이너가 켜져 있으면 3000, 아니면 4000으로 기본 설정
+                apiBase = `http://10.0.2.2:3000`;
             } else {
                 // 2. 실제 안드로이드 스마트폰 기기에서는 공인 프로덕션 API 서버로 직결
-                let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
+                let rawBase = apiBase || 'http://www.beanmindcurator.com:3000';
                 if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
-                    rawBase = 'http://www.beanmindcurator.com:4000';
+                    rawBase = 'http://www.beanmindcurator.com:3000';
                 }
                 apiBase = rawBase.replace(/\/$/, '');
             }
         } else {
             // iOS 및 기타 네이티브 환경
-            let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
+            let rawBase = apiBase || 'http://www.beanmindcurator.com:3000';
             if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
-                rawBase = 'http://www.beanmindcurator.com:4000';
+                rawBase = 'http://www.beanmindcurator.com:3000';
             }
             apiBase = rawBase.replace(/\/$/, '');
         }
     } catch (e) {
-        let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
+        let rawBase = apiBase || 'http://www.beanmindcurator.com:3000';
         if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
-            rawBase = 'http://www.beanmindcurator.com:4000';
+            rawBase = 'http://www.beanmindcurator.com:3000';
         }
         apiBase = rawBase.replace(/\/$/, '');
     }
@@ -114,7 +122,7 @@ export const getApiUrl = (path: string): string => {
 
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
     
-    // Check if the path should go to the Node.js backend (4001)
+    // Check if the path should go to the Node.js backend (3001 or 4001)
     const goesToNodeBackend = [
         '/api/users/me/badge',
         '/api/users/bookmarks',
@@ -134,11 +142,13 @@ export const getApiUrl = (path: string): string => {
     let base = apiBase;
     
     if (goesToNodeBackend) {
-        if (base.includes(':4000')) {
+        if (base.includes(':3000')) {
+            base = base.replace(':3000', ':3001');
+        } else if (base.includes(':4000')) {
             base = base.replace(':4000', ':4001');
-        } else if (!base.includes(':4001')) {
-            // Fallback for domains without ports
-            base = base + ':4001';
+        } else if (!base.includes(':3001') && !base.includes(':4001')) {
+            // Fallback for domains without ports (default to Node.js on 3001)
+            base = base + ':3001';
         }
     }
 
