@@ -30,6 +30,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final StoreRepository storeRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ObjectMapper objectMapper;
 
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
             "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$"
@@ -236,6 +237,47 @@ public class UserService {
 
         userRepository.save(user);
         return UserResponse.from(user);
+    }
+
+    @Transactional(readOnly = true)
+    public AiEligibilityDto checkAiEligibility(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        int prescriptionCost = 100;
+        try {
+            File file = new File("data/policy.json");
+            if (file.exists()) {
+                java.util.Map policy = objectMapper.readValue(file, java.util.Map.class);
+                if (policy != null && policy.containsKey("prescriptionCost")) {
+                    prescriptionCost = Integer.parseInt(policy.get("prescriptionCost").toString());
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to read point policy file", e);
+        }
+
+        boolean canUseFree = user.getAiUsageCount() < user.getAiPrescriptionLimit();
+        boolean hasEnoughPoints = user.getPointBalance() >= prescriptionCost;
+
+        if (!canUseFree && !hasEnoughPoints) {
+            return AiEligibilityDto.builder()
+                    .eligible(false)
+                    .cost(prescriptionCost)
+                    .current(user.getAiUsageCount())
+                    .limit(user.getAiPrescriptionLimit())
+                    .pointBalance(user.getPointBalance())
+                    .error("INSUFFICIENT_BEANS")
+                    .build();
+        }
+
+        return AiEligibilityDto.builder()
+                .eligible(true)
+                .cost(prescriptionCost)
+                .current(user.getAiUsageCount())
+                .limit(user.getAiPrescriptionLimit())
+                .pointBalance(user.getPointBalance())
+                .build();
     }
 }
 

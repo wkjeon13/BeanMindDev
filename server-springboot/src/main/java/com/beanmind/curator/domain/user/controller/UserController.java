@@ -100,5 +100,15 @@ public class UserController {
         UserResponse response = userService.updateHomeLayout(email, request);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    @GetMapping("/ai-eligibility")
+    public ResponseEntity<AiEligibilityDto> checkAiEligibility(Principal principal) {
+        String email = principal.getName();
+        AiEligibilityDto response = userService.checkAiEligibility(email);
+        if (!response.isEligible()) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.FORBIDDEN).body(response);
+        }
+        return ResponseEntity.ok(response);
+    }
 }
 
