@@ -2,6 +2,9 @@ import i18n from '../i18n';
 
 const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
 
+// 빌드 타임에 감지된 로컬 호스트 PC(맥북)의 사설 IP 주소
+const devHostIp = (import.meta.env.VITE_DEV_HOST_IP as string) || 'localhost';
+
 let apiBase = import.meta.env.VITE_API_BASE_URL || '';
 
 if (!isNative) {
@@ -20,63 +23,29 @@ if (!isNative) {
                 // 1. 에뮬레이터 환경에서는 PC 로컬 백엔드 서버(10.0.2.2:4000)로 직결
                 apiBase = `http://10.0.2.2:4000`;
             } else {
-                // 2. 실제 안드로이드 스마트폰 기기에서는 공인 프로덕션 API 서버로 직결
+                // 2. 실제 안드로이드 스마트폰 기기에서는 빌드 타임 감출된 맥북 IP 또는 공인 프로덕션 API 서버로 직결
                 let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
-                if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
-                    rawBase = 'http://www.beanmindcurator.com:4000';
+                if (!rawBase || rawBase.includes('https://www.beanmindcurator.com') || rawBase.includes('dev.beanmindcurator.com')) {
+                    rawBase = `http://${devHostIp}:4000`;
                 }
                 apiBase = rawBase.replace(/\/$/, '');
             }
         } else {
-            // iOS 및 기타 네이티브 환경은 에뮬레이터일 경우 localhost 사용, 아닐 경우 공인 프로덕션 유지
-            const ua = navigator.userAgent.toLowerCase();
-            let isIosSimulator = ua.includes('simulator') || ua.includes('iphonesimulator');
-            
-            // WebGL Renderer 검사를 통해 에뮬레이터 여부 정밀 확인 (userAgent 우회 대응)
-            try {
-                const canvas = document.createElement('canvas');
-                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                if (gl) {
-                    const debugInfo = (gl as WebGLRenderingContext).getExtension('WEBGL_debug_renderer_info');
-                    if (debugInfo) {
-                        const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL).toLowerCase();
-                        if (renderer.includes('apple software') || renderer.includes('software') || renderer.includes('simulator') || renderer.includes('llvmpipe')) {
-                            isIosSimulator = true;
-                        }
-                    }
-                }
-            } catch (e) {}
-
-            if (isIosSimulator) {
-                // 에뮬레이터 환경에서는 맥북 로컬 백엔드 서버(localhost:4000)로 직결
-                // 사설 IP(192.168.0.29)는 공유기 환경 변화에 따라 변경되어 타임아웃을 유발하므로 localhost를 우선 사용
-                apiBase = 'http://localhost:4000';
-            } else {
-                let defaultBase = 'http://www.beanmindcurator.com:4000';
-                let rawBase = apiBase || defaultBase;
-                if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
-                    rawBase = defaultBase;
-                }
-                apiBase = rawBase.replace(/\/$/, '');
+            // iOS 및 기타 네이티브 환경은 시뮬레이터와 실기기 모두에서 맥북 호스트 서버에 연결하기 위해 빌드 타임 IP 사용
+            let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
+            if (!rawBase || rawBase.includes('https://www.beanmindcurator.com') || rawBase.includes('dev.beanmindcurator.com')) {
+                // devHostIp가 localhost이면 그대로 localhost 사용, 사설 IP 주소이면 사설 IP 사용
+                rawBase = `http://${devHostIp}:4000`;
             }
+            apiBase = rawBase.replace(/\/$/, '');
         }
 
-        // [스마트 도메인 치환]
-        // 모바일 빌드에서 API 주소가 hosts 기반 로컬 개발 가상 도메인(dev.beanmindcurator.com)을 향하는 경우
-        // 모바일 기기는 hosts 설정을 몰라 DNS 타임아웃이 나므로, 플랫폼별 로컬 호스트 IP로 강제 치환해 줍니다.
+        // 최종 폴백: 여전히 dev.beanmindcurator.com 도메인이 남아있는 경우 모바일용 예외 처리
         if (apiBase.includes('dev.beanmindcurator.com')) {
-            if (isAndroid) {
-                apiBase = 'http://10.0.2.2:4000';
-            } else {
-                apiBase = 'http://localhost:4000';
-            }
+            apiBase = `http://${devHostIp}:4000`;
         }
     } catch (e) {
-        let rawBase = import.meta.env.VITE_API_BASE_URL || 'http://www.beanmindcurator.com:4000';
-        if (!rawBase || rawBase.includes('https://www.beanmindcurator.com')) {
-            rawBase = 'http://www.beanmindcurator.com:4000';
-        }
-        apiBase = rawBase.replace(/\/$/, '');
+        apiBase = `http://${devHostIp}:4000`;
     }
 }
 export const API_BASE = apiBase;
