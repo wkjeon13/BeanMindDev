@@ -75,7 +75,7 @@ public class ClubService {
 
         List<String> newPaths = new ArrayList<>();
         String uploadDirRelative = "uploads/clubs/" + userId;
-        String uploadDirAbsolute = "../" + uploadDirRelative;
+        String uploadDirAbsolute = new File(uploadDirRelative).getAbsolutePath();
 
         try {
             Files.createDirectories(Paths.get(uploadDirAbsolute));

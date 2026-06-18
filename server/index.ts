@@ -44,7 +44,7 @@ import { PrismaClient } from '@prisma/client';
 
 import prisma from './utils/prisma.js';
 const app = express();
-const port = 3001; // API server running on 3001 (Vite frontend on 3002)
+const port = 4001; // API server running on 4001 (Vite frontend on 3002)
 
 
 

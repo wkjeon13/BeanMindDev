@@ -220,7 +220,11 @@ const MemoizedMapMarker = React.memo(({
                                 try { mainImageSrc = JSON.parse(mainImageSrc)[0]; } catch (e) { }
                             }
                             if (!mainImageSrc) mainImageSrc = 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800';
-                            const isVideo = typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'));
+
+                            const isAndroid = typeof window !== 'undefined' && 
+                                (window.navigator.userAgent.toLowerCase().includes('android') || 
+                                 (window as any).Capacitor?.getPlatform() === 'android');
+                            const isVideo = !isAndroid && typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'));
 
                             return (
                                 <div className={`transition-all duration-300 rounded-full border-[3px] ${borderColor} bg-[#f3f0ea] shadow-md relative ${isFocused || isPremium || isCuratorHighlight ? 'shadow-[0_0_15px_rgba(251,191,36,0.6)]' : ''}`} style={{ width: size, height: size }}>
@@ -316,7 +320,12 @@ const MemoizedMapMarker = React.memo(({
                                     try { mainImageSrc = JSON.parse(mainImageSrc)[0]; } catch (e) { }
                                 }
                                 if (!mainImageSrc) mainImageSrc = 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800';
-                                const isVideo = typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'));
+                                
+                                const isAndroid = typeof window !== 'undefined' && 
+                                    (window.navigator.userAgent.toLowerCase().includes('android') || 
+                                     (window as any).Capacitor?.getPlatform() === 'android');
+                                const isVideo = !isAndroid && typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'));
+                                
                                 return isVideo ? (
                                     <video src={getFullImageUrl(mainImageSrc as string)} autoPlay loop muted playsInline className="w-full h-full object-cover" />
                                 ) : (

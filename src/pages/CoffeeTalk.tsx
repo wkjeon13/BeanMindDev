@@ -490,6 +490,7 @@ export default function CoffeeTalk() {
     const [isAnnouncement, setIsAnnouncement] = useState(false);
     const [isPilgrimageLedgerCompose, setIsPilgrimageLedgerCompose] = useState(false);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [postToDelete, setPostToDelete] = useState<string | null>(null);
 
     const [isCourseSelectorOpen, setIsCourseSelectorOpen] = useState(false);
     const [attachedCourseId, setAttachedCourseId] = useState<string | null>(null);
@@ -1941,26 +1942,43 @@ export default function CoffeeTalk() {
         } catch (e) { console.error('Vote error:', e); }
     };
 
-    const handleDeletePost = async (id: string) => {
+    const handleDeletePost = (id: string) => {
+        console.log("[handleDeletePost] Set postToDelete:", id);
         setActivePostMenuId(null);
-        if (!window.confirm("정말로 이 게시물을 삭제하시겠습니까?")) return;
+        setPostToDelete(id);
+    };
 
+    const confirmDeletePost = async () => {
+        if (!postToDelete) return;
+        const id = postToDelete;
+        setPostToDelete(null);
+        
+        console.log("[confirmDeletePost] Started for postId:", id);
         try {
             const token = localStorage.getItem('token');
-            if (!token) return;
+            if (!token) {
+                console.error("[confirmDeletePost] Error: No token found in localStorage!");
+                alert("로그인 인증 토큰이 존재하지 않습니다. 다시 로그인해주세요.");
+                return;
+            }
             const url = `${API_BASE}/api/community/posts/${id}`;
+            console.log("[confirmDeletePost] Requesting DELETE to URL:", url);
             const res = await fetch(url, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            console.log("[confirmDeletePost] DELETE Response Status:", res.status);
             if (res.ok) {
+                console.log("[confirmDeletePost] Delete successful! Filtering post ID from state.");
                 setPosts(prev => prev.filter(p => p.id !== id));
             } else {
+                const errText = await res.text();
+                console.error("[confirmDeletePost] Delete failed on server:", errText);
                 alert("게시물 삭제에 실패했습니다.");
             }
-        } catch (err) {
-            console.error("Delete error", err);
-            alert("오류가 발생했습니다.");
+        } catch (err: any) {
+            console.error("[confirmDeletePost] Exception occurred:", err);
+            alert("오류가 발생했습니다: " + err.message);
         }
     };
 
@@ -2025,7 +2043,8 @@ export default function CoffeeTalk() {
                 const url = `${API_BASE}/api/users/me`;
                 const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (res.ok) {
-                    const data = await res.json();
+                    const resData = await res.json();
+                    const data = resData.data || resData;
                     setUserProfile({
                         prefAcidity: data.prefAcidity || 0,
                         prefSweetness: data.prefSweetness || 0,
@@ -4330,6 +4349,30 @@ export default function CoffeeTalk() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* Custom Delete Confirmation Modal */}
+            {postToDelete && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+                    <div className="bg-espresso-900 border border-amber-500/30 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative text-left">
+                        <h3 className="text-lg font-bold text-[#f5ebd6] mb-3">게시물 삭제</h3>
+                        <p className="text-sm text-espresso-200 mb-6">정말로 이 게시물을 삭제하시겠습니까? 삭제된 게시물은 복구할 수 없습니다.</p>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setPostToDelete(null)}
+                                className="px-4 py-2 rounded-xl text-sm font-medium text-espresso-200 bg-espresso-800 hover:bg-espresso-750 transition-colors"
+                            >
+                                취소
+                            </button>
+                            <button
+                                onClick={confirmDeletePost}
+                                className="px-4 py-2 rounded-xl text-sm font-medium text-white bg-red-600 hover:bg-red-500 transition-colors"
+                            >
+                                삭제
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

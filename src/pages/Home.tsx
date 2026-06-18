@@ -401,7 +401,8 @@ export default function HomeDashboard() {
                 }
                 return r.ok ? r.json() : null;
             })
-            .then(meData => {
+            .then(resData => {
+                const meData = resData ? (resData.data || resData) : null;
                 if (meData) {
                     localStorage.setItem('user', JSON.stringify(meData));
                     if (meData.homeLayout && Array.isArray(meData.homeLayout) && meData.homeLayout.length > 0) {

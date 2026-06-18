@@ -193,7 +193,7 @@ public class PostService {
         // Image uploads
         List<String> imageUrls = new ArrayList<>();
         String uploadDirRelative = "uploads/community";
-        String uploadDirAbsolute = "../" + uploadDirRelative;
+        String uploadDirAbsolute = new File(uploadDirRelative).getAbsolutePath();
 
         try {
             Files.createDirectories(Paths.get(uploadDirAbsolute));
@@ -373,6 +373,10 @@ public class PostService {
         }
 
         // Hard Delete cascade replacements
+        // Delete comments first
+        List<Comment> topLevelComments = commentRepository.findByPostIdAndParentIsNull(postId);
+        commentRepository.deleteAll(topLevelComments);
+
         likeRepository.deleteByPostId(postId);
         pollRepository.deleteByPostId(postId);
         postBookmarkRepository.deleteByPostId(postId);

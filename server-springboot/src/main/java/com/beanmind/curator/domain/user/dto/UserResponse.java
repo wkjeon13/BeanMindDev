@@ -1,6 +1,7 @@
 package com.beanmind.curator.domain.user.dto;
 
 import com.beanmind.curator.domain.user.entity.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -39,10 +40,21 @@ public class UserResponse {
     private String interests;
     private Integer aiPrescriptionLimit;
     private Integer aiUsageCount;
+    private Object homeLayout;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     public static UserResponse from(User user) {
+        Object parsedLayout = null;
+        if (user.getHomeLayout() != null && !user.getHomeLayout().trim().isEmpty()) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                parsedLayout = mapper.readTree(user.getHomeLayout());
+            } catch (Exception e) {
+                // Ignore parsing errors and keep it null
+            }
+        }
+
         return UserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
@@ -71,8 +83,10 @@ public class UserResponse {
                 .interests(user.getInterests())
                 .aiPrescriptionLimit(user.getAiPrescriptionLimit())
                 .aiUsageCount(user.getAiUsageCount())
+                .homeLayout(parsedLayout)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
 }
+

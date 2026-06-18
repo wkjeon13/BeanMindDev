@@ -594,7 +594,8 @@ Randomization Seed: ${Math.random() * Date.now()}`;
               headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             if (meRes.ok) {
-              const meData = await meRes.json();
+              const resData = await meRes.json();
+              const meData = resData.data || resData;
               localStorage.setItem('user', JSON.stringify(meData));
               clearHomeCache();
             }

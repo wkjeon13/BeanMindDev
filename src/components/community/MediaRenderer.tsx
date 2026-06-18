@@ -19,6 +19,15 @@ export default function MediaRenderer({ src, className = '', autoPlay = true, on
     const [isMuted, setIsMuted] = useState(true);
     const [hasError, setHasError] = useState(false);
     const manuallyPaused = useRef(false);
+
+    // Detect Android platform (Webview or native environment)
+    const isAndroid = typeof window !== 'undefined' && 
+        (((window as any).Capacitor?.getPlatform() === 'android') || 
+         (window.navigator.userAgent.toLowerCase().includes('android') && window.location.href.startsWith('http://localhost')));
+
+    // On Android, delay video tag loading until clicked to avoid WebView renderer OOM crash
+    const [isActivated, setIsActivated] = useState(!isAndroid);
+
     // Normalize src for uploads
     let displaySrc = src && src.startsWith('/') && !src.startsWith('//') ? `${API_BASE}${src}` : src;
 
@@ -75,6 +84,21 @@ export default function MediaRenderer({ src, className = '', autoPlay = true, on
 
     const handleVideoClick = (e: React.MouseEvent) => {
         e.stopPropagation(); // prevent post bubbling if used in feed
+        
+        if (!isActivated) {
+            setIsActivated(true);
+            // Wait for video element to mount before playing
+            setTimeout(() => {
+                if (videoRef.current) {
+                    videoRef.current.play()
+                        .then(() => setIsPlaying(true))
+                        .catch(err => console.log('Play activation failed:', err));
+                }
+            }, 100);
+            if (onClick) onClick();
+            return;
+        }
+
         if (videoRef.current && !disablePauseOnClick) {
             if (videoRef.current.paused) {
                 manuallyPaused.current = false;
@@ -105,6 +129,30 @@ export default function MediaRenderer({ src, className = '', autoPlay = true, on
                     <AlertTriangle size={28} className="text-espresso-400 mb-2 opacity-60" />
                     <span className="text-[11px] font-bold text-espresso-300">지원되지 않는 미디어 형식</span>
                     <span className="text-[10px] text-espresso-400 mt-1">이 모바일 환경의 하드웨어 디코더가<br />해당 영상 코덱을 지원하지 않습니다.</span>
+                </div>
+            );
+        }
+
+        // Render beautiful placeholder if video is not yet activated (Click-to-Play defense on Android)
+        if (!isActivated) {
+            return (
+                <div 
+                    className={`relative ${className} bg-espresso-950 flex items-center justify-center overflow-hidden cursor-pointer group`}
+                    onClick={handleVideoClick}
+                >
+                    <img 
+                        src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=500&q=80" 
+                        alt="Play video" 
+                        className="w-full h-full object-cover opacity-60 filter blur-[0.5px] group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-espresso-950/30">
+                        <div className="bg-amber-500/80 hover:bg-amber-500 p-4 rounded-full shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                            <Play size={28} className="text-white fill-white ml-1" />
+                        </div>
+                        <span className="text-[11px] font-medium text-amber-100 mt-3 bg-espresso-950/80 px-2.5 py-1 rounded-full border border-amber-500/20 backdrop-blur-sm">
+                            터치하여 재생
+                        </span>
+                    </div>
                 </div>
             );
         }

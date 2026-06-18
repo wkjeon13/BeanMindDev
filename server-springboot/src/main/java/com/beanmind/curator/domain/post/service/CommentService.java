@@ -152,7 +152,7 @@ public class CommentService {
         // Image processing
         List<String> imageUrls = new ArrayList<>();
         String uploadDirRelative = "uploads/community";
-        String uploadDirAbsolute = "../" + uploadDirRelative;
+        String uploadDirAbsolute = new File(uploadDirRelative).getAbsolutePath();
 
         try {
             Files.createDirectories(Paths.get(uploadDirAbsolute));
@@ -271,7 +271,7 @@ public class CommentService {
         }
 
         String uploadDirRelative = "uploads/community";
-        String uploadDirAbsolute = "../" + uploadDirRelative;
+        String uploadDirAbsolute = new File(uploadDirRelative).getAbsolutePath();
 
         try {
             Files.createDirectories(Paths.get(uploadDirAbsolute));

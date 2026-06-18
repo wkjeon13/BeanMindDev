@@ -75,4 +75,30 @@ public class UserController {
         UserResponse response = userService.updateProfileImage(email, request);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    @GetMapping("/reward-tiers")
+    public ResponseEntity<RewardTiersDto> getRewardTiers(Principal principal) {
+        String email = principal.getName();
+        RewardTiersDto response = userService.getRewardTiers(email);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/reward-tiers")
+    public ResponseEntity<RewardTiersDto> updateRewardTiers(
+            @Valid @RequestBody RewardTiersDto request,
+            Principal principal) {
+        String email = principal.getName();
+        RewardTiersDto response = userService.updateRewardTiers(email, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/me/home-layout")
+    public ResponseEntity<ApiResponse<UserResponse>> updateHomeLayout(
+            @RequestBody HomeLayoutRequest request,
+            Principal principal) {
+        String email = principal.getName();
+        UserResponse response = userService.updateHomeLayout(email, request);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 }
+

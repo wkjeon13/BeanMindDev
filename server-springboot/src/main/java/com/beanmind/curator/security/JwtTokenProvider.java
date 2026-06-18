@@ -35,12 +35,13 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public String createToken(String email, String role) {
+    public String createToken(String id, String email, String role) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInMilliseconds);
 
         return Jwts.builder()
                 .setSubject(email)
+                .claim("id", id)
                 .claim("auth", "ROLE_" + role)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .setExpiration(validity)

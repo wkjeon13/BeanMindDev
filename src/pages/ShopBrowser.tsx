@@ -491,7 +491,14 @@ export default function ShopBrowser() {
             const shopsRes = await fetch(url, fetchOptions);
             let fetchedShops: any[] = [];
             if (shopsRes.ok) {
-                fetchedShops = await shopsRes.json();
+                const resData = await shopsRes.json();
+                if (resData && typeof resData === 'object' && 'data' in resData && Array.isArray(resData.data)) {
+                    fetchedShops = resData.data;
+                } else if (Array.isArray(resData)) {
+                    fetchedShops = resData;
+                } else {
+                    fetchedShops = [];
+                }
 
                 // CRITICAL FIX: If we actively navigated from CoffeeTalk, preserve the mock-injected target shop
                 // otherwise the debounced bounds fetch will permanently wipe it from the UI.
@@ -675,7 +682,12 @@ export default function ShopBrowser() {
                         try {
                             const fbRes = await fetch(`${API_BASE}/api/shops/${state.targetShopId}`);
                             if (fbRes.ok) {
-                                matchingShop = await fbRes.json();
+                                const resData = await fbRes.json();
+                                if (resData && typeof resData === 'object' && 'data' in resData) {
+                                    matchingShop = resData.data;
+                                } else {
+                                    matchingShop = resData;
+                                }
                                 if (matchingShop && matchingShop.lat) {
                                     setMapCenter([parseFloat(matchingShop.lat), parseFloat(matchingShop.lng)]);
                                 }
@@ -988,16 +1000,23 @@ export default function ShopBrowser() {
             const res = await fetch(url, fetchOptions);
             if (res.ok) {
                 const searchResults = await res.json();
-                if (searchResults && searchResults.length > 0) {
-                    finalShops = [...searchResults];
-                    const firstMatch = searchResults.find((s: any) => s.lat && s.lng);
+                let resultsArray: any[] = [];
+                if (searchResults && typeof searchResults === 'object' && 'data' in searchResults && Array.isArray(searchResults.data)) {
+                    resultsArray = searchResults.data;
+                } else if (Array.isArray(searchResults)) {
+                    resultsArray = searchResults;
+                }
+
+                if (resultsArray && resultsArray.length > 0) {
+                    finalShops = [...resultsArray];
+                    const firstMatch = resultsArray.find((s: any) => s.lat && s.lng);
                     if (firstMatch) {
                         centerToUse = [firstMatch.lat, firstMatch.lng];
                         setSearchedShopId(firstMatch.id);
                         setFocusedShopId(firstMatch.id);
                     } else {
-                        setSearchedShopId(searchResults[0].id);
-                        setFocusedShopId(searchResults[0].id);
+                        setSearchedShopId(resultsArray[0].id);
+                        setFocusedShopId(resultsArray[0].id);
                     }
                     foundTextMatch = true;
                 }
@@ -1124,8 +1143,15 @@ export default function ShopBrowser() {
                         const regionRes = await fetch(regionUrl, fetchOptions);
                         if (regionRes.ok) {
                             const regionShops = await regionRes.json();
+                            let regionShopsArray: any[] = [];
+                            if (regionShops && typeof regionShops === 'object' && 'data' in regionShops && Array.isArray(regionShops.data)) {
+                                regionShopsArray = regionShops.data;
+                            } else if (Array.isArray(regionShops)) {
+                                regionShopsArray = regionShops;
+                            }
+
                             const existingIds = new Set(finalShops.map((s: any) => s.id));
-                            for (const rs of regionShops) {
+                            for (const rs of regionShopsArray) {
                                 if (!existingIds.has(rs.id)) {
                                     finalShops.push(rs);
                                     existingIds.add(rs.id);
@@ -1795,11 +1821,17 @@ Format EXACTLY like this example:
                                                     {/* Thumbnail & Rating */}
                                                     <div className="flex flex-col items-center gap-1.5 shrink-0">
                                                         <div className="w-14 h-14 rounded-full overflow-hidden border border-espresso-700/50 bg-espresso-900 relative">
-                                                            {(typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'))) ? (
-                                                                <video src={getFullImageUrl(mainImageSrc)} autoPlay loop muted playsInline className="w-full h-full object-cover" />
-                                                            ) : (
-                                                                <img src={getFullImageUrl(mainImageSrc as string)} alt={shop.name} className="w-full h-full object-cover" />
-                                                            )}
+                                                            {(() => {
+                                                                const isAndroid = typeof window !== 'undefined' && 
+                                                                    (window.navigator.userAgent.toLowerCase().includes('android') || 
+                                                                     (window as any).Capacitor?.getPlatform() === 'android');
+                                                                const isVideoThumb = !isAndroid && typeof mainImageSrc === 'string' && (mainImageSrc.toLowerCase().endsWith('.mp4') || mainImageSrc.toLowerCase().endsWith('.mov'));
+                                                                return isVideoThumb ? (
+                                                                    <video src={getFullImageUrl(mainImageSrc)} autoPlay loop muted playsInline className="w-full h-full object-cover" />
+                                                                ) : (
+                                                                    <img src={getFullImageUrl(mainImageSrc as string)} alt={shop.name} className="w-full h-full object-cover" />
+                                                                );
+                                                            })()}
                                                         </div>
                                                         <div className="flex items-center justify-center">
                                                             {(shop.reviewCount ?? 0) > 0 ? (

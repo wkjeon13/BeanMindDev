@@ -242,7 +242,7 @@ public class AuthService {
         userRepository.save(user);
 
         // Issue JWT token
-        String token = jwtTokenProvider.createToken(user.getEmail(), user.getRole().name());
+        String token = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getRole().name());
 
         return AuthResponse.builder()
                 .message("Login successful!")
@@ -284,7 +284,7 @@ public class AuthService {
         user.setVerificationExpires(null);
         userRepository.save(user);
 
-        String token = jwtTokenProvider.createToken(user.getEmail(), user.getRole().name());
+        String token = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getRole().name());
 
         return AuthResponse.builder()
                 .message("Email verified successfully!")
@@ -403,7 +403,7 @@ public class AuthService {
                     userRepository.save(user);
                 }
 
-                String jwtToken = jwtTokenProvider.createToken(user.getEmail(), user.getRole().name());
+                String jwtToken = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getRole().name());
                 String redirectUrl = isWeb
                         ? webOrigin + "/profile#jwt_token=" + jwtToken
                         : "capcurator://naver-login?token=" + jwtToken;
@@ -510,7 +510,7 @@ public class AuthService {
             log.error("Failed to log consent history in naver register", e);
         }
 
-        String token = jwtTokenProvider.createToken(user.getEmail(), user.getRole().name());
+        String token = jwtTokenProvider.createToken(user.getId(), user.getEmail(), user.getRole().name());
 
         return AuthResponse.builder()
                 .message("Naver register successful!")

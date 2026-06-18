@@ -408,8 +408,9 @@ export default function Profile() {
                         }
                         if (res.ok) return res.json();
                     })
-                    .then(userData => {
-                        if (userData) {
+                    .then(resData => {
+                        if (resData) {
+                            const userData = resData.data || resData;
                             localStorage.setItem('user', JSON.stringify(userData));
                             // Trigger state update immediately to reflect OWNER role
                             setCurrentUser(userData);
@@ -743,7 +744,8 @@ export default function Profile() {
                                 headers: { 'Authorization': `Bearer ${token}` }
                             });
                             if (res.ok) {
-                                const userData = await res.json();
+                                const resData = await res.json();
+                                const userData = resData.data || resData;
                                 localStorage.setItem('token', token);
                                 localStorage.setItem('user', JSON.stringify(userData));
                                 window.dispatchEvent(new Event('authStateChanged'));
@@ -785,7 +787,8 @@ export default function Profile() {
                     headers: { 'Authorization': `Bearer ${jwtToken}` }
                 }).then(async res => {
                     if (res.ok) {
-                        const userData = await res.json();
+                        const resData = await res.json();
+                        const userData = resData.data || resData;
                         localStorage.setItem('token', jwtToken);
                         localStorage.setItem('user', JSON.stringify(userData));
                         window.dispatchEvent(new Event('authStateChanged'));
@@ -965,7 +968,8 @@ export default function Profile() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token: accessToken })
             });
-            const data = await response.json();
+            const resData = await response.json();
+            const data = resData.data || resData;
 
             if (response.status === 202 && data.requiresRoleSelection) {
                 setTempGoogleUser(data.tempUser);
@@ -1005,7 +1009,8 @@ export default function Profile() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: normalizedEmail, password })
             });
-            const data = await response.json();
+            const resData = await response.json();
+            const data = resData.data || resData;
 
             if (response.ok) {
                 localStorage.setItem('token', data.token);
@@ -1026,7 +1031,10 @@ export default function Profile() {
                         alert(`[테스트용 메시지] 새로운 인증 코드 발급: ${data.developmentOnlyCode}`);
                     }
                 } else {
-                    setAuthError(data.error || t('profile.err_login_fail'));
+                    const errMsg = (data.error && typeof data.error === 'object' && data.error.message)
+                        ? data.error.message
+                        : (data.error || t('profile.err_login_fail'));
+                    setAuthError(errMsg);
                 }
             }
         } catch (err) {
@@ -1086,7 +1094,8 @@ export default function Profile() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token: credentialResponse.credential })
             });
-            const data = await response.json();
+            const resData = await response.json();
+            const data = resData.data || resData;
 
             if (response.status === 202 && data.requiresRoleSelection) {
                 // Needs role selection
@@ -1102,7 +1111,10 @@ export default function Profile() {
                 setIsAuthenticated(true);
                 setIsLoginModalOpen(false);
             } else {
-                setAuthError(data.error || t('profile.err_google_fail'));
+                const errMsg = (data.error && typeof data.error === 'object' && data.error.message)
+                    ? data.error.message
+                    : (data.error || t('profile.err_google_fail'));
+                setAuthError(errMsg);
             }
         } catch (err) {
             setAuthError(t('profile.err_server'));
@@ -1141,7 +1153,8 @@ export default function Profile() {
                     privacyPolicyVersion: privacyPolicyData?.version || 'v1.0.0'
                 })
             });
-            const data = await response.json();
+            const resData = await response.json();
+            const data = resData.data || resData;
 
             if (response.ok) {
                 localStorage.setItem('token', data.token);
@@ -1153,7 +1166,10 @@ export default function Profile() {
                 setIsAuthenticated(true);
                 setIsLoginModalOpen(false);
             } else {
-                setAuthError(data.error || t('profile.err_reg_fail'));
+                const errMsg = (data.error && typeof data.error === 'object' && data.error.message)
+                    ? data.error.message
+                    : (data.error || t('profile.err_reg_fail'));
+                setAuthError(errMsg);
             }
         } catch (err) {
             setAuthError(t('profile.err_server'));
@@ -1212,7 +1228,8 @@ export default function Profile() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token: credentialResponse.credential, name: credentialResponse.name })
             });
-            const data = await response.json();
+            const resData = await response.json();
+            const data = resData.data || resData;
 
             if (response.status === 202 && data.requiresRoleSelection) {
                 setTempAppleUser(data.tempUser);
@@ -1227,7 +1244,10 @@ export default function Profile() {
                 setIsAuthenticated(true);
                 setIsLoginModalOpen(false);
             } else {
-                setAuthError(data.error || t('profile.err_apple_fail', 'Apple Login Failed.'));
+                const errMsg = (data.error && typeof data.error === 'object' && data.error.message)
+                    ? data.error.message
+                    : (data.error || t('profile.err_apple_fail', 'Apple Login Failed.'));
+                setAuthError(errMsg);
             }
         } catch (err) {
             setAuthError(t('profile.err_server'));
@@ -1295,7 +1315,8 @@ export default function Profile() {
                     privacyPolicyVersion: privacyPolicyData?.version || 'v1.0.0'
                 })
             });
-            const data = await response.json();
+            const resData = await response.json();
+            const data = resData.data || resData;
 
             if (response.ok) {
                 localStorage.setItem('token', data.token);
@@ -1308,7 +1329,10 @@ export default function Profile() {
                 setIsLoginModalOpen(false);
                 setTempNaverUser(null);
             } else {
-                setAuthError(data.error || t('profile.err_register_fail', 'Register Failed.'));
+                const errMsg = (data.error && typeof data.error === 'object' && data.error.message)
+                    ? data.error.message
+                    : (data.error || t('profile.err_register_fail', 'Register Failed.'));
+                setAuthError(errMsg);
             }
         } catch (err) {
             setAuthError(t('profile.err_server'));
@@ -1348,7 +1372,8 @@ export default function Profile() {
                     privacyPolicyVersion: privacyPolicyData?.version || 'v1.0.0'
                 })
             });
-            const data = await response.json();
+            const resData = await response.json();
+            const data = resData.data || resData;
 
             if (response.ok) {
                 localStorage.setItem('token', data.token);
@@ -1358,7 +1383,10 @@ export default function Profile() {
                 setIsLoginModalOpen(false);
                 setTempAppleUser(null);
             } else {
-                setAuthError(data.error || t('profile.err_register_fail', 'Register Failed.'));
+                const errMsg = (data.error && typeof data.error === 'object' && data.error.message)
+                    ? data.error.message
+                    : (data.error || t('profile.err_register_fail', 'Register Failed.'));
+                setAuthError(errMsg);
             }
         } catch (err) {
             setAuthError(t('profile.err_server'));
@@ -1400,7 +1428,8 @@ export default function Profile() {
                     privacyPolicyVersion: privacyPolicyData?.version || 'v1.0.0'
                 })
             });
-            const data = await response.json();
+            const resData = await response.json();
+            const data = resData.data || resData;
 
             if (response.ok || data.requiresVerification) {
                 alert(t('profile.alert_code_sent'));
@@ -1408,7 +1437,10 @@ export default function Profile() {
                 setPassword('');
                 setPasswordConfirm('');
             } else {
-                setAuthError(data.error || t('profile.err_reg_fail2', '회원가입에 실패했습니다.'));
+                const errMsg = (data.error && typeof data.error === 'object' && data.error.message)
+                    ? data.error.message
+                    : (data.error || t('profile.err_reg_fail2', '회원가입에 실패했습니다.'));
+                setAuthError(errMsg);
             }
         } catch (err) {
             setAuthError(t('profile.err_server_conn'));
@@ -1458,7 +1490,8 @@ export default function Profile() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, code: verificationCode })
             });
-            const data = await response.json();
+            const resData = await response.json();
+            const data = resData.data || resData;
 
             if (response.ok) {
                 alert(t('profile.alert_verify_success'));
@@ -1471,7 +1504,10 @@ export default function Profile() {
                 setIsAuthenticated(true);
                 setIsLoginModalOpen(false);
             } else {
-                setAuthError(data.error || t('profile.err_verify_fail'));
+                const errMsg = (data.error && typeof data.error === 'object' && data.error.message)
+                    ? data.error.message
+                    : (data.error || t('profile.err_verify_fail'));
+                setAuthError(errMsg);
             }
         } catch (err) {
             setAuthError(t('profile.err_server'));
@@ -1530,7 +1566,8 @@ export default function Profile() {
             });
 
             if (response.ok) {
-                const data = await response.json();
+                const resData = await response.json();
+                const data = resData.data || resData;
                 localStorage.setItem('user', JSON.stringify(data.user));
                 setCurrentUser(data.user);
                 alert(t('profile.alert_photo_changed'));
@@ -1560,7 +1597,8 @@ export default function Profile() {
             });
 
             if (response.ok) {
-                const data = await response.json();
+                const resData = await response.json();
+                const data = resData.data || resData;
                 localStorage.setItem('user', JSON.stringify(data.user));
                 setCurrentUser(data.user);
                 alert(t('profile.alert_photo_deleted'));
@@ -1585,7 +1623,8 @@ export default function Profile() {
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ nickname: newNickname })
             });
-            const data = await res.json();
+            const resData = await res.json();
+            const data = resData.data || resData;
             if (res.ok) {
                 localStorage.setItem('user', JSON.stringify(data.user));
                 setCurrentUser(data.user);
@@ -1660,7 +1699,8 @@ export default function Profile() {
                 })
             });
             if (res.ok) {
-                const data = await res.json();
+                const resData = await res.json();
+                const data = resData.data || resData;
                 setCurrentUser((prev: any) => ({ ...prev, bio: data.user.bio, isPublicProfile: data.user.isPublicProfile }));
                 localStorage.setItem('user', JSON.stringify({ ...currentUser, bio: data.user.bio, isPublicProfile: data.user.isPublicProfile }));
                 setIsEditingBio(false);

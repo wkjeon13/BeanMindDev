@@ -71,7 +71,15 @@ public class ShopService {
 
                     // Calculate AI Match Rate (Euclidean distance)
                     Integer matchRate = null;
-                    if (finalUserPrefs != null && finalUserPrefs.getPrefAcidity() != null && store.getAcidity() != null) {
+                    if (finalUserPrefs != null && 
+                        finalUserPrefs.getPrefAcidity() != null && 
+                        finalUserPrefs.getPrefSweetness() != null && 
+                        finalUserPrefs.getPrefBitterness() != null && 
+                        finalUserPrefs.getPrefBody() != null && 
+                        store.getAcidity() != null && 
+                        store.getSweetness() != null && 
+                        store.getBitterness() != null && 
+                        store.getBody() != null) {
                         double dist = Math.sqrt(
                                 Math.pow(finalUserPrefs.getPrefAcidity() - store.getAcidity(), 2) +
                                 Math.pow(finalUserPrefs.getPrefSweetness() - store.getSweetness(), 2) +

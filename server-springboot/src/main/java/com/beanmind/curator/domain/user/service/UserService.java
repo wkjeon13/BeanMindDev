@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -195,4 +196,46 @@ public class UserService {
 
         return UserResponse.from(user);
     }
+
+    @Transactional(readOnly = true)
+    public RewardTiersDto getRewardTiers(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return RewardTiersDto.fromEntity(user);
+    }
+
+    @Transactional
+    public RewardTiersDto updateRewardTiers(String email, RewardTiersDto dto) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        user.setRewardTier1Name(dto.getRewardTier1Name().trim());
+        user.setRewardTier1Amount(dto.getRewardTier1Amount());
+        user.setRewardTier2Name(dto.getRewardTier2Name().trim());
+        user.setRewardTier2Amount(dto.getRewardTier2Amount());
+        user.setRewardTier3Name(dto.getRewardTier3Name().trim());
+        user.setRewardTier3Amount(dto.getRewardTier3Amount());
+
+        userRepository.save(user);
+        return RewardTiersDto.fromEntity(user);
+    }
+
+    @Transactional
+    public UserResponse updateHomeLayout(String email, HomeLayoutRequest request) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonLayout = mapper.writeValueAsString(request.getLayout());
+            user.setHomeLayout(jsonLayout);
+        } catch (Exception e) {
+            log.error("Failed to serialize home layout to JSON string", e);
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "레이아웃 저장에 실패했습니다.");
+        }
+
+        userRepository.save(user);
+        return UserResponse.from(user);
+    }
 }
+

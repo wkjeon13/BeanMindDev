@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -96,22 +97,56 @@ public class PostController {
             @RequestParam(value = "bgTheme", required = false) String bgTheme,
             @RequestParam(value = "attachedCourseId", required = false) String attachedCourseId,
             @RequestPart(value = "files", required = false) List<MultipartFile> files,
-            @RequestParam(value = "images", required = false) List<String> images,
-            @RequestParam(value = "image", required = false) List<String> image,
+            HttpServletRequest request,
             Principal principal
     ) {
         String userId = getRequiredUserId(principal);
 
+        List<MultipartFile> allFiles = new ArrayList<>();
+        if (files != null) {
+            allFiles.addAll(files);
+        }
+
         List<String> base64Images = new ArrayList<>();
-        if (images != null) base64Images.addAll(images);
-        if (image != null) base64Images.addAll(image);
+
+        if (request instanceof org.springframework.web.multipart.MultipartHttpServletRequest) {
+            org.springframework.web.multipart.MultipartHttpServletRequest multipartRequest = 
+                    (org.springframework.web.multipart.MultipartHttpServletRequest) request;
+            
+            List<MultipartFile> imagesFiles = multipartRequest.getFiles("images");
+            if (imagesFiles != null && !imagesFiles.isEmpty()) {
+                allFiles.addAll(imagesFiles);
+            }
+            
+            List<MultipartFile> imageFilesList = multipartRequest.getFiles("image");
+            if (imageFilesList != null && !imageFilesList.isEmpty()) {
+                allFiles.addAll(imageFilesList);
+            }
+        }
+
+        String[] imagesParams = request.getParameterValues("images");
+        if (imagesParams != null) {
+            for (String val : imagesParams) {
+                if (StringUtils.hasText(val)) {
+                    base64Images.add(val);
+                }
+            }
+        }
+        String[] imageParams = request.getParameterValues("image");
+        if (imageParams != null) {
+            for (String val : imageParams) {
+                if (StringUtils.hasText(val)) {
+                    base64Images.add(val);
+                }
+            }
+        }
 
         PostResponse newPost = postService.createPost(
                 userId, content, cafeName, cafeLocation, cafeLat, cafeLng,
                 acidity, sweetness, body, bitterness, aroma, taggedBean,
                 recipeData, storeId, clubId, postType, isPilgrimageLedger,
                 isShorts, shortsCategory, equipmentTag, bgmTheme, bgTheme,
-                attachedCourseId, files, base64Images
+                attachedCourseId, allFiles, base64Images
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(newPost);
     }

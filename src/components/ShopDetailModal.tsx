@@ -549,11 +549,17 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
 
                                 {/* Refined Hero Image with Gradient Overlay & Text */}
                                 <div className="w-full h-[380px] relative bg-espresso-800 shrink-0">
-                                    {(typeof heroImage === 'string' && (heroImage.toLowerCase().endsWith('.mp4') || heroImage.toLowerCase().endsWith('.mov') || heroImage.toLowerCase().endsWith('.webm'))) ? (
-                                        <video src={getFullImageUrl(heroImage)} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover" />
-                                    ) : (
-                                        <img src={typeof heroImage === 'string' ? getFullImageUrl(heroImage) : undefined} alt={shop.name} className="w-full h-full object-cover" />
-                                    )}
+                                    {(() => {
+                                        const isAndroid = typeof window !== 'undefined' && 
+                                            (window.navigator.userAgent.toLowerCase().includes('android') || 
+                                             (window as any).Capacitor?.getPlatform() === 'android');
+                                        const isVideoHero = !isAndroid && typeof heroImage === 'string' && (heroImage.toLowerCase().endsWith('.mp4') || heroImage.toLowerCase().endsWith('.mov') || heroImage.toLowerCase().endsWith('.webm'));
+                                        return isVideoHero ? (
+                                            <video src={getFullImageUrl(heroImage)} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover" />
+                                        ) : (
+                                            <img src={typeof heroImage === 'string' ? getFullImageUrl(heroImage) : undefined} alt={shop.name} className="w-full h-full object-cover" />
+                                        );
+                                    })()}
                                     <div className="absolute inset-x-0 bottom-0 pt-32 pb-6 px-6 bg-gradient-to-t from-[#111114] via-[#111114]/80 to-transparent flex flex-col justify-end pointer-events-none">
                                         <div className="flex flex-wrap gap-2 mb-3">
                                             {shop.primaryCoffeeType === 'SINGLE_ORIGIN' && <span className="px-2 py-1 bg-amber-500/20 text-amber-500 border border-amber-500/20 text-[10px] font-bold uppercase tracking-widest rounded-sm backdrop-blur-sm pointer-events-auto">Single Origin</span>}
