@@ -359,6 +359,19 @@ export default function App() {
   // Auto-save fresh curation to server once generation completes
   useEffect(() => {
     const token = localStorage.getItem('token');
+    
+    // Check if user has remaining free curation slots
+    let canUseFree = true;
+    try {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        if (user.aiUsageCount !== undefined && user.aiPrescriptionLimit !== undefined) {
+          canUseFree = user.aiUsageCount < user.aiPrescriptionLimit;
+        }
+      }
+    } catch {}
+
     if (
       step === 4 && 
       !isLoading && 
@@ -367,7 +380,8 @@ export default function App() {
       aiExplanation.includes("<!-- BEANDATA:") &&
       !prescriptionId && 
       isLoggedIn && 
-      token
+      token &&
+      canUseFree
     ) {
       const autoSaveOnComplete = async () => {
         try {
