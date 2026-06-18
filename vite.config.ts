@@ -58,77 +58,77 @@ export default defineConfig(({ mode }) => {
       allowedHosts: ['dev.beanmindcurator.com', 'localhost'],
       proxy: {
         '/api/users/me/badge': {
-          target: 'http://127.0.0.1:4001',
+          target: 'http://127.0.0.1:3001',
           changeOrigin: true,
           secure: false,
           timeout: 600000,
           proxyTimeout: 600000
         },
         '/api/users/bookmarks': {
-          target: 'http://127.0.0.1:4001',
+          target: 'http://127.0.0.1:3001',
           changeOrigin: true,
           secure: false,
           timeout: 600000,
           proxyTimeout: 600000
         },
         '/api/users/prescriptions': {
-          target: 'http://127.0.0.1:4001',
+          target: 'http://127.0.0.1:3001',
           changeOrigin: true,
           secure: false,
           timeout: 600000,
           proxyTimeout: 600000
         },
         '/api/shops/ai-import': {
-          target: 'http://127.0.0.1:4001',
+          target: 'http://127.0.0.1:3001',
           changeOrigin: true,
           secure: false,
           timeout: 600000,
           proxyTimeout: 600000
         },
         '/api/users/checkins': {
-          target: 'http://127.0.0.1:4001',
+          target: 'http://127.0.0.1:3001',
           changeOrigin: true,
           secure: false,
           timeout: 600000,
           proxyTimeout: 600000
         },
         '/api/users/collections': {
-          target: 'http://127.0.0.1:4001',
+          target: 'http://127.0.0.1:3001',
           changeOrigin: true,
           secure: false,
           timeout: 600000,
           proxyTimeout: 600000
         },
         '/api/stamps': {
-          target: 'http://127.0.0.1:4001',
+          target: 'http://127.0.0.1:3001',
           changeOrigin: true,
           secure: false,
           timeout: 600000,
           proxyTimeout: 600000
         },
         '^/api/users/[^/]+/follow-status': {
-          target: 'http://127.0.0.1:4001',
+          target: 'http://127.0.0.1:3001',
           changeOrigin: true,
           secure: false,
           timeout: 600000,
           proxyTimeout: 600000
         },
         '^/api/shops/[^/]+/follow-status': {
-          target: 'http://127.0.0.1:4001',
+          target: 'http://127.0.0.1:3001',
           changeOrigin: true,
           secure: false,
           timeout: 600000,
           proxyTimeout: 600000
         },
         '/api': {
-          target: 'http://127.0.0.1:4000',
+          target: 'http://127.0.0.1:3000',
           changeOrigin: true,
           secure: false,
           timeout: 600000,
           proxyTimeout: 600000
         },
         '/uploads': {
-          target: 'http://127.0.0.1:4000',
+          target: 'http://127.0.0.1:3000',
           changeOrigin: true,
           secure: false,
           timeout: 600000,
