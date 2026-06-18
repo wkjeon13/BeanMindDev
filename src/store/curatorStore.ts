@@ -675,7 +675,8 @@ Randomization Seed: ${Math.random() * Date.now()}`;
             const currentLang = language.startsWith('en') ? 'en' : 'ko';
             const dbRes = await fetch(`${API_BASE}/api/shops?lat=${currentLatitude}&lng=${currentLongitude}&lang=${currentLang}`);
             if (dbRes.ok) {
-                dbShops = await dbRes.json();
+                const resJson = await dbRes.json();
+                dbShops = Array.isArray(resJson) ? resJson : (resJson.data || []);
             }
         } catch (e) {
             console.warn("Failed to fetch nearby DB shops for curator:", e);
