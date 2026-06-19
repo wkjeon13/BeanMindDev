@@ -55,7 +55,7 @@ export default defineConfig(({ mode }) => {
         ignored: ['**/public/uploads/**', '**/data/**', '**/systemSettings.json', '**/logs/**']
       },
       host: true,
-      allowedHosts: ['dev.beanmindcurator.com', 'localhost'],
+      allowedHosts: ['dev.beanmindcurator.com', 'www.beanmindcurator.com', 'localhost'],
       proxy: {
         '/api/users/me/badge': {
           target: 'http://127.0.0.1:3001',

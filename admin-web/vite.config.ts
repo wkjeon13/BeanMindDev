@@ -16,7 +16,7 @@ export default defineConfig({
   server: {
     port: 3003,
     strictPort: true,
-    allowedHosts: ['dev.beanmindcurator.com', 'localhost'],
+    allowedHosts: ['dev.beanmindcurator.com', 'www.beanmindcurator.com', 'localhost'],
     host: '0.0.0.0',
     fs: {
       allow: ['..']
