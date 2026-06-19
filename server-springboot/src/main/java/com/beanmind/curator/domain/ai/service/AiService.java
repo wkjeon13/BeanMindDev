@@ -26,8 +26,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.Base64;
 import java.util.stream.Collectors;
 
 @Service
@@ -333,6 +339,40 @@ public class AiService {
         Integer aroma = getInteger(payload.get("aroma"));
         String flavorTags = (String) payload.get("flavorTags");
 
+        String base64Image = (String) payload.get("imageUrl");
+        String finalImageUrl = base64Image;
+
+        if (base64Image != null && base64Image.startsWith("data:image")) {
+            try {
+                String extension = "jpg";
+                if (base64Image.contains("image/png")) {
+                    extension = "png";
+                } else if (base64Image.contains("image/webp")) {
+                    extension = "webp";
+                } else if (base64Image.contains("image/gif")) {
+                    extension = "gif";
+                }
+
+                String rawBase64 = base64Image.substring(base64Image.indexOf(",") + 1);
+                byte[] decodedBytes = Base64.getDecoder().decode(rawBase64);
+
+                String fileName = "note_" + System.currentTimeMillis() + "_" + (int)(Math.random() * 1000) + "." + extension;
+                String relativePath = "uploads/users/" + user.getId() + "/tasting-notes";
+                String absoluteDirPath = "../" + relativePath;
+
+                Files.createDirectories(Paths.get(absoluteDirPath));
+
+                File targetFile = new File(absoluteDirPath, fileName);
+                try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+                    fos.write(decodedBytes);
+                }
+
+                finalImageUrl = "/uploads/users/" + user.getId() + "/tasting-notes/" + fileName;
+            } catch (IOException e) {
+                System.err.println("Failed to save tasting note image: " + e.getMessage());
+            }
+        }
+
         TastingNote note = TastingNote.builder()
                 .id(UUID.randomUUID().toString())
                 .user(user)
@@ -346,6 +386,7 @@ public class AiService {
                 .body(body)
                 .aroma(aroma)
                 .flavorTags(flavorTags)
+                .imageUrl(finalImageUrl)
                 .createdAt(LocalDateTime.now())
                 .build();
 

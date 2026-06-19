@@ -109,6 +109,7 @@ model TastingNote {
   body             Float    @default(0)
   aroma            Int      @default(0)
   flavorTags       String?  @db.Text
+  imageUrl         String?  @db.LongText
   createdAt        DateTime @default(now())
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 

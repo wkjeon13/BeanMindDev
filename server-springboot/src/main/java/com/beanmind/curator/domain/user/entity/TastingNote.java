@@ -62,6 +62,9 @@ public class TastingNote {
     @Column(name = "flavorTags", columnDefinition = "TEXT")
     private String flavorTags;
 
+    @Column(name = "imageUrl", columnDefinition = "LONGTEXT")
+    private String imageUrl;
+
     @CreationTimestamp
     @Column(name = "createdAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;

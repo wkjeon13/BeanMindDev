@@ -15,6 +15,7 @@ interface TastingNote {
     body: number;
     aroma: number;
     flavorTags: string | null;
+    imageUrl?: string | null;
     createdAt: string;
 }
 
@@ -128,6 +129,20 @@ export const TastingNoteListModal: React.FC<TastingNoteListModalProps> = ({ isOp
                                     >
                                         <Trash2 size={16} />
                                     </button>
+
+                                    {/* Note Image */}
+                                    {note.imageUrl && (
+                                        <div className="w-full h-40 rounded-lg overflow-hidden mb-3 border border-espresso-800/30">
+                                            <img 
+                                                src={note.imageUrl.startsWith('http') ? note.imageUrl : `${API_BASE}${note.imageUrl}`} 
+                                                className="w-full h-full object-cover" 
+                                                alt={note.coffeeName} 
+                                                onError={(e) => {
+                                                    e.currentTarget.style.display = 'none';
+                                                }}
+                                            />
+                                        </div>
+                                    )}
 
                                     {/* Date & Title */}
                                     <div className="flex items-center gap-1.5 text-xs text-espresso-400 mb-2">

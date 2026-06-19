@@ -101,7 +101,8 @@ export default function TastingNoteWizard() {
                     bitterness: aiResult.bitterness,
                     body: aiResult.body,
                     aroma: aiResult.aroma || 3,
-                    flavorTags: aiResult.flavorTags
+                    flavorTags: aiResult.flavorTags,
+                    imageUrl: photo
                 })
             });
 
@@ -178,6 +179,18 @@ export default function TastingNoteWizard() {
                         className="flex flex-col max-w-md mx-auto"
                     >
                         <h2 className="text-2xl font-bold mb-6">{t('tasting_note.subtitle_write', '커피에 대해 편하게 적어주세요')}</h2>
+
+                        {photo && (
+                            <div className="relative w-full h-48 rounded-2xl overflow-hidden mb-6 border border-zinc-850">
+                                <img src={photo} className="w-full h-full object-cover" alt="Coffee preview" />
+                                <button 
+                                    onClick={() => setPhoto(null)} 
+                                    className="absolute top-3 right-3 p-1.5 bg-black/60 hover:bg-black/80 rounded-full text-white backdrop-blur-sm transition"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        )}
 
                         <div className="space-y-5 mb-8">
                             <div>
@@ -265,6 +278,12 @@ export default function TastingNoteWizard() {
                                 <Sparkles className="w-6 h-6 text-amber-500" />
                                 <h2 className="text-xl font-bold text-white">{t('tasting_note.analysis_complete', '분석 완료')}</h2>
                             </div>
+
+                            {photo && (
+                                <div className="w-full h-40 rounded-2xl overflow-hidden mb-6 border border-zinc-800">
+                                    <img src={photo} className="w-full h-full object-cover" alt="Coffee" />
+                                </div>
+                            )}
 
                             <div className="mb-6">
                                 <h3 className="text-amber-400 font-semibold text-sm mb-2 uppercase tracking-wider">AI Tasting Note</h3>
