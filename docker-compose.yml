@@ -17,3 +17,4 @@ services:
 volumes:
   beanmind_-ai-coffee-curator_beanmind_mysql_data:
     external: true
+

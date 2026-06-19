@@ -120,7 +120,7 @@ export default function TastingNoteWizard() {
 
     return (
         <div
-            className="min-h-[100dvh] bg-black text-white p-4 pb-[50vh] md:pb-8"
+            className="h-[100dvh] overflow-y-auto bg-black text-white p-4 pb-[50vh] md:pb-8"
             style={{ paddingTop: 'max(env(safe-area-inset-top, 20px), 20px)' }}
         >
             {/* Header */}
@@ -188,6 +188,11 @@ export default function TastingNoteWizard() {
                                     placeholder={t('tasting_note.ph_bean_menu', 'ex) 에티오피아 예가체프 G1')}
                                     value={coffeeName}
                                     onChange={e => setCoffeeName(e.target.value)}
+                                    onFocus={(e) => {
+                                        setTimeout(() => {
+                                            e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        }, 400);
+                                    }}
                                 />
                             </div>
                             <div>
@@ -198,6 +203,11 @@ export default function TastingNoteWizard() {
                                     placeholder={t('tasting_note.ph_cafe_brand', 'ex) 블루보틀 성수')}
                                     value={brand}
                                     onChange={e => setBrand(e.target.value)}
+                                    onFocus={(e) => {
+                                        setTimeout(() => {
+                                            e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        }, 400);
+                                    }}
                                 />
                             </div>
                             <div>
@@ -210,7 +220,7 @@ export default function TastingNoteWizard() {
                                     onFocus={(e) => {
                                         setTimeout(() => {
                                             e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                        }, 300);
+                                        }, 400);
                                     }}
                                 />
                             </div>
