@@ -21,6 +21,7 @@ import { MagazineAd } from '../components/ads/MagazineAd';
 import { useAdStore } from '../store/adStore';
 import { compressImage } from '../utils/imageUtils';
 import { TERMS_OF_SERVICE, PRIVACY_POLICY } from '../data/termsData';
+import { TastingNoteListModal } from '../components/TastingNoteListModal';
 
 // 지능형 품목 설정 복구 파서 (Promotion 카드 타이틀로부터 정적 품목 복원 지원)
 const getItemsConfig = (cfg: any) => {
@@ -177,6 +178,7 @@ export default function Profile() {
     const [uploadingCourseId, setUploadingCourseId] = useState<string | null>(null);
     const courseImageInputRef = React.useRef<HTMLInputElement>(null);
     const [tasteMatrix, setTasteMatrix] = useState<any>(null);
+    const [isTastingNoteListModalOpen, setIsTastingNoteListModalOpen] = useState(false);
     const [isPassportExpanded, setIsPassportExpanded] = useState(false);
     const [isStampWalletExpanded, setIsStampWalletExpanded] = useState(false);
     const [isCoursesExpanded, setIsCoursesExpanded] = useState(false);
@@ -386,6 +388,51 @@ export default function Profile() {
         navigate(path);
     };
 
+    const fetchTasteMatrixAndUser = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        try {
+            const res = await fetch(`${API_BASE}/api/users/me`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.status === 401 || res.status === 403) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+                return;
+            }
+            if (res.ok) {
+                const resData = await res.json();
+                if (resData) {
+                    const userData = resData.data || resData;
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    setCurrentUser(userData);
+                    setTastePref({
+                        acidity: userData.prefAcidity || 3,
+                        sweetness: userData.prefSweetness || 3,
+                        body: userData.prefBody || 3,
+                        bitterness: userData.prefBitterness || 3,
+                        aroma: userData.prefAroma || ''
+                    });
+                }
+            }
+        } catch (err) {
+            console.error("Failed to fetch user in helper:", err);
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/api/ai-features/tasting-note/matrix`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setTasteMatrix(data);
+            }
+        } catch (err) {
+            console.error("Failed to fetch matrix in helper:", err);
+        }
+    };
+
     React.useEffect(() => {
         if (isAuthenticated) {
             fetchStampData();
@@ -395,35 +442,7 @@ export default function Profile() {
             }
             const token = localStorage.getItem('token');
             if (token) {
-                // Fetch latest user data to keep role and info in sync
-                fetch(`${API_BASE}/api/users/me`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                })
-                    .then(res => {
-                        if (res.status === 401 || res.status === 403) {
-                            localStorage.removeItem('token');
-                            localStorage.removeItem('user');
-                            window.location.href = '/login';
-                            return;
-                        }
-                        if (res.ok) return res.json();
-                    })
-                    .then(resData => {
-                        if (resData) {
-                            const userData = resData.data || resData;
-                            localStorage.setItem('user', JSON.stringify(userData));
-                            // Trigger state update immediately to reflect OWNER role
-                            setCurrentUser(userData);
-                            setTastePref({
-                                acidity: userData.prefAcidity || 3,
-                                sweetness: userData.prefSweetness || 3,
-                                body: userData.prefBody || 3,
-                                bitterness: userData.prefBitterness || 3,
-                                aroma: userData.prefAroma || ''
-                            });
-                        }
-                    })
-                    .catch(err => console.error("Failed to fetch user:", err));
+                fetchTasteMatrixAndUser();
 
                 // Fetch points
                 fetch(`${API_BASE}/api/points`, {
@@ -466,14 +485,6 @@ export default function Profile() {
                         }
                     })
                     .catch(err => console.error("Failed to fetch collections:", err));
-
-                // Fetch Taste Matrix
-                fetch(`${API_BASE}/api/ai-features/tasting-note/matrix`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                })
-                    .then(res => res.json())
-                    .then(data => setTasteMatrix(data))
-                    .catch(err => console.error("Failed to fetch matrix:", err));
 
                 // Fetch Magazine Ads
                 fetch(`${API_BASE}/api/ads/serve?tab=MAGAZINE&lang=${i18n.language || 'en'}`, {
@@ -2430,9 +2441,17 @@ export default function Profile() {
                                     <span className="text-amber-500 font-serif font-bold text-lg pt-0.5" style={{ lineHeight: 1 }}>✨</span>
                                     <span className="font-bold text-[15px] text-amber-500 tracking-tight">{t('profile.title_taste_matrix', '마이 취향 매트릭스')}</span>
                                 </div>
-                                <Link to="/profile/tasting-note" className="text-xs bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-full font-bold">
-                                    {t('profile.btn_write_note', '+ 노트 작성')}
-                                </Link>
+                                <div className="flex items-center gap-1.5">
+                                    <button 
+                                        onClick={() => setIsTastingNoteListModalOpen(true)}
+                                        className="text-xs bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-full font-bold"
+                                    >
+                                        {t('profile.btn_view_notes', '노트 보기')}
+                                    </button>
+                                    <Link to="/profile/tasting-note" className="text-xs bg-amber-500/10 text-amber-500 px-3 py-1.5 rounded-full font-bold">
+                                        {t('profile.btn_write_note', '+ 노트 작성')}
+                                    </Link>
+                                </div>
                             </div>
                             <div className="p-5 flex flex-col items-center">
                                 <div className="w-full h-64 min-h-[250px] min-w-[250px]">
@@ -4227,6 +4246,12 @@ export default function Profile() {
                 onChange={handleCourseImageChange}
                 className="hidden"
                 accept="image/*"
+            />
+
+            <TastingNoteListModal 
+                isOpen={isTastingNoteListModalOpen}
+                onClose={() => setIsTastingNoteListModalOpen(false)}
+                onDataChanged={fetchTasteMatrixAndUser}
             />
         </div>
     );

@@ -355,6 +355,81 @@ router.post('/tasting-note', authenticateToken, async (req: any, res: any) => {
     }
 });
 
+// Get All Tasting Notes
+router.get('/tasting-note', authenticateToken, async (req: any, res: any) => {
+    try {
+        const userId = req.user.id;
+        const notes = await (prisma as any).tastingNote.findMany({
+            where: { userId },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.status(200).json(notes);
+    } catch (error) {
+        console.error("Fetch Tasting Notes Error:", error);
+        res.status(500).json({ error: "Failed to fetch tasting notes." });
+    }
+});
+
+// Delete Tasting Note
+router.delete('/tasting-note/:id', authenticateToken, async (req: any, res: any) => {
+    try {
+        const userId = req.user.id;
+        const { id } = req.params;
+
+        const note = await (prisma as any).tastingNote.findUnique({
+            where: { id }
+        });
+
+        if (!note) {
+            return res.status(404).json({ error: "Tasting note not found." });
+        }
+
+        if (note.userId !== userId) {
+            return res.status(403).json({ error: "Unauthorized to delete this tasting note." });
+        }
+
+        await (prisma as any).tastingNote.delete({
+            where: { id }
+        });
+
+        // Recalculate and update user preferences after deletion
+        const remainingNotes = await (prisma as any).tastingNote.findMany({
+            where: { userId }
+        });
+
+        if (remainingNotes && remainingNotes.length > 0) {
+            const count = remainingNotes.length;
+            const avg = (field: string) => remainingNotes.reduce((sum: number, n: any) => sum + (n[field] || 0), 0) / count;
+            
+            await prisma.user.update({
+                where: { id: userId },
+                data: {
+                    prefAcidity: Math.round(avg('acidity') * 10) / 10,
+                    prefSweetness: Math.round(avg('sweetness') * 10) / 10,
+                    prefBitterness: Math.round(avg('bitterness') * 10) / 10,
+                    prefBody: Math.round(avg('body') * 10) / 10
+                }
+            });
+        } else {
+            // Reset to default value (e.g. 3.0) if no notes left
+            await prisma.user.update({
+                where: { id: userId },
+                data: {
+                    prefAcidity: 3.0,
+                    prefSweetness: 3.0,
+                    prefBitterness: 3.0,
+                    prefBody: 3.0
+                }
+            });
+        }
+
+        res.status(200).json({ success: true, message: "Tasting note deleted successfully." });
+    } catch (error) {
+        console.error("Delete Tasting Note Error:", error);
+        res.status(500).json({ error: "Failed to delete tasting note." });
+    }
+});
+
 // Get Taste Matrix
 router.get('/tasting-note/matrix', authenticateToken, async (req: any, res: any) => {
     try {
