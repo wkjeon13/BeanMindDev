@@ -90,7 +90,10 @@ export const TastingNoteListModal: React.FC<TastingNoteListModalProps> = ({ isOp
             
             <div className="relative z-10 w-full sm:w-[500px] h-full bg-[#111110] shadow-[auto_0_30px_60px_-15px_rgba(0,0,0,0.8)] border-l border-espresso-800/30 overflow-y-auto overflow-x-hidden flex flex-col transform transition-transform duration-300">
                 {/* Header */}
-                <div className="px-5 py-4 flex items-center justify-between border-b border-espresso-800 bg-[#171716] sticky top-0 z-20">
+                <div 
+                    className="px-5 pb-4 flex items-center justify-between border-b border-espresso-800 bg-[#171716] sticky top-0 z-20"
+                    style={{ paddingTop: 'calc(max(env(safe-area-inset-top, 24px), 24px) + 8px)' }}
+                >
                     <div className="flex items-center gap-2">
                         <span className="text-amber-500 font-serif font-bold text-lg pt-0.5" style={{ lineHeight: 1 }}>✨</span>
                         <span className="font-bold text-[15px] text-amber-500 tracking-tight">{t('profile.title_tasting_notes', '테이스팅 노트 목록')}</span>
