@@ -232,6 +232,13 @@ public class AiService {
                     response.put("shops", shops);
                     response.put("chunks", new ArrayList<>());
                     return response;
+                })
+                .onErrorResume(e -> {
+                    System.err.println("Google Places API call failed (Connection reset or network block): " + e.getMessage());
+                    Map<String, Object> fallbackResponse = new HashMap<>();
+                    fallbackResponse.put("shops", new ArrayList<>());
+                    fallbackResponse.put("chunks", new ArrayList<>());
+                    return Mono.just(fallbackResponse);
                 });
     }
 
