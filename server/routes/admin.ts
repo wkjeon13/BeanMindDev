@@ -31,8 +31,23 @@ const authenticateAdmin = (req: any, res: any, next: any) => {
             console.error("authenticateAdmin: INVALID_TOKEN", err);
             return res.status(403).json({ error: ERROR_CODES.INVALID_TOKEN });
         }
+        
+        // Support role mapping from Spring Boot's JWT 'auth' claim
+        if (!user.role && user.auth) {
+            const authorities = typeof user.auth === 'string' ? user.auth.split(',') : [];
+            if (authorities.includes('ROLE_ADMIN')) {
+                user.role = 'ADMIN';
+            } else if (authorities.includes('ROLE_MODERATOR')) {
+                user.role = 'MODERATOR';
+            } else if (authorities.includes('ROLE_OWNER')) {
+                user.role = 'OWNER';
+            } else if (authorities.includes('ROLE_USER')) {
+                user.role = 'USER';
+            }
+        }
+
         if (user.role !== 'ADMIN' && user.role !== 'MODERATOR') {
-            console.error("authenticateAdmin: UNAUTHORIZED_ACTION, role:", user.role);
+            console.error("authenticateAdmin: UNAUTHORIZED_ACTION, role:", user.role, "auth:", user.auth);
             return res.status(403).json({ error: ERROR_CODES.UNAUTHORIZED_ACTION });
         }
         req.user = user;
