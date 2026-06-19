@@ -52,8 +52,8 @@ $NAVER_CLIENT_SECRET = if ($env:NAVER_CLIENT_SECRET) { $env:NAVER_CLIENT_SECRET 
 # 4. 도커 컨테이너 실행
 Write-Host "도커 컨테이너 실행..." -ForegroundColor Cyan
 docker run -d --name beanmind-springboot-container `
-  --network beanmind_-ai-coffee-curator_default `
-  -p 4000:4000 `
+  --network beanmind_default `
+  -p 3000:3000 `
   -v c:\Coffee_Dev\beanmind\uploads:/app/uploads `
   -e GEMINI_API_KEY="$GEMINI_API_KEY" `
   -e VITE_GEMINI_API_KEY="$GEMINI_API_KEY" `
@@ -67,7 +67,7 @@ docker run -d --name beanmind-springboot-container `
   -e VITE_APPLE_CLIENT_ID="com.beanmind.curator.web" `
   -e VITE_APPLE_REDIRECT_URL="https://www.beanmindcurator.com/api/auth/apple/callback" `
   -e KAKAO_REST_API_KEY="8550621c38423f6b6ad9ba39de038fa0" `
-  -e VITE_API_BASE_URL="http://dev.beanmindcurator.com:4000" `
+  -e VITE_API_BASE_URL="http://dev.beanmindcurator.com:3000" `
   -e VITE_OPENAI_API_KEY="$OPENAI_API_KEY" `
   -e JWT_SECRET="beanmind_secure_jwt_secret_key_2026_test" `
   -e NAVER_CLIENT_ID="JjcTKZ5zTUmyIGOUBzYd" `
