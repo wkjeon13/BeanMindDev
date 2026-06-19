@@ -35,26 +35,33 @@ export default function ShopSearch({ isOpen, onClose, onSelect }: ShopSearchProp
     const handleSearch = async (query: string) => {
         setIsLoading(true);
         try {
-            // Reusing the existing shops API for search
-            const country = getDeviceCountryCode();
+            // Reusing the existing shops API for search without restricting countryCode to ensure registered cafes are visible
             const endpoint = query 
-                ? `/api/shops?q=${encodeURIComponent(query)}&countryCode=${country}`
-                : `/api/shops?countryCode=${country}`; // Fetch all or popular if no query
+                ? `/api/shops?q=${encodeURIComponent(query)}`
+                : `/api/shops`; // Fetch all if no query
                 
             const url = `${API_BASE}${endpoint}`;
             const res = await fetch(url);
             
             if (res.ok) {
-                const data = await res.json();
+                const resData = await res.json();
+                // Handle both wrapped ApiResponse and plain array formats
+                let fetchedShops: any[] = [];
+                if (resData && typeof resData === 'object' && 'data' in resData && Array.isArray(resData.data)) {
+                    fetchedShops = resData.data;
+                } else if (Array.isArray(resData)) {
+                    fetchedShops = resData;
+                }
+
                 // Map API response to Component Shop structure
-                const mapped = Array.isArray(data) ? data.map(d => ({
+                const mapped = fetchedShops.map(d => ({
                     id: d.id,
                     name: d.name,
                     address: d.address,
                     lat: d.lat,
                     lng: d.lng,
                     thumbnailUrl: d.media && d.media[0] ? d.media[0].url : undefined
-                })) : [];
+                }));
                 setResults(mapped);
             }
         } catch (error) {
