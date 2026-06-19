@@ -14,7 +14,7 @@ export default defineConfig({
     dedupe: ['react', 'react-dom', 'react-router-dom', 'react-i18next', 'i18next']
   },
   server: {
-    port: 4003,
+    port: 3003,
     strictPort: true,
     allowedHosts: ['dev.beanmindcurator.com', 'localhost'],
     host: '0.0.0.0',
