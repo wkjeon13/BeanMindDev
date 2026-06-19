@@ -25,12 +25,20 @@ export default defineConfig({
       ignored: ['**/data/**', '**/systemSettings.json', '**/logs/**']
     },
     proxy: {
+      '/api/admin/metrics': {
+        target: 'http://127.0.0.1:3001',
+        changeOrigin: true,
+      },
+      '/api/admin/content-metrics': {
+        target: 'http://127.0.0.1:3001',
+        changeOrigin: true,
+      },
       '/api': {
         target: 'http://127.0.0.1:3000',
         changeOrigin: true,
       },
       '/uploads': {
-        target: 'http://127.0.0.1:3000',
+        target: 'http://127.0.0.1:3001',
         changeOrigin: true,
       }
     }
