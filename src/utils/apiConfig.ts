@@ -113,7 +113,10 @@ export const getApiUrl = (path: string): string => {
 
     let base = apiBase;
     
-    if (goesToNodeBackend) {
+    // If the base URL is a standard HTTPS domain without custom ports, rely on Nginx 443 proxy routing instead of injecting :3001
+    const isStandardHttps = base.startsWith('https://') && !base.includes(':');
+
+    if (goesToNodeBackend && !isStandardHttps) {
         if (base.includes(':3000')) {
             base = base.replace(':3000', ':3001');
         } else if (base.includes(':4000')) {
