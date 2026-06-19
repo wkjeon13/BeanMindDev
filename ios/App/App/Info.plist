@@ -53,6 +53,8 @@
 		<true/>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
+		<key>NSAllowsArbitraryLoadsForMedia</key>
+		<true/>
 		<key>NSExceptionDomains</key>
 		<dict>
 			<key>www.beanmindcurator.com</key>
