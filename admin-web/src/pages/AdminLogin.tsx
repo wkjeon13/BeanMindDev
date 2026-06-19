@@ -25,15 +25,23 @@ export default function AdminLogin() {
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.error || '로그인에 실패했습니다.');
+                const errMsg = typeof data.error === 'object' ? data.error?.message : data.error;
+                throw new Error(errMsg || '로그인에 실패했습니다.');
             }
 
-            if (data.user.role !== 'ADMIN' && data.user.role !== 'MODERATOR') {
+            // Spring Boot backend returns payload inside 'data' field
+            const payload = data.data || data;
+
+            if (!payload || !payload.user) {
+                throw new Error('올바르지 않은 사용자 데이터 형식입니다.');
+            }
+
+            if (payload.user.role !== 'ADMIN' && payload.user.role !== 'MODERATOR') {
                 throw new Error('관리자 권한이 없습니다.');
             }
 
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
+            localStorage.setItem('token', payload.token);
+            localStorage.setItem('user', JSON.stringify(payload.user));
             
             // Redirect to dashboard and refresh state
             window.location.href = '/';
