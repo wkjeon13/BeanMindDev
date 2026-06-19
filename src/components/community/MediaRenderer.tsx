@@ -26,7 +26,7 @@ export default function MediaRenderer({ src, className = '', autoPlay = true, on
          (window.navigator.userAgent.toLowerCase().includes('android') && window.location.href.startsWith('http://localhost')));
 
     // On Android, delay video tag loading until clicked to avoid WebView renderer OOM crash
-    const [isActivated, setIsActivated] = useState(!isAndroid);
+    const [isActivated, setIsActivated] = useState(true);
 
     // Normalize src for uploads
     let displaySrc = src && src.startsWith('/') && !src.startsWith('//') ? `${API_BASE}${src}` : src;
