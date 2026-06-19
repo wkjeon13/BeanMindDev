@@ -601,4 +601,48 @@ public class AiService {
         if (obj instanceof String) return Integer.parseInt((String) obj);
         return 0;
     }
+
+    @Transactional(readOnly = true)
+    public List<TastingNote> getTastingNotes(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return tastingNoteRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+    }
+
+    @Transactional
+    public void deleteTastingNote(String email, String noteId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        
+        TastingNote note = tastingNoteRepository.findById(noteId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BAD_REQUEST));
+
+        if (!note.getUser().getId().equals(user.getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACTION);
+        }
+
+        tastingNoteRepository.delete(note);
+
+        // Recalculate user taste preferences after deletion
+        List<TastingNote> remainingNotes = tastingNoteRepository.findByUserIdOrderByCreatedAtDesc(user.getId());
+        if (remainingNotes != null && !remainingNotes.isEmpty()) {
+            double count = remainingNotes.size();
+            double avgAcidity = remainingNotes.stream().mapToDouble(TastingNote::getAcidity).average().orElse(3.0);
+            double avgSweetness = remainingNotes.stream().mapToDouble(TastingNote::getSweetness).average().orElse(3.0);
+            double avgBitterness = remainingNotes.stream().mapToDouble(TastingNote::getBitterness).average().orElse(3.0);
+            double avgBody = remainingNotes.stream().mapToDouble(TastingNote::getBody).average().orElse(3.0);
+
+            user.setPrefAcidity(Math.round(avgAcidity * 10.0) / 10.0);
+            user.setPrefSweetness(Math.round(avgSweetness * 10.0) / 10.0);
+            user.setPrefBitterness(Math.round(avgBitterness * 10.0) / 10.0);
+            user.setPrefBody(Math.round(avgBody * 10.0) / 10.0);
+        } else {
+            // Reset to default
+            user.setPrefAcidity(3.0);
+            user.setPrefSweetness(3.0);
+            user.setPrefBitterness(3.0);
+            user.setPrefBody(3.0);
+        }
+        userRepository.save(user);
+    }
 }

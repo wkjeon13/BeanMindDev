@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -83,6 +84,23 @@ public class AiController {
         String email = userDetails.getUsername();
         Map<String, Object> matrix = aiService.getTasteMatrix(email);
         return ResponseEntity.ok(matrix);
+    }
+
+    @GetMapping("/tasting-note")
+    public ResponseEntity<List<TastingNote>> getTastingNotes(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        String email = userDetails.getUsername();
+        List<TastingNote> notes = aiService.getTastingNotes(email);
+        return ResponseEntity.ok(notes);
+    }
+
+    @DeleteMapping("/tasting-note/{id}")
+    public ResponseEntity<Map<String, Object>> deleteTastingNote(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PathVariable("id") String id) {
+        String email = userDetails.getUsername();
+        aiService.deleteTastingNote(email, id);
+        return ResponseEntity.ok(Map.of("success", true, "message", "Tasting note deleted successfully."));
     }
 
     @PostMapping("/tour/generate")
