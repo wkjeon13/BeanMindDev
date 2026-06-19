@@ -1217,9 +1217,13 @@ router.post('/ai-import', authenticateToken, async (req: any, res: any) => {
         }
         
         res.status(200).json({ importedCount, updatedCount });
-    } catch (error) {
+    } catch (error: any) {
         console.error("AI Import error:", error);
-        res.status(500).json({ error: 'Internal server error during AI import.' });
+        res.status(500).json({ 
+            error: 'Internal server error during AI import.',
+            details: error.message,
+            stack: error.stack
+        });
     }
 });
 

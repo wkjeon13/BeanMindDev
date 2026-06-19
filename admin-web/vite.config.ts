@@ -25,11 +25,11 @@ export default defineConfig({
       ignored: ['**/data/**', '**/systemSettings.json', '**/logs/**']
     },
     proxy: {
-      '/api/admin/metrics': {
+      '/api/admin': {
         target: 'http://127.0.0.1:3001',
         changeOrigin: true,
       },
-      '/api/admin/content-metrics': {
+      '/api/shops/ai-import': {
         target: 'http://127.0.0.1:3001',
         changeOrigin: true,
       },

@@ -757,8 +757,8 @@ export default function AdminDashboard() {
                                         자동화된 AI 지식 탐색기를 이용해 특정 지역(예: "제주도 서귀포시", "성수동")의 유명 스페셜티 카페들을 대량으로 발굴하고 글로벌 지도 DB에 정식 등록합니다.
                                     </p>
                                     
-                                    <div className="bg-espresso-900/50 p-6 rounded-2xl shadow-sm border border-espresso-700/50 flex flex-col gap-4 mt-2 mb-8">
-                                        <div className="h-[500px] w-full bg-espresso-950 rounded-xl overflow-hidden border border-espresso-700/50 relative z-10">
+                                    <div className="bg-espresso-900/50 p-6 rounded-2xl shadow-sm border border-espresso-700/50 flex flex-col gap-4 mt-2 mb-8 relative z-10">
+                                        <div className="h-[500px] w-full bg-espresso-950 rounded-xl overflow-hidden border border-espresso-700/50 relative z-0">
                                             <MapContainer 
                                                 center={[37.5665, 126.9780]} 
                                                 zoom={11} 
@@ -789,7 +789,7 @@ export default function AdminDashboard() {
                                             </div>
                                         </div>
 
-                                        <div className="flex gap-3">
+                                        <div className="flex gap-3 relative z-[2000]">
                                             <div className="relative flex-1">
                                                 <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-espresso-400" />
                                                 <input 
@@ -798,13 +798,13 @@ export default function AdminDashboard() {
                                                     onChange={(e) => setHarvestRegion(e.target.value)}
                                                     placeholder="수집할 지역 이름을 입력하세요 (예: 강남구, 도쿄 시부야)"
                                                     disabled={isHarvesting}
-                                                    className="w-full bg-espresso-950/50 border border-espresso-700 rounded-xl py-3 pl-11 pr-4 text-espresso-50 placeholder-espresso-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all text-[15px]" 
+                                                    className="w-full bg-espresso-950/50 border border-espresso-700 rounded-xl py-3 pl-11 pr-4 text-espresso-50 placeholder-espresso-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all text-[15px] relative z-[2000]" 
                                                 />
                                             </div>
                                             <button 
                                                 onClick={handleHarvest}
                                                 disabled={isHarvesting || !harvestRegion.trim()}
-                                                className="bg-amber-600 hover:bg-amber-500 disabled:bg-espresso-800 disabled:text-espresso-500 disabled:border-transparent text-espresso-50 font-bold px-6 py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(217,119,6,0.2)] whitespace-nowrap flex items-center gap-2 border border-amber-500/50"
+                                                className="bg-amber-600 hover:bg-amber-500 disabled:bg-espresso-800 disabled:text-espresso-500 disabled:border-transparent text-espresso-50 font-bold px-6 py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(217,119,6,0.2)] whitespace-nowrap flex items-center gap-2 border border-amber-500/50 relative z-[2000]"
                                             >
                                                 {isHarvesting ? <Loader2 size={18} className="animate-spin" /> : <Database size={18} />}
                                                 {isHarvesting ? '수집 중...' : '발굴 및 수집 시작'}
