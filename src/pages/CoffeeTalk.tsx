@@ -1082,7 +1082,7 @@ export default function CoffeeTalk() {
                 const data = await resPremium.json();
                 if (data.fallback === 'ADMOB') {
                     setPremiumAd(data);
-                } else if (data.ad && canShowAd(data.ad.id, (data.frequencyCapHours ?? 24) * 60 * 60 * 1000)) {
+                } else if (data.ad) {
                     setPremiumAd(data);
                     recordAdView(data.ad.id, 'DIRECT', 'FEED');
                 } else {
@@ -1138,7 +1138,7 @@ export default function CoffeeTalk() {
                 const data = await resNeighborPremium.json();
                 if (data.fallback === 'ADMOB') {
                     setNeighborPremiumAd(data);
-                } else if (data.ad && canShowAd(data.ad.id, (data.frequencyCapHours ?? 24) * 60 * 60 * 1000)) {
+                } else if (data.ad) {
                     setNeighborPremiumAd(data);
                     recordAdView(data.ad.id, 'DIRECT', 'FEED');
                 } else {
