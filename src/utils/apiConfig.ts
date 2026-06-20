@@ -120,14 +120,20 @@ export const getApiUrl = (path: string): string => {
     // If the base URL is a standard HTTPS domain without custom ports, rely on Nginx 443 proxy routing instead of injecting :3001
     const isStandardHttps = base.startsWith('https://') && !base.includes(':');
 
-    if (goesToNodeBackend && !isStandardHttps) {
-        if (base.includes(':3000')) {
-            base = base.replace(':3000', ':3001');
-        } else if (base.includes(':4000')) {
-            base = base.replace(':4000', ':4001');
-        } else if (!base.includes(':3001') && !base.includes(':4001')) {
-            // Fallback for domains without ports (default to Node.js on 3001)
-            base = base + ':3001';
+    if (goesToNodeBackend) {
+        if (base.startsWith('https://')) {
+            // HTTPS 환경에서는 커스텀 포트(:3000, :4000)를 직접 3001로 치환 시 TLS 에러가 발생하므로,
+            // Nginx 443 SSL 표준 포트를 경유할 수 있도록 포트 번호를 제거합니다.
+            base = base.replace(/:3000|:4000/, '');
+        } else {
+            // HTTP 환경(로컬 개발 등)인 경우에만 3001 포트로 직접 치환합니다.
+            if (base.includes(':3000')) {
+                base = base.replace(':3000', ':3001');
+            } else if (base.includes(':4000')) {
+                base = base.replace(':4000', ':4001');
+            } else if (!base.includes(':3001') && !base.includes(':4001')) {
+                base = base + ':3001';
+            }
         }
     }
 
