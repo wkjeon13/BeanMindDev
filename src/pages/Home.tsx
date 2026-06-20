@@ -1146,11 +1146,7 @@ export default function HomeDashboard() {
                 ) : (
                    <div className="w-full h-full bg-espresso-900" />
                 )}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-9 h-9 rounded-full bg-black/50 flex items-center justify-center shadow-md border border-white/20">
-                    <Play className="w-4 h-4 text-white ml-0.5" fill="currentColor" />
-                  </div>
-                </div>
+
                 <div className="absolute bottom-2 left-2 right-2">
                   <p className="text-[11px] font-bold text-white line-clamp-2 leading-tight">
                     {post.content}
