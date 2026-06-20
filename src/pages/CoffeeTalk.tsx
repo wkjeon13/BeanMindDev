@@ -795,13 +795,16 @@ export default function CoffeeTalk() {
 
     const targetPostIdToScroll = useRef<string | null>(null);
 
-    // Handle initial deep link via URL query parameter (?activePost=id) on mount
+    // Handle initial deep link via URL query parameter (?activePost=id) or hash on mount
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
         const queryActivePost = queryParams.get('activePost');
-        if (queryActivePost) {
+        const hashActivePost = window.location.hash ? window.location.hash.substring(1) : null;
+        const targetId = queryActivePost || hashActivePost;
+
+        if (targetId) {
             setActiveFilter('all');
-            targetPostIdToScroll.current = queryActivePost;
+            targetPostIdToScroll.current = targetId;
             setIsScrollJumping(true);
 
             // Safety fallback: if deep link scrolling fails to resolve in 2.5s, force clear the overlay to prevent freeze
@@ -821,9 +824,15 @@ export default function CoffeeTalk() {
             setActiveFilter('all');
         }
 
+        let timer: NodeJS.Timeout | null = null;
         if (location.state?.activePost) {
             targetPostIdToScroll.current = location.state.activePost;
             setIsScrollJumping(true);
+
+            // Safety fallback: if deep link scrolling fails to resolve in 2.5s, force clear the overlay to prevent freeze
+            timer = setTimeout(() => {
+                setIsScrollJumping(false);
+            }, 2500);
         }
 
         if (location.state?.composePilgrimageLedger) {
@@ -846,6 +855,10 @@ export default function CoffeeTalk() {
             // React Router의 내부 location.state도 완전히 비워주어 다른 탭으로 이동했다가 복귀할 때 딥링크 스크롤 조건이 오작동(재진입)하지 않도록 합니다.
             navigate(location.pathname + location.search + location.hash, { replace: true, state: {} });
         }
+
+        return () => {
+            if (timer) clearTimeout(timer);
+        };
     }, [location]);
 
     const fetchPosts = async (isRefresh = false, silent = false) => {
@@ -1354,6 +1367,18 @@ export default function CoffeeTalk() {
 
         // 1. 딥링크 타깃 포스트 스크롤 이동
         if (posts.length > 0 && targetId) {
+            // 로딩이 완료되었음에도 posts에 타겟 포스트가 존재하지 않으면,
+            // 딥링크 포스트 조회 실패 혹은 포스트 삭제 등으로 간주하여 오버레이를 강제로 걷어냅니다.
+            const hasTargetPost = posts.some(p => p.id === targetId);
+            if (!isLoading && !hasTargetPost) {
+                console.warn(`[DeepLink] Target post ${targetId} not found in posts. Clearing overlay.`);
+                if (targetPostIdToScroll.current === targetId) {
+                    targetPostIdToScroll.current = null;
+                }
+                setIsScrollJumping(false);
+                return;
+            }
+
             // ★ ref는 performScroll 성공 시에만 null 처리 (성공 전 클리어 시 posts 재로드 후 재시도 불가)
             if (window.location.hash === `#${targetId}`) {
                 window.history.replaceState(null, '', window.location.pathname + window.location.search);
@@ -1399,6 +1424,13 @@ export default function CoffeeTalk() {
                         // 300ms 경과: DOM에 없음 = 포스트 로딩 대기 중
                         // ref 유지 + 오버레이 유지 → fetchPosts 완료 후 useEffect([posts]) 재실행 시 재시도
                         clearInterval(interval);
+                        // 만약 로딩이 끝난 상태인데도 스크롤 요소가 없다면 안전하게 오버레이를 해제합니다.
+                        if (!isLoading) {
+                            if (targetPostIdToScroll.current === targetId) {
+                                targetPostIdToScroll.current = null;
+                            }
+                            setIsScrollJumping(false);
+                        }
                     }
                 }, 10);
             }
