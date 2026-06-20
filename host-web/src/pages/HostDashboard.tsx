@@ -25,6 +25,7 @@ export default function HostDashboard() {
     const [selectedConfigId, setSelectedConfigId] = useState('');
     const [earnAmount, setEarnAmount] = useState(1);
     const [storeConfigs, setStoreConfigs] = useState<any[]>([]);
+    const [allConfigs, setAllConfigs] = useState<any[]>([]);
     const [earnItems, setEarnItems] = useState<Record<string, number>>({});
     
     // QR / Coupon Scanner & List States
@@ -320,6 +321,14 @@ export default function HostDashboard() {
                             }
                         }
                     }
+
+                    const allConfigRes = await fetch(`/api/stamps/configs/all/${myStore.id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (allConfigRes.ok) {
+                        const configs = await allConfigRes.json();
+                        setAllConfigs(configs);
+                    }
                 } else {
                     setErrorMessage(t('host_dashboard.err_no_store', '등록된 내 매장을 찾을 수 없습니다. 마이페이지에서 매장 추가를 먼저 진행해주세요.'));
                 }
@@ -494,6 +503,35 @@ export default function HostDashboard() {
             }
         } catch (err) {
             setErrorMessage(t('host_dashboard.err_network_config', '네트워크 전송 오류가 발생했습니다.'));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // 4-2. 스탬프/시즌 정책 활성화/비활성화 토글 제어
+    const handleToggleConfig = async (id: string) => {
+        setIsLoading(true);
+        setErrorMessage('');
+        setSuccessMessage('');
+        try {
+            const res = await fetch(`/api/stamps/configs/${id}/toggle`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setSuccessMessage(data.message || t('host_dashboard.success_config_toggle', '정책 상태가 정상적으로 변경되었습니다.'));
+                fetchDashboardData();
+            } else {
+                const err = await res.json();
+                setErrorMessage(err.message || t('host_dashboard.err_config_toggle_fail', '정책 상태 변경에 실패했습니다.'));
+            }
+        } catch (err) {
+            setErrorMessage(t('host_dashboard.err_network_toggle', '네트워크 통신 중 오류가 발생했습니다.'));
         } finally {
             setIsLoading(false);
         }
@@ -1074,8 +1112,8 @@ export default function HostDashboard() {
 
                     <div className="flex-1 overflow-y-auto pr-1 max-h-[580px] scrollbar-thin scrollbar-thumb-espresso-800 scrollbar-track-transparent">
                         {rightPanelTab === 'CONFIG' ? (
-                            /* 스탬프 정책 생성 스튜디오 */
-                            <form onSubmit={handleCreateConfig} className="space-y-4 text-xs">
+                            <>
+                                <form onSubmit={handleCreateConfig} className="space-y-4 text-xs">
                                 <div className="flex justify-between items-center pb-2 border-b border-espresso-850">
                                     <h4 className="font-serif font-black text-sm text-espresso-100">
                                         {t('host_dashboard.config_builder_title', '스탬프 & 시즌 프로모션 정책 빌더')}
@@ -1159,6 +1197,71 @@ export default function HostDashboard() {
                                     {t('host_dashboard.btn_create_policy', '새로운 스탬프 정책 승인 및 활성화')}
                                 </button>
                             </form>
+
+                            {/* 스탬프 & 시즌 정책 관리 목록 */}
+                            <div className="mt-8 space-y-4">
+                                <div className="flex justify-between items-center pb-2 border-b border-espresso-850">
+                                    <h4 className="font-serif font-black text-sm text-espresso-100">
+                                        {t('host_dashboard.policy_list_title', '스탬프 & 프로모션 정책 목록')}
+                                    </h4>
+                                    <span className="text-[10px] text-espresso-400 font-bold">
+                                        {allConfigs.length} {t('host_dashboard.policy_count_unit', '개 등록됨')}
+                                    </span>
+                                </div>
+                                <div className="space-y-2.5 max-h-[350px] overflow-y-auto pr-1">
+                                    {allConfigs.length > 0 ? (
+                                        allConfigs.map((cfg) => (
+                                            <div 
+                                                key={cfg.id}
+                                                className={`p-3.5 rounded-xl border flex justify-between items-center transition-all ${
+                                                    cfg.isActive 
+                                                        ? 'bg-espresso-900/40 border-amber-500/30' 
+                                                        : 'bg-espresso-950/20 border-espresso-850/60 opacity-65'
+                                                }`}
+                                            >
+                                                <div className="space-y-1 text-left">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className="font-bold text-espresso-50 text-xs">
+                                                            {t(cfg.cardTitle, cfg.cardTitle) as string}
+                                                        </span>
+                                                        <span className={`text-[8px] font-bold px-1.5 py-0.25 rounded ${
+                                                            cfg.cardType === 'REGULAR' 
+                                                                ? 'bg-amber-500/10 text-amber-400' 
+                                                                : 'bg-orange-500/10 text-orange-400'
+                                                        }`}>
+                                                            {cfg.cardType === 'REGULAR' ? t('host_dashboard.suffix_regular_card', '일반 스탬프') : t('host_dashboard.suffix_promo_card', '시즌 프로모션')}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-[10px] text-espresso-300">
+                                                        {t('host_dashboard.lbl_max_stamps', '목표')}: {cfg.maxStamps} | {t('host_dashboard.lbl_valid_days', '유효기간')}: {cfg.validDays}일
+                                                    </p>
+                                                    <p className="text-[9px] text-[#D4AF37] font-semibold">
+                                                        🎁 {cfg.rewardDesc}
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleToggleConfig(cfg.id)}
+                                                        className={`px-3 py-1.5 rounded-lg text-[10px] font-black tracking-wide border cursor-pointer active:scale-95 transition-all ${
+                                                            cfg.isActive
+                                                                ? 'bg-green-950/40 border-green-500/30 text-green-400 hover:bg-green-950/60'
+                                                                : 'bg-espresso-950 border-espresso-800 text-espresso-400 hover:text-espresso-200'
+                                                        }`}
+                                                    >
+                                                        {cfg.isActive ? t('common.active', '활성화됨') : t('common.inactive', '비활성화됨')}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="text-center py-10 text-espresso-400 opacity-60 text-xs">
+                                            {t('host_dashboard.no_policies', '등록된 스탬프/시즌 정책이 없습니다.')}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            </>
                         ) : (
                             /* 매장 관리 통합 스튜디오 분기 */
                             storeSubView === 'MAIN' ? (

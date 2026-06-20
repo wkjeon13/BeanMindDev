@@ -1013,4 +1013,72 @@ router.get('/coupons/history', authenticateToken, async (req: any, res: any) => 
     }
 });
 
+// 14. 점주용 매장의 모든 스탬프 정책 조회 API (활성/비활성 전체)
+// GET /api/stamps/configs/all/:storeId
+router.get('/configs/all/:storeId', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { storeId } = req.params;
+        const configs = await prisma.storeStampConfig.findMany({
+            where: { storeId },
+            orderBy: { createdAt: 'desc' }
+        });
+        
+        const parsedConfigs = configs.map((c: any) => ({
+            ...c,
+            itemsConfig: c.itemsConfig ? JSON.parse(c.itemsConfig) : null
+        }));
+        
+        res.status(200).json(parsedConfigs);
+    } catch (error) {
+        console.error("Fetch all stamp configs error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "전체 정책 조회 중 오류가 발생했습니다." });
+    }
+});
+
+// 15. 점주용 스탬프 정책 활성화/비활성화 토글 API
+// PUT /api/stamps/configs/:id/toggle
+router.put('/configs/:id/toggle', authenticateToken, async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+
+        const config = await prisma.storeStampConfig.findUnique({
+            where: { id }
+        });
+
+        if (!config) {
+            return res.status(404).json({ error: "CONFIG_NOT_FOUND", message: "스탬프 정책을 찾을 수 없습니다." });
+        }
+
+        const newActiveState = !config.isActive;
+
+        await runWithRetry(async () => {
+            // 활성화하는 경우, 동일 타입(REGULAR/PROMOTION)의 다른 활성 정책은 비활성화 처리
+            if (newActiveState) {
+                await prisma.storeStampConfig.updateMany({
+                    where: { 
+                        storeId: config.storeId, 
+                        cardType: config.cardType, 
+                        isActive: true 
+                    },
+                    data: { isActive: false }
+                });
+            }
+
+            // 본인 정책 상태 변경
+            await prisma.storeStampConfig.update({
+                where: { id },
+                data: { isActive: newActiveState }
+            });
+        });
+
+        res.status(200).json({
+            message: `정책이 성공적으로 ${newActiveState ? '활성화' : '비활성화'} 되었습니다.`,
+            isActive: newActiveState
+        });
+    } catch (error) {
+        console.error("Toggle stamp config error:", error);
+        res.status(500).json({ error: "INTERNAL_SERVER_ERROR", message: "정책 상태 변경 중 오류가 발생했습니다." });
+    }
+});
+
 export default router;
