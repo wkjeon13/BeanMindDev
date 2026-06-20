@@ -394,7 +394,10 @@
         "btn_pos_dashboard": "Web POS Dashboard",
         "desc_pos_dashboard": "Settings & B2B Stats",
         "btn_host_scanner": "Owner's QR Scanner",
-        "desc_host_scanner": "Earn & Cancel Stamps"
+        "desc_host_scanner": "Earn & Cancel Stamps",
+        "btn_view_notes": "View Notes",
+        "title_tasting_notes": "Tasting Notes",
+        "no_tasting_notes": "No tasting notes recorded."
     },
     "curator": {
         "header_dessert": "Recommended Dessert Pairing",
@@ -1462,7 +1465,8 @@
         "sort_latest": "Latest",
         "sort_popular": "Popular",
         "sort_sponsored": "Sponsored",
-        "badge_system_notice": "BeanMind System Notice"
+        "badge_system_notice": "BeanMind System Notice",
+        "restoring_scroll": "Restoring feed position..."
     },
     "shared": {
         "btn_share": "External Share",

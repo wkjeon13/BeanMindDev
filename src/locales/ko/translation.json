@@ -418,7 +418,10 @@
         "btn_pos_dashboard": "웹 POS 대시보드",
         "desc_pos_dashboard": "정책설정 & B2B 통계",
         "btn_host_scanner": "점주용 QR 스캐너",
-        "desc_host_scanner": "스탬프 적립 및 취소"
+        "desc_host_scanner": "스탬프 적립 및 취소",
+        "btn_view_notes": "노트 보기",
+        "title_tasting_notes": "테이스팅 노트 목록",
+        "no_tasting_notes": "기록된 테이스팅 노트가 없습니다."
     },
     "curator": {
         "header_dessert": "추천 디저트 페어링",
@@ -1496,7 +1499,8 @@
         "sort_latest": "최신순",
         "sort_popular": "인기순",
         "sort_sponsored": "후원순",
-        "badge_system_notice": "BeanMind 시스템 공지"
+        "badge_system_notice": "BeanMind 시스템 공지",
+        "restoring_scroll": "피드 위치를 정렬하는 중입니다..."
     },
     "shared": {
         "btn_share": "외부 공유",
