@@ -236,7 +236,7 @@ export default function PointHistory() {
                                                 value={rewardTiers[nameKey]} 
                                                 onChange={(e) => setRewardTiers({...rewardTiers, [nameKey]: e.target.value})}
                                                 placeholder={t('point_history.ph_tier_name', '등급명 (예: 참여)')}
-                                                className="flex-1 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-espresso-600"
+                                                className="flex-1 min-w-0 bg-zinc-50 border border-zinc-200 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-espresso-600"
                                             />
                                             <div className="relative w-24 shrink-0">
                                                 <input 
