@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserPlus, UserCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { API_BASE } from '../utils/apiConfig';
+import { API_BASE, getApiUrl } from '../utils/apiConfig';
 
 interface UserFollowBadgeProps {
     targetUserId: string;
@@ -22,7 +22,7 @@ export default function UserFollowBadge({ targetUserId, targetUserName, currentU
             const token = localStorage.getItem('token');
             if(!token) return;
             try {
-                const res = await fetch(`${API_BASE}/api/users/${targetUserId}/follow-status`, {
+                const res = await fetch(getApiUrl(`/api/users/${targetUserId}/follow-status`), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (res.ok) {
@@ -58,7 +58,7 @@ export default function UserFollowBadge({ targetUserId, targetUserName, currentU
 
         setIsLoading(true);
         try {
-            const res = await fetch(`${API_BASE}/api/users/${targetUserId}/follow`, {
+            const res = await fetch(getApiUrl(`/api/users/${targetUserId}/follow`), {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

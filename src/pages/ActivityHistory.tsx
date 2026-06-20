@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft, MessageSquare, Coffee, Star, Heart, FileText, ChevronRight, UserPlus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { API_BASE } from '../utils/apiConfig';
+import { API_BASE, getApiUrl } from '../utils/apiConfig';
 import CommentSheet from '../components/community/CommentSheet';
 import ShopDetailModal from '../components/ShopDetailModal';
 import MediaRenderer from '../components/community/MediaRenderer';
@@ -58,7 +58,7 @@ const ActivityHistory: React.FC = () => {
         try {
             if (!isLoadMore) setIsLoading(true);
             const token = localStorage.getItem('token') || localStorage.getItem('token');
-            const res = await fetch(`${API_BASE}/api/users/me/activity?type=${currentFilter}&page=${currentPage}&limit=20`, {
+            const res = await fetch(getApiUrl(`/api/users/me/activity?type=${currentFilter}&page=${currentPage}&limit=20`), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
