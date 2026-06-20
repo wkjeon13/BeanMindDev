@@ -795,6 +795,17 @@ export default function CoffeeTalk() {
 
     const targetPostIdToScroll = useRef<string | null>(null);
 
+    // Handle initial deep link via URL query parameter (?activePost=id) on mount
+    useEffect(() => {
+        const queryParams = new URLSearchParams(window.location.search);
+        const queryActivePost = queryParams.get('activePost');
+        if (queryActivePost) {
+            setActiveFilter('all');
+            targetPostIdToScroll.current = queryActivePost;
+            setIsScrollJumping(true);
+        }
+    }, []);
+
     useEffect(() => {
         if (location.state?.filter) {
             setActiveFilter(location.state.filter);
@@ -1522,11 +1533,11 @@ export default function CoffeeTalk() {
         const shareTitle = String(t('coffee_talk.msg_share_title', 'Beanmind Coffee Talk'));
         const shareText = String(t('coffee_talk.msg_share_text', '이 재미있는 커피 이야기를 확인해보세요!'));
         
-        // window.location.origin 분석 및 개발용 포트(3002 등) 소거 보정
+        // window.location.origin 분석 및 개발용 포트(3002 등) 소거 보정 제거하고 실 서비스 포트(3002) 유지
         let origin = window.location.origin;
         const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
         if (isNative || origin.includes('beanmindcurator.com')) {
-            origin = 'http://www.beanmindcurator.com';
+            origin = 'https://www.beanmindcurator.com:3002';
         }
         const shareUrl = `${origin}/community?activePost=${id}`;
 
