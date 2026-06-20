@@ -765,7 +765,7 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
         <>
             <div className={isEmbedded ? "w-full flex flex-col bg-transparent mt-1 relative" : (isInline ? "mt-3 w-full rounded-2xl overflow-hidden border border-espresso-700/50 flex flex-col bg-[#160d08]" : "fixed inset-0 z-[250] flex flex-col pointer-events-auto bg-[#120a05] overflow-hidden")}>
                 
-            <div className={`relative w-full flex flex-col flex-1 ${isEmbedded ? '' : (isInline ? 'bg-[#160d08] max-h-[50vh]' : 'bg-gradient-to-b from-[#1c120c] to-[#120a05] h-full w-full shadow-2xl pb-[max(env(safe-area-inset-bottom),16px)] animation-slide-up overflow-hidden')}`}>
+            <div className={`relative w-full flex flex-col ${isEmbedded ? '' : 'flex-1'} ${isEmbedded ? '' : (isInline ? 'bg-[#160d08] max-h-[50vh]' : 'bg-gradient-to-b from-[#1c120c] to-[#120a05] h-full w-full shadow-2xl pb-[max(env(safe-area-inset-bottom),16px)] animation-slide-up overflow-hidden')}`}>
                 
                 {/* Header */}
                 {!isEmbedded && (
@@ -949,6 +949,7 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                 )}
 
                 {/* Comment List */}
+                {!( !isLoading && isEmbedded && comments.length === 0 ) && (
                 <div className={`py-2 space-y-5 relative ${isEmbedded ? 'pb-2' : 'px-5 min-h-[50vh] pb-32 pt-4'}`}>
                     {isLoading ? (
                         <p className="text-center text-espresso-300 py-10">{t('community_comments.loading', '댓글을 불러오는 중...')}</p>
@@ -1134,6 +1135,7 @@ export default function CommentSheet({ postId, isOpen, onClose, post, isInline, 
                         ))
                     )}
                 </div>
+                )}
                 </div>
 
                 {/* Input Area (For Modal Mode only) */}
