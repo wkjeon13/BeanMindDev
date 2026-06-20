@@ -803,6 +803,12 @@ export default function CoffeeTalk() {
             setActiveFilter('all');
             targetPostIdToScroll.current = queryActivePost;
             setIsScrollJumping(true);
+
+            // Safety fallback: if deep link scrolling fails to resolve in 2.5s, force clear the overlay to prevent freeze
+            const timer = setTimeout(() => {
+                setIsScrollJumping(false);
+            }, 2500);
+            return () => clearTimeout(timer);
         }
     }, []);
 
@@ -947,10 +953,10 @@ export default function CoffeeTalk() {
                                 isShorts: !!d.isShorts || !!(d.image && (d.image.includes('.mp4') || d.image.includes('.mov') || d.image.includes('.webm'))),
                                 author: {
                                     id: d.author?.id,
-                                    name: d.author.role === 'OWNER' && d.author.stores && d.author.stores.length > 0 ? d.author.stores[0].name : d.author.nickname,
-                                    avatar: d.author.profileImageUrl ? (d.author.profileImageUrl.startsWith('http') ? d.author.profileImageUrl : `${API_BASE}${d.author.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
-                                    badges: d.author.role === 'OWNER' ? [t('coffee_talk.badge_official', '공식 매장')] : [t('coffee_talk.badge_lover', '커피 애호가')],
-                                    role: d.author.role
+                                    name: d.author?.role === 'OWNER' && d.author?.stores && d.author?.stores.length > 0 ? d.author?.stores[0].name : d.author?.nickname,
+                                    avatar: d.author?.profileImageUrl ? (d.author?.profileImageUrl.startsWith('http') ? d.author?.profileImageUrl : `${API_BASE}${d.author?.profileImageUrl}`) : 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=100&q=80',
+                                    badges: d.author?.role === 'OWNER' ? [t('coffee_talk.badge_official', '공식 매장')] : [t('coffee_talk.badge_lover', '커피 애호가')],
+                                    role: d.author?.role
                                 },
                                 postType: d.postType,
                                 image: d.image || null,
@@ -975,7 +981,7 @@ export default function CoffeeTalk() {
                                 taggedBean: d.taggedBean,
                                 shortsCategory: d.shortsCategory,
                                 equipmentTag: d.equipmentTag,
-                                recipeData: d.recipeData ? JSON.parse(d.recipeData) : undefined,
+                                recipeData: d.recipeData ? (typeof d.recipeData === 'string' ? JSON.parse(d.recipeData) : d.recipeData) : undefined,
                                 poll: d.poll,
                                 attachedCourseId: d.attachedCourseId,
                                 attachedCourse: d.attachedCourse || undefined,
