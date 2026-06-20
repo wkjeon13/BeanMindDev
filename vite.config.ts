@@ -2,15 +2,22 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import path from 'path';
+import fs from 'fs';
 import { defineConfig, loadEnv } from 'vite';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
+  
+  // Try to load real Let's Encrypt SSL certificates to resolve "Identity of this server cannot be verified" warning on port 3002
+  const certPath = 'C:/nginx-1.26.3/certs/www.beanmindcurator.com-chain.pem';
+  const keyPath = 'C:/nginx-1.26.3/certs/www.beanmindcurator.com-key.pem';
+  const hasValidCert = fs.existsSync(certPath) && fs.existsSync(keyPath);
+
   return {
     plugins: [
       react(),
       tailwindcss(),
-      basicSsl(),
+      ...(hasValidCert ? [] : [basicSsl()]),
       {
         name: 'configure-server',
         configureServer(server) {
@@ -49,13 +56,17 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+      // Do not modify—file watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: {
         ignored: ['**/public/uploads/**', '**/data/**', '**/systemSettings.json', '**/logs/**']
       },
       host: true,
       allowedHosts: ['dev.beanmindcurator.com', 'www.beanmindcurator.com', 'localhost'],
+      https: hasValidCert ? {
+        key: fs.readFileSync(keyPath),
+        cert: fs.readFileSync(certPath)
+      } : undefined,
       proxy: {
         '/api/users/me/badge': {
           target: 'http://127.0.0.1:3001',
