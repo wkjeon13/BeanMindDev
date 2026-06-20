@@ -103,13 +103,17 @@ export const getApiUrl = (path: string): string => {
         '/api/users/checkins',
         '/api/users/collections',
         '/api/stamps',
-        '/api/users/prescriptions/' // for detail/rating/delete subpaths
+        '/api/users/prescriptions/', // for detail/rating/delete subpaths
+        '/api/users/me/activity'
     ].some(prefix => {
         if (prefix.endsWith('/')) {
             return normalizedPath.startsWith(prefix);
         }
         return normalizedPath === prefix || normalizedPath.startsWith(prefix + '/');
-    });
+    }) || (
+        (normalizedPath.startsWith('/api/users/') || normalizedPath.startsWith('/api/shops/')) &&
+        (normalizedPath.endsWith('/follow') || normalizedPath.endsWith('/follow-status'))
+    );
 
     let base = apiBase;
     

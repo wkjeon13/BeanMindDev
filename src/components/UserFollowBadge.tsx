@@ -71,7 +71,10 @@ export default function UserFollowBadge({ targetUserId, targetUserName, currentU
                 if (onFollowToggled) onFollowToggled(data.isFollowing);
             } else {
                 const err = await res.json();
-                alert(err.error || '오류가 발생했습니다.');
+                const errMsg = typeof err.error === 'object' && err.error !== null 
+                    ? (err.error.message || err.error.code) 
+                    : (err.error || err.message || '오류가 발생했습니다.');
+                alert(errMsg);
             }
         } catch (error) {
             console.error(error);

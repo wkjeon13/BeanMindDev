@@ -131,6 +131,27 @@ export default defineConfig(({ mode }) => {
           timeout: 600000,
           proxyTimeout: 600000
         },
+        '/api/users/me/activity': {
+          target: 'http://127.0.0.1:3001',
+          changeOrigin: true,
+          secure: false,
+          timeout: 600000,
+          proxyTimeout: 600000
+        },
+        '^/api/users/[^/]+/follow$': {
+          target: 'http://127.0.0.1:3001',
+          changeOrigin: true,
+          secure: false,
+          timeout: 600000,
+          proxyTimeout: 600000
+        },
+        '^/api/shops/[^/]+/follow$': {
+          target: 'http://127.0.0.1:3001',
+          changeOrigin: true,
+          secure: false,
+          timeout: 600000,
+          proxyTimeout: 600000
+        },
         '/api': {
           target: 'http://127.0.0.1:3000',
           changeOrigin: true,
