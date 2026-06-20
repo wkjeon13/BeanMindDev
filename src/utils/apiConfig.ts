@@ -100,6 +100,7 @@ export const getApiUrl = (path: string): string => {
         '/api/users/bookmarks',
         '/api/users/prescriptions',
         '/api/shops/ai-import',
+        '/api/shops/my',
         '/api/users/checkins',
         '/api/users/collections',
         '/api/stamps',

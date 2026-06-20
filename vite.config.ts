@@ -96,6 +96,13 @@ export default defineConfig(({ mode }) => {
           timeout: 600000,
           proxyTimeout: 600000
         },
+        '/api/shops/my': {
+          target: 'http://127.0.0.1:3001',
+          changeOrigin: true,
+          secure: false,
+          timeout: 600000,
+          proxyTimeout: 600000
+        },
         '/api/users/checkins': {
           target: 'http://127.0.0.1:3001',
           changeOrigin: true,
