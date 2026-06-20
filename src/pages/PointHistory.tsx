@@ -28,7 +28,7 @@ export default function PointHistory() {
     const [balance, setBalance] = useState<number>(0);
     const [history, setHistory] = useState<Transaction[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [filter, setFilter] = useState<'ALL' | 'CHARGE' | 'REWARD_RECEIVED' | 'REWARD_SENT'>('ALL');
+    const [filter, setFilter] = useState<'ALL' | 'CHARGE' | 'REWARD_RECEIVED' | 'REWARD_SENT' | 'USED'>('ALL');
     const [rewardTiers, setRewardTiers] = useState<RewardTiers>({
         rewardTier1Name: '참여', rewardTier1Amount: 10,
         rewardTier2Name: '감사', rewardTier2Amount: 50,
@@ -157,9 +157,15 @@ export default function PointHistory() {
         if (filter === 'CHARGE') return isCharge;
         if (filter === 'REWARD_RECEIVED') return isReceived;
         if (filter === 'REWARD_SENT') return isSent;
+        if (filter === 'USED') return tx.amount < 0;
         
         return true;
     });
+
+    // 총 사용한 커피콩 계산 (음수 금액의 절대값 합산)
+    const totalUsedPoints = history
+        .filter(tx => tx.amount < 0)
+        .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
 
     return (
         <motion.div 
@@ -186,9 +192,16 @@ export default function PointHistory() {
                             <Coffee size={100} />
                         </div>
                         <span className="text-espresso-300 font-bold text-[14px] mb-2 relative z-10 flex items-center gap-1.5"><Wallet size={16} /> {t('point_history.balance_label', '보유 커피콩')}</span>
-                        <div className="flex items-end gap-1 mb-6 relative z-10">
+                        <div className="flex items-end gap-1 mb-1 relative z-10">
                             <span className="text-4xl font-black text-espresso-50 tracking-tighter">{balance.toLocaleString()}</span>
                             <span className="text-coffee-600 font-bold mb-1">{t('point_history.unit_bean', '콩')}</span>
+                        </div>
+                        
+                        {/* 총 사용 커피콩 합계 */}
+                        <div className="text-[12px] text-espresso-400 mb-6 relative z-10 flex items-center gap-1">
+                            <span>{t('point_history.total_used_label', '총 사용 커피콩')}:</span>
+                            <span className="text-red-400 font-bold">{totalUsedPoints.toLocaleString()}</span>
+                            <span>{t('point_history.unit_bean', '콩')}</span>
                         </div>
                         
                         <div className="flex gap-3 w-full relative z-10">
@@ -270,7 +283,8 @@ export default function PointHistory() {
                             { id: 'ALL', label: t('point_history.filter_all', '전체') },
                             { id: 'CHARGE', label: t('point_history.filter_charge', '충전') },
                             { id: 'REWARD_RECEIVED', label: t('point_history.filter_reward_received', '받은 보상') },
-                            { id: 'REWARD_SENT', label: t('point_history.filter_reward_sent', '보낸 보상') }
+                            { id: 'REWARD_SENT', label: t('point_history.filter_reward_sent', '보낸 보상') },
+                            { id: 'USED', label: t('point_history.filter_used', '사용') }
                         ].map(f => (
                             <button
                                 key={f.id}
