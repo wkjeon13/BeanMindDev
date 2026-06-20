@@ -1,5 +1,6 @@
 package com.beanmind.curator.domain.post.dto;
 
+import com.beanmind.curator.common.util.EncryptionUtil;
 import com.beanmind.curator.domain.post.entity.Post;
 import com.beanmind.curator.domain.post.entity.PostType;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -215,11 +216,17 @@ public class PostResponse {
 
         StoreDto storeDto = null;
         if (post.getStore() != null) {
+            String decryptedAddress = post.getStore().getAddress();
+            try {
+                decryptedAddress = EncryptionUtil.decryptPII(decryptedAddress);
+            } catch (Exception e) {
+                // Keep raw address if decryption fails
+            }
             storeDto = StoreDto.builder()
                     .id(post.getStore().getId())
                     .ownerId(post.getStore().getOwner() != null ? post.getStore().getOwner().getId() : null)
                     .name(post.getStore().getName())
-                    .address(post.getStore().getAddress())
+                    .address(decryptedAddress)
                     .lat(post.getStore().getLat())
                     .lng(post.getStore().getLng())
                     .mainImageUrl(post.getStore().getMainImageUrl())

@@ -282,8 +282,11 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
             if (token) headers['Authorization'] = `Bearer ${token}`;
             fetch(`${API_BASE}/api/shops/${propShop.id}`, { headers })
                 .then(res => res.json())
-                .then(data => {
-                    if (data && data.id) setFullShopData(data);
+                .then(resData => {
+                    const shopData = resData?.data || resData;
+                    if (shopData && shopData.id) {
+                        setFullShopData(shopData);
+                    }
                 })
                 .catch(e => console.error(e));
         }

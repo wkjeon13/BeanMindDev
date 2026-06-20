@@ -11,8 +11,28 @@ import { getAiResponse } from './ai-curator.js';
 import { uploadLimiter } from '../utils/uploadLimiter.js';
 import { getSettings } from '../utils/systemSettings.js';
 import { initContentFilter, containsBannedWord } from '../utils/contentFilter.js';
+import { decryptPII } from '../utils/encryption.js';
 
 const router = express.Router();
+
+// 매장 정보 복호화 헬퍼 함수
+const decryptStorePII = (store: any) => {
+    if (!store) return;
+    if (store.address) {
+        try {
+            store.address = decryptPII(store.address);
+        } catch (e) {
+            console.error("Failed to decrypt store address:", e);
+        }
+    }
+    if (store.phone) {
+        try {
+            store.phone = decryptPII(store.phone);
+        } catch (e) {
+            console.error("Failed to decrypt store phone:", e);
+        }
+    }
+};
 import prisma from '../utils/prisma.js';
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
@@ -422,7 +442,13 @@ router.get('/posts', async (req, res) => {
             });
         }
 
-        res.json(processedPosts.slice(0, takeCount));
+        const slicedPosts = processedPosts.slice(0, takeCount);
+        slicedPosts.forEach((post: any) => {
+            if (post.store) {
+                decryptStorePII(post.store);
+            }
+        });
+        res.json(slicedPosts);
     } catch (error) {
         console.error("Fetch Posts Error:", error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
@@ -510,6 +536,9 @@ router.get('/posts/:id', async (req, res) => {
         });
         
         if (!post) return res.status(404).json({ error: ERROR_CODES.POST_NOT_FOUND });
+        if (post.store) {
+            decryptStorePII(post.store);
+        }
         res.json(post);
     } catch (error) {
         console.error("Fetch Single Post Error:", error);
@@ -717,6 +746,10 @@ router.post('/posts', authenticateToken, uploadLimiter, postUploadMiddleware, as
             ...post,
             storeOwnerId: post.store?.ownerId || null
         };
+
+        if (newPost.store) {
+            decryptStorePII(newPost.store);
+        }
 
         res.status(201).json(newPost);
 
@@ -1421,6 +1454,9 @@ router.put('/posts/:id', authenticateToken, uploadLimiter, postUploadMiddleware,
             }
         });
 
+        if (updatedPost.store) {
+            decryptStorePII(updatedPost.store);
+        }
         res.json(updatedPost);
     } catch (error) {
         console.error("Edit Post Error:", error);
@@ -1778,6 +1814,13 @@ router.get('/courses/:id', async (req, res) => {
         if (!course) return res.status(404).json({ error: ERROR_CODES.STORE_NOT_FOUND });
 
         // Allow access: if someone has the specific UUID (e.g. via CoffeeTalk post attachment), they can view it.
+        if (course && course.items) {
+            course.items.forEach((item: any) => {
+                if (item.store) {
+                    decryptStorePII(item.store);
+                }
+            });
+        }
 
         res.json(course);
     } catch (error) {
@@ -1984,6 +2027,10 @@ router.get('/posts/:id', authenticateToken, async (req: any, res) => {
 
         if (!post) {
             return res.status(404).json({ error: 'Post not found' });
+        }
+
+        if (post.store) {
+            decryptStorePII(post.store);
         }
 
         res.json(post);
