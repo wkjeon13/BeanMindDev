@@ -34,8 +34,9 @@ export default function AdminAds() {
             if (!token) return navigate('/');
             try {
                 const res = await fetch(`${API_BASE}/api/users/me`, { headers: { 'Authorization': `Bearer ${token}` } });
-                const data = await res.json();
-                if (data.role !== 'ADMIN' && data.role !== 'MODERATOR') navigate('/');
+                const resJson = await res.json();
+                const userData = resJson.data || resJson;
+                if (userData.role !== 'ADMIN' && userData.role !== 'MODERATOR') navigate('/');
                 else fetchAllDependencies();
             } catch { navigate('/'); }
         };
