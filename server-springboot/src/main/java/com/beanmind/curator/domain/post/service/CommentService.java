@@ -152,7 +152,7 @@ public class CommentService {
         // Image processing
         List<String> imageUrls = new ArrayList<>();
         String uploadDirRelative = "uploads/community";
-        String uploadDirAbsolute = new File(uploadDirRelative).getAbsolutePath();
+        String uploadDirAbsolute = getUploadsAbsolutePath("community");
 
         try {
             Files.createDirectories(Paths.get(uploadDirAbsolute));
@@ -271,7 +271,7 @@ public class CommentService {
         }
 
         String uploadDirRelative = "uploads/community";
-        String uploadDirAbsolute = new File(uploadDirRelative).getAbsolutePath();
+        String uploadDirAbsolute = getUploadsAbsolutePath("community");
 
         try {
             Files.createDirectories(Paths.get(uploadDirAbsolute));
@@ -339,5 +339,20 @@ public class CommentService {
         result.put("success", true);
         result.put("isPinned", comment.getIsPinned());
         return result;
+    }
+
+    private String getUploadsAbsolutePath(String subPath) {
+        String userDir = System.getProperty("user.dir");
+        File rootDir;
+        if (userDir.endsWith("server-springboot")) {
+            rootDir = new File(userDir).getParentFile();
+        } else {
+            rootDir = new File(userDir);
+        }
+        File uploadsDir = new File(rootDir, "uploads");
+        if (subPath != null && !subPath.isEmpty()) {
+            return new File(uploadsDir, subPath).getAbsolutePath();
+        }
+        return uploadsDir.getAbsolutePath();
     }
 }

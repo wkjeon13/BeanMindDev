@@ -364,8 +364,8 @@ public class AiService {
                 byte[] decodedBytes = Base64.getDecoder().decode(rawBase64);
 
                 String fileName = "note_" + System.currentTimeMillis() + "_" + (int)(Math.random() * 1000) + "." + extension;
-                String relativePath = "uploads/users/" + user.getId() + "/tasting-notes";
-                String absoluteDirPath = "../" + relativePath;
+                String relativePath = "users/" + user.getId() + "/tasting-notes";
+                String absoluteDirPath = getUploadsAbsolutePath(relativePath);
 
                 Files.createDirectories(Paths.get(absoluteDirPath));
 
@@ -692,5 +692,20 @@ public class AiService {
             user.setPrefBody(3.0);
         }
         userRepository.save(user);
+    }
+
+    private String getUploadsAbsolutePath(String subPath) {
+        String userDir = System.getProperty("user.dir");
+        File rootDir;
+        if (userDir.endsWith("server-springboot")) {
+            rootDir = new File(userDir).getParentFile();
+        } else {
+            rootDir = new File(userDir);
+        }
+        File uploadsDir = new File(rootDir, "uploads");
+        if (subPath != null && !subPath.isEmpty()) {
+            return new File(uploadsDir, subPath).getAbsolutePath();
+        }
+        return uploadsDir.getAbsolutePath();
     }
 }

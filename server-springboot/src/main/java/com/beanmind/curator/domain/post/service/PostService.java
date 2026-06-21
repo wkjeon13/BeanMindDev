@@ -193,7 +193,7 @@ public class PostService {
         // Image uploads
         List<String> imageUrls = new ArrayList<>();
         String uploadDirRelative = "uploads/community";
-        String uploadDirAbsolute = new File(uploadDirRelative).getAbsolutePath();
+        String uploadDirAbsolute = getUploadsAbsolutePath("community");
 
         try {
             Files.createDirectories(Paths.get(uploadDirAbsolute));
@@ -371,7 +371,7 @@ public class PostService {
         }
 
         String uploadDirRelative = "uploads/community";
-        String uploadDirAbsolute = new File(uploadDirRelative).getAbsolutePath();
+        String uploadDirAbsolute = getUploadsAbsolutePath("community");
 
         try {
             Files.createDirectories(Paths.get(uploadDirAbsolute));
@@ -618,5 +618,20 @@ public class PostService {
             hotspots.add(h);
         }
         return hotspots;
+    }
+
+    private String getUploadsAbsolutePath(String subPath) {
+        String userDir = System.getProperty("user.dir");
+        File rootDir;
+        if (userDir.endsWith("server-springboot")) {
+            rootDir = new File(userDir).getParentFile();
+        } else {
+            rootDir = new File(userDir);
+        }
+        File uploadsDir = new File(rootDir, "uploads");
+        if (subPath != null && !subPath.isEmpty()) {
+            return new File(uploadsDir, subPath).getAbsolutePath();
+        }
+        return uploadsDir.getAbsolutePath();
     }
 }

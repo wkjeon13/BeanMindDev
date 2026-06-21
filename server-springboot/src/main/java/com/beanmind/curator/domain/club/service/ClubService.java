@@ -75,7 +75,7 @@ public class ClubService {
 
         List<String> newPaths = new ArrayList<>();
         String uploadDirRelative = "uploads/clubs/" + userId;
-        String uploadDirAbsolute = new File(uploadDirRelative).getAbsolutePath();
+        String uploadDirAbsolute = getUploadsAbsolutePath("clubs/" + userId);
 
         try {
             Files.createDirectories(Paths.get(uploadDirAbsolute));
@@ -527,5 +527,20 @@ public class ClubService {
 
         Club saved = clubRepository.save(club);
         return getClubDetails(saved.getId(), userId);
+    }
+
+    private String getUploadsAbsolutePath(String subPath) {
+        String userDir = System.getProperty("user.dir");
+        File rootDir;
+        if (userDir.endsWith("server-springboot")) {
+            rootDir = new File(userDir).getParentFile();
+        } else {
+            rootDir = new File(userDir);
+        }
+        File uploadsDir = new File(rootDir, "uploads");
+        if (subPath != null && !subPath.isEmpty()) {
+            return new File(uploadsDir, subPath).getAbsolutePath();
+        }
+        return uploadsDir.getAbsolutePath();
     }
 }

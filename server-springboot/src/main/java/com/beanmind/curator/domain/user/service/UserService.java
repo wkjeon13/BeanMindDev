@@ -171,9 +171,8 @@ public class UserService {
                 String fileName = "profile_" + System.currentTimeMillis() + "_" + (int)(Math.random() * 1000) + "." + extension;
                 
                 // Target: parent directory uploads/users/{userId}/profile
-                // Spring Boot runs under server-springboot, so project root is ../
-                String relativePath = "uploads/users/" + user.getId() + "/profile";
-                String absoluteDirPath = "../" + relativePath;
+                String relativePath = "users/" + user.getId() + "/profile";
+                String absoluteDirPath = getUploadsAbsolutePath(relativePath);
                 
                 Files.createDirectories(Paths.get(absoluteDirPath));
 
@@ -336,6 +335,21 @@ public class UserService {
                     .limit(user.getAiPrescriptionLimit())
                     .build();
         }
+    }
+
+    private String getUploadsAbsolutePath(String subPath) {
+        String userDir = System.getProperty("user.dir");
+        File rootDir;
+        if (userDir.endsWith("server-springboot")) {
+            rootDir = new File(userDir).getParentFile();
+        } else {
+            rootDir = new File(userDir);
+        }
+        File uploadsDir = new File(rootDir, "uploads");
+        if (subPath != null && !subPath.isEmpty()) {
+            return new File(uploadsDir, subPath).getAbsolutePath();
+        }
+        return uploadsDir.getAbsolutePath();
     }
 }
 

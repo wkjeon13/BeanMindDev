@@ -13,10 +13,10 @@ async function test() {
     }
     console.log("Found user:", user.id);
     const token = jwt.sign({
+        sub: user.email,
         id: user.id,
-        email: user.email,
-        role: user.role
-    }, process.env.JWT_SECRET || 'fallback_jwt_super_secret_dev_key');
+        auth: `ROLE_${user.role}`
+    }, 'beanmind_secure_jwt_secret_key_2026_test');
 
     const res = await fetch('http://localhost:3000/api/users/profile-image', {
         method: 'PUT',
