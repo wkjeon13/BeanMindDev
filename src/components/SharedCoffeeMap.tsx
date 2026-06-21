@@ -13,16 +13,10 @@ const getFullImageUrl = (url: string | null | undefined) => {
     if (url.startsWith('/mock-bucket')) return 'https://images.unsplash.com/photo-1554118811-1e0d58224f24';
     if (url.startsWith('/uploads/') && !url.startsWith('/api/')) {
         let base = (API_BASE === '/api' || API_BASE === '') ? '' : API_BASE.replace(/\/api$/, '');
-        if (base.startsWith('https://')) {
-            base = base.replace(/:[0-9]+/, '');
-        }
         return `${base}${url}`;
     }
     if (url.startsWith('/') && !url.startsWith('//')) {
         let base = API_BASE;
-        if (base.startsWith('https://')) {
-            base = base.replace(/:[0-9]+/, '');
-        }
         return `${base}${url}`;
     }
     return url;
