@@ -1318,8 +1318,23 @@ router.get('/:id/user-media', async (req: any, res: any) => {
 
         // Parse posts
         for (const post of posts) {
-            const urls = [post.image, post.imageEn].filter(url => url && url.trim() !== "") as string[];
+            const rawUrls = [post.image, post.imageEn].filter(url => url && url.trim() !== "") as string[];
+            let urls: string[] = [];
+            for (const rawUrl of rawUrls) {
+                try {
+                    const parsed = JSON.parse(rawUrl);
+                    if (Array.isArray(parsed)) {
+                        urls = urls.concat(parsed);
+                    } else if (typeof parsed === 'string') {
+                        urls.push(parsed);
+                    }
+                } catch (e) {
+                    urls.push(rawUrl);
+                }
+            }
+
             for (const url of urls) {
+                if (!url) continue;
                 const isVideo = url.match(/\.(mp4|webm|ogg|mov)$/i) || post.isShorts;
                 mediaList.push({
                     id: `${post.id}-${url}`,
