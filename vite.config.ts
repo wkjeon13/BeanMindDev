@@ -103,6 +103,26 @@ export default defineConfig(({ mode }) => {
           timeout: 600000,
           proxyTimeout: 600000
         },
+        '/api/shops/register': {
+          target: 'http://127.0.0.1:3001',
+          changeOrigin: true,
+          secure: false,
+          timeout: 600000,
+          proxyTimeout: 600000
+        },
+        '/api/shops': {
+          target: 'http://127.0.0.1:3000',
+          changeOrigin: true,
+          secure: false,
+          timeout: 600000,
+          proxyTimeout: 600000,
+          router: (req: any) => {
+            if (req.method === 'PUT' || req.method === 'DELETE') {
+              return 'http://127.0.0.1:3001';
+            }
+            return 'http://127.0.0.1:3000';
+          }
+        },
         '/api/users/checkins': {
           target: 'http://127.0.0.1:3001',
           changeOrigin: true,
