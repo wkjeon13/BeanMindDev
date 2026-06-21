@@ -91,8 +91,18 @@ public class ShopService {
                     }
 
                     // Decrypt PII fields
-                    String decryptedAddress = EncryptionUtil.decryptPII(store.getAddress());
-                    String decryptedPhone = EncryptionUtil.decryptPII(store.getPhone());
+                    String decryptedAddress = store.getAddress();
+                    try {
+                        decryptedAddress = EncryptionUtil.decryptPII(decryptedAddress);
+                    } catch (Exception e) {
+                        log.error("Failed to decrypt address for store: {}", store.getId(), e);
+                    }
+                    String decryptedPhone = store.getPhone();
+                    try {
+                        decryptedPhone = EncryptionUtil.decryptPII(decryptedPhone);
+                    } catch (Exception e) {
+                        log.error("Failed to decrypt phone for store: {}", store.getId(), e);
+                    }
 
                     // Map Media & MenuItems
                     List<ShopResponse.MediaInfo> mediaList = store.getMedia().stream()
@@ -200,8 +210,18 @@ public class ShopService {
         Store store = storeRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.STORE_NOT_FOUND));
 
-        String decryptedAddress = EncryptionUtil.decryptPII(store.getAddress());
-        String decryptedPhone = EncryptionUtil.decryptPII(store.getPhone());
+        String decryptedAddress = store.getAddress();
+        try {
+            decryptedAddress = EncryptionUtil.decryptPII(decryptedAddress);
+        } catch (Exception e) {
+            log.error("Failed to decrypt address for store: {}", store.getId(), e);
+        }
+        String decryptedPhone = store.getPhone();
+        try {
+            decryptedPhone = EncryptionUtil.decryptPII(decryptedPhone);
+        } catch (Exception e) {
+            log.error("Failed to decrypt phone for store: {}", store.getId(), e);
+        }
 
         // Map Media
         List<ShopResponse.MediaInfo> mediaList = store.getMedia().stream()
@@ -283,7 +303,12 @@ public class ShopService {
 
         List<ShopResponse> responses = stores.stream()
                 .map(store -> {
-                    String decryptedAddress = EncryptionUtil.decryptPII(store.getAddress());
+                    String decryptedAddress = store.getAddress();
+                    try {
+                        decryptedAddress = EncryptionUtil.decryptPII(decryptedAddress);
+                    } catch (Exception e) {
+                        log.error("Failed to decrypt address for store: {}", store.getId(), e);
+                    }
                     return ShopResponse.builder()
                             .id(store.getId())
                             .name(store.getName())
