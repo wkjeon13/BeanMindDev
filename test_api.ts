@@ -1,36 +1,35 @@
 import fetch from 'node-fetch';
-import { PrismaClient } from '@prisma/client';
-import jwt from 'jsonwebtoken';
+import { PrismaClient } from './node_modules/.prisma/client-stamp-v2/index.js';
 
 const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_jwt_super_secret_dev_key';
 
 async function main() {
     try {
-        const user = await prisma.user.findFirst();
-        if (!user) throw new Error("No user found");
-        
-        const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET);
-
-        const formData = new URLSearchParams();
-        formData.append('content', 'Testing US post creation via API');
-        formData.append('countryCode', 'US');
-        formData.append('isShorts', 'false');
-        formData.append('postType', 'NORMAL');
-
-        console.log("Sending request...");
-        const res = await fetch('http://localhost:3001/api/community/posts', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: formData.toString()
+        const store = await prisma.store.findFirst({
+            where: {
+                media: {
+                    some: {}
+                }
+            }
         });
+        if (!store) {
+            console.log("No store with media found in DB.");
+            return;
+        }
+        
+        console.log(`Found store ID: ${store.id}, Name: ${store.name}`);
+        
+        console.log("Sending GET request to Spring Boot (3000)...");
+        const res = await fetch(`http://localhost:3000/api/shops/${store.id}`);
+        const data = await res.json();
+        console.log("Response status:", res.status);
+        console.log("Media URLs in response:", data.data?.media);
 
-        const text = await res.text();
-        console.log(`Status: ${res.status}`);
-        console.log(`Body: ${text}`);
+        console.log("Sending GET request to Node.js (3001)...");
+        const resNode = await fetch(`http://localhost:3001/api/shops/${store.id}`);
+        const dataNode = await resNode.json();
+        console.log("Node response status:", resNode.status);
+        console.log("Node media URLs:", dataNode.data?.media || dataNode.media);
 
     } catch (e: any) {
         console.error("Error:", e.message);
@@ -39,3 +38,4 @@ async function main() {
     }
 }
 main();
+

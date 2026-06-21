@@ -221,7 +221,8 @@ export default function ManageShop() {
                     reader.onload = () => resolve(reader.result as string);
                     reader.onerror = error => reject(error);
                 } else {
-                    resolve(mf.url);
+                    const rawUrl = typeof mf.url === 'string' ? mf.url : (mf.url as any).url;
+                    resolve(rawUrl || '');
                 }
             }));
             const mediaUrls = await Promise.all(mediaUrlsPromises);

@@ -110,7 +110,9 @@ router.post('/register', authenticateToken, uploadLimiter, async (req: any, res:
 
         // 2. Process Media now that we have the newStore.id
         if (mediaUrls && Array.isArray(mediaUrls)) {
-            for (const url of mediaUrls) {
+            for (const urlObj of mediaUrls) {
+                const url = typeof urlObj === 'string' ? urlObj : (urlObj && urlObj.url ? urlObj.url : '');
+                if (!url) continue;
                 if (url.startsWith('data:')) {
                     const matches = url.match(/^data:([A-Za-z0-9-+\/]+);base64,(.+)$/);
                     if (matches && matches.length === 3) {
@@ -1002,7 +1004,9 @@ router.put(['/:id', '/:id/update'], authenticateToken, uploadLimiter, async (req
 
             // Process base64 files and keep existing URLs
             console.log(`[PUT /shops/:id] Processing new media base64 strings...`);
-            const processedUrls = mediaUrls.map((url, idx) => {
+            const processedUrls = mediaUrls.map((urlObj: any, idx) => {
+                const url = typeof urlObj === 'string' ? urlObj : (urlObj && urlObj.url ? urlObj.url : '');
+                if (!url) return null;
                 if (url.startsWith('data:')) {
                     const matches = url.match(/^data:([A-Za-z0-9-+\/]+);base64,(.+)$/);
                     console.log(`[PUT /shops/:id] Media idx ${idx} base64 match result length:`, matches ? matches.length : 'null');
@@ -1030,7 +1034,7 @@ router.put(['/:id', '/:id/update'], authenticateToken, uploadLimiter, async (req
                     }
                 }
                 return url; // Return existing URL if not base64
-            });
+            }).filter(Boolean);
 
             // Ensure no duplicate URLs are saved to the DB if frontend sends dupes
             const uniqueUrls = Array.from(new Set(processedUrls));
