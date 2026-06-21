@@ -92,8 +92,8 @@ app.use('/uploads', express.static('uploads', {
     }
 })); 
 
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+app.use(express.json({ limit: '150mb' }));
+app.use(express.urlencoded({ limit: '150mb', extended: true }));
 
 // 2. HTTP Security Headers (Helmet) - Applied strictly to APIs, bypassing static assets
 app.use(helmet({
