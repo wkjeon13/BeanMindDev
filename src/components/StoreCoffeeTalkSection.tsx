@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { MessageSquare, Coffee, Image as ImageIcon, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { API_BASE } from '../utils/apiConfig';
+import { API_BASE, getApiUrl } from '../utils/apiConfig';
 import { useNavigate } from 'react-router-dom';
 
 interface StoreCoffeeTalkSectionProps {
@@ -19,7 +19,7 @@ export default function StoreCoffeeTalkSection({ storeId, onCloseModal }: StoreC
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const res = await fetch(`${API_BASE}/api/community/posts?storeId=${storeId}`);
+                const res = await fetch(getApiUrl(`/api/community/posts?storeId=${storeId}`));
                 if (res.ok) {
                     const data = await res.json();
                     setPosts(data);

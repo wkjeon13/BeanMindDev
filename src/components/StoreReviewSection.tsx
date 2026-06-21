@@ -5,7 +5,7 @@ import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { motion, AnimatePresence } from 'motion/react';
 import EmojiPicker from 'emoji-picker-react';
 
-import { API_BASE } from '../utils/apiConfig';
+import { API_BASE, getApiUrl } from '../utils/apiConfig';
 
 interface StoreReviewSectionProps {
     storeId: string;
@@ -181,7 +181,7 @@ export default function StoreReviewSection({ storeId, reviews = [], onReviewAdde
         if (!token) return;
 
         try {
-            const res = await fetch(`${API_BASE}/api/shops/reviews/${reviewId}`, {
+            const res = await fetch(getApiUrl(`/api/shops/reviews/${reviewId}`), {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -214,7 +214,7 @@ export default function StoreReviewSection({ storeId, reviews = [], onReviewAdde
         setIsGeneratingSummary(true);
         try {
             const lang = i18n.language.startsWith('en') ? 'en' : 'ko';
-            const res = await fetch(`${API_BASE}/api/ai-features/shop/${storeId}/summarize-reviews?lang=${lang}`, {
+            const res = await fetch(getApiUrl(`/api/ai-features/shop/${storeId}/summarize-reviews?lang=${lang}`), {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -270,8 +270,8 @@ export default function StoreReviewSection({ storeId, reviews = [], onReviewAdde
         try {
             const isEdit = !!editingReviewId;
             const url = isEdit 
-                ? `${API_BASE}/api/shops/reviews/${editingReviewId}` 
-                : `${API_BASE}/api/shops/${storeId}/reviews`;
+                ? getApiUrl(`/api/shops/reviews/${editingReviewId}`) 
+                : getApiUrl(`/api/shops/${storeId}/reviews`);
                 
             const res = await fetch(url, {
                 method: isEdit ? 'PUT' : 'POST',
@@ -344,7 +344,7 @@ export default function StoreReviewSection({ storeId, reviews = [], onReviewAdde
 
         if (window.confirm(t('store_review.confirm_report', '이 리뷰를 신고하시겠습니까?'))) {
             try {
-                const res = await fetch(`${API_BASE}/api/users/report`, {
+                const res = await fetch(getApiUrl('/api/users/report'), {
                     method: 'POST',
                     headers: { 
                         'Authorization': `Bearer ${token}`,
@@ -382,7 +382,7 @@ export default function StoreReviewSection({ storeId, reviews = [], onReviewAdde
 
         setIsSubmitting(true);
         try {
-            const res = await fetch(`${API_BASE}/api/points/reward`, {
+            const res = await fetch(getApiUrl('/api/points/reward'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

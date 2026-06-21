@@ -114,7 +114,7 @@ export const getApiUrl = (path: string): string => {
     }) || (
         (normalizedPath.startsWith('/api/users/') || normalizedPath.startsWith('/api/shops/')) &&
         (normalizedPath.endsWith('/follow') || normalizedPath.endsWith('/follow-status'))
-    );
+    ) || /^\/api\/shops\/[a-fA-F0-9-]{36}(?:\/.*)?$/.test(normalizedPath);
 
     let base = apiBase;
     

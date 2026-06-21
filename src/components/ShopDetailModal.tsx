@@ -10,7 +10,7 @@ import L from 'leaflet';
 import { Browser } from '@capacitor/browser';
 import StoreReviewSection from './StoreReviewSection';
 import StoreCoffeeTalkSection from './StoreCoffeeTalkSection';
-import { API_BASE } from '../utils/apiConfig';
+import { API_BASE, getApiUrl } from '../utils/apiConfig';
 import GlobalAdBanner from './GlobalAdBanner';
 
 const getFullImageUrl = (url: string | null | undefined) => {
@@ -82,7 +82,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
         }
         setIsCoursePickerOpen(true);
         try {
-            const res = await fetch(`${API_BASE}/api/users/collections`, {
+            const res = await fetch(getApiUrl('/api/users/collections'), {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             if (res.ok) {
@@ -99,7 +99,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
         if (!name.trim()) return;
         setIsAddingToCourse(true);
         try {
-            const res = await fetch(`${API_BASE}/api/users/collections`, {
+            const res = await fetch(getApiUrl('/api/users/collections'), {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, isPilgrimageCourse: true })
@@ -120,7 +120,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
         const token = localStorage.getItem('token');
         setIsAddingToCourse(true);
         try {
-            const res = await fetch(`${API_BASE}/api/users/collections/${courseId}/items`, {
+            const res = await fetch(getApiUrl(`/api/users/collections/${courseId}/items`), {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ storeId: shop.id })
@@ -233,7 +233,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
     const fetchReviews = React.useCallback(async () => {
         if (!isOpen || !shop?.id) return;
         try {
-            const res = await fetch(`${API_BASE}/api/shops/${shop.id}/reviews`);
+            const res = await fetch(getApiUrl(`/api/shops/${shop.id}/reviews`));
             if (res.ok) {
                 const data = await res.json();
                 setReviews(data);
@@ -246,7 +246,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
     const fetchUserMedia = React.useCallback(async () => {
         if (!isOpen || !shop?.id) return;
         try {
-            const res = await fetch(`${API_BASE}/api/shops/${shop.id}/user-media`);
+            const res = await fetch(getApiUrl(`/api/shops/${shop.id}/user-media`));
             if (res.ok) {
                 const data = await res.json();
                 const mappedData = data.map((item: any) => ({
@@ -265,7 +265,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
         const token = localStorage.getItem('token');
         if (!token) return;
         try {
-            const res = await fetch(`${API_BASE}/api/shops/${shop.id}/follow-status`, {
+            const res = await fetch(getApiUrl(`/api/shops/${shop.id}/follow-status`), {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             if (res.ok) {
@@ -282,7 +282,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
         const token = localStorage.getItem('token');
         if (!token) return;
         try {
-            const res = await fetch(`${API_BASE}/api/users/bookmarks`, {
+            const res = await fetch(getApiUrl('/api/users/bookmarks'), {
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
             });
             if (res.ok) {
@@ -306,7 +306,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
             const token = localStorage.getItem('token');
             const headers: any = {};
             if (token) headers['Authorization'] = `Bearer ${token}`;
-            fetch(`${API_BASE}/api/shops/${propShop.id}`, { headers })
+            fetch(getApiUrl(`/api/shops/${propShop.id}`), { headers })
                 .then(res => res.json())
                 .then(resData => {
                     const shopData = resData?.data || resData;
@@ -334,7 +334,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
         }
         setIsFollowLoading(true);
         try {
-            const res = await fetch(`${API_BASE}/api/shops/${shop.id}/follow`, {
+            const res = await fetch(getApiUrl(`/api/shops/${shop.id}/follow`), {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -357,7 +357,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
         }
         setIsBookmarkLoading(true);
         try {
-            const res = await fetch(`${API_BASE}/api/users/bookmarks/${shop.id}`, {
+            const res = await fetch(getApiUrl(`/api/users/bookmarks/${shop.id}`), {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -402,7 +402,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
 
         if (window.confirm(t('shop_detail.confirm_report', `'{{name}}' 매장을 관리자에게 신고하시겠습니까?`, { name: shop.name }))) {
             try {
-                const res = await fetch(`${API_BASE}/api/users/report`, {
+                const res = await fetch(getApiUrl('/api/users/report'), {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -460,7 +460,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                 throw new Error(t("shop_detail.error_gps"));
             }
 
-            const res = await fetch(`${API_BASE}/api/users/checkin`, {
+            const res = await fetch(getApiUrl('/api/users/checkin'), {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
