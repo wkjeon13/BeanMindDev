@@ -8,5 +8,17 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class HomeLayoutRequest {
-    private List<String> layout;
+    private List<HomeSectionDto> layout;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HomeSectionDto {
+        private String id;
+        private String name;
+        private Boolean isVisible;
+        private Integer order;
+        private Boolean isFixed;
+    }
 }

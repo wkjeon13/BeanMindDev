@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -162,6 +164,7 @@ public class User {
     private String preferredLanguage = "ko";
 
     @Column(name = "homeLayout", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
     private String homeLayout; // Handle as String or setup Converter for JSON mapping
 
     @Column(columnDefinition = "TEXT")
