@@ -291,7 +291,11 @@ router.get('/trending', optionalAuthenticate, async (req: any, res: any) => {
             return {
                 id: store.id,
                 name: store.name,
-                address: store.address ? decryptPII(store.address) : '',
+                address: (() => {
+                    if (!store.address) return '';
+                    try { return decryptPII(store.address); }
+                    catch (e) { return store.address; }
+                })(),
                 lat: store.lat,
                 lng: store.lng,
                 mainImageUrl: store.mainImageUrl,
@@ -450,8 +454,16 @@ router.get('/', optionalAuthenticate, async (req: any, res: any) => {
             return {
                 id: store.id,
                 name: store.name,
-                address: store.address ? decryptPII(store.address) : '',
-                phone: store.phone ? decryptPII(store.phone) : null,
+                address: (() => {
+                    if (!store.address) return '';
+                    try { return decryptPII(store.address); }
+                    catch (e) { return store.address; }
+                })(),
+                phone: (() => {
+                    if (!store.phone) return null;
+                    try { return decryptPII(store.phone); }
+                    catch (e) { return store.phone; }
+                })(),
                 shortDesc,
                 longDesc,
                 websiteUrl: store.websiteUrl,
@@ -575,16 +587,15 @@ router.get('/my', authenticateToken, async (req: any, res: any) => {
         // Decrypt PII before sending
         const safeStores = stores.map(store => {
             let safeAddress = store.address;
-            let safePhone = store.phone;
-            try {
-                if (store.address) safeAddress = decryptPII(store.address);
-            } catch (e) {
-                console.error(`Address decryption failed for store ${store.id}`);
+            if (store.address) {
+                try { safeAddress = decryptPII(store.address); }
+                catch (e) { safeAddress = store.address; }
             }
-            try {
-                if (store.phone) safePhone = decryptPII(store.phone);
-            } catch (e) {
-                console.error(`Phone decryption failed for store ${store.id}`);
+            
+            let safePhone = null;
+            if (store.phone) {
+                try { safePhone = decryptPII(store.phone); }
+                catch (e) { safePhone = store.phone; }
             }
 
             const premiumStats = store.storePlan === 'PREMIUM' ? {
@@ -817,8 +828,16 @@ router.get('/:id', optionalAuthenticate, async (req: any, res: any) => {
         }
 
         // On-the-fly decryption to send to authorized user
-        const decryptedAddress = decryptPII(store.address);
-        const decryptedPhone = store.phone ? decryptPII(store.phone) : null;
+        let decryptedAddress = store.address;
+        if (store.address) {
+            try { decryptedAddress = decryptPII(store.address); }
+            catch (e) { decryptedAddress = store.address; }
+        }
+        let decryptedPhone = store.phone;
+        if (store.phone) {
+            try { decryptedPhone = decryptPII(store.phone); }
+            catch (e) { decryptedPhone = store.phone; }
+        }
 
         let shortDesc = store.shortDesc;
         let longDesc = store.longDesc;
