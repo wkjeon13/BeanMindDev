@@ -243,7 +243,7 @@ export default function ManageShop() {
             const coffeeMenuImageUrl = await processMultiImages(coffeeMenuImages);
             const popularMenuImageUrl = await processMultiImages(popularMenuImages);
 
-            const response = await fetch(`${API_BASE}/api/shops/${editingShop.id}`, {
+            const response = await fetch(`${API_BASE}/api/shops/${editingShop.id}/update`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -295,7 +295,7 @@ export default function ManageShop() {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`${API_BASE}/api/shops/${id}`, {
+            const res = await fetch(`${API_BASE}/api/shops/${id}/delete`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

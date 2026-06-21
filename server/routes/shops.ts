@@ -894,7 +894,7 @@ router.get('/:id', optionalAuthenticate, async (req: any, res: any) => {
 });
 
 // PUT: Update an existing shop
-router.put('/:id', authenticateToken, uploadLimiter, async (req: any, res: any) => {
+router.put(['/:id', '/:id/update'], authenticateToken, uploadLimiter, async (req: any, res: any) => {
     try {
         console.log(`[PUT /shops/:id] Starting update for shop ${req.params.id}`);
         const ownerId = req.user.id;
@@ -1355,7 +1355,7 @@ router.get('/:id/user-media', async (req: any, res: any) => {
 });
 
 // DELETE: Delete a shop
-router.delete('/:id', authenticateToken, async (req: any, res: any) => {
+router.delete(['/:id', '/:id/delete'], authenticateToken, async (req: any, res: any) => {
     try {
         const ownerId = req.user.id;
         const storeId = req.params.id;
