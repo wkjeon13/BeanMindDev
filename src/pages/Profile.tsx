@@ -167,7 +167,16 @@ export default function Profile() {
         fetchActivePolicies();
     }, []);
 
-    const [currentUser, setCurrentUser] = useState(() => JSON.parse(localStorage.getItem('user') || '{}'));
+    const [currentUser, setCurrentUser] = useState(() => {
+        try {
+            const stored = localStorage.getItem('user');
+            if (!stored || stored === 'undefined') return {};
+            return JSON.parse(stored);
+        } catch (e) {
+            console.error('Failed to parse user from localStorage:', e);
+            return {};
+        }
+    });
 
     // Coffee Passport States
     const [prescriptions, setPrescriptions] = useState<any[]>([]);
@@ -1579,8 +1588,9 @@ export default function Profile() {
             if (response.ok) {
                 const resData = await response.json();
                 const data = resData.data || resData;
-                localStorage.setItem('user', JSON.stringify(data.user));
-                setCurrentUser(data.user);
+                const targetUser = data.user || data;
+                localStorage.setItem('user', JSON.stringify(targetUser));
+                setCurrentUser(targetUser);
                 alert(t('profile.alert_photo_changed'));
             } else {
                 alert(t('profile.alert_photo_fail'));
@@ -1610,8 +1620,9 @@ export default function Profile() {
             if (response.ok) {
                 const resData = await response.json();
                 const data = resData.data || resData;
-                localStorage.setItem('user', JSON.stringify(data.user));
-                setCurrentUser(data.user);
+                const targetUser = data.user || data;
+                localStorage.setItem('user', JSON.stringify(targetUser));
+                setCurrentUser(targetUser);
                 alert(t('profile.alert_photo_deleted'));
                 // window.location.reload(); // Removed to prevent System Notice from reappearing
             } else {
@@ -1637,8 +1648,9 @@ export default function Profile() {
             const resData = await res.json();
             const data = resData.data || resData;
             if (res.ok) {
-                localStorage.setItem('user', JSON.stringify(data.user));
-                setCurrentUser(data.user);
+                const targetUser = data.user || data;
+                localStorage.setItem('user', JSON.stringify(targetUser));
+                setCurrentUser(targetUser);
                 setIsEditingNickname(false);
                 alert(t('profile.alert_nickname_changed', '닉네임이 성공적으로 변경되었습니다.'));
             } else {
@@ -1826,7 +1838,16 @@ export default function Profile() {
 
     React.useEffect(() => {
         const handleAuthChange = () => {
-            setCurrentUser(JSON.parse(localStorage.getItem('user') || '{}'));
+            let parsedUser = {};
+            try {
+                const stored = localStorage.getItem('user');
+                if (stored && stored !== 'undefined') {
+                    parsedUser = JSON.parse(stored);
+                }
+            } catch (e) {
+                console.error('Failed to parse user on auth change:', e);
+            }
+            setCurrentUser(parsedUser);
             setIsAuthenticated(!!localStorage.getItem('token'));
         };
         window.addEventListener('authStateChanged', handleAuthChange);
