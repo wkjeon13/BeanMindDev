@@ -6,21 +6,11 @@ if [ -f .env ]; then
   export $(grep -v '^#' .env | xargs)
 fi
 
-echo "☕️ [Mac OS] 스프링 부트 빌드 시작..."
-cd server-springboot || exit 1
-chmod +x ./gradlew
-./gradlew clean bootJar
-if [ $? -ne 0 ]; then
-    echo "❌ Gradle 빌드 실패"
-    exit 1
-fi
-cd ..
-echo "✅ 스프링 부트 빌드 완료."
+echo "☕️ [Mac OS] Docker Multi-stage 빌드를 통해 컨테이너 내부에서 빌드 및 패키징이 진행됩니다. (호스트 JDK 불필요)"
 
-# 2. 기존 도커 컨테이너 중지 및 삭제
+# 2. 기존 도커 컨테이너 중지 및 삭제 (강제)
 echo "🔄 기존 도커 컨테이너 중지 및 삭제 중..."
-docker stop beanmind-springboot-container 2>/dev/null
-docker rm beanmind-springboot-container 2>/dev/null
+docker rm -f beanmind-springboot-container 2>/dev/null
 
 # 3. 도커 이미지 빌드
 echo "🐳 도커 이미지 재빌드 시작..."

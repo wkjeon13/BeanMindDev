@@ -1,15 +1,15 @@
-# Base image with JDK 21
-FROM eclipse-temurin:21-jdk-alpine
-
-# Set working directory inside the container
+# Stage 1: Build Java Application using Gradle
+FROM gradle:8.8-jdk21-alpine AS builder
 WORKDIR /app
+COPY gradlew settings.gradle build.gradle ./
+COPY gradle gradle
+COPY src src
+RUN chmod +x ./gradlew
+RUN ./gradlew clean bootJar --no-daemon
 
-# Copy the built jar file to the container
-# Wildcard is used, but we exclude the -plain.jar by copying the main application jar file
-COPY build/libs/*-SNAPSHOT.jar app.jar
-
-# Expose port 4000
+# Stage 2: Final lightweight execution image
+FROM eclipse-temurin:21-jdk-alpine
+WORKDIR /app
+COPY --from=builder /app/build/libs/*-SNAPSHOT.jar app.jar
 EXPOSE 4000
-
-# Execute the application
 ENTRYPOINT ["java", "-Duser.timezone=Asia/Seoul", "-jar", "app.jar"]

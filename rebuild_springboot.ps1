@@ -16,22 +16,11 @@ if (Test-Path ".env") {
     }
 }
 
-# 1. Gradle 빌드
-Write-Host "스프링 부트 빌드 시작..." -ForegroundColor Cyan
-Push-Location server-springboot
-.\gradlew clean bootJar
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Gradle 빌드 실패"
-    Pop-Location
-    exit $LASTEXITCODE
-}
-Pop-Location
-Write-Host "스프링 부트 빌드 완료." -ForegroundColor Green
+Write-Host "☕️ [Windows] Docker Multi-stage 빌드를 통해 컨테이너 내부에서 빌드 및 패키징이 진행됩니다. (호스트 JDK 불필요)" -ForegroundColor Cyan
 
-# 2. 기존 도커 컨테이너 중지 및 삭제
+# 2. 기존 도커 컨테이너 중지 및 삭제 (강제)
 Write-Host "기존 도커 컨테이너 중지 및 삭제 중..." -ForegroundColor Cyan
-docker stop beanmind-springboot-container 2>$null
-docker rm beanmind-springboot-container 2>$null
+docker rm -f beanmind-springboot-container 2>$null
 
 # 3. 도커 이미지 빌드
 Write-Host "도커 이미지 재빌드 시작..." -ForegroundColor Cyan
