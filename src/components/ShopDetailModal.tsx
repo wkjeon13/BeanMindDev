@@ -55,6 +55,8 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
     const [activeTab, setActiveTab] = useState<'info' | 'reviews'>('info');
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
     const [viewerContext, setViewerContext] = useState<'gallery' | 'beverage' | 'dessert' | null>(null);
+    const [galleryTab, setGalleryTab] = useState<'official' | 'user'>('official');
+    const [userMedia, setUserMedia] = useState<any[]>([]);
     const [isFollowing, setIsFollowing] = useState(false);
     const [isFollowLoading, setIsFollowLoading] = useState(false);
 
@@ -216,11 +218,13 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
     }, [parsedHours]);
 
     const currentViewerImages = React.useMemo(() => {
-        if (viewerContext === 'gallery') return galleryMedia;
+        if (viewerContext === 'gallery') {
+            return galleryTab === 'official' ? galleryMedia : userMedia;
+        }
         if (viewerContext === 'beverage') return parsedCoffeeMenuImages.map(url => ({ type: 'IMAGE', url, isMenu: true }));
         if (viewerContext === 'dessert') return parsedPopularMenuImages.map(url => ({ type: 'IMAGE', url, isMenu: true }));
         return [];
-    }, [viewerContext, galleryMedia, parsedCoffeeMenuImages, parsedPopularMenuImages]);
+    }, [viewerContext, galleryTab, galleryMedia, userMedia, parsedCoffeeMenuImages, parsedPopularMenuImages]);
 
     const fetchReviews = React.useCallback(async () => {
         if (!isOpen || !shop?.id) return;
@@ -232,6 +236,23 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
             }
         } catch (error) {
             console.error(error);
+        }
+    }, [isOpen, shop?.id]);
+
+    const fetchUserMedia = React.useCallback(async () => {
+        if (!isOpen || !shop?.id) return;
+        try {
+            const res = await fetch(`${API_BASE}/api/shops/${shop.id}/user-media`);
+            if (res.ok) {
+                const data = await res.json();
+                const mappedData = data.map((item: any) => ({
+                    ...item,
+                    url: getFullImageUrl(item.url)
+                }));
+                setUserMedia(mappedData);
+            }
+        } catch (error) {
+            console.error("Failed to fetch user media", error);
         }
     }, [isOpen, shop?.id]);
 
@@ -274,6 +295,7 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
         fetchFollowStatus();
         fetchBookmarkStatus();
         fetchReviews();
+        fetchUserMedia();
 
         // Fetch full hydrated data and trigger view increment backend
         if (isOpen && propShop?.id) {
@@ -290,7 +312,15 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                 })
                 .catch(e => console.error(e));
         }
-    }, [fetchFollowStatus, fetchBookmarkStatus, fetchReviews, isOpen, propShop?.id]);
+    }, [fetchFollowStatus, fetchBookmarkStatus, fetchReviews, fetchUserMedia, isOpen, propShop?.id]);
+
+    useEffect(() => {
+        if (galleryMedia.length === 0 && userMedia.length > 0) {
+            setGalleryTab('user');
+        } else {
+            setGalleryTab('official');
+        }
+    }, [galleryMedia.length, userMedia.length]);
 
     const handleToggleFollow = async () => {
         const token = localStorage.getItem('token');
@@ -874,13 +904,33 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                     )}
 
                                     {/* Gallery */}
-                                    {galleryMedia.length > 0 && (
+                                    {(galleryMedia.length > 0 || userMedia.length > 0) && (
                                         <div className="pt-8 border-t border-white/20 -mx-6 px-6 mt-8">
                                             <h4 className="text-xl font-bold font-sans text-white mb-4">Gallery</h4>
 
+                                            {/* Gallery Segment Tabs */}
+                                            {galleryMedia.length > 0 && userMedia.length > 0 && (
+                                                <div className="flex gap-2 p-1 bg-[#1a1a1e] rounded-xl border border-white/5 mb-4">
+                                                    <button
+                                                        onClick={() => setGalleryTab('official')}
+                                                        className={`flex-1 py-2 text-[13px] font-bold rounded-lg transition-all ${galleryTab === 'official' ? 'bg-[#FFD570] text-[#111114]' : 'text-espresso-200'}`}
+                                                    >
+                                                        {t('shop_detail.gallery_tab_official', '공식 사진')} ({galleryMedia.length})
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setGalleryTab('user')}
+                                                        className={`flex-1 py-2 text-[13px] font-bold rounded-lg transition-all ${galleryTab === 'user' ? 'bg-[#FFD570] text-[#111114]' : 'text-espresso-200'}`}
+                                                    >
+                                                        {t('shop_detail.gallery_tab_user', '이용자 사진')} ({userMedia.length})
+                                                    </button>
+                                                </div>
+                                            )}
+
                                             {(() => {
-                                                const mediaItems = galleryMedia;
+                                                const mediaItems = galleryTab === 'official' ? galleryMedia : userMedia;
                                                 const count = mediaItems.length;
+
+                                                if (count === 0) return null;
 
                                                 if (count === 1) {
                                                     return (
@@ -1115,6 +1165,12 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                         {(() => {
                                             if (viewerContext === 'beverage') return `${selectedImageIndex + 1} / ${currentViewerImages.length} (${t('shop_detail.lbl_beverage', '커피 메뉴판')})`;
                                             if (viewerContext === 'dessert') return `${selectedImageIndex + 1} / ${currentViewerImages.length} (${t('shop_detail.lbl_dessert', '디저트/기타 메뉴')})`;
+                                            if (viewerContext === 'gallery') {
+                                                const tabTitle = galleryTab === 'official'
+                                                    ? t('shop_detail.gallery_tab_official', '공식 사진')
+                                                    : t('shop_detail.gallery_tab_user', '이용자 사진');
+                                                return `${selectedImageIndex + 1} / ${currentViewerImages.length} (${tabTitle})`;
+                                            }
                                             return `${selectedImageIndex + 1} / ${currentViewerImages.length} (${t('shop_detail.lbl_gallery', '매장 갤러리')})`;
                                         })()}
                                     </div>
@@ -1207,6 +1263,16 @@ export default function ShopDetailModal({ isOpen, shop: propShop, currentUser, o
                                             </div>
                                         ))}
                                     </div>
+                                    {currentViewerImages[selectedImageIndex]?.authorName && (
+                                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-espresso-950/80 backdrop-blur-md px-4 py-2 rounded-full text-espresso-200 text-[12px] font-medium border border-white/10 z-20">
+                                            by {currentViewerImages[selectedImageIndex].authorName} ({
+                                                currentViewerImages[selectedImageIndex].sourceType === 'REVIEW' ? t('shop_detail.source_review', '리뷰') :
+                                                currentViewerImages[selectedImageIndex].sourceType === 'POST' ? t('shop_detail.source_post', '커피톡') :
+                                                currentViewerImages[selectedImageIndex].sourceType === 'CHECKIN' ? t('shop_detail.source_checkin', '체크인') :
+                                                t('shop_detail.source_official', '공식')
+                                            })
+                                        </div>
+                                    )}
                                 </div>
                             </motion.div>
                         )}

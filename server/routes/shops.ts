@@ -1227,6 +1227,133 @@ router.post('/ai-import', authenticateToken, async (req: any, res: any) => {
     }
 });
 
+// GET: Get all user uploaded media (reviews, posts, check-ins) for a store
+router.get('/:id/user-media', async (req: any, res: any) => {
+    try {
+        const storeId = req.params.id;
+
+        // 1. StoreReview
+        const reviews = await prisma.storeReview.findMany({
+            where: {
+                storeId: storeId,
+                imageUrls: { not: null }
+            },
+            include: {
+                user: {
+                    select: {
+                        nickname: true
+                    }
+                }
+            }
+        });
+
+        // 2. Post
+        const posts = await prisma.post.findMany({
+            where: {
+                storeId: storeId,
+                isDeleted: false,
+                isHidden: false,
+                OR: [
+                    { image: { not: null } },
+                    { imageEn: { not: null } }
+                ]
+            },
+            include: {
+                author: {
+                    select: {
+                        nickname: true
+                    }
+                }
+            }
+        });
+
+        // 3. StoreCheckIn
+        const checkIns = await prisma.storeCheckIn.findMany({
+            where: {
+                storeId: storeId,
+                memoImageUrl: { not: null }
+            },
+            include: {
+                user: {
+                    select: {
+                        nickname: true
+                    }
+                }
+            }
+        });
+
+        const mediaList: any[] = [];
+
+        // Parse reviews
+        for (const review of reviews) {
+            if (!review.imageUrls) continue;
+            let urls: string[] = [];
+            try {
+                const parsed = JSON.parse(review.imageUrls);
+                if (Array.isArray(parsed)) {
+                    urls = parsed;
+                } else if (typeof parsed === 'string') {
+                    urls = [parsed];
+                }
+            } catch (e) {
+                urls = [review.imageUrls];
+            }
+
+            for (const url of urls) {
+                if (!url) continue;
+                mediaList.push({
+                    id: `${review.id}-${url}`,
+                    url: url,
+                    type: 'IMAGE',
+                    sourceType: 'REVIEW',
+                    authorName: review.user?.nickname || 'Anonymous',
+                    createdAt: review.createdAt
+                });
+            }
+        }
+
+        // Parse posts
+        for (const post of posts) {
+            const urls = [post.image, post.imageEn].filter(url => url && url.trim() !== "") as string[];
+            for (const url of urls) {
+                const isVideo = url.match(/\.(mp4|webm|ogg|mov)$/i) || post.isShorts;
+                mediaList.push({
+                    id: `${post.id}-${url}`,
+                    url: url,
+                    type: isVideo ? 'VIDEO' : 'IMAGE',
+                    sourceType: 'POST',
+                    authorName: post.author?.nickname || 'Anonymous',
+                    createdAt: post.createdAt
+                });
+            }
+        }
+
+        // Parse check-ins
+        for (const checkIn of checkIns) {
+            if (!checkIn.memoImageUrl || checkIn.memoImageUrl.trim() === "") continue;
+            mediaList.push({
+                id: checkIn.id,
+                url: checkIn.memoImageUrl,
+                type: 'IMAGE',
+                sourceType: 'CHECKIN',
+                authorName: checkIn.user?.nickname || 'Anonymous',
+                createdAt: checkIn.createdAt
+            });
+        }
+
+        // Sort by createdAt desc
+        mediaList.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+        res.status(200).json(mediaList);
+    } catch (error: any) {
+        console.error("Fetch user media error:", error);
+        res.status(500).json({
+            error: 'Internal server error during fetching user media.',
+            details: error.message
+        });
+    }
+});
+
 // DELETE: Delete a shop
 router.delete('/:id', authenticateToken, async (req: any, res: any) => {
     try {
