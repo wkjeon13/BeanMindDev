@@ -1324,25 +1324,26 @@ export default function ClubDetail() {
                                             </div>
                                             <div className="flex justify-between items-center mt-1">
                                                 <span className="text-[11px] text-espresso-300 font-bold">{t('club_detail.lbl_deadline')}</span>
-                                                <div className="relative w-[140px] h-[36px] shrink-0">
+                                                <div className="relative w-[140px] h-[36px] shrink-0 bg-espresso-800 border border-espresso-700 rounded-lg hover:border-amber-500 focus-within:border-amber-500 transition-colors flex items-center justify-center">
+                                                    {/* 실제 화면에 보일 커스텀 UI 텍스트 (터치 무시) */}
+                                                    <span className="text-espresso-50 text-xs font-medium pointer-events-none">
+                                                        {club.recruitDeadline 
+                                                            ? club.recruitDeadline.substring(0, 10) 
+                                                            : t('club_detail.ph_deadline', '날짜 선택')}
+                                                    </span>
+                                                    {/* 실제 네이티브 달력을 띄울 완전 투명 인풋 */}
                                                     <input 
                                                         type="date"
                                                         disabled={isUpdatingRecruitment}
                                                         value={club.recruitDeadline ? club.recruitDeadline.substring(0, 10) : ''}
                                                         onChange={(e) => handleDeadlineChange(e.target.value)}
-                                                        className="w-full h-full bg-espresso-800 border border-espresso-700 text-espresso-50 text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-amber-500 transition-colors text-center"
+                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer focus:outline-none"
                                                         style={{ 
                                                             colorScheme: 'dark',
-                                                            appearance: 'auto',
-                                                            WebkitAppearance: 'auto',
-                                                            display: 'inline-block'
+                                                            appearance: 'none',
+                                                            WebkitAppearance: 'none',
                                                         }}
                                                     />
-                                                    {!club.recruitDeadline && (
-                                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-espresso-800 border border-espresso-700 text-espresso-400 text-xs font-medium rounded-lg">
-                                                            {t('club_detail.ph_deadline', '날짜 선택')}
-                                                        </div>
-                                                    )}
                                                 </div>
                                             </div>
                                         </div>
