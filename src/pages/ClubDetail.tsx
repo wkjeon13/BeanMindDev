@@ -360,7 +360,7 @@ export default function ClubDetail() {
             const res = await fetch(`${API_BASE}/api/clubs/${id}/recruitment`, {
                 method: 'PUT',
                 headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ recruitDeadline: dateStr ? new Date(dateStr).toISOString() : null })
+                body: JSON.stringify({ recruitDeadline: dateStr ? `${dateStr}T00:00:00` : null })
             });
             if (res.ok) {
                 const updated = await res.json();
