@@ -917,7 +917,16 @@ export default function HomeDashboard() {
                     onClick={() => navigate('/community', { state: { activePost: post.id } })}
                     className="w-[calc(50%-8px)] flex flex-col shrink-0 snap-center cursor-pointer group bg-transparent"
                   >
-                    <div className="w-full aspect-[4/5] rounded-2xl bg-espresso-800 overflow-hidden relative mb-2 shadow-md border border-espresso-800 group-hover:border-amber-500/50 transition-colors">
+                    <div 
+                      className="w-full aspect-[4/5] rounded-2xl bg-espresso-800 overflow-hidden relative mb-2 shadow-md border border-espresso-800 group-hover:border-amber-500/50 transition-colors"
+                      style={{
+                        transform: 'translate3d(0, 0, 0)',
+                        WebkitTransform: 'translate3d(0, 0, 0)',
+                        backfaceVisibility: 'hidden',
+                        WebkitBackfaceVisibility: 'hidden',
+                        WebkitMaskImage: '-webkit-radial-gradient(white, black)'
+                      }}
+                    >
                       <div className="w-full h-full pointer-events-none">
                         {getFirstImage(post.image) ? (
                             <MediaRenderer 
@@ -1000,7 +1009,16 @@ export default function HomeDashboard() {
                         onClick={() => navigate('/community', { state: { activePost: post.id } })}
                         className="w-[calc(33.333%-8px)] flex flex-col shrink-0 snap-center cursor-pointer group bg-transparent"
                       >
-                        <div className="w-full aspect-square rounded-2xl bg-espresso-800 overflow-hidden relative mb-2 shadow-md border border-espresso-800 group-hover:border-amber-500/50 transition-colors">
+                        <div 
+                          className="w-full aspect-square rounded-2xl bg-espresso-800 overflow-hidden relative mb-2 shadow-md border border-espresso-800 group-hover:border-amber-500/50 transition-colors"
+                          style={{
+                            transform: 'translate3d(0, 0, 0)',
+                            WebkitTransform: 'translate3d(0, 0, 0)',
+                            backfaceVisibility: 'hidden',
+                            WebkitBackfaceVisibility: 'hidden',
+                            WebkitMaskImage: '-webkit-radial-gradient(white, black)'
+                          }}
+                        >
                           <div className="w-full h-full pointer-events-none">
                             <MediaRenderer 
                               src={getFirstImage(post.image) || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf'} 
@@ -1045,7 +1063,16 @@ export default function HomeDashboard() {
                     onClick={() => navigate('/community', { state: { activePost: post.id } })}
                     className="w-[calc(40%-8px)] flex flex-col shrink-0 snap-center cursor-pointer group bg-transparent"
                   >
-                    <div className="w-full aspect-[3/4] rounded-2xl bg-espresso-800 overflow-hidden relative mb-2 shadow-md border border-espresso-800 group-hover:border-pink-500/50 transition-colors">
+                    <div 
+                      className="w-full aspect-[3/4] rounded-2xl bg-espresso-800 overflow-hidden relative mb-2 shadow-md border border-espresso-800 group-hover:border-pink-500/50 transition-colors"
+                      style={{
+                        transform: 'translate3d(0, 0, 0)',
+                        WebkitTransform: 'translate3d(0, 0, 0)',
+                        backfaceVisibility: 'hidden',
+                        WebkitBackfaceVisibility: 'hidden',
+                        WebkitMaskImage: '-webkit-radial-gradient(white, black)'
+                      }}
+                    >
                       <div className="w-full h-full pointer-events-none">
                         {getFirstImage(post.image) ? (
                             <MediaRenderer 
@@ -1189,7 +1216,16 @@ export default function HomeDashboard() {
                 onClick={() => navigate('/map', { state: { targetShopId: store.id, targetLat: store.lat, targetLng: store.lng, targetName: store.name } })}
                 className="w-[calc(50%-6px)] flex flex-col shrink-0 snap-center cursor-pointer group"
               >
-                <div className="w-full aspect-square rounded-2xl bg-espresso-800 overflow-hidden relative shadow-md border border-espresso-800 group-hover:border-amber-500/50 transition-colors">
+                <div 
+                  className="w-full aspect-square rounded-2xl bg-espresso-800 overflow-hidden relative shadow-md border border-espresso-800 group-hover:border-amber-500/50 transition-colors"
+                  style={{
+                    transform: 'translate3d(0, 0, 0)',
+                    WebkitTransform: 'translate3d(0, 0, 0)',
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden',
+                    WebkitMaskImage: '-webkit-radial-gradient(white, black)'
+                  }}
+                >
                   <div className="w-full h-full pointer-events-none">
                     <MediaRenderer 
                       src={getFirstImage(store.mainImageUrl) || 'https://images.unsplash.com/photo-1554118811-1e0d58224f24'} 
