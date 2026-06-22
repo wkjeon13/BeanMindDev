@@ -72,7 +72,13 @@ export default function SavedShops() {
                         {bookmarks.map((b, idx) => {
                             const shop = b.store;
                             const imageMedia = shop.media?.find((m: any) => m.type === 'IMAGE');
-                            const imageSrc = imageMedia ? imageMedia.url : 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=800';
+                            let imageSrc = imageMedia ? imageMedia.url : 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=800';
+
+                            if (imageSrc && imageSrc.startsWith('/')) {
+                                imageSrc = `${API_BASE}${imageSrc}`;
+                            } else if (imageSrc && imageSrc.includes('/uploads/')) {
+                                imageSrc = `${API_BASE}${imageSrc.substring(imageSrc.indexOf('/uploads/'))}`;
+                            }
 
                             return (
                                 <motion.div
@@ -100,7 +106,14 @@ export default function SavedShops() {
                                         <Heart size={16} fill="currentColor" />
                                     </button>
                                     <div className="aspect-square bg-espresso-800 w-full overflow-hidden shrink-0">
-                                        <img src={imageSrc} alt={shop.name} className="w-full h-full object-cover" />
+                                        <img 
+                                            src={imageSrc} 
+                                            alt={shop.name} 
+                                            className="w-full h-full object-cover" 
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&q=80&w=800';
+                                            }}
+                                        />
                                     </div>
                                     <div className="p-3 flex-1 flex flex-col justify-between">
                                         <div>
