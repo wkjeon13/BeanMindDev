@@ -290,7 +290,9 @@ export default function ClubDetail() {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ applicationData })
+                body: JSON.stringify({ 
+                    applicationData: applicationData ? JSON.stringify(applicationData) : null 
+                })
             });
             if (res.ok) {
                 const data = await res.json();
@@ -305,7 +307,7 @@ export default function ClubDetail() {
                 }
             } else {
                 const err = await res.json();
-                alert(err.error || '요청 실패');
+                alert(err.error?.message || err.error || '요청 실패');
             }
         } catch (e) {
             alert('오류 발생');
