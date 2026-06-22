@@ -1330,7 +1330,12 @@ export default function ClubDetail() {
                                                     value={club.recruitDeadline ? new Date(club.recruitDeadline).toISOString().split('T')[0] : ''}
                                                     onChange={(e) => handleDeadlineChange(e.target.value)}
                                                     className="bg-espresso-800 border border-espresso-700 text-espresso-50 text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-amber-500 transition-colors min-h-[36px] w-[140px]"
-                                                    style={{ colorScheme: 'dark' }}
+                                                    style={{ 
+                                                        colorScheme: 'dark',
+                                                        appearance: 'auto',
+                                                        WebkitAppearance: 'auto',
+                                                        display: 'inline-block'
+                                                    }}
                                                 />
                                             </div>
                                         </div>
