@@ -71,8 +71,21 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
 
+        Object authClaim = claims.get("auth");
+        if (authClaim == null) {
+            authClaim = claims.get("role");
+        }
+        if (authClaim == null) {
+            authClaim = "ROLE_USER";
+        }
+        
+        String authStr = authClaim.toString();
+        if (!authStr.startsWith("ROLE_")) {
+            authStr = "ROLE_" + authStr;
+        }
+
         Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get("auth").toString().split(","))
+                Arrays.stream(authStr.split(","))
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
