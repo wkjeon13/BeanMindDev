@@ -1324,26 +1324,26 @@ export default function ClubDetail() {
                                             </div>
                                             <div className="flex justify-between items-center mt-1">
                                                 <span className="text-[11px] text-espresso-300 font-bold">{t('club_detail.lbl_deadline')}</span>
-                                                <input 
-                                                    type={club.recruitDeadline ? "date" : "text"}
-                                                    placeholder={t('club_detail.ph_deadline', '날짜 선택')}
-                                                    disabled={isUpdatingRecruitment}
-                                                    value={club.recruitDeadline ? club.recruitDeadline.substring(0, 10) : ''}
-                                                    onFocus={(e) => {
-                                                        if (!isUpdatingRecruitment) e.target.type = 'date';
-                                                    }}
-                                                    onBlur={(e) => {
-                                                        if (!e.target.value) e.target.type = 'text';
-                                                    }}
-                                                    onChange={(e) => handleDeadlineChange(e.target.value)}
-                                                    className="bg-espresso-800 border border-espresso-700 text-espresso-50 text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-amber-500 transition-colors min-h-[36px] w-[140px] shrink-0 text-center"
-                                                    style={{ 
-                                                        colorScheme: 'dark',
-                                                        appearance: 'auto',
-                                                        WebkitAppearance: 'auto',
-                                                        display: 'inline-block'
-                                                    }}
-                                                />
+                                                <div className="relative w-[140px] h-[36px] shrink-0">
+                                                    <input 
+                                                        type="date"
+                                                        disabled={isUpdatingRecruitment}
+                                                        value={club.recruitDeadline ? club.recruitDeadline.substring(0, 10) : ''}
+                                                        onChange={(e) => handleDeadlineChange(e.target.value)}
+                                                        className="w-full h-full bg-espresso-800 border border-espresso-700 text-espresso-50 text-xs px-3 py-1.5 rounded-lg focus:outline-none focus:border-amber-500 transition-colors text-center"
+                                                        style={{ 
+                                                            colorScheme: 'dark',
+                                                            appearance: 'auto',
+                                                            WebkitAppearance: 'auto',
+                                                            display: 'inline-block'
+                                                        }}
+                                                    />
+                                                    {!club.recruitDeadline && (
+                                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-espresso-800 border border-espresso-700 text-espresso-400 text-xs font-medium rounded-lg">
+                                                            {t('club_detail.ph_deadline', '날짜 선택')}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
 
