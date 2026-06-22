@@ -68,6 +68,27 @@ export default defineConfig(({ mode }) => {
         cert: fs.readFileSync(certPath)
       } : undefined,
       proxy: {
+        '/api/auth/google': {
+          target: 'http://127.0.0.1:3001',
+          changeOrigin: true,
+          secure: false,
+          timeout: 600000,
+          proxyTimeout: 600000
+        },
+        '/api/auth/apple': {
+          target: 'http://127.0.0.1:3001',
+          changeOrigin: true,
+          secure: false,
+          timeout: 600000,
+          proxyTimeout: 600000
+        },
+        '/api/auth/naver': {
+          target: 'http://127.0.0.1:3001',
+          changeOrigin: true,
+          secure: false,
+          timeout: 600000,
+          proxyTimeout: 600000
+        },
         '/api/users/me/badge': {
           target: 'http://127.0.0.1:3001',
           changeOrigin: true,

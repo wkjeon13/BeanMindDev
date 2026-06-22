@@ -3255,7 +3255,7 @@ export default function Profile() {
                                             </div>
                                         </div>
 
-                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
+                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{typeof authError === 'string' && authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : String(authError)}</div>}
 
                                         <button
                                             onClick={handleLogin}
