@@ -210,23 +210,7 @@ public class PostService {
             }
 
             // Capacitor Base64 Strings
-            if (base64Images != null && !base64Images.isEmpty()) {
-                for (String base64Data : base64Images) {
-                    if (base64Data.startsWith("data:")) {
-                        String mimeType = base64Data.split(";")[0].split(":")[1];
-                        String ext = mimeType.split("/")[1];
-                        String rawBase64 = base64Data.substring(base64Data.indexOf(",") + 1);
-                        byte[] decoded = Base64.getDecoder().decode(rawBase64);
-
-                        String fileName = "base64-" + System.currentTimeMillis() + "-" + (int)(Math.random() * 1000) + "." + ext;
-                        File dest = new File(uploadDirAbsolute, fileName);
-                        try (FileOutputStream fos = new FileOutputStream(dest)) {
-                            fos.write(decoded);
-                        }
-                        imageUrls.add("/" + uploadDirRelative + "/" + fileName);
-                    }
-                }
-            }
+            processBase64Images(base64Images, uploadDirAbsolute, uploadDirRelative, imageUrls);
         } catch (IOException e) {
             log.error("Image upload failed", e);
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다.");
@@ -388,23 +372,7 @@ public class PostService {
             }
 
             // Capacitor Base64 Strings
-            if (base64Images != null && !base64Images.isEmpty()) {
-                for (String base64Data : base64Images) {
-                    if (base64Data.startsWith("data:")) {
-                        String mimeType = base64Data.split(";")[0].split(":")[1];
-                        String ext = mimeType.split("/")[1];
-                        String rawBase64 = base64Data.substring(base64Data.indexOf(",") + 1);
-                        byte[] decoded = Base64.getDecoder().decode(rawBase64);
-
-                        String fileName = "base64-" + System.currentTimeMillis() + "-" + (int)(Math.random() * 1000) + "." + ext;
-                        File dest = new File(uploadDirAbsolute, fileName);
-                        try (FileOutputStream fos = new FileOutputStream(dest)) {
-                            fos.write(decoded);
-                        }
-                        imageUrls.add("/" + uploadDirRelative + "/" + fileName);
-                    }
-                }
-            }
+            processBase64Images(base64Images, uploadDirAbsolute, uploadDirRelative, imageUrls);
         } catch (IOException e) {
             log.error("Image upload failed", e);
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "이미지 업로드에 실패했습니다.");
@@ -618,6 +586,56 @@ public class PostService {
             hotspots.add(h);
         }
         return hotspots;
+    }
+
+    private void processBase64Images(List<String> base64Images, String uploadDirAbsolute, String uploadDirRelative, List<String> imageUrls) {
+        if (base64Images == null || base64Images.isEmpty()) {
+            return;
+        }
+        for (String base64Data : base64Images) {
+            try {
+                String ext = "jpg";
+                String rawBase64 = base64Data;
+
+                if (base64Data.startsWith("data:")) {
+                    int commaIndex = base64Data.indexOf(",");
+                    if (commaIndex != -1) {
+                        String header = base64Data.substring(0, commaIndex);
+                        rawBase64 = base64Data.substring(commaIndex + 1);
+                        
+                        try {
+                            String mimeType = header.split(";")[0].split(":")[1];
+                            if (mimeType.contains("/")) {
+                                ext = mimeType.split("/")[1];
+                            }
+                        } catch (Exception ex) {
+                            log.warn("Failed to parse mimeType from base64 header: {}", header, ex);
+                        }
+                    }
+                }
+
+                // Remove whitespace/newlines that might be present in native base64 transmission
+                rawBase64 = rawBase64.replaceAll("\\s", "");
+
+                // Base64 decoding with MIME decoder which is more tolerant to line feeds/carriage returns
+                byte[] decoded;
+                try {
+                    decoded = Base64.getDecoder().decode(rawBase64);
+                } catch (IllegalArgumentException iae) {
+                    // Try MIME decoder as fallback
+                    decoded = Base64.getMimeDecoder().decode(rawBase64);
+                }
+
+                String fileName = "base64-" + System.currentTimeMillis() + "-" + (int)(Math.random() * 1000) + "." + ext;
+                File dest = new File(uploadDirAbsolute, fileName);
+                try (FileOutputStream fos = new FileOutputStream(dest)) {
+                    fos.write(decoded);
+                }
+                imageUrls.add("/" + uploadDirRelative + "/" + fileName);
+            } catch (Exception e) {
+                log.error("Failed to decode and save base64 image", e);
+            }
+        }
     }
 
     private String getUploadsAbsolutePath(String subPath) {

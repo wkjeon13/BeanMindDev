@@ -13,6 +13,7 @@ import MediaCarousel from '../components/community/MediaCarousel';
 import TastingRadarChart from '../components/community/TastingRadarChart';
 import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
 import { useTranslation } from 'react-i18next';
+import { compressImage } from '../utils/imageUtils';
 import NativeAdBanner, { AdCampaign } from '../components/NativeAdBanner';
 import PrescriptionTicket from '../components/PrescriptionTicket';
 import ShopDetailModal from '../components/ShopDetailModal';
@@ -1746,7 +1747,28 @@ export default function CoffeeTalk() {
             const formData = new FormData();
             formData.append('content', newContent);
 
-            newImages.forEach(img => formData.append('images', img));
+            const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+
+            if (isNative) {
+                // Capacitor 모바일 환경에서는 전송 안정성을 위해 이미지를 Base64 텍스트로 압축하여 추가
+                for (const img of newImages) {
+                    if (img.type.startsWith('image/')) {
+                        try {
+                            const compressedBase64 = await compressImage(img, 1024, 1024, 0.8);
+                            formData.append('images', compressedBase64);
+                        } catch (err) {
+                            console.error("Failed to compress image for mobile upload:", err);
+                            formData.append('images', img);
+                        }
+                    } else {
+                        // 비디오 등의 타입은 그대로 추가
+                        formData.append('images', img);
+                    }
+                }
+            } else {
+                newImages.forEach(img => formData.append('images', img));
+            }
+
             if (editPostId) {
                 formData.append('existingImages', JSON.stringify(existingImages));
             }

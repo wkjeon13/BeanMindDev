@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 
 import { API_BASE } from '../utils/apiConfig';
+import { compressImage } from '../utils/imageUtils';
 
 
 export default function ManageShop() {
@@ -347,9 +348,29 @@ export default function ManageShop() {
             formData.append('storeId', storyShop.id);
             formData.append('postType', 'ANNOUNCEMENT');
             formData.append('sendEmail', sendEmail.toString());
-            storyImages.forEach(img => {
-                if (img.file) formData.append('images', img.file);
-            });
+
+            const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+
+            if (isNative) {
+                // Capacitor 모바일 환경에서는 전송 안정성을 위해 이미지를 Base64 텍스트로 압축하여 추가
+                for (const img of storyImages) {
+                    if (img.file && img.file.type.startsWith('image/')) {
+                        try {
+                            const compressedBase64 = await compressImage(img.file, 1024, 1024, 0.8);
+                            formData.append('images', compressedBase64);
+                        } catch (err) {
+                            console.error("Failed to compress story image for mobile upload:", err);
+                            formData.append('images', img.file);
+                        }
+                    } else if (img.file) {
+                        formData.append('images', img.file);
+                    }
+                }
+            } else {
+                storyImages.forEach(img => {
+                    if (img.file) formData.append('images', img.file);
+                });
+            }
 
             const response = await fetch(`${API_BASE}/api/community/posts`, {
                 method: 'POST',
