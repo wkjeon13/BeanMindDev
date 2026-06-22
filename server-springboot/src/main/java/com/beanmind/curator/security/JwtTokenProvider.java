@@ -93,12 +93,16 @@ public class JwtTokenProvider {
     }
 
     public String getUsername(String token) {
-        return Jwts.parserBuilder()
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+                .getBody();
+        String subject = claims.getSubject();
+        if (subject == null || subject.isEmpty()) {
+            subject = claims.get("email", String.class);
+        }
+        return subject;
     }
 
     public boolean validateToken(String token) {

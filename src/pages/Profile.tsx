@@ -116,6 +116,17 @@ export default function Profile() {
     const [isLoading, setIsLoading] = useState(false);
     const [pointBalance, setPointBalance] = useState(0);
 
+    const renderAuthError = (err: any) => {
+        if (!err) return null;
+        if (typeof err === 'string') {
+            return err.startsWith('ERR_') ? t('api_error.' + err, err) : err;
+        }
+        if (err.message) {
+            return err.message.startsWith('ERR_') ? t('api_error.' + err.message, err.message) : err.message;
+        }
+        return String(err);
+    };
+
     // Stamp O2O States
     const [myStampCards, setMyStampCards] = useState<any[]>([]);
     const [myStampCoupons, setMyStampCoupons] = useState<any[]>([]);
@@ -771,9 +782,13 @@ export default function Profile() {
                                 window.dispatchEvent(new Event('authStateChanged'));
                                 setIsAuthenticated(true);
                                 setIsLoginModalOpen(false);
+                            } else {
+                                const errData = await res.json().catch(() => ({}));
+                                setAuthError(errData.errorCode || errData.error || 'Failed to authenticate');
                             }
                         } catch (e) {
                             console.error("Failed to fetch user data for naver login", e);
+                            setAuthError('Network error during Naver login');
                         }
                     } else if (userStr) {
                         // Registration required
@@ -3255,7 +3270,7 @@ export default function Profile() {
                                             </div>
                                         </div>
 
-                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{typeof authError === 'string' && authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : String(authError)}</div>}
+                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{renderAuthError(authError)}</div>}
 
                                         <button
                                             onClick={handleLogin}
@@ -3304,7 +3319,7 @@ export default function Profile() {
                                             </div>
                                         </div>
 
-                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
+                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{renderAuthError(authError)}</div>}
 
                                         <button
                                             onClick={handleVerifyRequest}
@@ -3351,7 +3366,7 @@ export default function Profile() {
                                             </div>
                                         </div>
 
-                                        {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
+                                        {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{renderAuthError(authError)}</div>}
 
                                         <button
                                             onClick={handleVerifyEmail}
@@ -3495,7 +3510,7 @@ export default function Profile() {
                                             </div>
                                         </div>
 
-                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
+                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{renderAuthError(authError)}</div>}
 
                                         <button
                                             onClick={handleRegister}
@@ -3610,7 +3625,7 @@ export default function Profile() {
                                             </div>
                                         </div>
 
-                                        {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
+                                        {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{renderAuthError(authError)}</div>}
 
                                         <button
                                             onClick={handleGoogleRegisterSubmit}
@@ -3725,7 +3740,7 @@ export default function Profile() {
                                             </div>
                                         </div>
 
-                                        {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
+                                        {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{renderAuthError(authError)}</div>}
 
                                         <button
                                             onClick={handleAppleRegisterSubmit}
@@ -3840,7 +3855,7 @@ export default function Profile() {
                                             </div>
                                         </div>
 
-                                        {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
+                                        {authError && <div className="text-red-500 text-sm font-medium px-2 text-center">{renderAuthError(authError)}</div>}
 
                                         <button
                                             onClick={handleNaverRegisterSubmit}
@@ -3870,7 +3885,7 @@ export default function Profile() {
                                             </div>
                                         </div>
 
-                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
+                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{renderAuthError(authError)}</div>}
 
                                         <button onClick={handleFindId} disabled={isLoading} className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B5952F] drop-shadow-md shadow-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#09090B] h-14 rounded-2xl font-bold text-[15px] flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-lg shadow-coffee-900/20 disabled:opacity-70">
                                             {isLoading ? t('profile.status_processing') : t('profile.btn_find_id')}
@@ -3900,7 +3915,7 @@ export default function Profile() {
                                             </div>
                                         </div>
 
-                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
+                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{renderAuthError(authError)}</div>}
 
                                         <button onClick={handleResetPwRequest} disabled={isLoading} className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B5952F] drop-shadow-md shadow-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#09090B] h-14 rounded-2xl font-bold text-[15px] flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-lg shadow-coffee-900/20 disabled:opacity-70">
                                             {isLoading ? t('profile.status_processing') : t('profile.btn_send_code')}
@@ -3943,7 +3958,7 @@ export default function Profile() {
                                             </div>
                                         </div>
 
-                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{authError.startsWith('ERR_') ? t('api_error.' + authError, authError) : authError}</div>}
+                                        {authError && <div className="text-red-500 text-sm font-medium px-2">{renderAuthError(authError)}</div>}
 
                                         <button onClick={handleResetPw} disabled={isLoading} className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B5952F] drop-shadow-md shadow-[#D4AF37]/20 border border-[#D4AF37]/50 text-[#09090B] h-14 rounded-2xl font-bold text-[15px] flex items-center justify-center gap-2 active:scale-95 transition-transform shadow-lg shadow-coffee-900/20 disabled:opacity-70">
                                             {isLoading ? t('profile.status_processing') : t('profile.btn_save_pw')}
