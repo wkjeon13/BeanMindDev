@@ -1334,7 +1334,7 @@ export default function ClubDetail() {
                                                     {/* 실제 네이티브 달력을 띄울 완전 투명 인풋 */}
                                                     <input 
                                                         type="date"
-                                                        disabled={isUpdatingRecruitment}
+                                                        disabled={!(club.isRecruiting ?? true)}
                                                         value={club.recruitDeadline ? club.recruitDeadline.substring(0, 10) : ''}
                                                         onChange={(e) => handleDeadlineChange(e.target.value)}
                                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer focus:outline-none"
