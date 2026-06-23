@@ -49,6 +49,7 @@ public class ShopResponse {
     private String beanRoastLevel;
     private String beanNotes;
     private Boolean isPremiumTop;
+    private Boolean isHostRegistered;
     
     private Integer reviewCount;
     private Double averageRating;

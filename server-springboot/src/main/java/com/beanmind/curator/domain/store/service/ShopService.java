@@ -10,6 +10,7 @@ import com.beanmind.curator.domain.store.entity.StoreTranslation;
 import com.beanmind.curator.domain.store.repository.StoreRepository;
 import com.beanmind.curator.domain.post.repository.PostRepository;
 import com.beanmind.curator.domain.user.entity.User;
+import com.beanmind.curator.domain.user.entity.Role;
 import com.beanmind.curator.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -148,6 +149,7 @@ public class ShopService {
                             .beanRoastLevel(store.getBeanRoastLevel())
                             .beanNotes(store.getBeanNotes())
                             .isPremiumTop(store.getIsPremiumTop())
+                            .isHostRegistered(store.getOwner() != null && store.getOwner().getRole() == Role.OWNER)
                             .reviewCount(reviewCount)
                             .averageRating(avgRating)
                             .matchRate(matchRate)
@@ -182,6 +184,11 @@ public class ShopService {
                 "GENERAL", 4
         );
         responses.sort((a, b) -> {
+            boolean isHostA = a.getIsHostRegistered() != null && a.getIsHostRegistered();
+            boolean isHostB = b.getIsHostRegistered() != null && b.getIsHostRegistered();
+            if (isHostA != isHostB) {
+                return isHostA ? -1 : 1;
+            }
             int orderA = sortOrder.getOrDefault(a.getPrimaryCoffeeType(), 5);
             int orderB = sortOrder.getOrDefault(b.getPrimaryCoffeeType(), 5);
             return Integer.compare(orderA, orderB);
@@ -267,6 +274,7 @@ public class ShopService {
                 .beanRoastLevel(store.getBeanRoastLevel())
                 .beanNotes(store.getBeanNotes())
                 .isPremiumTop(store.getIsPremiumTop())
+                .isHostRegistered(store.getOwner() != null && store.getOwner().getRole() == Role.OWNER)
                 .media(mediaList)
                 .build();
     }
@@ -319,6 +327,7 @@ public class ShopService {
                             .markerImageUrl(store.getMarkerImageUrl())
                             .primaryCoffeeType(store.getPrimaryCoffeeType() != null ? store.getPrimaryCoffeeType().name() : null)
                             .isPremiumTop(store.getIsPremiumTop())
+                            .isHostRegistered(store.getOwner() != null && store.getOwner().getRole() == Role.OWNER)
                             .build();
                 })
                 .collect(Collectors.toList());
