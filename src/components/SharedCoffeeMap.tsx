@@ -706,11 +706,13 @@ export default function SharedCoffeeMap({
                     const isSearched = shop.id === searchedShopId && (!focusedShopId || focusedShopId === searchedShopId);
                     const isHighlighted = isSearched || isFocused;
                     const isPremium = shop.isPremiumTop || shop.storePlan === 'PREMIUM';
+                    const isHost = shop.isHostRegistered === true;
                     const isTargetRegion = shop.id.startsWith('target-region');
 
                     let zIndexOffset = 10;
                     if (isFocused) zIndexOffset = 2000;
                     else if (isSearched) zIndexOffset = 1500;
+                    else if (isHost) zIndexOffset = 1400;
                     else if (isPremium) zIndexOffset = 1200;
                     else if (isDbShop) zIndexOffset = 1000;
 

@@ -1369,6 +1369,11 @@ Format EXACTLY like this example:
             }
             return shop;
         }).sort((a, b) => {
+            const aHost = a.isHostRegistered === true;
+            const bHost = b.isHostRegistered === true;
+            if (aHost !== bHost) {
+                return aHost ? -1 : 1;
+            }
             const aClaimed = checkDbClaimed(a);
             const bClaimed = checkDbClaimed(b);
             if (aClaimed && !bClaimed) return -1;
