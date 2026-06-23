@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Share2, ArrowRight, RefreshCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { WEEKLY_MBTI_DATA } from '../../data/weeklyMbti';
+import { API_BASE } from '../../utils/apiConfig';
 
 const WeeklyTasteTest = ({ config }: { config?: any }) => {
     const [step, setStep] = useState(-1); // -1: Banner, 0~N: Questions, N+1: Result
@@ -10,6 +11,17 @@ const WeeklyTasteTest = ({ config }: { config?: any }) => {
     const handleStart = () => {
         setStep(0);
         setAnswers([]);
+    };
+
+    const getBgImage = () => {
+        const url = config?.imageUrl;
+        if (!url) {
+            return 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&q=80';
+        }
+        if (url.startsWith('http://') || url.startsWith('https://')) {
+            return url;
+        }
+        return `${API_BASE}${url.startsWith('/') ? '' : '/'}${url}`;
     };
 
     const handleReset = () => {
@@ -61,7 +73,7 @@ const WeeklyTasteTest = ({ config }: { config?: any }) => {
                         className="relative w-full h-[140px] cursor-pointer flex flex-col justify-center px-6 group overflow-hidden"
                         onClick={handleStart}
                     >
-                        <div className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] group-hover:scale-110" style={{ backgroundImage: `url(${config?.imageUrl || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=800&q=80'})` }} />
+                        <div className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] group-hover:scale-110" style={{ backgroundImage: `url(${getBgImage()})` }} />
                         <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-black/30" />
                         
                         <div className="relative z-10">
