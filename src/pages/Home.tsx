@@ -626,12 +626,15 @@ export default function HomeDashboard() {
   const greetingName = currentUser?.nickname || t('home.guest', '방문자');
 
   const hiddenSectionIds: string[] = [];
-  if (personalizedData) {
-    if (personalizedData.campaigns && !personalizedData.campaigns.flashDrop) hiddenSectionIds.push('flash_drop');
-    if (personalizedData.campaigns && !personalizedData.campaigns.roulette) hiddenSectionIds.push('daily_roulette');
+  if (!personalizedData) {
+    hiddenSectionIds.push('flash_drop');
+    hiddenSectionIds.push('daily_roulette');
+  } else {
+    if (!personalizedData.campaigns || !personalizedData.campaigns.flashDrop) hiddenSectionIds.push('flash_drop');
+    if (!personalizedData.campaigns || !personalizedData.campaigns.roulette) hiddenSectionIds.push('daily_roulette');
     if (personalizedData.weeklyMbti && !personalizedData.weeklyMbti.isActive) hiddenSectionIds.push('weekly_mbti');
-    if (!homeNativeAd) hiddenSectionIds.push('native_ad');
   }
+  if (!homeNativeAd) hiddenSectionIds.push('native_ad');
 
   return (
     <div className="absolute inset-0 bg-espresso-950 text-espresso-50 flex flex-col font-sans overflow-hidden">
