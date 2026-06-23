@@ -2,6 +2,7 @@ import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import { AdMobFallback } from './AdMobFallback';
 import { useTranslation } from 'react-i18next';
+import { API_BASE } from '../../utils/apiConfig';
 
 interface MagazineAdProps {
     adData?: any;
@@ -14,7 +15,10 @@ export const MagazineAd: React.FC<MagazineAdProps> = ({ adData }) => {
         return null;
     }
 
-    const displayImage = adData.imageUrl || adData.content || 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=800';
+    let displayImage = adData.imageUrl || adData.content || 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&q=80&w=800';
+    if (displayImage && !displayImage.startsWith('http://') && !displayImage.startsWith('https://')) {
+        displayImage = `${API_BASE}${displayImage.startsWith('/') ? '' : '/'}${displayImage}`;
+    }
     const displaySponsor = isEn && adData.sponsorNameEn ? adData.sponsorNameEn : (adData.sponsorName || adData.campaignName || 'Sponsor Feature');
     const displayTitle = isEn && adData.titleEn ? adData.titleEn : (adData.title || adData.name || 'The Art of Brewing');
     
