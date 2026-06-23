@@ -82,16 +82,17 @@ const DEFAULT_LAYOUT: HomeSectionConfig[] = [
   { id: 'hero', name: 'home.sections.hero', isVisible: true, order: 1, isFixed: true },
   { id: 'flash_drop', name: 'home.sections.flash_drop', isVisible: true, order: 2 },
   { id: 'daily_roulette', name: 'home.sections.daily_roulette', isVisible: true, order: 3 },
-  { id: 'native_ad', name: 'home.sections.native_ad', isVisible: true, order: 4 },
-  { id: 'shorts', name: 'home.sections.shorts', isVisible: true, order: 5 },
-  { id: 'hot_feeds', name: 'home.sections.hot_feeds', isVisible: true, order: 6 },
-  { id: 'new_feeds', name: 'home.sections.new_feeds', isVisible: true, order: 7 },
-  { id: 'trending', name: 'home.sections.trending', isVisible: true, order: 8 },
-  { id: 'following', name: 'home.sections.following', isVisible: true, order: 9 },
-  { id: 'taste_match', name: 'home.sections.taste_match', isVisible: true, order: 10 },
-  { id: 'coffee_pairing', name: 'home.sections.coffee_pairing', isVisible: true, order: 11 },
-  { id: 'my_clubs', name: 'home.sections.my_clubs', isVisible: true, order: 12 },
-  { id: 'recommended_clubs', name: 'home.sections.recommended_clubs', isVisible: true, order: 13 }
+  { id: 'weekly_mbti', name: 'home.sections.weekly_mbti', isVisible: true, order: 4 },
+  { id: 'native_ad', name: 'home.sections.native_ad', isVisible: true, order: 5 },
+  { id: 'shorts', name: 'home.sections.shorts', isVisible: true, order: 6 },
+  { id: 'hot_feeds', name: 'home.sections.hot_feeds', isVisible: true, order: 7 },
+  { id: 'new_feeds', name: 'home.sections.new_feeds', isVisible: true, order: 8 },
+  { id: 'trending', name: 'home.sections.trending', isVisible: true, order: 9 },
+  { id: 'following', name: 'home.sections.following', isVisible: true, order: 10 },
+  { id: 'taste_match', name: 'home.sections.taste_match', isVisible: true, order: 11 },
+  { id: 'coffee_pairing', name: 'home.sections.coffee_pairing', isVisible: true, order: 12 },
+  { id: 'my_clubs', name: 'home.sections.my_clubs', isVisible: true, order: 13 },
+  { id: 'recommended_clubs', name: 'home.sections.recommended_clubs', isVisible: true, order: 14 }
 ];
 
 const RawStateDump = ({ data, fetchError }: { data: any, fetchError?: string }) => (
