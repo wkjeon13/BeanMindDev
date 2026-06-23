@@ -675,7 +675,7 @@ export default function HomeDashboard() {
 
       <PullToRefresh onRefresh={async () => { await fetchHomeData(false); }} className="flex-1 overflow-y-auto pb-24">
           <div className="w-full max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto flex flex-col pt-4">
-          {layoutConfigs.filter(l => l.isVisible).sort((a,b) => a.order - b.order).map(config => {
+          {layoutConfigs.filter(l => l.isVisible && !hiddenSectionIds.includes(l.id)).sort((a,b) => a.order - b.order).map(config => {
 
 
   if (config.id === 'hero') {
