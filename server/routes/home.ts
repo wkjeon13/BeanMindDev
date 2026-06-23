@@ -555,7 +555,17 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
         if (rouletteSetting && rouletteSetting.value) {
             try {
                 const config = JSON.parse(rouletteSetting.value);
-                rouletteActive = !!config.isActive;
+                let isActive = !!config.isActive;
+                if (isActive) {
+                    const nowTime = new Date().getTime();
+                    if (config.startTime && new Date(config.startTime).getTime() > nowTime) {
+                        isActive = false;
+                    }
+                    if (config.endTime && new Date(config.endTime).getTime() < nowTime) {
+                        isActive = false;
+                    }
+                }
+                rouletteActive = isActive;
             } catch (e) {}
         }
 

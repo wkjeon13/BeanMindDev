@@ -330,9 +330,26 @@ public class HomeService {
         if (rouletteSetting != null && StringUtils.hasText(rouletteSetting.getValue())) {
             try {
                 Map<String, Object> config = objectMapper.readValue(rouletteSetting.getValue(), Map.class);
+                boolean isActive = false;
                 if (config.containsKey("isActive")) {
-                    rouletteActive = Boolean.TRUE.equals(config.get("isActive"));
+                    isActive = Boolean.TRUE.equals(config.get("isActive"));
                 }
+                if (isActive) {
+                    LocalDateTime nowLdt = LocalDateTime.now();
+                    if (config.containsKey("startTime") && config.get("startTime") != null) {
+                        LocalDateTime start = parseDateTime((String) config.get("startTime"));
+                        if (start != null && nowLdt.isBefore(start)) {
+                            isActive = false;
+                        }
+                    }
+                    if (config.containsKey("endTime") && config.get("endTime") != null) {
+                        LocalDateTime end = parseDateTime((String) config.get("endTime"));
+                        if (end != null && nowLdt.isAfter(end)) {
+                            isActive = false;
+                        }
+                    }
+                }
+                rouletteActive = isActive;
             } catch (Exception e) {
                 log.error("Failed to parse roulette setting", e);
             }
@@ -360,5 +377,18 @@ public class HomeService {
                         .roulette(rouletteActive)
                         .build())
                 .build();
+    }
+
+    private LocalDateTime parseDateTime(String dtStr) {
+        if (!org.springframework.util.StringUtils.hasText(dtStr)) return null;
+        try {
+            if (dtStr.endsWith("Z")) {
+                return LocalDateTime.ofInstant(java.time.Instant.parse(dtStr), java.time.ZoneId.systemDefault());
+            }
+            return LocalDateTime.parse(dtStr);
+        } catch (Exception e) {
+            log.error("Failed to parse datetime: " + dtStr, e);
+            return null;
+        }
     }
 }
