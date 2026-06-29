@@ -3807,7 +3807,7 @@ export default function CoffeeTalk() {
                                 {/* 감성 BGM 사운드 페어링 (Premium Theme Picker) */}
                                 <div className="flex flex-col gap-2 p-3 bg-espresso-950/50 rounded-xl border border-amber-500/10 w-full mb-1">
                                     <div className="flex items-center justify-between gap-2 mb-1">
-                                        <p className="text-[11px] font-bold text-amber-500 flex items-center gap-1.5"><Music size={12} /> 🎵 AI 감성 사운드 페어링 (배경음악 지정)</p>
+                                        <p className="text-[11px] font-bold text-amber-500 flex items-center gap-1.5"><Music size={12} /> {t('coffee_talk.bgm_pairing_title', '🎵 AI 감성 사운드 페어링 (배경음악 지정)')}</p>
                                         <button
                                             type="button"
                                             onClick={(e) => {
@@ -3816,7 +3816,7 @@ export default function CoffeeTalk() {
                                             }}
                                             className="px-2.5 py-1 rounded-lg text-[10px] font-extrabold bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1 active:scale-95 transition-all shadow-sm"
                                         >
-                                            <Sparkles size={10} className="text-amber-400 animate-pulse" /> AI 자동 매칭
+                                            <Sparkles size={10} className="text-amber-400 animate-pulse" /> {t('coffee_talk.btn_ai_auto_match', 'AI 자동 매칭')}
                                         </button>
                                     </div>
                                     <div className="flex gap-2 overflow-x-auto pb-1.5 snap-x no-scrollbar">
@@ -3836,7 +3836,7 @@ export default function CoffeeTalk() {
                                                         }`}
                                                 >
                                                     <Music size={11} className={isSelected ? 'animate-pulse' : 'opacity-70'} />
-                                                    {theme.label}
+                                                    {t('coffee_talk.bgm_' + theme.id, theme.label)}
                                                 </button>
                                             );
                                         })}

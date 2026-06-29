@@ -1472,7 +1472,18 @@
         "sort_popular": "Popular",
         "sort_sponsored": "Sponsored",
         "badge_system_notice": "BeanMind System Notice",
-        "restoring_scroll": "Restoring feed position..."
+        "restoring_scroll": "Restoring feed position...",
+        "bgm_pairing_title": "🎵 AI Emotional Sound Pairing (BGM)",
+        "btn_ai_auto_match": "AI Auto Match",
+        "bgm_jazz": "☕ Morning Classical Piano",
+        "bgm_lofi": "🌙 Quiet Night Piano",
+        "bgm_acoustic": "☔ Soft Acoustic",
+        "bgm_bossanova": "☀️ Lazy Bossa Nova",
+        "bgm_classic": "🎻 Gymnopedie No.1 Piano",
+        "bgm_rock": "🎸 Rock Ballad Piano",
+        "bgm_hiphop": "🎧 City Pop Hip Hop",
+        "bgm_nature": "🍃 Chopin Nocturne Piano",
+        "bgm_coffeetime": "☕ Coffee Time Quiet Piano"
     },
     "shared": {
         "btn_share": "External Share",
