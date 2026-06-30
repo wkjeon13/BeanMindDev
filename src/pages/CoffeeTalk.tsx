@@ -500,8 +500,18 @@ export default function CoffeeTalk() {
         try {
             const filter = location.state?.filter || savedLastFilter;
             const savedScroll = localStorage.getItem(`coffeeTalkScrollTop_${filter}`);
+            const savedTime = localStorage.getItem(`coffeeTalkScrollTime_${filter}`);
             if (savedScroll && parseInt(savedScroll, 10) > 0) {
-                return true;
+                if (savedTime) {
+                    const elapsed = Date.now() - parseInt(savedTime, 10);
+                    const LIMIT = 3 * 60 * 60 * 1000; // 3시간
+                    if (elapsed < LIMIT) {
+                        return true;
+                    }
+                }
+                // 만료되었거나 시간 정보가 없으면 초기화
+                localStorage.removeItem(`coffeeTalkScrollTop_${filter}`);
+                localStorage.removeItem(`coffeeTalkScrollTime_${filter}`);
             }
         } catch (e) {}
         return false;
@@ -1205,6 +1215,7 @@ export default function CoffeeTalk() {
         if (isMountedRef.current) {
             if (currentFilterRef.current) {
                 localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, lastScrollTopRef.current.toString());
+                localStorage.setItem(`coffeeTalkScrollTime_${currentFilterRef.current}`, Date.now().toString());
             }
         } else {
             isMountedRef.current = true;
@@ -1236,11 +1247,28 @@ export default function CoffeeTalk() {
                 setIsScrollJumping(false);
             } else {
                 const savedScroll = localStorage.getItem(`coffeeTalkScrollTop_${activeFilter}`);
+                const savedTime = localStorage.getItem(`coffeeTalkScrollTime_${activeFilter}`);
+                let shouldRestore = false;
                 const savedScrollNum = savedScroll ? parseInt(savedScroll, 10) : 0;
+                
                 if (savedScrollNum > 0) {
+                    if (savedTime) {
+                        const elapsed = Date.now() - parseInt(savedTime, 10);
+                        const LIMIT = 3 * 60 * 60 * 1000; // 3시간
+                        if (elapsed < LIMIT) {
+                            shouldRestore = true;
+                        }
+                    }
+                }
+
+                if (shouldRestore) {
                     restoreScrollTop.current = savedScrollNum;
                     setIsScrollJumping(true); // 스크롤 복원 전까지 투명 마스킹
                 } else {
+                    if (savedScrollNum > 0) {
+                        localStorage.removeItem(`coffeeTalkScrollTop_${activeFilter}`);
+                        localStorage.removeItem(`coffeeTalkScrollTime_${activeFilter}`);
+                    }
                     restoreScrollTop.current = null;
                     // 스크롤 복원 불필요: 오버레이가 켜진 상태에서 scrollTop=0 강제 설정
                     // (캐시 히트 시 setPosts([])를 거치지 않아 이전 필터의 scrollTop이 남아있을 수 있음)
@@ -1290,6 +1318,7 @@ export default function CoffeeTalk() {
                 // 세션 최초 방문 시 전체 탭 스크롤 캐시 소거 (최상단부터 시작하게 유도)
                 ['all', 'shorts', 'following_story', 'pilgrimage_talk', 'near_live', 'home_cafe'].forEach(filter => {
                     localStorage.removeItem(`coffeeTalkScrollTop_${filter}`);
+                    localStorage.removeItem(`coffeeTalkScrollTime_${filter}`);
                 });
                 sessionStorage.setItem('coffeeTalkSessionVisited', 'true');
             }
@@ -1308,6 +1337,7 @@ export default function CoffeeTalk() {
                 if (container.scrollHeight > container.clientHeight) {
                     lastScrollTopRef.current = container.scrollTop;
                     localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, container.scrollTop.toString());
+                    localStorage.setItem(`coffeeTalkScrollTime_${currentFilterRef.current}`, Date.now().toString());
                 }
             }
         };
@@ -1328,6 +1358,7 @@ export default function CoffeeTalk() {
                 // (딥링크 등으로 이동 후 사용자가 직접 스크롤하지 않아도 위치가 보존됨)
                 try {
                     localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, lastScrollTopRef.current.toString());
+                    localStorage.setItem(`coffeeTalkScrollTime_${currentFilterRef.current}`, Date.now().toString());
                 } catch (e) {}
             }
         };
@@ -1395,6 +1426,7 @@ export default function CoffeeTalk() {
                     lastScrollTopRef.current = container.scrollTop;
                     try {
                         localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, container.scrollTop.toString());
+                        localStorage.setItem(`coffeeTalkScrollTime_${currentFilterRef.current}`, Date.now().toString());
                     } catch (e) {}
 
                     el.classList.add('ring-4', 'ring-amber-500', 'ring-offset-2', 'ring-offset-espresso-950', 'transition-all', 'duration-500');
@@ -1469,6 +1501,7 @@ export default function CoffeeTalk() {
                     lastScrollTopRef.current = container.scrollTop;
                     try {
                         localStorage.setItem(`coffeeTalkScrollTop_${currentFilterRef.current}`, container.scrollTop.toString());
+                        localStorage.setItem(`coffeeTalkScrollTime_${currentFilterRef.current}`, Date.now().toString());
                     } catch (e) {}
                     requestAnimationFrame(() => {
                         container.style.scrollBehavior = '';
