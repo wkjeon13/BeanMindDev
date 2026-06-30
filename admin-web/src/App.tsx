@@ -16,7 +16,8 @@ import AdminFlashDrop from './pages/AdminFlashDrop';
 import AdminCoffeeBeans from './pages/AdminCoffeeBeans';
 import AdminAccessLogs from './pages/AdminAccessLogs';
 import AdminCompliance from './pages/AdminCompliance';
-import { Settings, Users, Store, Coffee, Shield, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut, Layout, Image as ImageIcon, Zap, Coins, Activity } from 'lucide-react';
+import AdminBgm from './pages/AdminBgm';
+import { Settings, Users, Store, Coffee, Shield, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut, Layout, Image as ImageIcon, Zap, Coins, Activity, Music } from 'lucide-react';
 
 const Sidebar = () => {
   const handleLogout = () => {
@@ -76,6 +77,9 @@ const Sidebar = () => {
         <Link to="/beans" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors">
           <Coins className="w-5 h-5 mr-3 text-amber-500" /> Coffee Beans
         </Link>
+        <Link to="/bgm" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors">
+          <Music className="w-5 h-5 mr-3 text-indigo-400" /> BGM Management
+        </Link>
         <Link to="/settings" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors">
           <Settings className="w-5 h-5 mr-3" /> Settings
         </Link>
@@ -124,6 +128,7 @@ function App() {
                   <Route path="/pairings" element={<AdminPairings />} />
                   <Route path="/hero-banners" element={<AdminHeroBanner />} />
                   <Route path="/flash-drops" element={<AdminFlashDrop />} />
+                  <Route path="/bgm" element={<AdminBgm />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </main>

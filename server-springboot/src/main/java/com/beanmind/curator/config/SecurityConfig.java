@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/naver/callback", "/api/auth/naver/register").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/shops/**").permitAll() // Allow public shop searches
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/community/**").permitAll() // Allow guest reads for posts & announcements
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/bgm/themes").permitAll() // Allow public BGM list access
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/clubs", "/api/clubs/**").permitAll() // Allow guest reads for clubs
                 .requestMatchers("/api/ads/**").permitAll() // Allow guest views and tracking for ads
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/reward-tiers").permitAll() // Allow public reward tier views

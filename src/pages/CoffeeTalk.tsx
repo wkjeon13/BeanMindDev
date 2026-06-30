@@ -128,6 +128,8 @@ interface BgmSong {
 interface BgmTheme {
     id: string;
     label: string;
+    labelKo?: string;
+    labelEn?: string;
     songs: BgmSong[];
 }
 
@@ -591,6 +593,24 @@ export default function CoffeeTalk() {
     const [bgmVolume, setBgmVolume] = useState<number>(50);
     const [selectedBgmTheme, setSelectedBgmTheme] = useState<string>(''); // For write/edit modal
     const [selectedBgTheme, setSelectedBgTheme] = useState<string>('GRADIENT_ESPRESSO'); // For write/edit modal (background theme)
+    const [bgmThemes, setBgmThemes] = useState<BgmTheme[]>(BGM_THEMES);
+
+    useEffect(() => {
+        const fetchBgmThemes = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/api/bgm/themes`);
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.success && Array.isArray(json.data)) {
+                        setBgmThemes(json.data);
+                    }
+                }
+            } catch (e) {
+                console.warn('DB BGM themes load failed, using hardcoded fallback', e);
+            }
+        };
+        fetchBgmThemes();
+    }, []);
 
 
     // BGM Audio Singleton Instance Ref & Control Helpers
@@ -755,12 +775,13 @@ export default function CoffeeTalk() {
             matchedWord = "커피 한 잔의 여유";
         }
 
-        const matchedTheme = BGM_THEMES.find(t => t.id === bestThemeId);
+        const matchedTheme = bgmThemes.find(t => t.id === bestThemeId);
         if (matchedTheme) {
             setSelectedBgmTheme(bestThemeId);
 
-            // AI 피드백 팝업 알림
-            alert(`🪄 [BeanMind AI BGM 자동 매칭 완료]\n\n회원님이 작성하신 피드 속 감성 어휘(예: "${matchedWord}")를 정밀 분석하여,\n가장 아름답게 어울리는 배경음악 테마 「${matchedTheme.label}」을 찾아 자동으로 페어링해 드렸습니다!`);
+            // AI 피드백 팝업 알림 (다국어 호환성 패치)
+            const matchedLabel = i18n.language === 'en' ? (matchedTheme.labelEn || matchedTheme.label) : (matchedTheme.labelKo || matchedTheme.label);
+            alert(`🪄 [BeanMind AI BGM 자동 매칭 완료]\n\n회원님이 작성하신 피드 속 감성 어휘(예: "${matchedWord}")를 정밀 분석하여,\n가장 아름답게 어울리는 배경음악 테마 「${matchedLabel}」을 찾아 자동으로 페어링해 드렸습니다!`);
         }
     };
 
@@ -1869,7 +1890,7 @@ export default function CoffeeTalk() {
 
             // BGM Theme injection
             if (selectedBgmTheme) {
-                const themeObj = BGM_THEMES.find(t => t.id === selectedBgmTheme);
+                const themeObj = bgmThemes.find(t => t.id === selectedBgmTheme);
                 if (themeObj && themeObj.songs && themeObj.songs.length > 0) {
                     const randomIndex = Math.floor(Math.random() * themeObj.songs.length);
                     const selectedSong = themeObj.songs[randomIndex];
@@ -1995,7 +2016,7 @@ export default function CoffeeTalk() {
         setNewContent(parsedBgResult.cleanContent);
 
         if (parsedBgmResult.bgm && parsedBgmResult.bgm.videoId) {
-            const matchingTheme = BGM_THEMES.find(t => t.songs.some(s => s.videoId === parsedBgmResult.bgm.videoId));
+            const matchingTheme = bgmThemes.find(t => t.songs.some(s => s.videoId === parsedBgmResult.bgm.videoId));
             setSelectedBgmTheme(matchingTheme ? matchingTheme.id : '');
         } else {
             setSelectedBgmTheme('');
@@ -3853,7 +3874,7 @@ export default function CoffeeTalk() {
                                         </button>
                                     </div>
                                     <div className="flex gap-2 overflow-x-auto pb-1.5 snap-x no-scrollbar">
-                                        {BGM_THEMES.map(theme => {
+                                        {bgmThemes.map(theme => {
                                             const isSelected = selectedBgmTheme === theme.id;
                                             return (
                                                 <button
@@ -3869,7 +3890,7 @@ export default function CoffeeTalk() {
                                                         }`}
                                                 >
                                                     <Music size={11} className={isSelected ? 'animate-pulse' : 'opacity-70'} />
-                                                    {t('coffee_talk.bgm_' + theme.id, theme.label)}
+                                                    {i18n.language === 'en' ? (theme.labelEn || theme.label) : (theme.labelKo || theme.label)}
                                                 </button>
                                             );
                                         })}
