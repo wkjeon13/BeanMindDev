@@ -159,13 +159,6 @@ export default defineConfig(({ mode }) => {
           timeout: 600000,
           proxyTimeout: 600000
         },
-        '/api/bgm': {
-          target: 'http://127.0.0.1:3001',
-          changeOrigin: true,
-          secure: false,
-          timeout: 600000,
-          proxyTimeout: 600000
-        },
         '^/api/users/[^/]+/follow-status': {
           target: 'http://127.0.0.1:3001',
           changeOrigin: true,
