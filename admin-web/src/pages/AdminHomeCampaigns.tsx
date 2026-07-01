@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, AlertCircle, Image as ImageIcon, Loader2, Upload } from 'lucide-react';
 import { API_BASE } from '@/utils/apiConfig';
+import AdminTasteTest from './AdminTasteTest';
 
 const AdminHomeCampaigns = () => {
   const [config, setConfig] = useState<any>(null);
@@ -268,53 +269,10 @@ const AdminHomeCampaigns = () => {
             <h2 className="text-lg font-bold text-gray-900">Weekly Coffee Taste Test</h2>
             <p className="text-sm text-gray-500 mt-1">Displayed based on user's layout preference (weekly_mbti).</p>
           </div>
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => handleSaveSection('HOME_WEEKLY_MBTI')}
-              disabled={saving['HOME_WEEKLY_MBTI']}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 text-sm rounded-lg flex items-center font-medium disabled:opacity-50"
-            >
-              <Save className="w-4 h-4 mr-1.5" />
-              {saving['HOME_WEEKLY_MBTI'] ? 'Saving...' : 'Save Section'}
-            </button>
-            <label className="flex items-center cursor-pointer">
-              <div className="relative">
-                <input type="checkbox" className="sr-only" checked={config.HOME_WEEKLY_MBTI?.isActive ?? true} onChange={(e) => handleChange('HOME_WEEKLY_MBTI', 'isActive', e.target.checked)} />
-                <div className={`block w-14 h-8 rounded-full ${(config.HOME_WEEKLY_MBTI?.isActive ?? true) ? 'bg-indigo-500' : 'bg-gray-300'}`}></div>
-                <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition transform ${(config.HOME_WEEKLY_MBTI?.isActive ?? true) ? 'translate-x-6' : ''}`}></div>
-              </div>
-              <span className="ml-3 font-medium text-gray-900">{(config.HOME_WEEKLY_MBTI?.isActive ?? true) ? 'Active' : 'Inactive'}</span>
-            </label>
-          </div>
         </div>
-        
-        {(config.HOME_WEEKLY_MBTI?.isActive ?? true) && (
-          <div className="p-6 grid grid-cols-2 gap-6">
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Badge Text</label>
-              <input type="text" className="w-full p-2 border border-gray-300 rounded-lg" value={config.HOME_WEEKLY_MBTI?.badgeText || ''} placeholder="Taste Test" onChange={(e) => handleChange('HOME_WEEKLY_MBTI', 'badgeText', e.target.value)} />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-              <input type="text" className="w-full p-2 border border-gray-300 rounded-lg" value={config.HOME_WEEKLY_MBTI?.title || ''} placeholder="이번 주말, 당신의 기분은?" onChange={(e) => handleChange('HOME_WEEKLY_MBTI', 'title', e.target.value)} />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle</label>
-              <input type="text" className="w-full p-2 border border-gray-300 rounded-lg" value={config.HOME_WEEKLY_MBTI?.subtitle || ''} placeholder="간단한 3가지 질문으로 어울리는 커피를 찾아요." onChange={(e) => handleChange('HOME_WEEKLY_MBTI', 'subtitle', e.target.value)} />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Background Image URL</label>
-              <div className="flex gap-2">
-                <input type="text" className="flex-1 p-2 border border-gray-300 rounded-lg" value={config.HOME_WEEKLY_MBTI?.imageUrl || ''} placeholder="Default unsplash image..." onChange={(e) => handleChange('HOME_WEEKLY_MBTI', 'imageUrl', e.target.value)} />
-                <label className="bg-gray-100 hover:bg-gray-200 border border-gray-300 px-4 py-2 rounded-lg cursor-pointer flex items-center gap-2">
-                  <Upload size={16} />
-                  <span className="text-sm font-medium text-gray-700">{uploading['HOME_WEEKLY_MBTI'] ? 'Uploading...' : 'Upload'}</span>
-                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'HOME_WEEKLY_MBTI', 'imageUrl')} disabled={uploading['HOME_WEEKLY_MBTI']} />
-                </label>
-              </div>
-            </div>
-          </div>
-        )}
+        <div className="p-6">
+          <AdminTasteTest isEmbedded={true} />
+        </div>
       </div>
 
     </div>

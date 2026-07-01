@@ -48,7 +48,7 @@ interface TasteTest {
   results: ResultDto[];
 }
 
-export default function AdminTasteTest() {
+export default function AdminTasteTest({ isEmbedded = false }: { isEmbedded?: boolean }) {
   const navigate = useNavigate();
   const [tests, setTests] = useState<TasteTest[]>([]);
   const [selectedTest, setSelectedTest] = useState<TasteTest | null>(null);
@@ -101,17 +101,19 @@ export default function AdminTasteTest() {
   // Admin Check
   useEffect(() => {
     if (!token) {
-      navigate('/login');
+      if (!isEmbedded) navigate('/login');
     } else if (currentUser.role !== 'ADMIN') {
-      if (!alertShown.current) {
-        alertShown.current = true;
-        alert('관리자 권한이 필요합니다.');
+      if (!isEmbedded) {
+        if (!alertShown.current) {
+          alertShown.current = true;
+          alert('관리자 권한이 필요합니다.');
+        }
+        navigate(-1);
       }
-      navigate(-1);
     } else {
       fetchTests();
     }
-  }, [navigate, token, currentUser.role]);
+  }, [navigate, token, currentUser.role, isEmbedded]);
 
   const fetchTests = async () => {
     setIsLoading(true);
@@ -322,44 +324,36 @@ export default function AdminTasteTest() {
     setEditResults(updated);
   };
 
-  return (
-    <div className="h-full w-full bg-gray-100 min-h-screen p-6 font-sans">
-      <div className="max-w-7xl mx-auto flex flex-col space-y-6">
-        
-        {/* Header */}
-        <header className="flex items-center justify-between pb-5 border-b border-gray-200">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-              <ArrowLeft size={20} className="text-gray-700" />
-            </button>
-            <Shield className="text-gray-800" size={28} />
-            <h1 className="text-2xl font-bold text-gray-900">주간 커피 TASTE TEST 관리</h1>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={handleAddNewTestInit} className="p-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 shadow-sm text-sm font-bold">
-              <Plus size={16} /> 새 테스트 추가
-            </button>
-            <button onClick={fetchTests} className="p-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 flex items-center gap-2 shadow-sm text-sm text-gray-700">
-              <RefreshCw size={16} /> 새로고침
-            </button>
-          </div>
-        </header>
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <div className="flex flex-col items-center justify-center py-20 text-gray-500">
+          <div className="w-8 h-8 rounded-full border-4 border-gray-300 border-t-gray-700 animate-spin mb-4" />
+          <p className="font-medium">테스트 데이터를 불러오는 중...</p>
+        </div>
+      );
+    }
 
-        {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-            <div className="w-8 h-8 rounded-full border-4 border-gray-300 border-t-gray-700 animate-spin mb-4" />
-            <p className="font-medium">테스트 데이터를 불러오는 중...</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Left Column: Taste Test Lists (5 cols) */}
-            <div className="lg:col-span-4 flex flex-col space-y-4">
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="p-4 bg-gray-50 border-b border-gray-200">
-                  <h2 className="text-sm font-bold text-gray-800">등록된 취향 테스트 목록</h2>
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* Left Column: Taste Test Lists (5 cols) */}
+        <div className="lg:col-span-4 flex flex-col space-y-4">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-sm font-bold text-gray-800">등록된 취향 테스트 목록</h2>
+              {isEmbedded && (
+                <div className="flex gap-1.5">
+                  <button onClick={handleAddNewTestInit} className="p-1 rounded bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold flex items-center gap-1 shadow-sm" title="새 테스트 추가">
+                    <Plus size={10} /> 추가
+                  </button>
+                  <button onClick={fetchTests} className="p-1 rounded bg-white border border-gray-300 hover:bg-gray-50 text-[10px] text-gray-700 flex items-center gap-1 shadow-sm" title="새로고침">
+                    <RefreshCw size={10} />
+                  </button>
                 </div>
-                <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
+              )}
+            </div>
+            <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto">
                   {tests.length === 0 ? (
                     <p className="p-6 text-center text-sm text-gray-400">등록된 테스트가 없습니다.</p>
                   ) : (
@@ -742,7 +736,37 @@ export default function AdminTasteTest() {
             </div>
 
           </div>
-        )}
+        );
+  };
+
+  if (isEmbedded) {
+    return <div className="font-sans text-gray-900">{renderContent()}</div>;
+  }
+
+  return (
+    <div className="h-full w-full bg-gray-100 min-h-screen p-6 font-sans">
+      <div className="max-w-7xl mx-auto flex flex-col space-y-6">
+        
+        {/* Header */}
+        <header className="flex items-center justify-between pb-5 border-b border-gray-200">
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+              <ArrowLeft size={20} className="text-gray-700" />
+            </button>
+            <Shield className="text-gray-800" size={28} />
+            <h1 className="text-2xl font-bold text-gray-900">주간 커피 TASTE TEST 관리</h1>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={handleAddNewTestInit} className="p-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-2 shadow-sm text-sm font-bold">
+              <Plus size={16} /> 새 테스트 추가
+            </button>
+            <button onClick={fetchTests} className="p-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 flex items-center gap-2 shadow-sm text-sm text-gray-700">
+              <RefreshCw size={16} /> 새로고침
+            </button>
+          </div>
+        </header>
+
+        {renderContent()}
       </div>
     </div>
   );
