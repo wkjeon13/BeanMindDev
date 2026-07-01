@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, FileText, Plus, Trash2, ArrowLeft, RefreshCw, Layers, Edit3, Settings, HelpCircle, Save } from 'lucide-react';
+import { Shield, FileText, Plus, Trash2, ArrowLeft, RefreshCw, Layers, Edit3, Settings, HelpCircle, Save, Upload } from 'lucide-react';
 import { API_BASE } from '@/utils/apiConfig';
 
 interface OptionDto {
@@ -53,6 +53,7 @@ export default function AdminTasteTest() {
   const [tests, setTests] = useState<TasteTest[]>([]);
   const [selectedTest, setSelectedTest] = useState<TasteTest | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
   const [activeTab, setActiveTab] = useState<'info' | 'questions' | 'results'>('info');
 
   // Edit State
@@ -67,6 +68,35 @@ export default function AdminTasteTest() {
   const token = localStorage.getItem('token');
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
   const alertShown = useRef(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('media', file);
+
+      const res = await fetch(`${API_BASE}/api/admin/upload-ad-media`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setEditImageUrl(data.url);
+      } else {
+        alert('이미지 업로드에 실패했습니다.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('업로드 중 오류가 발생했습니다.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   // Admin Check
   useEffect(() => {
@@ -437,13 +467,26 @@ export default function AdminTasteTest() {
                       </div>
                       <div>
                         <label className="block text-xs font-bold text-gray-500 mb-1">테스트 배너 이미지 경로</label>
-                        <input
-                          type="text"
-                          value={editImageUrl}
-                          onChange={(e) => setEditImageUrl(e.target.value)}
-                          placeholder="/uploads/tastetest/test_banner.jpg"
-                          className="w-full bg-gray-50 border border-gray-300 h-10 px-3 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        />
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={editImageUrl}
+                            onChange={(e) => setEditImageUrl(e.target.value)}
+                            placeholder="/uploads/tastetest/test_banner.jpg"
+                            className="flex-1 bg-gray-50 border border-gray-300 h-10 px-3 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          />
+                          <label className="bg-white hover:bg-gray-50 border border-gray-300 px-4 h-10 rounded-lg cursor-pointer flex items-center gap-2 shadow-sm text-sm font-bold text-gray-700 select-none shrink-0 transition-colors">
+                            <Upload size={16} />
+                            <span>{isUploading ? '업로드 중...' : '이미지 선택'}</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                              disabled={isUploading}
+                            />
+                          </label>
+                        </div>
                       </div>
                       <div className="flex items-center gap-3 pt-3">
                         <input
