@@ -25,6 +25,14 @@ export default defineConfig({
       ignored: ['**/data/**', '**/systemSettings.json', '**/logs/**']
     },
     proxy: {
+      '/api/admin/bgm': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+      },
+      '/api/admin/taste-tests': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+      },
       '/api/admin': {
         target: 'http://127.0.0.1:3001',
         changeOrigin: true,
