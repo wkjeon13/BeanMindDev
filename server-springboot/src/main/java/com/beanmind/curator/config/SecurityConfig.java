@@ -50,6 +50,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/compliance/policies/active", "/api/compliance/request").permitAll() // Allow public compliance paths
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/retention/**").permitAll() // Allow public retention/flash-drops
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/home/**").permitAll() // Allow guest home personalized feeds
+                .requestMatchers("/api/taste-test/**").permitAll() // Allow public Taste Test access
                 .requestMatchers(org.springframework.http.HttpMethod.POST,
                     "/api/ai-features/curator-recommend",
                     "/api/ai-features/stream-curation",
