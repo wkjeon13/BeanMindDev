@@ -103,7 +103,10 @@ export const FeedAdCard: React.FC<FeedAdCardProps> = ({ adData }) => {
             <div className="flex flex-col gap-0">
                 <div 
                     className="w-full overflow-hidden bg-espresso-950 relative"
-                    style={{ aspectRatio: adSize === 'LARGE' ? '1/1' : adSize === 'SMALL' ? '4/1' : '16/9' }}
+                    style={{ 
+                        aspectRatio: adSize === 'LARGE' ? '1/1' : adSize === 'SMALL' ? '4/1' : '16/9',
+                        minHeight: adSize === 'SMALL' ? '80px' : 'auto'
+                    }}
                 >
                     {isHtmlAd ? (
                         <iframe
@@ -168,7 +171,7 @@ export const FeedAdCard: React.FC<FeedAdCardProps> = ({ adData }) => {
                     href={adData.linkUrl} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="absolute inset-0 z-20"
+                    className="absolute inset-0 z-40"
                     aria-label="Visit Sponsor"
                     onClick={() => {
                         fetch(`${API_BASE}/api/ads/track`, {

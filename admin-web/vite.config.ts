@@ -33,11 +33,27 @@ export default defineConfig({
         target: 'http://127.0.0.1:3000',
         changeOrigin: true,
       },
+      '/api/admin/ad-inquiries': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+      },
+      '/api/admin/advertisers': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+      },
+      '/api/admin/hosts': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+      },
       '/api/admin': {
         target: 'http://127.0.0.1:3001',
         changeOrigin: true,
       },
       '/api/shops/ai-import': {
+        target: 'http://127.0.0.1:3001',
+        changeOrigin: true,
+      },
+      '/api/users': {
         target: 'http://127.0.0.1:3001',
         changeOrigin: true,
       },

@@ -2600,7 +2600,7 @@ export default function CoffeeTalk() {
                                     const ad = feedAd.ads?.length > 0 ? feedAd.ads[Math.floor(idx / 5) % feedAd.ads.length] : (feedAd.ad || feedAd);
                                     if (!ad || ad.fallback === 'ADMOB') return null;
                                     return (
-                                        <div className="mb-0 mx-0">
+                                        <div className="w-[calc(100%-1.5rem)] mx-auto mb-4">
                                             <FeedAdCard adData={ad} />
                                         </div>
                                     );
@@ -2610,7 +2610,7 @@ export default function CoffeeTalk() {
                                     const ad = neighborAd.ads?.length > 0 ? neighborAd.ads[Math.floor(idx / 5) % neighborAd.ads.length] : (neighborAd.ad || neighborAd);
                                     if (!ad || ad.fallback === 'ADMOB') return null;
                                     return (
-                                        <div className="mb-0 mx-0">
+                                        <div className="w-[calc(100%-1.5rem)] mx-auto mb-4">
                                             <FeedAdCard adData={ad} />
                                         </div>
                                     );

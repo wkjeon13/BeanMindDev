@@ -66,6 +66,9 @@ export default function AdminAdInquiries() {
                 const updated = await res.json();
                 setInquiries(prev => prev.map(inq => inq.id === id ? { ...updated, user: inq.user } : inq));
                 if (selectedInquiry?.id === id) setSelectedInquiry({ ...updated, user: selectedInquiry.user });
+            } else {
+                const errData = await res.json().catch(() => ({}));
+                alert(t('admin_inquiries.alert_status_fail', '상태 변경 실패: {{error}}', { error: errData.error || res.statusText || '서버 오류' }));
             }
         } catch (error) {
             alert(t('admin_inquiries.alert_status_fail', '상태 변경 실패'));
@@ -89,6 +92,9 @@ export default function AdminAdInquiries() {
                 setInquiries(prev => prev.map(inq => inq.id === id ? { ...updated, user: inq.user } : inq));
                 if (selectedInquiry?.id === id) setSelectedInquiry({ ...updated, user: selectedInquiry.user });
                 alert(t('admin_inquiries.alert_memo_ok', '메모가 저장되었습니다.'));
+            } else {
+                const errData = await res.json().catch(() => ({}));
+                alert(t('admin_inquiries.alert_memo_fail', '메모 저장 실패: {{error}}', { error: errData.error || res.statusText || '서버 오류' }));
             }
         } catch (error) {
             alert(t('admin_inquiries.alert_memo_fail', '메모 저장 실패'));

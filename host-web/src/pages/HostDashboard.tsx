@@ -18,7 +18,6 @@ export default function HostDashboard() {
     const [storeInfo, setStoreInfo] = useState<any>(null);
     const [stats, setStats] = useState<any>(null);
     const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
-    const [rightPanelTab, setRightPanelTab] = useState<'CONFIG' | 'STORE'>('CONFIG');
     
     // POS Earning States
     const [targetUserId, setTargetUserId] = useState('');
@@ -58,11 +57,23 @@ export default function HostDashboard() {
         beanOrigin: '', beanRoastLevel: '', beanNotes: ''
     });
 
-    // Store Info & Management Sub-Views
     const [storeSubView, setStoreSubView] = useState<'MAIN' | 'EDIT' | 'STORY'>('MAIN');
     const [storyContent, setStoryContent] = useState('');
     const [sendEmail, setSendEmail] = useState(false);
     const [isSubmittingStory, setIsSubmittingStory] = useState(false);
+
+    // Ad Inquiry States
+    const [adInquiries, setAdInquiries] = useState<any[]>([]);
+    const [isAdLoading, setIsAdLoading] = useState(false);
+    const [adForm, setAdForm] = useState({
+        advertiser: '',
+        contactName: '',
+        contactEmail: '',
+        contactPhone: '',
+        content: ''
+    });
+    
+    const [rightPanelTab, setRightPanelTab] = useState<'CONFIG' | 'STORE' | 'PROMOTION'>('CONFIG');
 
     // Google Maps API Loader
     const { isLoaded } = useJsApiLoader({
@@ -341,8 +352,53 @@ export default function HostDashboard() {
         }
     };
 
+    const fetchAdInquiries = async () => {
+        if (!token) return;
+        try {
+            const res = await fetch('/api/host/ad-inquiries', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) {
+                setAdInquiries(await res.json());
+            }
+        } catch (e) {
+            console.error("Failed to fetch ad inquiries", e);
+        }
+    };
+
+    const handleSubmitAdInquiry = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!adForm.advertiser || !adForm.contactName || !adForm.contactEmail || !adForm.contactPhone || !adForm.content) {
+            alert(t('host_dashboard.err_empty_fields', '모든 필드를 입력해 주세요.'));
+            return;
+        }
+        setIsAdLoading(true);
+        try {
+            const res = await fetch('/api/host/ad-inquiries', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(adForm)
+            });
+            if (res.ok) {
+                alert(t('host_dashboard.success_ad_inquiry', '광고 문의 신청이 정상 접수되었습니다! 검토 후 연락드리겠습니다.'));
+                setAdForm({ advertiser: '', contactName: '', contactEmail: '', contactPhone: '', content: '' });
+                fetchAdInquiries();
+            } else {
+                alert(t('host_dashboard.err_ad_inquiry_fail', '광고 신청에 실패했습니다.'));
+            }
+        } catch {
+            alert(t('host_dashboard.err_network', '네트워크 연결 오류'));
+        } finally {
+            setIsAdLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchDashboardData();
+        fetchAdInquiries();
     }, []);
 
     // 2. POS 적립 요청
@@ -1096,17 +1152,24 @@ export default function HostDashboard() {
                     <div className="flex bg-espresso-950 p-1 rounded-xl border border-espresso-850 shrink-0 mb-5">
                         <button 
                             onClick={() => setRightPanelTab('CONFIG')}
-                            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${rightPanelTab === 'CONFIG' ? 'bg-[#D4AF37] text-espresso-950' : 'text-espresso-300 hover:text-espresso-50'}`}
+                            className={`flex-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-all cursor-pointer ${rightPanelTab === 'CONFIG' ? 'bg-[#D4AF37] text-espresso-950' : 'text-espresso-300 hover:text-espresso-50'}`}
                         >
                             <Settings size={12} className="inline mr-1" />
-                            {t('host_dashboard.tab_config', '스탬프/시즌 정책 빌더')}
+                            {t('host_dashboard.tab_config', '스탬프 빌더')}
                         </button>
                         <button 
                             onClick={() => setRightPanelTab('STORE')}
-                            className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${rightPanelTab === 'STORE' ? 'bg-[#D4AF37] text-espresso-950' : 'text-espresso-300 hover:text-espresso-50'}`}
+                            className={`flex-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-all cursor-pointer ${rightPanelTab === 'STORE' ? 'bg-[#D4AF37] text-espresso-950' : 'text-espresso-300 hover:text-espresso-50'}`}
                         >
                             <Store size={12} className="inline mr-1" />
-                            {t('host_dashboard.tab_store', '매장 정보 수정')}
+                            {t('host_dashboard.tab_store', '매장 수정')}
+                        </button>
+                        <button 
+                            onClick={() => setRightPanelTab('PROMOTION')}
+                            className={`flex-1 py-2 rounded-lg text-[10px] sm:text-xs font-bold transition-all cursor-pointer ${rightPanelTab === 'PROMOTION' ? 'bg-[#D4AF37] text-espresso-950' : 'text-espresso-300 hover:text-espresso-50'}`}
+                        >
+                            <Megaphone size={12} className="inline mr-1" />
+                            {t('host_dashboard.tab_promotion', '광고 신청')}
                         </button>
                     </div>
 
@@ -1262,7 +1325,7 @@ export default function HostDashboard() {
                                 </div>
                             </div>
                             </>
-                        ) : (
+                        ) : rightPanelTab === 'STORE' ? (
                             /* 매장 관리 통합 스튜디오 분기 */
                             storeSubView === 'MAIN' ? (
                                 /* 1단계: 모바일 ManageShop.tsx 대칭형 메인 매장 관리 카드 */
@@ -1959,6 +2022,135 @@ export default function HostDashboard() {
                                     </button>
                                 </form>
                             )
+                        ) : (
+                            /* PROMOTION (광고 신청 및 내역) 분기 */
+                            <div className="space-y-6 text-xs">
+                                <div className="pb-2 border-b border-espresso-850">
+                                    <h4 className="font-serif font-black text-sm text-amber-500">
+                                        📢 {t('host_dashboard.promotion_title', '네이티브 광고 신청 및 현황')}
+                                    </h4>
+                                    <p className="text-[10px] text-espresso-400 mt-0.5">{t('host_dashboard.promotion_subtitle', 'Beanmind Curator 앱의 추천 피드에 배너 광고를 신청합니다.')}</p>
+                                </div>
+
+                                {/* 광고 신청 폼 */}
+                                <form onSubmit={handleSubmitAdInquiry} className="space-y-4 bg-espresso-950/40 p-5 rounded-2xl border border-espresso-850/50">
+                                    <span className="text-[11px] font-black text-espresso-200 block border-b border-espresso-900 pb-1">✍️ 광고주 및 담당자 정보 입력</span>
+                                    
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">회사 / 브랜드명</label>
+                                            <input 
+                                                type="text" 
+                                                value={adForm.advertiser}
+                                                onChange={e => setAdForm({...adForm, advertiser: e.target.value})}
+                                                placeholder="예: 빈마인드 컴퍼니"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 outline-none focus:border-amber-500/50"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">담당자 이름</label>
+                                            <input 
+                                                type="text" 
+                                                value={adForm.contactName}
+                                                onChange={e => setAdForm({...adForm, contactName: e.target.value})}
+                                                placeholder="예: 홍길동"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 outline-none focus:border-amber-500/50"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">이메일 주소</label>
+                                            <input 
+                                                type="email" 
+                                                value={adForm.contactEmail}
+                                                onChange={e => setAdForm({...adForm, contactEmail: e.target.value})}
+                                                placeholder="example@email.com"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 outline-none focus:border-amber-500/50"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">연락처 전화번호</label>
+                                            <input 
+                                                type="text" 
+                                                value={adForm.contactPhone}
+                                                onChange={e => setAdForm({...adForm, contactPhone: e.target.value})}
+                                                placeholder="010-0000-0000"
+                                                className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 outline-none focus:border-amber-500/50 font-mono"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="text-[9px] text-[#D4AF37]/85 font-black block tracking-widest">광고 기획 및 희망 조건 (예산, 타겟 기간 등)</label>
+                                        <textarea 
+                                            value={adForm.content}
+                                            onChange={e => setAdForm({...adForm, content: e.target.value})}
+                                            placeholder="예: 7월 한 달간 산미 있는 커피 카테고리 방문 고객을 대상으로 메인 피드 배너 광고 노출을 신청합니다. 희망 예산은 50만원 선입니다."
+                                            rows={4}
+                                            className="w-full bg-espresso-955 border border-espresso-800 rounded-xl px-3 py-2 text-espresso-50 outline-none focus:border-amber-500/50 resize-none leading-relaxed"
+                                            required
+                                        />
+                                    </div>
+
+                                    <button 
+                                        type="submit" 
+                                        disabled={isAdLoading}
+                                        className="w-full py-3 bg-[#D4AF37] hover:bg-amber-500 text-espresso-950 font-black rounded-xl transition-all shadow-md active:scale-98 cursor-pointer flex justify-center items-center gap-1.5"
+                                    >
+                                        {isAdLoading ? '신청 처리 중...' : '광고 신청서 제출하기'}
+                                    </button>
+                                </form>
+
+                                {/* 광고 신청 내역 리스트 */}
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center pb-2 border-b border-espresso-850">
+                                        <h4 className="font-serif font-black text-sm text-espresso-100">
+                                            📋 광고 신청 내역 현황
+                                        </h4>
+                                        <span className="text-[10px] text-espresso-400 font-bold font-mono">
+                                            {adInquiries.length}개 신청됨
+                                        </span>
+                                    </div>
+                                    <div className="space-y-2.5 max-h-[300px] overflow-y-auto pr-1">
+                                        {adInquiries.length > 0 ? (
+                                            adInquiries.map((inq) => (
+                                                <div key={inq.id} className="bg-espresso-950/60 p-4 rounded-xl border border-espresso-850/80 flex flex-col gap-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="font-bold text-espresso-50 text-xs">{inq.advertiser}</span>
+                                                        <span className={`px-2 py-0.5 text-[9px] font-black rounded ${
+                                                            inq.status === 'APPROVED' ? 'bg-green-950/40 border border-green-500/30 text-green-400' :
+                                                            inq.status === 'REJECTED' ? 'bg-red-950/40 border border-red-500/30 text-red-400' :
+                                                            'bg-amber-950/40 border border-amber-500/30 text-amber-400'
+                                                        }`}>
+                                                            {inq.status}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-[10px] text-espresso-300 leading-relaxed bg-espresso-950/30 p-2.5 rounded-lg border border-white/5">{inq.content}</p>
+                                                    {inq.adminMemo && (
+                                                        <div className="bg-amber-500/5 border border-amber-500/10 p-2.5 rounded-lg text-[9px] text-amber-400">
+                                                            <strong>피드백 메모:</strong> {inq.adminMemo}
+                                                        </div>
+                                                    )}
+                                                    <div className="flex justify-between items-center text-[9px] text-espresso-500 pt-1 font-mono">
+                                                        <span>담당자: {inq.contactName} ({inq.contactPhone})</span>
+                                                        <span>{new Date(inq.createdAt).toLocaleDateString()}</span>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-10 text-espresso-400 opacity-60 text-xs">
+                                                신청된 광고 문의가 없습니다.
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
                         )}
                     </div>
                 </div>

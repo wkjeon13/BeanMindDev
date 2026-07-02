@@ -49,15 +49,15 @@ public class MailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             
             helper.setFrom(String.format("\"Beanmind Coffee Curator\" <%s>", smtpUser));
-            helper.setTo(to);
+            helper.setTo(to.trim());
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
 
             mailSender.send(message);
-            log.info("✅ Real Email sent successfully to {}", to);
+            log.info("✅ Real Email sent successfully to {}", to.trim());
             return true;
         } catch (Exception e) {
-            log.error("❌ Failed to send email to {}", to, e);
+            log.error("❌ Failed to send email to {}", to.trim(), e);
             return false;
         }
     }

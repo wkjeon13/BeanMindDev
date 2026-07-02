@@ -64,6 +64,7 @@ public class Advertiser {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", unique = true)
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User user;
 
     @CreationTimestamp
@@ -79,7 +80,7 @@ public class Advertiser {
     }
 
     public enum AdvertiserStatus {
-        ACTIVE, PAUSED, SUSPENDED
+        ACTIVE, PAUSED, SUSPENDED, PENDING
     }
 
     public enum AdvertiserGrade {

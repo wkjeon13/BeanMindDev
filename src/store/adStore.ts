@@ -32,6 +32,15 @@ export const useAdStore = create<AdState>()(
             },
 
             canShowAd: (id, frequencyCapMs = DEFAULT_FREQ_CAP_MS) => {
+                if (typeof window !== 'undefined' && (
+                    window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.hostname.includes('beanmindcurator.com') ||
+                    window.location.port === '3002' ||
+                    window.location.port === '3003'
+                )) {
+                    return true;
+                }
                 const now = Date.now();
                 const ad = get().viewedAds.find(a => a.id === id);
                 if (!ad) return true;

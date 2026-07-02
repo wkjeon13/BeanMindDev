@@ -86,7 +86,7 @@ export const sendAdminAnnouncement = async (to: string, subject: string, message
         const mailOptions = {
             from: `"Beanmind Admin" <${process.env.SMTP_USER}>`,
             replyTo: process.env.ADMIN_EMAIL || 'wjeon@infosk.co.kr',
-            to,
+            to: to.trim(),
             subject,
             html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: white;">
