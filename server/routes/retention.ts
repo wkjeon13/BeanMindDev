@@ -88,6 +88,14 @@ router.get('/daily-status', authenticateToken, async (req, res) => {
             return res.json({ disabled: true });
         }
 
+        const checkInCount = await prisma.dailyCheckIn.count({
+            where: { userId: req.user.id }
+        });
+
+        if (checkInCount >= 7) {
+            return res.json({ disabled: true });
+        }
+
         const info = await getStreakInfo(req.user.id);
         res.json({ ...info, disabled: false, cupCount: config.cupCount || 3 });
     } catch (error) {
@@ -100,6 +108,15 @@ router.post('/daily-checkin', authenticateToken, async (req: any, res: any) => {
     try {
         const userId = req.user.id;
         const cupIndex = req.body.cupIndex || 0;
+
+        const checkInCount = await prisma.dailyCheckIn.count({
+            where: { userId }
+        });
+
+        if (checkInCount >= 7) {
+            return res.status(400).json({ error: 'You have already completed the 7-day attendance challenge.', beansWon: 0, streak: 0 });
+        }
+
         const info = await getStreakInfo(userId);
 
         if (info.todayPlayed) {
