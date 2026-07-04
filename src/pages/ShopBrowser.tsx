@@ -442,10 +442,12 @@ export default function ShopBrowser() {
     useEffect(() => {
         try {
             localStorage.setItem('bm_search_query', searchQuery);
-            // Optionally truncate shops to prevent QuotaExceeded errors with massive base64 media payloads
-            const safeShops = shops.slice(0, 50).map(s => {
+            // Truncate and strip heavy images/media to completely prevent LocalStorage QuotaExceededError
+            const safeShops = shops.slice(0, 30).map(s => {
                 const copy = { ...s };
-                if (copy.media && typeof copy.media === 'string') delete copy.media; // Drop heavy fields for session cache
+                if (copy.media) delete copy.media;
+                if (copy.mainImageUrl && copy.mainImageUrl.length > 500) delete copy.mainImageUrl;
+                if (copy.markerImageUrl && copy.markerImageUrl.length > 500) delete copy.markerImageUrl;
                 return copy;
             });
             localStorage.setItem('bm_shops', JSON.stringify(safeShops));
@@ -458,8 +460,13 @@ export default function ShopBrowser() {
             if (mapCenter) localStorage.setItem('bm_map_center', JSON.stringify(mapCenter));
             localStorage.setItem('bm_map_zoom', mapZoom.toString());
         } catch (e) {
-            console.warn('LocalStorage quota exceeded, caching skipped:', e);
-            localStorage.clear(); // Emergency flush
+            console.warn('LocalStorage quota exceeded, skipped heavy keys to protect map viewport cache:', e);
+            // DO NOT clear all storage (which destroys map center and zoom). 
+            // Just clear heavy lists safely to free up space.
+            try {
+                localStorage.removeItem('bm_shops');
+                localStorage.removeItem('bm_ai_shops');
+            } catch (err) {}
         }
     }, [searchQuery, shops, aiShops, searchedShopId, mapCenter, bookmarks, mapZoom]);
 
@@ -827,8 +834,8 @@ export default function ShopBrowser() {
         }
 
         // Priority 3: Normal Load
-        const hasSavedState = localStorage.getItem('bm_shops');
-        if (!hasSavedState) {
+        const hasSavedCenter = localStorage.getItem('bm_map_center');
+        if (!hasSavedCenter) {
             locateUser();
         }
     }, [location.state]);
