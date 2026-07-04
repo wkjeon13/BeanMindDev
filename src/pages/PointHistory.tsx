@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { API_BASE } from '../utils/apiConfig';
 import { formatLocalTime } from '../utils/dateFormatter';
+import IAPPaymentModal from '../components/points/IAPPaymentModal';
 
 interface Transaction {
     id: string;
@@ -36,6 +37,43 @@ export default function PointHistory() {
     });
     const [isSavingTiers, setIsSavingTiers] = useState(false);
     const [showTierSettings, setShowTierSettings] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
+    const storedUser = localStorage.getItem('user');
+    const currentUser = storedUser ? JSON.parse(storedUser) : null;
+
+    const handleChargePoints = async (amount: number, transactionId?: string) => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        setIsLoading(true);
+        try {
+            const res = await fetch(`${API_BASE}/api/points/verify-iap`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ amount, transactionId })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                setBalance(data.balance);
+                
+                // Refresh history as well
+                const historyRes = await fetch(`${API_BASE}/api/points`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (historyRes.ok) {
+                    const historyData = await historyRes.json();
+                    setHistory(historyData.history);
+                }
+            } else {
+                alert(t('point_history.alert_charge_fail', '충전 실패. 다시 시도해주세요.'));
+            }
+        } catch (error) {
+            console.error("Charge error:", error);
+            alert(t('point_history.alert_charge_error', '서버 오류가 발생했습니다.'));
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const translateDescription = (desc: string) => {
         if (desc === 'AI 커피 처방전 발급') return t('point_history.desc_prescription', 'AI 커피 처방전 발급');
@@ -206,7 +244,7 @@ export default function PointHistory() {
                         
                         <div className="flex gap-3 w-full relative z-10">
                             <button 
-                                onClick={() => alert(t('point_history.alert_charge_wip', '실제 결제 충전 기능은 준비 중입니다.'))}
+                                onClick={() => setIsPaymentModalOpen(true)}
                                 className="flex-1 py-3 bg-coffee-900 text-espresso-50 rounded-xl font-bold text-[14px] active:scale-95 transition-transform"
                             >
                                 {t('point_history.btn_charge', '충전하기')}
@@ -347,6 +385,12 @@ export default function PointHistory() {
                     )}
                 </div>
             </div>
+            <IAPPaymentModal 
+                isOpen={isPaymentModalOpen} 
+                onClose={() => setIsPaymentModalOpen(false)} 
+                onSuccess={handleChargePoints} 
+                userId={currentUser?.id || ''} 
+            />
         </motion.div>
     );
 }
