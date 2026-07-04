@@ -391,10 +391,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             });
         }
 
-        // 6a. Hot Coffee Talk Feeds (Last 1 month, sorted by engagement)
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        
+        // 6a. Hot Coffee Talk Feeds (Last 1 month limit removed, sorted by engagement & latest)
         let recentNormalPosts = await (prisma as any).post.findMany({
             where: {
                 isHidden: false,
@@ -402,8 +399,7 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
                 clubId: null,
                 postType: 'NORMAL',
                 isShorts: false,
-                countryCode: reqCountryCode,
-                createdAt: { gte: oneMonthAgo }
+                countryCode: reqCountryCode
             },
             orderBy: { createdAt: 'desc' },
             take: 100, // Fetch up to 100 recent posts
@@ -453,11 +449,12 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             });
         }
         
-        // Sort in memory by engagement (likes + comments)
+        // Sort in memory by engagement (likes + comments) and tie-break by createdAt desc
         const hotCoffeeTalkFeeds = [...recentNormalPosts].sort((a: any, b: any) => {
             const aScore = (a._count?.likes || 0) + (a._count?.comments || 0);
             const bScore = (b._count?.likes || 0) + (b._count?.comments || 0);
-            return bScore - aScore;
+            if (aScore !== bScore) return bScore - aScore;
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         }).slice(0, 8);
         
         // 6b. Newest Coffee Talk Feeds
