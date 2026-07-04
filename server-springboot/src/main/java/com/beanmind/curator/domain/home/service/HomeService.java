@@ -265,52 +265,60 @@ public class HomeService {
                 .collect(Collectors.toList());
 
         // 7. Hot Coffee Talk Feeds (인기 커피톡)
-        List<PostResponse> hotCoffeeTalkFeeds = postService.getPosts(
+        List<PostResponse> rawHotFeeds = postService.getPosts(
                 finalCurrentUserId3, 
                 null, 
                 null, 
                 null, 
                 finalCountryCode, 
                 "popular", 
-                8, 
+                30, 
                 0
         );
-        if (hotCoffeeTalkFeeds.isEmpty() && !"GLOBAL".equalsIgnoreCase(finalCountryCode)) {
-            hotCoffeeTalkFeeds = postService.getPosts(
+        if (rawHotFeeds.isEmpty() && !"GLOBAL".equalsIgnoreCase(finalCountryCode)) {
+            rawHotFeeds = postService.getPosts(
                     finalCurrentUserId3, 
                     null, 
                     null, 
                     null, 
                     null, 
                     "popular", 
-                    8, 
+                    30, 
                     0
             );
         }
+        List<PostResponse> hotCoffeeTalkFeeds = rawHotFeeds.stream()
+                .filter(p -> p.getPostType() == com.beanmind.curator.domain.post.entity.PostType.NORMAL)
+                .limit(8)
+                .collect(Collectors.toList());
 
         // 8. Newest Coffee Talk Feeds (최신 피드)
-        List<PostResponse> newestCoffeeTalkFeeds = postService.getPosts(
+        List<PostResponse> rawNewestFeeds = postService.getPosts(
                 finalCurrentUserId3, 
                 null, 
                 null, 
                 null, 
                 finalCountryCode, 
                 null, 
-                2, 
+                10, 
                 0
         );
-        if (newestCoffeeTalkFeeds.isEmpty() && !"GLOBAL".equalsIgnoreCase(finalCountryCode)) {
-            newestCoffeeTalkFeeds = postService.getPosts(
+        if (rawNewestFeeds.isEmpty() && !"GLOBAL".equalsIgnoreCase(finalCountryCode)) {
+            rawNewestFeeds = postService.getPosts(
                     finalCurrentUserId3, 
                     null, 
                     null, 
                     null, 
                     null, 
                     null, 
-                    2, 
+                    10, 
                     0
             );
         }
+        List<PostResponse> newestCoffeeTalkFeeds = rawNewestFeeds.stream()
+                .filter(p -> p.getPostType() == com.beanmind.curator.domain.post.entity.PostType.NORMAL)
+                .limit(2)
+                .collect(Collectors.toList());
 
         // 9. Hero Banner
         HeroBanner heroBanner = null;
