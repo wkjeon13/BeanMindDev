@@ -569,6 +569,25 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             } catch (e) {}
         }
 
+        const quizSetting = await prisma.systemSetting.findUnique({ where: { key: 'HOME_QUIZ' } });
+        let quizActive = true;
+        if (quizSetting && quizSetting.value) {
+            try {
+                const config = JSON.parse(quizSetting.value);
+                let isActive = !!config.isActive;
+                if (isActive) {
+                    const nowTime = new Date().getTime();
+                    if (config.startTime && new Date(config.startTime).getTime() > nowTime) {
+                        isActive = false;
+                    }
+                    if (config.endTime && new Date(config.endTime).getTime() < nowTime) {
+                        isActive = false;
+                    }
+                }
+                quizActive = isActive;
+            } catch (e) {}
+        }
+
         const now = new Date();
         const heroBanner = await (prisma as any).heroBanner.findFirst({
             where: {
@@ -600,7 +619,8 @@ router.get('/personalized', optionalAuth, async (req: any, res) => {
             weeklyMbti,
             campaigns: {
                 flashDrop: flashDropActive,
-                roulette: rouletteActive
+                roulette: rouletteActive,
+                quiz: quizActive
             }
         });
 

@@ -1947,7 +1947,7 @@ router.get('/home-campaigns', authenticateAdmin, async (req, res) => {
     try {
         const settings = await prisma.systemSetting.findMany({
             where: {
-                key: { in: ['HOME_FLASH_DROP', 'HOME_ROULETTE', 'HOME_NATIVE_AD', 'HOME_WEEKLY_MBTI'] }
+                key: { in: ['HOME_FLASH_DROP', 'HOME_ROULETTE', 'HOME_NATIVE_AD', 'HOME_WEEKLY_MBTI', 'HOME_QUIZ'] }
             }
         });
         
@@ -1955,7 +1955,8 @@ router.get('/home-campaigns', authenticateAdmin, async (req, res) => {
             HOME_FLASH_DROP: { isActive: false, title: '', description: '', imageUrl: '', linkUrl: '', badgeText: 'Flash Drop' },
             HOME_ROULETTE: { isActive: true },
             HOME_NATIVE_AD: { isActive: false, title: '', imageUrl: '', linkUrl: '' },
-            HOME_WEEKLY_MBTI: { isActive: true, title: '', subtitle: '', imageUrl: '', badgeText: '' }
+            HOME_WEEKLY_MBTI: { isActive: true, title: '', subtitle: '', imageUrl: '', badgeText: '' },
+            HOME_QUIZ: { isActive: true, startTime: '', endTime: '' }
         };
 
         settings.forEach((s: any) => {
@@ -1976,7 +1977,7 @@ router.put('/home-campaigns', authenticateAdmin, async (req, res) => {
         const payload = req.body;
         // Upsert each key
         for (const [key, value] of Object.entries(payload)) {
-            if (['HOME_FLASH_DROP', 'HOME_ROULETTE', 'HOME_NATIVE_AD', 'HOME_WEEKLY_MBTI'].includes(key)) {
+            if (['HOME_FLASH_DROP', 'HOME_ROULETTE', 'HOME_NATIVE_AD', 'HOME_WEEKLY_MBTI', 'HOME_QUIZ'].includes(key)) {
                 await prisma.systemSetting.upsert({
                     where: { key },
                     update: { value: JSON.stringify(value) },
@@ -2733,6 +2734,171 @@ router.delete('/compliance/policies/:id', async (req: any, res: any) => {
         res.json({ success: true });
     } catch (error) {
         console.error("Delete legal policy error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// --- DAILY COFFEE QUIZ CAMPAIGN MANAGEMENT ---
+
+// GET: /api/admin/quiz-sets
+router.get('/quiz-sets', async (req: any, res: any) => {
+    try {
+        const quizSets = await prisma.coffeeQuizSet.findMany({
+            include: { questions: { orderBy: { id: 'asc' } } },
+            orderBy: { scheduledDate: 'desc' }
+        });
+        res.json(quizSets);
+    } catch (error) {
+        console.error("Fetch quiz-sets error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
+    }
+});
+
+// POST: /api/admin/quiz-sets
+router.post('/quiz-sets', async (req: any, res: any) => {
+    try {
+        const { title, themeRegion, scheduledDate, isActive, questions } = req.body;
+
+        if (!title || !scheduledDate || !Array.isArray(questions) || questions.length !== 5) {
+            return res.status(400).json({ error: ERROR_CODES.INVALID_DATA_FORMAT, message: '퀴즈 제목, 배포일 및 정확히 5개의 문항이 필요합니다.' });
+        }
+
+        const date = new Date(scheduledDate);
+        date.setHours(0,0,0,0); // normalize
+
+        const existingSet = await prisma.coffeeQuizSet.findUnique({
+            where: { scheduledDate: date }
+        });
+
+        if (existingSet) {
+            return res.status(400).json({ error: 'DUPLICATE_SCHEDULED_DATE', message: '해당 게시일에 이미 등록된 퀴즈 세트가 존재합니다.' });
+        }
+
+        const newSet = await prisma.$transaction(async (tx) => {
+            const quizSet = await tx.coffeeQuizSet.create({
+                data: {
+                    title,
+                    themeRegion: themeRegion || 'GLOBAL',
+                    scheduledDate: date,
+                    isActive: isActive ?? true
+                }
+            });
+
+            const questionPromises = questions.map((q: any) => {
+                return tx.coffeeQuizQuestion.create({
+                    data: {
+                        setId: quizSet.id,
+                        questionText: q.questionText,
+                        option1: q.option1,
+                        option2: q.option2,
+                        option3: q.option3,
+                        option4: q.option4,
+                        correctAnswer: parseInt(q.correctAnswer, 10) || 1,
+                        explanation: q.explanation || '',
+                        beansReward: parseInt(q.beansReward, 10) || 10
+                    }
+                });
+            });
+
+            await Promise.all(questionPromises);
+            return tx.coffeeQuizSet.findUnique({
+                where: { id: quizSet.id },
+                include: { questions: true }
+            });
+        });
+
+        res.status(201).json(newSet);
+    } catch (error: any) {
+        console.error("Create quiz-set error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR, details: error.message });
+    }
+});
+
+// PUT: /api/admin/quiz-sets/:id
+router.put('/quiz-sets/:id', async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+        const { title, themeRegion, scheduledDate, isActive, questions } = req.body;
+
+        const target = await prisma.coffeeQuizSet.findUnique({ where: { id } });
+        if (!target) {
+            return res.status(404).json({ error: 'QUIZ_SET_NOT_FOUND', message: '퀴즈 세트를 찾을 수 없습니다.' });
+        }
+
+        const normalizedDate = scheduledDate ? new Date(scheduledDate) : undefined;
+        if (normalizedDate) {
+            normalizedDate.setHours(0,0,0,0);
+            const dupDate = await prisma.coffeeQuizSet.findFirst({
+                where: {
+                    scheduledDate: normalizedDate,
+                    id: { not: id }
+                }
+            });
+            if (dupDate) {
+                return res.status(400).json({ error: 'DUPLICATE_SCHEDULED_DATE', message: '해당 게시일에 이미 다른 퀴즈 세트가 예약되어 있습니다.' });
+            }
+        }
+
+        const updated = await prisma.$transaction(async (tx) => {
+            const quizSet = await tx.coffeeQuizSet.update({
+                where: { id },
+                data: {
+                    title: title ?? target.title,
+                    themeRegion: themeRegion ?? target.themeRegion,
+                    scheduledDate: normalizedDate ?? target.scheduledDate,
+                    isActive: isActive ?? target.isActive
+                }
+            });
+
+            if (Array.isArray(questions)) {
+                // Delete old questions first
+                await tx.coffeeQuizQuestion.deleteMany({ where: { setId: id } });
+
+                // Create new questions
+                const questionPromises = questions.map((q: any) => {
+                    return tx.coffeeQuizQuestion.create({
+                        data: {
+                            setId: id,
+                            questionText: q.questionText,
+                            option1: q.option1,
+                            option2: q.option2,
+                            option3: q.option3,
+                            option4: q.option4,
+                            correctAnswer: parseInt(q.correctAnswer, 10) || 1,
+                            explanation: q.explanation || '',
+                            beansReward: parseInt(q.beansReward, 10) || 10
+                        }
+                    });
+                });
+                await Promise.all(questionPromises);
+            }
+
+            return tx.coffeeQuizSet.findUnique({
+                where: { id },
+                include: { questions: { orderBy: { id: 'asc' } } }
+            });
+        });
+
+        res.json(updated);
+    } catch (error: any) {
+        console.error("Update quiz-set error:", error);
+        res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR, details: error.message });
+    }
+});
+
+// DELETE: /api/admin/quiz-sets/:id
+router.delete('/quiz-sets/:id', async (req: any, res: any) => {
+    try {
+        const { id } = req.params;
+        const target = await prisma.coffeeQuizSet.findUnique({ where: { id } });
+        if (!target) {
+            return res.status(404).json({ error: 'QUIZ_SET_NOT_FOUND', message: '퀴즈 세트를 찾을 수 없습니다.' });
+        }
+
+        await prisma.coffeeQuizSet.delete({ where: { id } });
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Delete quiz-set error:", error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
     }
 });

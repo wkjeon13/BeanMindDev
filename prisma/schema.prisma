@@ -80,6 +80,8 @@ model User {
   followers           UserFollow[]         @relation("Followers")
   accessLogs          UserAccessLog[]
   consents            ConsentHistory[]
+  UserQuizAttempt     UserQuizAttempt[]
+  UserQuizExpedition  UserQuizExpedition[]
 }
 
 model Prescription {
@@ -391,26 +393,26 @@ model Post {
 }
 
 model Comment {
-  id          String            @id @default(uuid())
-  postId      String
-  authorId    String
-  parentId    String?
-  content     String            @db.Text
-  imageUrl    String?           @db.LongText
-  isPinned    Boolean           @default(false)
-  earnedBeans Int               @default(0)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  isHidden    Boolean           @default(false)
-  isDeleted   Boolean           @default(false)
-  deletedAt   DateTime?
-  deletedBy   String?
-  deleteReason String?          @db.Text
-  author      User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  parent      Comment?          @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies     Comment[]         @relation("CommentReplies")
-  post        Post              @relation(fields: [postId], references: [id], onDelete: Cascade)
-  reactions   CommentReaction[]
+  id           String            @id @default(uuid())
+  postId       String
+  authorId     String
+  parentId     String?
+  content      String            @db.Text
+  imageUrl     String?           @db.LongText
+  isPinned     Boolean           @default(false)
+  earnedBeans  Int               @default(0)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  isHidden     Boolean           @default(false)
+  isDeleted    Boolean           @default(false)
+  deletedAt    DateTime?
+  deletedBy    String?
+  deleteReason String?           @db.Text
+  author       User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent       Comment?          @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies      Comment[]         @relation("CommentReplies")
+  post         Post              @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reactions    CommentReaction[]
 
   @@index([postId])
   @@index([authorId])
@@ -991,69 +993,69 @@ enum InquiryStatus {
 
 // 1. 매장별 스탬프 발급 정책 (일반 및 프로모션 다중 Config 등록 지원)
 model StoreStampConfig {
-  id            String   @id @default(uuid())
-  storeId       String
-  cardType      String   @default("REGULAR") // REGULAR, PROMOTION
-  cardTitle     String   // 쿠폰판 타이틀
-  maxStamps     Int      @default(10)       // 완성 목표 도장수
-  targetMenu    String?                     // 적립 대상 메뉴 범위
-  rewardDesc    String                      // 보상 내용
-  validDays     Int      @default(90)       // 유효 기한
-  isActive      Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  itemsConfig   String?                     // 복합 품목 설정 JSON 문자열
+  id          String   @id @default(uuid())
+  storeId     String
+  cardType    String   @default("REGULAR") // REGULAR, PROMOTION
+  cardTitle   String // 쿠폰판 타이틀
+  maxStamps   Int      @default(10) // 완성 목표 도장수
+  targetMenu  String? // 적립 대상 메뉴 범위
+  rewardDesc  String // 보상 내용
+  validDays   Int      @default(90) // 유효 기한
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  itemsConfig String? // 복합 품목 설정 JSON 문자열
 }
 
 // 2. 유저가 소지한 매장별 실시간 도장판
 model UserStampCard {
-  id            String   @id @default(uuid())
-  userId        String
-  storeId       String
-  configId      String   // 연결된 StoreStampConfig ID
-  currentStamps Int      @default(0)        // 현재 도장 수 (0 ~ maxStamps)
-  completedCount Int     @default(0)        // 완성 횟수
-  updatedAt     DateTime @updatedAt
-  itemsProgress String?                     // 항목별 적립 현황 JSON 문자열
+  id             String   @id @default(uuid())
+  userId         String
+  storeId        String
+  configId       String // 연결된 StoreStampConfig ID
+  currentStamps  Int      @default(0) // 현재 도장 수 (0 ~ maxStamps)
+  completedCount Int      @default(0) // 완성 횟수
+  updatedAt      DateTime @updatedAt
+  itemsProgress  String? // 항목별 적립 현황 JSON 문자열
 
   @@unique([userId, configId])
 }
 
 // 3. 10개 달성 시 자동 발급되는 무료 쿠폰
 model StampCoupon {
-  id            String   @id @default(uuid())
-  userId        String
-  storeId       String
-  configId      String?  // 연계된 스탬프 정책 ID
-  couponCode    String   @unique
-  status        String   @default("UNUSED") // UNUSED, USED, EXPIRED
-  expiresAt     DateTime
-  usedAt        DateTime?
+  id         String    @id @default(uuid())
+  userId     String
+  storeId    String
+  configId   String? // 연계된 스탬프 정책 ID
+  couponCode String    @unique
+  status     String    @default("UNUSED") // UNUSED, USED, EXPIRED
+  expiresAt  DateTime
+  usedAt     DateTime?
 }
 
 // 4. 적립 상세 이력 (수량 가감 및 취소/롤백 처리를 검증하기 위한 상세 로그)
 model StampTransaction {
-  id            String   @id @default(uuid())
-  userId        String
-  storeId       String
-  configId      String
-  amount        Int      // 가감된 스탬프 개수 (적립은 +4, 취소는 -4)
-  txnType       String   // EARN, CANCEL_ROLLBACK
-  createdAt     DateTime @default(now())
-  itemsEarned   String?                     // 항목별 적립 수량 JSON 문자열
+  id          String   @id @default(uuid())
+  userId      String
+  storeId     String
+  configId    String
+  amount      Int // 가감된 스탬프 개수 (적립은 +4, 취소는 -4)
+  txnType     String // EARN, CANCEL_ROLLBACK
+  createdAt   DateTime @default(now())
+  itemsEarned String? // 항목별 적립 수량 JSON 문자열
 }
 
 model UserAccessLog {
-  id          String   @id @default(uuid())
-  userId      String?  // 비회원 접속일 경우 null 허용
-  email       String?  // 탈퇴/수정 대비 이메일 필드 별도 캐싱 및 인덱스 검색 최적화용
-  ipAddress   String?
-  userAgent   String?  @db.Text
-  deviceOS    String?
-  pagePath    String   // 진입한 페이지 (예: '/community', '/map')
-  actionType  String   // 'LOGIN', 'LOGOUT', 'PAGE_VIEW'
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  userId     String? // 비회원 접속일 경우 null 허용
+  email      String? // 탈퇴/수정 대비 이메일 필드 별도 캐싱 및 인덱스 검색 최적화용
+  ipAddress  String?
+  userAgent  String?  @db.Text
+  deviceOS   String?
+  pagePath   String // 진입한 페이지 (예: '/community', '/map')
+  actionType String // 'LOGIN', 'LOGOUT', 'PAGE_VIEW'
+  createdAt  DateTime @default(now())
 
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([createdAt])
@@ -1062,16 +1064,16 @@ model UserAccessLog {
 
 // 5. 개인정보취급자(Admin/Host)의 개인정보 접근 및 조작 행위 로그
 model AdminActionLog {
-  id          String   @id @default(uuid())
-  adminId     String   // 조작을 수행한 어드민/점주 ID
-  adminEmail  String   // 이메일 캐싱
-  adminRole   String   // ADMIN, MODERATOR, OWNER 등
-  actionType  String   // VIEW (조회), UPDATE (수정), DELETE (삭제), DOWNLOAD (CSV 등)
-  targetType  String   // USER, STORE, PAYMENT, AD 등
-  targetId    String?  // 조작 대상의 ID
-  details     String   // 구체적인 수행 내용
-  ipAddress   String   // 접속 IP
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  adminId    String // 조작을 수행한 어드민/점주 ID
+  adminEmail String // 이메일 캐싱
+  adminRole  String // ADMIN, MODERATOR, OWNER 등
+  actionType String // VIEW (조회), UPDATE (수정), DELETE (삭제), DOWNLOAD (CSV 등)
+  targetType String // USER, STORE, PAYMENT, AD 등
+  targetId   String? // 조작 대상의 ID
+  details    String // 구체적인 수행 내용
+  ipAddress  String // 접속 IP
+  createdAt  DateTime @default(now())
 
   @@index([adminId])
   @@index([targetType])
@@ -1079,44 +1081,101 @@ model AdminActionLog {
 
 // 6. 이용약관 및 개인정보 처리방침 동의 이력
 model ConsentHistory {
-  id          String   @id @default(uuid())
-  userId      String
-  email       String
-  policyType  String   // PRIVACY_POLICY, TERMS_OF_SERVICE
-  version     String   // 예: "v1.2.0"
-  isAgreed    Boolean  @default(true)
-  agreedAt    DateTime @default(now())
-  ipAddress   String
+  id         String   @id @default(uuid())
+  userId     String
+  email      String
+  policyType String // PRIVACY_POLICY, TERMS_OF_SERVICE
+  version    String // 예: "v1.2.0"
+  isAgreed   Boolean  @default(true)
+  agreedAt   DateTime @default(now())
+  ipAddress  String
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
 }
 
 // 7. CCPA / CPRA 소비자 권리 요청 및 조치 로그
 model ComplianceRequestLog {
-  id             String   @id @default(uuid())
-  userId         String?  // 비회원도 신청 가능하므로 null 허용
-  requestEmail   String   
-  requestType    String   // ACCESS, DELETE, OPT_OUT
-  status         String   // PENDING, COMPLETED, REJECTED
-  actionTaken    String?  
-  processedBy    String?  
-  createdAt      DateTime @default(now())
-  completedAt    DateTime?
+  id           String    @id @default(uuid())
+  userId       String? // 비회원도 신청 가능하므로 null 허용
+  requestEmail String
+  requestType  String // ACCESS, DELETE, OPT_OUT
+  status       String // PENDING, COMPLETED, REJECTED
+  actionTaken  String?
+  processedBy  String?
+  createdAt    DateTime  @default(now())
+  completedAt  DateTime?
 
   @@index([requestEmail])
 }
 
 model LegalPolicy {
-  id          String   @id @default(uuid())
-  policyType  String   // "TERMS_OF_SERVICE" 또는 "PRIVACY_POLICY"
-  version     String   // 예: "v1.0.0", "v1.1.0"
-  title       String
-  content     String   @db.LongText
-  isActive    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(uuid())
+  policyType String // "TERMS_OF_SERVICE" 또는 "PRIVACY_POLICY"
+  version    String // 예: "v1.0.0", "v1.1.0"
+  title      String
+  content    String   @db.LongText
+  isActive   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([policyType, version])
 }
 
+model CoffeeQuizSet {
+  id            String               @id @default(uuid())
+  title         String
+  themeRegion   String               @default("GLOBAL")
+  isActive      Boolean              @default(true)
+  scheduledDate DateTime             @unique
+  createdAt     DateTime             @default(now())
+  questions     CoffeeQuizQuestion[]
+  userAttempts  UserQuizAttempt[]
+}
+
+model CoffeeQuizQuestion {
+  id            String        @id @default(uuid())
+  setId         String
+  questionText  String        @db.Text
+  option1       String
+  option2       String
+  option3       String
+  option4       String
+  correctAnswer Int
+  explanation   String        @db.Text
+  beansReward   Int           @default(10)
+  quizSet       CoffeeQuizSet @relation(fields: [setId], references: [id], onDelete: Cascade)
+
+  @@index([setId])
+}
+
+model UserQuizAttempt {
+  id              String   @id @default(uuid())
+  userId          String
+  setId           String
+  correctCount    Int      @default(0)
+  earnedBeans     Int      @default(0)
+  doubleOrNothing Boolean  @default(false)
+  isSuccess       Boolean  @default(false)
+  completedAt     DateTime @default(now())
+
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quizSet CoffeeQuizSet @relation(fields: [setId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, setId])
+  @@index([userId])
+}
+
+model UserQuizExpedition {
+  id         String   @id @default(uuid())
+  userId     String
+  regionKey  String
+  stampCount Int      @default(0)
+  isUnlocked Boolean  @default(false)
+  updatedAt  DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, regionKey])
+}

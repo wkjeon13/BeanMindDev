@@ -8,6 +8,7 @@ import PullToRefresh from '../components/common/PullToRefresh';
 import MediaRenderer from '../components/community/MediaRenderer';
 import { motion, AnimatePresence } from 'framer-motion';
 import DailyRoulette from '../components/home/DailyRoulette';
+import QuizBannerCard from '../components/home/QuizBannerCard';
 import FlashDropBanner from '../components/home/FlashDropBanner';
 import WeeklyTasteTest from '../components/home/WeeklyTasteTest';
 import { MagazineAd } from '../components/ads/MagazineAd';
@@ -81,18 +82,19 @@ interface HomeSectionConfig {
 const DEFAULT_LAYOUT: HomeSectionConfig[] = [
   { id: 'hero', name: 'home.sections.hero', isVisible: true, order: 1, isFixed: true },
   { id: 'flash_drop', name: 'home.sections.flash_drop', isVisible: true, order: 2 },
-  { id: 'daily_roulette', name: 'home.sections.daily_roulette', isVisible: true, order: 3 },
-  { id: 'weekly_mbti', name: 'home.sections.weekly_mbti', isVisible: true, order: 4 },
-  { id: 'native_ad', name: 'home.sections.native_ad', isVisible: true, order: 5 },
-  { id: 'shorts', name: 'home.sections.shorts', isVisible: true, order: 6 },
-  { id: 'hot_feeds', name: 'home.sections.hot_feeds', isVisible: true, order: 7 },
-  { id: 'new_feeds', name: 'home.sections.new_feeds', isVisible: true, order: 8 },
-  { id: 'trending', name: 'home.sections.trending', isVisible: true, order: 9 },
-  { id: 'following', name: 'home.sections.following', isVisible: true, order: 10 },
-  { id: 'taste_match', name: 'home.sections.taste_match', isVisible: true, order: 11 },
-  { id: 'coffee_pairing', name: 'home.sections.coffee_pairing', isVisible: true, order: 12 },
-  { id: 'my_clubs', name: 'home.sections.my_clubs', isVisible: true, order: 13 },
-  { id: 'recommended_clubs', name: 'home.sections.recommended_clubs', isVisible: true, order: 14 }
+  { id: 'daily_quiz', name: 'home.sections.daily_quiz', isVisible: true, order: 3 },
+  { id: 'daily_roulette', name: 'home.sections.daily_roulette', isVisible: true, order: 4 },
+  { id: 'weekly_mbti', name: 'home.sections.weekly_mbti', isVisible: true, order: 5 },
+  { id: 'native_ad', name: 'home.sections.native_ad', isVisible: true, order: 6 },
+  { id: 'shorts', name: 'home.sections.shorts', isVisible: true, order: 7 },
+  { id: 'hot_feeds', name: 'home.sections.hot_feeds', isVisible: true, order: 8 },
+  { id: 'new_feeds', name: 'home.sections.new_feeds', isVisible: true, order: 9 },
+  { id: 'trending', name: 'home.sections.trending', isVisible: true, order: 10 },
+  { id: 'following', name: 'home.sections.following', isVisible: true, order: 11 },
+  { id: 'taste_match', name: 'home.sections.taste_match', isVisible: true, order: 12 },
+  { id: 'coffee_pairing', name: 'home.sections.coffee_pairing', isVisible: true, order: 13 },
+  { id: 'my_clubs', name: 'home.sections.my_clubs', isVisible: true, order: 14 },
+  { id: 'recommended_clubs', name: 'home.sections.recommended_clubs', isVisible: true, order: 15 }
 ];
 
 const RawStateDump = ({ data, fetchError }: { data: any, fetchError?: string }) => (
@@ -630,9 +632,11 @@ export default function HomeDashboard() {
   if (!personalizedData) {
     hiddenSectionIds.push('flash_drop');
     hiddenSectionIds.push('daily_roulette');
+    hiddenSectionIds.push('daily_quiz');
   } else {
     if (!personalizedData.campaigns || !personalizedData.campaigns.flashDrop) hiddenSectionIds.push('flash_drop');
     if (!personalizedData.campaigns || !personalizedData.campaigns.roulette) hiddenSectionIds.push('daily_roulette');
+    if (!personalizedData.campaigns || !personalizedData.campaigns.quiz) hiddenSectionIds.push('daily_quiz');
     if (personalizedData.weeklyMbti && !personalizedData.weeklyMbti.isActive) hiddenSectionIds.push('weekly_mbti');
   }
   if (!homeNativeAd) hiddenSectionIds.push('native_ad');
@@ -881,6 +885,7 @@ export default function HomeDashboard() {
             );
             
               if (config.id === 'flash_drop') return <FlashDropBanner key={config.id} />;
+      if (config.id === 'daily_quiz') return <QuizBannerCard key={config.id} />;
       if (config.id === 'daily_roulette') return <DailyRoulette key={config.id} />;
       
       if (config.id === 'native_ad' && homeNativeAd && homeNativeAd.fallback !== 'ADMOB') {
