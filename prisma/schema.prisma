@@ -1179,3 +1179,85 @@ model UserQuizExpedition {
 
   @@unique([userId, regionKey])
 }
+
+model TasteTest {
+  id        String              @id @db.VarChar(191)
+  title     String
+  subtitle  String?
+  imageUrl  String?             @db.VarChar(255)
+  isActive  Boolean
+  questions TasteTestQuestion[]
+  results   TasteTestResult[]
+
+  @@map("TasteTest")
+}
+
+model TasteTestQuestion {
+  id             BigInt            @id @default(autoincrement())
+  testId         String            @db.VarChar(191)
+  questionNumber Int
+  contentKo      String            @db.VarChar(500)
+  contentEn      String            @db.VarChar(500)
+  tasteTest      TasteTest         @relation(fields: [testId], references: [id], onDelete: Cascade)
+  options        TasteTestOption[]
+
+  @@index([testId])
+  @@map("TasteTestQuestion")
+}
+
+model TasteTestOption {
+  id               BigInt            @id @default(autoincrement())
+  questionId       BigInt
+  optionLetter     String            @db.Char(1)
+  contentKo        String            @db.VarChar(255)
+  contentEn        String            @db.VarChar(255)
+  weightAcidity    Int               @default(0)
+  weightSweetness  Int               @default(0)
+  weightBitterness Int               @default(0)
+  weightBody       Int               @default(0)
+  question         TasteTestQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@map("TasteTestOption")
+}
+
+model TasteTestResult {
+  id                 String    @id @db.VarChar(191)
+  testId             String    @db.VarChar(191)
+  resultNameKo       String
+  resultNameEn       String
+  descriptionKo      String    @db.Text
+  descriptionEn      String    @db.Text
+  targetAcidityMin   Int?
+  targetAcidityMax   Int?
+  targetSweetnessMin Int?
+  targetSweetnessMax Int?
+  targetBitternessMin Int?
+  targetBitternessMax Int?
+  targetBodyMin      Int?
+  targetBodyMax      Int?
+  tasteTest          TasteTest @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@index([testId])
+  @@map("TasteTestResult")
+}
+
+model BgmTheme {
+  id      String    @id @db.VarChar(191)
+  labelKo String
+  labelEn String
+  songs   BgmSong[]
+
+  @@map("BgmTheme")
+}
+
+model BgmSong {
+  id      BigInt   @id @default(autoincrement())
+  themeId String   @db.VarChar(191)
+  title   String
+  videoId String
+  theme   BgmTheme @relation(fields: [themeId], references: [id], onDelete: Cascade)
+
+  @@index([themeId])
+  @@map("BgmSong")
+}
