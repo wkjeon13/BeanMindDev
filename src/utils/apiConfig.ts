@@ -124,9 +124,12 @@ export const getApiUrl = (path: string): string => {
 
     if (goesToNodeBackend) {
         if (base.startsWith('https://')) {
-            // HTTPS 환경에서는 커스텀 포트(:3000, :4000, :3002 등)를 직접 3001로 치환 시 TLS 에러가 발생하므로,
+            // HTTPS 환경에서는 커스텀 포트(:3000, :4000 등)를 직접 3001로 치환 시 TLS 에러가 발생하므로,
             // Nginx 443 SSL 표준 포트를 경유할 수 있도록 모든 포트 번호를 제거합니다.
-            base = base.replace(/:[0-9]+/, '');
+            // 단, 로컬 개발/디버깅용 도메인의 3002 포트(Vite Proxy)는 그대로 유지하여 브라우저 프록시 채널을 태웁니다.
+            if (!base.includes(':3002')) {
+                base = base.replace(/:[0-9]+/, '');
+            }
         } else {
             // HTTP 환경(로컬 개발 등)인 경우에만 3001 포트로 직접 치환합니다.
             if (base.includes(':3000')) {
