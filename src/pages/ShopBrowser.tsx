@@ -24,7 +24,7 @@ const getFullImageUrl = (url: string | null | undefined) => {
     return url;
 };
 const getInitialCache = () => {
-    try { return JSON.parse(sessionStorage.getItem('bm_ai_cache_dict_v2') || '{}'); }
+    try { return JSON.parse(localStorage.getItem('bm_ai_cache_dict_v2') || '{}'); }
     catch { return {}; }
 };
 const aiShopCache: Record<string, any[]> = getInitialCache();
@@ -48,13 +48,13 @@ export default function ShopBrowser() {
     const { t, i18n } = useTranslation();
     const [shops, setShops] = useState<any[]>(() => {
         try {
-            const saved = sessionStorage.getItem('bm_shops');
+            const saved = localStorage.getItem('bm_shops');
             return saved ? JSON.parse(saved) : [];
         } catch { return []; }
     });
     const [bookmarks, setBookmarks] = useState<Set<string>>(() => {
         try {
-            const saved = sessionStorage.getItem('bm_bookmarks');
+            const saved = localStorage.getItem('bm_bookmarks');
             return saved ? new Set(JSON.parse(saved)) : new Set();
         } catch { return new Set(); }
     });
@@ -65,7 +65,7 @@ export default function ShopBrowser() {
             if (state && state.autoLocateLat && state.autoLocateLng) {
                 return [parseFloat(state.autoLocateLat), parseFloat(state.autoLocateLng)];
             }
-            const saved = sessionStorage.getItem('bm_user_loc');
+            const saved = localStorage.getItem('bm_user_loc');
             return saved ? JSON.parse(saved) : null;
         } catch { return null; }
     });
@@ -75,13 +75,13 @@ export default function ShopBrowser() {
             if (state && state.autoLocateLat && state.autoLocateLng) {
                 return [parseFloat(state.autoLocateLat), parseFloat(state.autoLocateLng)];
             }
-            const saved = sessionStorage.getItem('bm_map_center');
+            const saved = localStorage.getItem('bm_map_center');
             return saved ? JSON.parse(saved) : [37.5665, 126.9780];
         } catch { return [37.5665, 126.9780]; }
     });
     const [mapZoom, setMapZoom] = useState<number>(() => {
         try {
-            const saved = sessionStorage.getItem('bm_map_zoom');
+            const saved = localStorage.getItem('bm_map_zoom');
             return saved ? parseInt(saved, 10) : 14;
         } catch { return 14; }
     });
@@ -103,7 +103,7 @@ export default function ShopBrowser() {
 
     const [aiShops, setAiShops] = useState<any[]>(() => {
         try {
-            const saved = sessionStorage.getItem('bm_ai_shops');
+            const saved = localStorage.getItem('bm_ai_shops');
             return saved ? JSON.parse(saved) : [];
         } catch { return []; }
     });
@@ -119,7 +119,7 @@ export default function ShopBrowser() {
     // Map Ads State
     const [mapAds, setMapAds] = useState<any[]>([]);
 
-    const [searchQuery, setSearchQuery] = useState(() => sessionStorage.getItem('bm_search_query') || '');
+    const [searchQuery, setSearchQuery] = useState(() => localStorage.getItem('bm_search_query') || '');
     const [isSearching, setIsSearching] = useState(false);
     const [searchedDbShops, setSearchedDbShops] = useState<any[]>([]);
     const [showFloatingList, setShowFloatingList] = useState(false);
@@ -441,25 +441,25 @@ export default function ShopBrowser() {
     // Save persist state continuously
     useEffect(() => {
         try {
-            sessionStorage.setItem('bm_search_query', searchQuery);
+            localStorage.setItem('bm_search_query', searchQuery);
             // Optionally truncate shops to prevent QuotaExceeded errors with massive base64 media payloads
             const safeShops = shops.slice(0, 50).map(s => {
                 const copy = { ...s };
                 if (copy.media && typeof copy.media === 'string') delete copy.media; // Drop heavy fields for session cache
                 return copy;
             });
-            sessionStorage.setItem('bm_shops', JSON.stringify(safeShops));
-            sessionStorage.setItem('bm_ai_shops', JSON.stringify(aiShops));
-            sessionStorage.setItem('bm_bookmarks', JSON.stringify(Array.from(bookmarks)));
+            localStorage.setItem('bm_shops', JSON.stringify(safeShops));
+            localStorage.setItem('bm_ai_shops', JSON.stringify(aiShops));
+            localStorage.setItem('bm_bookmarks', JSON.stringify(Array.from(bookmarks)));
 
-            if (searchedShopId) sessionStorage.setItem('bm_searched_id', searchedShopId);
-            else sessionStorage.removeItem('bm_searched_id');
+            if (searchedShopId) localStorage.setItem('bm_searched_id', searchedShopId);
+            else localStorage.removeItem('bm_searched_id');
 
-            if (mapCenter) sessionStorage.setItem('bm_map_center', JSON.stringify(mapCenter));
-            sessionStorage.setItem('bm_map_zoom', mapZoom.toString());
+            if (mapCenter) localStorage.setItem('bm_map_center', JSON.stringify(mapCenter));
+            localStorage.setItem('bm_map_zoom', mapZoom.toString());
         } catch (e) {
-            console.warn('SessionStorage quota exceeded, caching skipped:', e);
-            sessionStorage.clear(); // Emergency flush
+            console.warn('LocalStorage quota exceeded, caching skipped:', e);
+            localStorage.clear(); // Emergency flush
         }
     }, [searchQuery, shops, aiShops, searchedShopId, mapCenter, bookmarks, mapZoom]);
 
@@ -614,7 +614,7 @@ export default function ShopBrowser() {
             // Try to recover from cached state first to preserve previous success location
             let cachedLoc: [number, number] | null = null;
             try {
-                const saved = sessionStorage.getItem('bm_user_loc');
+                const saved = localStorage.getItem('bm_user_loc');
                 if (saved) cachedLoc = JSON.parse(saved);
             } catch (e) { }
 
@@ -629,8 +629,8 @@ export default function ShopBrowser() {
         setSearchQuery(''); // Unbind text search query visually
         setSearchedShopId(null); // Clear search highlight rings
 
-        sessionStorage.setItem('bm_user_loc', JSON.stringify(coords));
-        sessionStorage.setItem('bm_map_center', JSON.stringify(coords));
+        localStorage.setItem('bm_user_loc', JSON.stringify(coords));
+        localStorage.setItem('bm_map_center', JSON.stringify(coords));
 
         // Fetch new shops and AI recommended shops based on actual location
         await fetchShopsAndBookmarks(coords[0], coords[1]);
@@ -796,7 +796,7 @@ export default function ShopBrowser() {
                 // PREVENT RACE CONDITION: Instantly populate bm_shops with an empty array.
                 // This ensures that when history.replaceState triggers the next render,
                 // the Normal Load section does NOT run locateUser() which overrides/clears curator markers.
-                sessionStorage.setItem('bm_shops', JSON.stringify([]));
+                localStorage.setItem('bm_shops', JSON.stringify([]));
 
                 fetchShopsAndBookmarks(lat, lng);
 
@@ -804,7 +804,7 @@ export default function ShopBrowser() {
                 const cacheLng = lng.toFixed(2);
 
                 if (state.curatorShops && Array.isArray(state.curatorShops)) {
-                    sessionStorage.setItem('bm_curator_shops_v3', JSON.stringify(state.curatorShops));
+                    localStorage.setItem('bm_curator_shops_v3', JSON.stringify(state.curatorShops));
 
                     const mappedShops = state.curatorShops.slice(0, 5).map((shop: any, idx: number) => ({
                         id: `ai-curator-${idx}-${Date.now()}`,
@@ -827,7 +827,7 @@ export default function ShopBrowser() {
         }
 
         // Priority 3: Normal Load
-        const hasSavedState = sessionStorage.getItem('bm_shops');
+        const hasSavedState = localStorage.getItem('bm_shops');
         if (!hasSavedState) {
             locateUser();
         }
@@ -838,7 +838,7 @@ export default function ShopBrowser() {
     useEffect(() => {
         isFirstRender.current = false;
         if (isLoading && shops.length === 0) {
-            const hasSavedState = sessionStorage.getItem('bm_shops');
+            const hasSavedState = localStorage.getItem('bm_shops');
             if (hasSavedState && JSON.parse(hasSavedState).length === 0) {
                 setIsLoading(false);
             }
@@ -875,7 +875,7 @@ export default function ShopBrowser() {
     // even during cache hits
     useEffect(() => {
         try {
-            const memStr = sessionStorage.getItem('bm_curator_shops_v3');
+            const memStr = localStorage.getItem('bm_curator_shops_v3');
             if (memStr && aiShops) {
                 const curated = JSON.parse(memStr);
                 if (Array.isArray(curated) && curated.length > 0) {
