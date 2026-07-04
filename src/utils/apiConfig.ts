@@ -105,7 +105,8 @@ export const getApiUrl = (path: string): string => {
         '/api/users/collections',
         '/api/stamps',
         '/api/users/prescriptions/', // for detail/rating/delete subpaths
-        '/api/users/me/activity'
+        '/api/users/me/activity',
+        '/api/community'
     ].some(prefix => {
         if (prefix.endsWith('/')) {
             return normalizedPath.startsWith(prefix);

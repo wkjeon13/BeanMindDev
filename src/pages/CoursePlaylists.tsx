@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ChevronLeft, Share, Map, Coffee, Copy, Lock, PlusCircle, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
-import { API_BASE } from '../utils/apiConfig';
+import { API_BASE, getApiUrl } from '../utils/apiConfig';
 import { useTranslation } from 'react-i18next';
 
 // Helper to sanitize stale local IPs from DB or localStorage
@@ -34,7 +34,7 @@ export default function CoursePlaylists() {
                 const headers: any = {};
                 if (token) headers['Authorization'] = `Bearer ${token}`;
 
-                const res = await fetch(`${API_BASE}/api/community/courses/${id}`, { headers });
+                const res = await fetch(getApiUrl(`/api/community/courses/${id}`), { headers });
                 
                 if (res.ok) {
                     const data = await res.json();
@@ -74,7 +74,7 @@ export default function CoursePlaylists() {
 
         setIsForking(true);
         try {
-            const res = await fetch(`${API_BASE}/api/users/collections/${id}/fork`, {
+            const res = await fetch(getApiUrl(`/api/users/collections/${id}/fork`), {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -118,7 +118,7 @@ export default function CoursePlaylists() {
         setCourse((prev: any) => ({ ...prev, items: newItems }));
 
         try {
-            await fetch(`${API_BASE}/api/users/collections/${id}/reorder`, {
+            await fetch(getApiUrl(`/api/users/collections/${id}/reorder`), {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify({ items: reorderedPayload })
@@ -132,7 +132,7 @@ export default function CoursePlaylists() {
         e.stopPropagation();
         if (!window.confirm('이 경유지를 코스에서 삭제하시겠습니까?')) return;
         try {
-            const res = await fetch(`${API_BASE}/api/users/collections/${id}/items/${itemId}`, {
+            const res = await fetch(getApiUrl(`/api/users/collections/${id}/items/${itemId}`), {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
