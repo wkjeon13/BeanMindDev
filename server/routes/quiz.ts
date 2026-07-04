@@ -40,16 +40,18 @@ const getTodayRange = () => {
 // GET: /api/quiz/today
 router.get('/today', optionalAuth, async (req: any, res: any) => {
     try {
-        const { start, end } = getTodayRange();
+        const { end } = getTodayRange();
         
-        // Find quiz set for today
+        // Find the latest active quiz set scheduled for today or earlier
         const quizSet = await prisma.coffeeQuizSet.findFirst({
             where: {
                 isActive: true,
                 scheduledDate: {
-                    gte: start,
                     lte: end
                 }
+            },
+            orderBy: {
+                scheduledDate: 'desc'
             },
             include: {
                 questions: {
