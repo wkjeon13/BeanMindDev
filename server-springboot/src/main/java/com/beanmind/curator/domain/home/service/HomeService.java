@@ -20,6 +20,7 @@ import com.beanmind.curator.domain.home.dto.PersonalizedHomeResponse;
 import com.beanmind.curator.domain.post.dto.PostResponse;
 import com.beanmind.curator.domain.post.entity.Post;
 import com.beanmind.curator.domain.post.repository.PostRepository;
+import com.beanmind.curator.domain.post.service.PostService;
 import com.beanmind.curator.domain.user.entity.User;
 import com.beanmind.curator.domain.user.entity.UserFollow;
 import com.beanmind.curator.domain.store.entity.StoreFollow;
@@ -46,6 +47,7 @@ public class HomeService {
 
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final PostService postService;
     private final ClubRepository clubRepository;
     private final ClubMemberRepository clubMemberRepository;
     private final PrescriptionRepository prescriptionRepository;
@@ -262,31 +264,53 @@ public class HomeService {
                 .map(p -> PostResponse.of(p, finalCurrentUserId3))
                 .collect(Collectors.toList());
 
-        // 7. Hot Coffee Talk Feeds
-        LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
-        List<Post> recentNormalPosts = postRepository.findRecentNormalPosts(finalCountryCode, oneMonthAgo, PageRequest.of(0, 100));
-        if (recentNormalPosts.isEmpty()) {
-            recentNormalPosts = postRepository.findNewestNormalPosts(null, PageRequest.of(0, 100));
+        // 7. Hot Coffee Talk Feeds (인기 커피톡)
+        List<PostResponse> hotCoffeeTalkFeeds = postService.getPosts(
+                finalCurrentUserId3, 
+                null, 
+                null, 
+                null, 
+                finalCountryCode, 
+                "popular", 
+                8, 
+                0
+        );
+        if (hotCoffeeTalkFeeds.isEmpty() && !"GLOBAL".equalsIgnoreCase(finalCountryCode)) {
+            hotCoffeeTalkFeeds = postService.getPosts(
+                    finalCurrentUserId3, 
+                    null, 
+                    null, 
+                    null, 
+                    null, 
+                    "popular", 
+                    8, 
+                    0
+            );
         }
 
-        List<PostResponse> hotCoffeeTalkFeeds = recentNormalPosts.stream()
-                .map(p -> PostResponse.of(p, finalCurrentUserId3))
-                .sorted((a, b) -> {
-                    long aScore = (a.getCount() != null ? a.getCount().getLikes() : 0) + (a.getCount() != null ? a.getCount().getComments() : 0);
-                    long bScore = (b.getCount() != null ? b.getCount().getLikes() : 0) + (b.getCount() != null ? b.getCount().getComments() : 0);
-                    return Long.compare(bScore, aScore);
-                })
-                .limit(8)
-                .collect(Collectors.toList());
-
-        // 8. Newest Coffee Talk Feeds
-        List<Post> newestNormalPosts = postRepository.findNewestNormalPosts(finalCountryCode, PageRequest.of(0, 2));
-        if (newestNormalPosts.isEmpty()) {
-            newestNormalPosts = postRepository.findNewestNormalPosts(null, PageRequest.of(0, 2));
+        // 8. Newest Coffee Talk Feeds (최신 피드)
+        List<PostResponse> newestCoffeeTalkFeeds = postService.getPosts(
+                finalCurrentUserId3, 
+                null, 
+                null, 
+                null, 
+                finalCountryCode, 
+                null, 
+                2, 
+                0
+        );
+        if (newestCoffeeTalkFeeds.isEmpty() && !"GLOBAL".equalsIgnoreCase(finalCountryCode)) {
+            newestCoffeeTalkFeeds = postService.getPosts(
+                    finalCurrentUserId3, 
+                    null, 
+                    null, 
+                    null, 
+                    null, 
+                    null, 
+                    2, 
+                    0
+            );
         }
-        List<PostResponse> newestCoffeeTalkFeeds = newestNormalPosts.stream()
-                .map(p -> PostResponse.of(p, finalCurrentUserId3))
-                .collect(Collectors.toList());
 
         // 9. Hero Banner
         HeroBanner heroBanner = null;
