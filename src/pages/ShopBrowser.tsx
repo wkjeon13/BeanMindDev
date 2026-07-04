@@ -79,6 +79,12 @@ export default function ShopBrowser() {
             return saved ? JSON.parse(saved) : [37.5665, 126.9780];
         } catch { return [37.5665, 126.9780]; }
     });
+    const [mapZoom, setMapZoom] = useState<number>(() => {
+        try {
+            const saved = sessionStorage.getItem('bm_map_zoom');
+            return saved ? parseInt(saved, 10) : 14;
+        } catch { return 14; }
+    });
     const [mapBounds, setMapBounds] = useState<{ minLat: number; maxLat: number; minLng: number; maxLng: number } | null>(null);
     const [mapBoundsToFit, setMapBoundsToFit] = useState<{ minLat: number; maxLat: number; minLng: number; maxLng: number, ts: number } | null>(null);
 
@@ -450,11 +456,12 @@ export default function ShopBrowser() {
             else sessionStorage.removeItem('bm_searched_id');
 
             if (mapCenter) sessionStorage.setItem('bm_map_center', JSON.stringify(mapCenter));
+            sessionStorage.setItem('bm_map_zoom', mapZoom.toString());
         } catch (e) {
             console.warn('SessionStorage quota exceeded, caching skipped:', e);
             sessionStorage.clear(); // Emergency flush
         }
-    }, [searchQuery, shops, aiShops, searchedShopId, mapCenter, bookmarks]);
+    }, [searchQuery, shops, aiShops, searchedShopId, mapCenter, bookmarks, mapZoom]);
 
     const isLoggedIn = !!localStorage.getItem('token');
 
@@ -1570,6 +1577,8 @@ Format EXACTLY like this example:
                             userLocation={userLocation}
                             mapCenter={mapCenter}
                             setMapCenter={setMapCenter}
+                            mapZoom={mapZoom}
+                            setMapZoom={setMapZoom}
                             setMapBounds={setMapBounds}
                             boundsToFit={mapBoundsToFit}
                             searchedShopId={searchedShopId}

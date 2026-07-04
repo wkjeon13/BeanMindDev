@@ -97,6 +97,8 @@ interface SharedCoffeeMapProps {
     userLocation: [number, number] | null;
     mapCenter: [number, number] | null;
     setMapCenter?: (center: [number, number]) => void;
+    mapZoom?: number;
+    setMapZoom?: (zoom: number) => void;
     setMapBounds?: (bounds: { minLat: number; maxLat: number; minLng: number; maxLng: number }) => void;
     boundsToFit?: { minLat: number; maxLat: number; minLng: number; maxLng: number, ts: number } | null;
 
@@ -392,6 +394,8 @@ export default function SharedCoffeeMap({
     userLocation,
     mapCenter,
     setMapCenter,
+    mapZoom,
+    setMapZoom,
     setMapBounds,
     boundsToFit,
     searchedShopId,
@@ -598,6 +602,14 @@ export default function SharedCoffeeMap({
         }
     }, [mode, setMapCenter, setMapBounds]);
 
+    const handleZoomChanged = useCallback(() => {
+        if (!mapRef.current) return;
+        const newZoom = mapRef.current.getZoom();
+        if (newZoom !== undefined && setMapZoom) {
+            setMapZoom(newZoom);
+        }
+    }, [setMapZoom]);
+
     // Handle bounds to fit & centering
     useEffect(() => {
         const map = mapInst || mapRef.current;
@@ -639,6 +651,7 @@ export default function SharedCoffeeMap({
 
     const initialCenter = mapCenter || userLocation || [37.5665, 126.9780];
     const [defaultCenter] = useState({ lat: initialCenter[0], lng: initialCenter[1] });
+    const [defaultZoom] = useState(mapZoom || 14);
 
     if (loadError) {
         return <div className="w-full h-full flex items-center justify-center text-white bg-espresso-950">Error loading maps</div>;
@@ -655,11 +668,12 @@ export default function SharedCoffeeMap({
             <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 center={defaultCenter}
-                zoom={14}
+                zoom={defaultZoom}
                 options={defaultMapOptions}
                 onLoad={onLoad}
                 onUnmount={onUnmount}
                 onIdle={handleIdle}
+                onZoomChanged={handleZoomChanged}
             >
                 {userLocation && !isNaN(userLocation[0]) && !isNaN(userLocation[1]) && (
                     <OverlayViewF
