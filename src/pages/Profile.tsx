@@ -1909,7 +1909,7 @@ export default function Profile() {
                 </header>
 
                 {/* Content */}
-                <div className="flex-1 px-6 space-y-3 flex flex-col">
+                <div className="flex-1 px-3.5 space-y-3 flex flex-col">
 
                     {/* User Profile & Account Settings Container */}
                     <section className="bg-espresso-900 rounded-[2rem] shadow-sm border border-white/20 flex flex-col overflow-hidden">
@@ -2126,7 +2126,7 @@ export default function Profile() {
 
                     {/* STORE & ADS MANAGEMENT (Host Only) */}
                     {isAuthenticated && currentUser?.role === 'OWNER' && (
-                        <div className="space-y-4 p-6 bg-gradient-to-br from-espresso-900 to-[#150f0b] rounded-[2rem] border border-white/20 relative shadow-2xl">
+                        <div className="space-y-4 p-4 bg-gradient-to-br from-espresso-900 to-[#150f0b] rounded-[2rem] border border-white/20 relative shadow-2xl">
                             <div className="flex items-center justify-between mb-2">
                                 <div>
                                     <h3 className="text-lg font-serif font-black text-amber-500 tracking-tight flex items-center gap-1.5">
@@ -2197,11 +2197,11 @@ export default function Profile() {
                     {isAuthenticated && (
                         <section className="bg-gradient-to-br from-espresso-900 to-[#1b120c] rounded-[2rem] border border-white/20 overflow-hidden relative shadow-2xl">
                             <div
-                                className="px-6 py-5 relative z-10 flex justify-between items-center bg-espresso-950/40 gap-4 cursor-pointer active:bg-espresso-900/50 transition-colors"
+                                className="px-4 py-4 relative z-10 flex justify-between items-center bg-espresso-950/40 gap-3 cursor-pointer active:bg-espresso-900/50 transition-colors"
                                 onClick={() => setIsStampWalletExpanded(!isStampWalletExpanded)}
                             >
                                 <div className="flex-1 min-w-0">
-                                    <h3 className="text-lg font-serif font-black text-amber-500 tracking-tight flex items-center gap-1.5 truncate">
+                                    <h3 className="text-[16px] shrink-0 font-serif font-black text-amber-500 tracking-tight flex items-center gap-1.5 truncate">
                                         {t('profile.beanstamp_title', '🎫 BeanStamp 지갑')}
                                         {isStampWalletExpanded ? <ChevronUp size={20} className="text-espresso-400 shrink-0" /> : <ChevronDown size={20} className="text-espresso-400 shrink-0" />}
                                     </h3>
@@ -2472,10 +2472,10 @@ export default function Profile() {
                     {/* Taste Matrix (Radar Chart) */}
                     {isAuthenticated && tasteMatrix && (
                         <section className="bg-[#1e1e21] rounded-2xl border border-white/20 overflow-hidden relative shadow-lg">
-                            <div className="px-5 py-4 flex items-center justify-between border-b border-espresso-700">
+                            <div className="px-4 py-3.5 flex items-center justify-between border-b border-espresso-700">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-amber-500 font-serif font-bold text-lg pt-0.5" style={{ lineHeight: 1 }}>✨</span>
-                                    <span className="font-bold text-[15px] text-amber-500 tracking-tight">{t('profile.title_taste_matrix', '마이 취향 매트릭스')}</span>
+                                    <span className="text-amber-500 font-serif font-bold text-lg pt-0.5 shrink-0" style={{ lineHeight: 1 }}>✨</span>
+                                    <span className="font-bold text-[14px] text-amber-500 tracking-tight shrink-0">{t('profile.title_taste_matrix', '마이 취향 매트릭스')}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                     <button 
