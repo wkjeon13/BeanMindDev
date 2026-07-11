@@ -6,4 +6,4 @@ if %errorlevel% neq 0 (
 )
 
 taskkill /f /im nginx.exe
-echo NGINX_STOPPED_SUCCESSFULLY > C:\Working\beanmind_-ai-coffee-curator\nginx_stop_result.txt
+echo NGINX_STOPPED_SUCCESSFULLY > c:\Coffee_Dev\beanmind\nginx_stop_result.txt

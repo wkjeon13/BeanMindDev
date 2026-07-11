@@ -11,4 +11,4 @@ timeout /t 2 >nul
 cd C:\nginx-1.26.3
 start nginx.exe
 
-echo NGINX_RESTARTED_SUCCESSFULLY > C:\Working\beanmind_-ai-coffee-curator\nginx_restart_result.txt
+echo NGINX_RESTARTED_SUCCESSFULLY > c:\Coffee_Dev\beanmind\nginx_restart_result.txt

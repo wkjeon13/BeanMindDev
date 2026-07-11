@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Heart, MessageCircle, Share2, MapPin, MoreVertical, X, Clock, Navigation, CheckCircle, Store, Send, Image as ImageIcon, Flame, TrendingUp, Droplets, Trophy, Lock, Users, Target, UserCheck, Shield, Bookmark, Edit, Trash2, Calendar, Coffee, ListChecks, Link, Globe, Info, Search, ChevronDown, Camera, Star, Map, User, Edit2, Gift, PenSquare, Scale, Thermometer, Timer, Settings, BarChart2, Plus, Minus, Crown, ChevronRight, Check, Smile, ChevronLeft, Play, Music, Pause, Sparkles, LoaderCircle } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MapPin, MoreVertical, X, Clock, Navigation, CheckCircle, Store, Send, Image as ImageIcon, Flame, TrendingUp, Droplets, Trophy, Lock, Users, Target, UserCheck, Shield, Bookmark, Edit, Trash2, Calendar, Coffee, ListChecks, Link, Copy, Globe, Info, Search, ChevronDown, Camera, Star, Map, User, Edit2, Gift, PenSquare, Scale, Thermometer, Timer, Settings, BarChart2, Plus, Minus, Crown, ChevronRight, Check, Smile, ChevronLeft, Play, Music, Pause, Sparkles, LoaderCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share } from '@capacitor/share';
@@ -1711,6 +1711,38 @@ export default function CoffeeTalk() {
         }
     };
 
+    const handleCopyContent = async (post: Post) => {
+        try {
+            const isEn = i18n.language?.startsWith('en') || getDeviceCountryCode() === 'US';
+            const rawContent = (isEn && post.contentEn) ? post.contentEn : post.content;
+            
+            if (!rawContent) {
+                alert(t('coffee_talk.alert_no_content', '복사할 내용이 없습니다.'));
+                return;
+            }
+            
+            const parsedBgm = parseBgmFromContent(rawContent);
+            const parsedBg = parseBgFromContent(parsedBgm.cleanContent);
+            const textToCopy = parsedBg.cleanContent;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(textToCopy);
+                alert(t('coffee_talk.alert_copy_content_success', '피드 내용이 클립보드에 복사되었습니다.'));
+            } else {
+                const tempInput = document.createElement('textarea');
+                tempInput.value = textToCopy;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                alert(t('coffee_talk.alert_copy_content_success', '피드 내용이 클립보드에 복사되었습니다.'));
+            }
+        } catch (err) {
+            console.error("Failed to copy feed content:", err);
+            alert(t('coffee_talk.alert_copy_content_failed', '내용 복사에 실패했습니다.'));
+        }
+    };
+
     const processReward = async (amount: number, description: string) => {
         if (!selectedRewardTarget) return;
 
@@ -2666,43 +2698,51 @@ export default function CoffeeTalk() {
 
                                             {/* Options/Edit Menu */}
                                             <div className="flex items-center gap-2">
-                                                {currentUser && (
-                                                    <div className="relative z-50">
-                                                        <button
-                                                            onClick={() => setActivePostMenuId(activePostMenuId === post.id ? null : post.id)}
-                                                            className="p-2 text-amber-500/80 hover:text-amber-400 transition-colors"
-                                                        >
-                                                            <MoreVertical size={20} />
-                                                        </button>
-                                                        {activePostMenuId === post.id && (
-                                                            <div className="absolute right-0 top-10 mt-1 w-36 bg-espresso-900 border border-amber-500/50 rounded-2xl shadow-2xl py-2 z-50 overflow-hidden">
-                                                                {post.author.id === currentUser?.id ? (
-                                                                    <>
+                                                <div className="relative z-50">
+                                                    <button
+                                                        onClick={() => setActivePostMenuId(activePostMenuId === post.id ? null : post.id)}
+                                                        className="p-2 text-amber-500/80 hover:text-amber-400 transition-colors"
+                                                    >
+                                                        <MoreVertical size={20} />
+                                                    </button>
+                                                    {activePostMenuId === post.id && (
+                                                        <div className="absolute right-0 top-10 mt-1 w-36 bg-espresso-900 border border-amber-500/50 rounded-2xl shadow-2xl py-2 z-50 overflow-hidden">
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleCopyContent(post); setActivePostMenuId(null); }}
+                                                                className="w-full text-left px-4 py-2.5 text-[13px] font-medium text-espresso-100 hover:bg-espresso-800 flex items-center gap-2"
+                                                            >
+                                                                <Copy size={14} />{t('coffee_talk.btn_copy', '복사하기')}
+                                                            </button>
+                                                            {currentUser && (
+                                                                <>
+                                                                    {post.author.id === currentUser?.id ? (
+                                                                        <>
+                                                                            <button
+                                                                                onClick={() => handleEditPost(post)}
+                                                                                className="w-full text-left px-4 py-2.5 text-[13px] font-medium text-espresso-100 hover:bg-espresso-800 flex items-center gap-2"
+                                                                            >
+                                                                                <Edit2 size={14} />{t('coffee_talk.btn_edit', '수정하기')}
+                                                                            </button>
+                                                                            <button
+                                                                                onClick={() => handleDeletePost(post.id)}
+                                                                                className="w-full text-left px-4 py-2.5 text-[13px] font-medium text-red-500 hover:bg-espresso-800 flex items-center gap-2"
+                                                                            >
+                                                                                <Trash2 size={14} />{t('coffee_talk.btn_delete', '삭제하기')}
+                                                                            </button>
+                                                                        </>
+                                                                    ) : (
                                                                         <button
-                                                                            onClick={() => handleEditPost(post)}
-                                                                            className="w-full text-left px-4 py-2.5 text-[13px] font-medium text-espresso-100 hover:bg-espresso-800 flex items-center gap-2"
+                                                                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (window.confirm(t('coffee_talk.confirm_report', '이 게시물을 신고하시겠습니까?'))) handleReportPost(post.id); }}
+                                                                            className="w-full text-left px-4 py-2.5 text-[13px] font-bold text-red-500 hover:bg-espresso-800 flex items-center gap-2"
                                                                         >
-                                                                            <Edit2 size={14} />{t('coffee_talk.btn_edit', '수정하기')}
+                                                                            <span className="w-3 h-3 rounded-full bg-red-500 flex items-center justify-center text-[8px] text-white font-bold leading-none">!</span> {t('coffee_talk.btn_report', '신고하기')}
                                                                         </button>
-                                                                        <button
-                                                                            onClick={() => handleDeletePost(post.id)}
-                                                                            className="w-full text-left px-4 py-2.5 text-[13px] font-medium text-red-500 hover:bg-espresso-800 flex items-center gap-2"
-                                                                        >
-                                                                            <Trash2 size={14} />{t('coffee_talk.btn_delete', '삭제하기')}
-                                                                        </button>
-                                                                    </>
-                                                                ) : (
-                                                                    <button
-                                                                        onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (window.confirm(t('coffee_talk.confirm_report', '이 게시물을 신고하시겠습니까?'))) handleReportPost(post.id); }}
-                                                                        className="w-full text-left px-4 py-2.5 text-[13px] font-bold text-red-500 hover:bg-espresso-800 flex items-center gap-2"
-                                                                    >
-                                                                        <span className="w-3 h-3 rounded-full bg-red-500 flex items-center justify-center text-[8px] text-white font-bold leading-none">!</span> {t('coffee_talk.btn_report', '신고하기')}
-                                                                    </button>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
 
@@ -2950,48 +2990,55 @@ export default function CoffeeTalk() {
 
                                             {/* Options Menu */}
                                             <div className="flex items-center gap-2">
-                                                {currentUser && (
-                                                    <div className="relative z-50">
-                                                        <button
-                                                            onClick={() => setActivePostMenuId(activePostMenuId === post.id ? null : post.id)}
-                                                            className="p-2 text-espresso-300 hover:text-espresso-100 transition-colors"
-                                                        >
-                                                            <MoreVertical size={20} />
-                                                        </button>
-                                                        {activePostMenuId === post.id && (
-                                                            <div className="absolute right-0 top-10 mt-1 w-36 bg-espresso-900 border border-espresso-700/80 rounded-2xl shadow-2xl py-2 z-50 overflow-hidden">
-                                                                {post.author.id === currentUser?.id && (
-                                                                    <>
+                                                <div className="relative z-50">
+                                                    <button
+                                                        onClick={() => setActivePostMenuId(activePostMenuId === post.id ? null : post.id)}
+                                                        className="p-2 text-espresso-300 hover:text-espresso-100 transition-colors"
+                                                    >
+                                                        <MoreVertical size={20} />
+                                                    </button>
+                                                    {activePostMenuId === post.id && (
+                                                        <div className="absolute right-0 top-10 mt-1 w-36 bg-espresso-900 border border-espresso-700/80 rounded-2xl shadow-2xl py-2 z-50 overflow-hidden">
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleCopyContent(post); setActivePostMenuId(null); }}
+                                                                className="w-full text-left px-4 py-2.5 text-[13px] font-medium text-espresso-100 hover:bg-espresso-800 flex items-center gap-2"
+                                                            >
+                                                                <Copy size={14} />{t('coffee_talk.btn_copy', '복사하기')}</button>
+                                                            {currentUser && (
+                                                                <>
+                                                                    {post.author.id === currentUser?.id && (
+                                                                        <>
+                                                                            <button
+                                                                                onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleEditPost(post); }}
+                                                                                className="w-full text-left px-4 py-2.5 text-[13px] font-medium text-espresso-100 hover:bg-espresso-800 flex items-center gap-2"
+                                                                            >
+                                                                                <Edit2 size={14} />{t('coffee_talk.btn_edit', '수정하기')}</button>
+                                                                            <button
+                                                                                onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleDeletePost(post.id); }}
+                                                                                className="w-full text-left px-4 py-2.5 text-[13px] font-medium text-red-500 hover:bg-espresso-800 flex items-center gap-2"
+                                                                            >
+                                                                                <Trash2 size={14} />{t('coffee_talk.btn_delete', '삭제하기')}</button>
+                                                                        </>
+                                                                    )}
+                                                                    {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && post.author.id !== currentUser?.id && (
                                                                         <button
-                                                                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleEditPost(post); }}
-                                                                            className="w-full text-left px-4 py-2.5 text-[13px] font-medium text-espresso-100 hover:bg-espresso-800 flex items-center gap-2"
+                                                                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleAdminDeletePost(post.id); }}
+                                                                            className="w-full text-left px-4 py-2.5 text-[13px] font-bold text-red-500 hover:bg-red-950/30 flex items-center gap-2"
                                                                         >
-                                                                            <Edit2 size={14} />{t('coffee_talk.btn_edit', '수정하기')}</button>
+                                                                            <Trash2 size={14} />삭제 (관리자)</button>
+                                                                    )}
+                                                                    {post.author.id !== currentUser?.id && (
                                                                         <button
-                                                                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleDeletePost(post.id); }}
-                                                                            className="w-full text-left px-4 py-2.5 text-[13px] font-medium text-red-500 hover:bg-espresso-800 flex items-center gap-2"
+                                                                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (window.confirm(t('coffee_talk.confirm_report', '이 게시물을 신고하시겠습니까?'))) handleReportPost(post.id); }}
+                                                                            className="w-full text-left px-4 py-2.5 text-[13px] font-bold text-red-500 hover:bg-espresso-800 flex items-center gap-2"
                                                                         >
-                                                                            <Trash2 size={14} />{t('coffee_talk.btn_delete', '삭제하기')}</button>
-                                                                    </>
-                                                                )}
-                                                                {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && post.author.id !== currentUser?.id && (
-                                                                    <button
-                                                                        onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleAdminDeletePost(post.id); }}
-                                                                        className="w-full text-left px-4 py-2.5 text-[13px] font-bold text-red-500 hover:bg-red-950/30 flex items-center gap-2"
-                                                                    >
-                                                                        <Trash2 size={14} />삭제 (관리자)</button>
-                                                                )}
-                                                                {post.author.id !== currentUser?.id && (
-                                                                    <button
-                                                                        onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (window.confirm(t('coffee_talk.confirm_report', '이 게시물을 신고하시겠습니까?'))) handleReportPost(post.id); }}
-                                                                        className="w-full text-left px-4 py-2.5 text-[13px] font-bold text-red-500 hover:bg-espresso-800 flex items-center gap-2"
-                                                                    >
-                                                                        <span className="w-3 h-3 rounded-full bg-red-500 flex items-center justify-center text-[8px] text-white font-bold leading-none mr-1">!</span> {t('coffee_talk.btn_report', '신고하기')}</button>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                )}
+                                                                            <span className="w-3 h-3 rounded-full bg-red-500 flex items-center justify-center text-[8px] text-white font-bold leading-none mr-1">!</span> {t('coffee_talk.btn_report', '신고하기')}</button>
+                                                                    )}
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
 
