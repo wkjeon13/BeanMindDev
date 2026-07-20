@@ -289,7 +289,7 @@ public class HomeService {
         }
         List<PostResponse> hotCoffeeTalkFeeds = rawHotFeeds.stream()
                 .filter(p -> p.getPostType() == com.beanmind.curator.domain.post.entity.PostType.NORMAL)
-                .limit(8)
+                .limit(20)
                 .collect(Collectors.toList());
 
         // 8. Newest Coffee Talk Feeds (최신 피드)
