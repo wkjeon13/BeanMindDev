@@ -4,6 +4,8 @@ import com.beanmind.curator.domain.store.dto.ShopResponse;
 import com.beanmind.curator.domain.store.entity.Store;
 import com.beanmind.curator.domain.store.repository.StoreRepository;
 import com.beanmind.curator.domain.user.entity.Role;
+import com.beanmind.curator.domain.user.entity.User;
+import com.beanmind.curator.domain.user.repository.UserRepository;
 import com.beanmind.curator.domain.tastetest.dto.*;
 import com.beanmind.curator.domain.tastetest.entity.*;
 import com.beanmind.curator.domain.tastetest.repository.*;
@@ -24,6 +26,7 @@ public class TasteTestService {
     private final TasteTestOptionRepository tasteTestOptionRepository;
     private final TasteTestResultRepository tasteTestResultRepository;
     private final StoreRepository storeRepository;
+    private final UserRepository userRepository;
 
     public TasteTestResponse getActiveTest() {
         TasteTest test = tasteTestRepository.findByIsActiveTrue()
@@ -138,7 +141,7 @@ public class TasteTestService {
     }
 
     // 퀴즈 제출 분석 및 호스트/일반 매장 정렬 추천 알고리즘
-    public TasteTestSubmissionResponse submitTest(TasteTestSubmissionRequest request) {
+    public TasteTestSubmissionResponse submitTest(TasteTestSubmissionRequest request, String userEmail) {
         if (request.getOptionIds() == null || request.getOptionIds().isEmpty()) {
             throw new IllegalArgumentException("제출된 답변 선택지가 없습니다.");
         }
@@ -201,13 +204,22 @@ public class TasteTestService {
         }
 
         // 3. 맛 오차 최소 및 호스트 등록 여부 가중치를 반영한 추천 카페 매칭
+        String userCountryCode = "KR";
+        if (userEmail != null) {
+            userCountryCode = userRepository.findByEmail(userEmail)
+                    .map(User::getCountryCode)
+                    .orElse("KR");
+        }
+
         List<Store> allStores = storeRepository.findAll();
         final int finalAcidity = totalAcidity;
         final int finalSweetness = totalSweetness;
         final int finalBitterness = totalBitterness;
         final int finalBody = totalBody;
+        final String targetCountry = userCountryCode;
 
         List<ShopResponse> recommendedShops = allStores.stream()
+                .filter(store -> store.getOwner() != null && targetCountry.equalsIgnoreCase(store.getOwner().getCountryCode()))
                 .map(store -> {
                     // 매장의 맛 점수 로드
                     double sAcid = store.getAcidity() != null ? store.getAcidity() : 5.0;

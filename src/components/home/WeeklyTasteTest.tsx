@@ -120,9 +120,13 @@ const WeeklyTasteTest = ({ config }: { config?: any }) => {
     const submitAnswers = async (finalAnswers: number[]) => {
         setIsSubmitting(true);
         try {
+            const token = localStorage.getItem('token');
+            const headers: any = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
             const res = await fetch(`${API_BASE}/api/taste-test/submit`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: headers,
                 body: JSON.stringify({ optionIds: finalAnswers })
             });
 

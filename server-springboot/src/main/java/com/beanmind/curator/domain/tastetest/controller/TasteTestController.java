@@ -4,6 +4,8 @@ import com.beanmind.curator.domain.tastetest.dto.*;
 import com.beanmind.curator.domain.tastetest.service.TasteTestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,8 +24,11 @@ public class TasteTestController {
     }
 
     @PostMapping("/taste-test/submit")
-    public ResponseEntity<TasteTestSubmissionResponse> submitTest(@RequestBody TasteTestSubmissionRequest request) {
-        return ResponseEntity.ok(tasteTestService.submitTest(request));
+    public ResponseEntity<TasteTestSubmissionResponse> submitTest(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody TasteTestSubmissionRequest request) {
+        String email = userDetails != null ? userDetails.getUsername() : null;
+        return ResponseEntity.ok(tasteTestService.submitTest(request, email));
     }
 
     // 어드민용 관리 API
