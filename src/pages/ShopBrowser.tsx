@@ -718,7 +718,10 @@ export default function ShopBrowser() {
                                     matchingShop = resData;
                                 }
                                 if (matchingShop && matchingShop.lat) {
-                                    setMapCenter([parseFloat(matchingShop.lat), parseFloat(matchingShop.lng)]);
+                                    const latNum = parseFloat(matchingShop.lat);
+                                    const lngNum = parseFloat(matchingShop.lng);
+                                    setMapCenter([latNum, lngNum]);
+                                    sortAnchor.current = [latNum, lngNum];
                                 }
                             }
                         } catch (e) { }
