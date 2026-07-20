@@ -3,6 +3,7 @@ package com.beanmind.curator.domain.post.dto;
 import com.beanmind.curator.common.util.EncryptionUtil;
 import com.beanmind.curator.domain.post.entity.Post;
 import com.beanmind.curator.domain.post.entity.PostType;
+import com.beanmind.curator.domain.club.entity.Club;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -70,6 +71,7 @@ public class PostResponse {
     private List<CommentImageDto> comments;
     private PollDto poll;
     private String storeOwnerId;
+    private ClubDto club;
 
     @Data
     @Builder
@@ -93,6 +95,16 @@ public class PostResponse {
         private long likes;
         private long comments;
         private long bookmarks;
+    }
+
+    @Data
+    @Builder
+    public static class ClubDto {
+        private String id;
+        private String name;
+        private String coverImageUrl;
+        private String locationName;
+        private Boolean isRecruiting;
     }
 
     @Data
@@ -294,6 +306,17 @@ public class PostResponse {
                     .collect(Collectors.toList());
         }
 
+        ClubDto clubDto = null;
+        if (post.getClub() != null) {
+            clubDto = ClubDto.builder()
+                    .id(post.getClub().getId())
+                    .name(post.getClub().getName())
+                    .coverImageUrl(post.getClub().getCoverImageUrl())
+                    .locationName(post.getClub().getLocationName())
+                    .isRecruiting(post.getClub().getIsRecruiting())
+                    .build();
+        }
+
         return PostResponse.builder()
                 .id(post.getId())
                 .authorId(post.getAuthor() != null ? post.getAuthor().getId() : null)
@@ -339,6 +362,7 @@ public class PostResponse {
                 .comments(commentImageDtos)
                 .poll(pollDto)
                 .storeOwnerId(post.getStore() != null && post.getStore().getOwner() != null ? post.getStore().getOwner().getId() : null)
+                .club(clubDto)
                 .build();
     }
 }

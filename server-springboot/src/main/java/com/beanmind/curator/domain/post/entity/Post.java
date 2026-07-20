@@ -2,6 +2,7 @@ package com.beanmind.curator.domain.post.entity;
 
 import com.beanmind.curator.domain.store.entity.Store;
 import com.beanmind.curator.domain.user.entity.User;
+import com.beanmind.curator.domain.club.entity.Club;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -108,6 +109,10 @@ public class Post {
 
     @Column(name = "clubId")
     private String clubId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "clubId", insertable = false, updatable = false)
+    private Club club;
 
     @Column(name = "isShorts", nullable = false)
     @Builder.Default
