@@ -656,7 +656,15 @@ export default function ShopBrowser() {
             return;
         }
 
-        const state = (location.state as any) || {};
+        let state = (location.state as any) || {};
+        const urlShopId = urlParams.get('shopId');
+
+        if (urlShopId && !state.targetShopId) {
+            state = {
+                ...state,
+                targetShopId: urlShopId
+            };
+        }
 
         // Priority 0: Map Mode Override
         if (state && state.mapMode) {
