@@ -456,8 +456,8 @@ export default function AdminAnnouncements() {
                             <div className="pt-2 border-t border-coffee-100 mt-auto">
                                 <button 
                                     onClick={handleSaveAnnouncement} 
-                                    disabled={isSavingAnnouncement || !announcementContent} 
-                                    className="w-full bg-coffee-900 text-espresso-50 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-coffee-800 transition-colors disabled:opacity-50"
+                                    disabled={isSavingAnnouncement || (!announcementContent.trim() && !announcementContentEn.trim() && !announcementImage && !announcementImagePreview && !announcementImageEn && !announcementImagePreviewEn)} 
+                                    className="w-full bg-coffee-900 text-espresso-50 py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-coffee-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isSavingAnnouncement ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" /> : '저장하기'}
                                 </button>
