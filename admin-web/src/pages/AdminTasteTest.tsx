@@ -41,7 +41,9 @@ interface ResultDto {
 interface TasteTest {
   id: string;
   title: string;
+  titleEn?: string;
   subtitle: string;
+  subtitleEn?: string;
   imageUrl: string;
   isActive: boolean;
   questions: QuestionDto[];
@@ -59,7 +61,9 @@ export default function AdminTasteTest({ isEmbedded = false }: { isEmbedded?: bo
   // Edit State
   const [editingTestId, setEditingTestId] = useState('');
   const [editTitle, setEditTitle] = useState('');
+  const [editTitleEn, setEditTitleEn] = useState('');
   const [editSubtitle, setEditSubtitle] = useState('');
+  const [editSubtitleEn, setEditSubtitleEn] = useState('');
   const [editImageUrl, setEditImageUrl] = useState('');
   const [editIsActive, setEditIsActive] = useState(false);
   const [editQuestions, setEditQuestions] = useState<QuestionDto[]>([]);
@@ -139,7 +143,9 @@ export default function AdminTasteTest({ isEmbedded = false }: { isEmbedded?: bo
     setSelectedTest(test);
     setEditingTestId(test.id);
     setEditTitle(test.title);
+    setEditTitleEn(test.titleEn || '');
     setEditSubtitle(test.subtitle || '');
+    setEditSubtitleEn(test.subtitleEn || '');
     setEditImageUrl(test.imageUrl || '');
     setEditIsActive(test.isActive);
     setEditQuestions(test.questions || []);
@@ -150,8 +156,10 @@ export default function AdminTasteTest({ isEmbedded = false }: { isEmbedded?: bo
   const handleAddNewTestInit = () => {
     setSelectedTest(null);
     setEditingTestId('new_test_' + Date.now());
-    setEditTitle('새로운 주간 커피 테이스트 테스트');
-    setEditSubtitle('');
+    setEditTitle('나에게 딱 맞는 인생 원두 & 단골 카페 매칭');
+    setEditTitleEn('Weekly Coffee Taste Test');
+    setEditSubtitle('7가지 질문으로 내 입맛 MBTI를 진단받으세요.');
+    setEditSubtitleEn('Diagnose your coffee taste MBTI with 7 quick questions.');
     setEditImageUrl('/uploads/tastetest/default.jpg');
     setEditIsActive(false);
     setEditQuestions([
@@ -189,7 +197,9 @@ export default function AdminTasteTest({ isEmbedded = false }: { isEmbedded?: bo
     const payload = {
       id: editingTestId.trim(),
       title: editTitle.trim(),
+      titleEn: editTitleEn.trim(),
       subtitle: editSubtitle.trim(),
+      subtitleEn: editSubtitleEn.trim(),
       imageUrl: editImageUrl.trim(),
       isActive: editIsActive,
       questions: editQuestions,
@@ -440,22 +450,42 @@ export default function AdminTasteTest({ isEmbedded = false }: { isEmbedded?: bo
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">테스트 메인 타이틀</label>
+                        <label className="block text-xs font-bold text-gray-500 mb-1">테스트 메인 타이틀 (KO)</label>
                         <input
                           type="text"
                           value={editTitle}
                           onChange={(e) => setEditTitle(e.target.value)}
-                          placeholder="이번 주말, 당신의 기분은?"
+                          placeholder="나에게 딱 맞는 인생 원두 & 단골 카페 매칭"
                           className="w-full bg-gray-50 border border-gray-300 h-10 px-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-gray-500 mb-1">설명 (부제목)</label>
+                        <label className="block text-xs font-bold text-gray-500 mb-1">테스트 메인 타이틀 (EN)</label>
+                        <input
+                          type="text"
+                          value={editTitleEn}
+                          onChange={(e) => setEditTitleEn(e.target.value)}
+                          placeholder="Weekly Coffee Taste Test"
+                          className="w-full bg-gray-50 border border-gray-300 h-10 px-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-gray-500 mb-1">설명 / 부제목 (KO)</label>
                         <input
                           type="text"
                           value={editSubtitle}
                           onChange={(e) => setEditSubtitle(e.target.value)}
-                          placeholder="간단한 3가지 질문으로 매칭되는 커피를 찾아요..."
+                          placeholder="7가지 질문으로 내 입맛 MBTI를 진단받으세요."
+                          className="w-full bg-gray-50 border border-gray-300 h-10 px-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold text-gray-500 mb-1">설명 / 부제목 (EN)</label>
+                        <input
+                          type="text"
+                          value={editSubtitleEn}
+                          onChange={(e) => setEditSubtitleEn(e.target.value)}
+                          placeholder="Diagnose your coffee taste MBTI with 7 quick questions."
                           className="w-full bg-gray-50 border border-gray-300 h-10 px-3 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
                       </div>

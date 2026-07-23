@@ -21,7 +21,13 @@ public class TasteTest {
     @Column(nullable = false)
     private String title;
 
+    @Column(name = "titleEn")
+    private String titleEn;
+
     private String subtitle;
+
+    @Column(name = "subtitleEn")
+    private String subtitleEn;
 
     @Column(name = "imageUrl")
     private String imageUrl;

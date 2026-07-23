@@ -31,7 +31,9 @@ interface ResultDto {
 interface TasteTest {
   id: string;
   title: string;
+  titleEn?: string;
   subtitle: string;
+  subtitleEn?: string;
   imageUrl: string;
   isActive: boolean;
   questions: QuestionDto[];
@@ -164,8 +166,13 @@ const WeeklyTasteTest = ({ config }: { config?: any }) => {
         return WEEKLY_MBTI_DATA.results['default'];
     };
 
-    const bannerTitle = testData ? testData.title : (config?.title || WEEKLY_MBTI_DATA.title);
-    const bannerSubtitle = testData ? testData.subtitle : (config?.subtitle || '간단한 질문으로 나의 커피 취향을 매칭해 보세요.');
+    const bannerTitle = testData 
+        ? (isEn && testData.titleEn ? testData.titleEn : testData.title) 
+        : (config?.title || WEEKLY_MBTI_DATA.title);
+
+    const bannerSubtitle = testData 
+        ? (isEn && testData.subtitleEn ? testData.subtitleEn : testData.subtitle) 
+        : (config?.subtitle || (isEn ? 'Find your matching coffee taste with simple questions.' : '간단한 질문으로 나의 커피 취향을 매칭해 보세요.'));
     const totalQuestionsCount = testData ? testData.questions.length : WEEKLY_MBTI_DATA.questions.length;
 
     return (

@@ -47,7 +47,9 @@ public class TasteTestService {
                 .orElseGet(() -> TasteTest.builder().id(request.getId()).build());
 
         test.setTitle(request.getTitle());
+        test.setTitleEn(request.getTitleEn());
         test.setSubtitle(request.getSubtitle());
+        test.setSubtitleEn(request.getSubtitleEn());
         test.setImageUrl(request.getImageUrl());
         test.setIsActive(request.getIsActive() != null ? request.getIsActive() : false);
 
@@ -341,7 +343,9 @@ public class TasteTestService {
         return TasteTestResponse.builder()
                 .id(test.getId())
                 .title(test.getTitle())
+                .titleEn(test.getTitleEn())
                 .subtitle(test.getSubtitle())
+                .subtitleEn(test.getSubtitleEn())
                 .imageUrl(test.getImageUrl())
                 .isActive(test.getIsActive())
                 .questions(qList)

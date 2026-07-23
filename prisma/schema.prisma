@@ -1181,13 +1181,15 @@ model UserQuizExpedition {
 }
 
 model TasteTest {
-  id        String              @id @db.VarChar(191)
-  title     String
-  subtitle  String?
-  imageUrl  String?             @db.VarChar(255)
-  isActive  Boolean
-  questions TasteTestQuestion[]
-  results   TasteTestResult[]
+  id         String              @id @db.VarChar(191)
+  title      String
+  titleEn    String?
+  subtitle   String?
+  subtitleEn String?
+  imageUrl   String?             @db.VarChar(255)
+  isActive   Boolean
+  questions  TasteTestQuestion[]
+  results    TasteTestResult[]
 
   @@map("TasteTest")
 }

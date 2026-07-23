@@ -11,7 +11,9 @@ import java.util.List;
 public class AdminTasteTestRequest {
     private String id;
     private String title;
+    private String titleEn;
     private String subtitle;
+    private String subtitleEn;
     private String imageUrl;
     private Boolean isActive;
     private List<QuestionInput> questions;
