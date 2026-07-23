@@ -16,6 +16,7 @@ export default function AdminAnnouncements() {
     const [isAnnouncementModalOpen, setIsAnnouncementModalOpen] = useState(false);
     const [editAnnouncementId, setEditAnnouncementId] = useState<string | null>(null);
     const [announcementContent, setAnnouncementContent] = useState('');
+    const [announcementLinkUrl, setAnnouncementLinkUrl] = useState('');
     const [isSystemPopup, setIsSystemPopup] = useState(false);
     const [noticeRegion, setNoticeRegion] = useState<'GLOBAL' | 'KR' | 'US'>('GLOBAL');
     const [announcementStartDate, setAnnouncementStartDate] = useState('');
@@ -71,7 +72,8 @@ export default function AdminAnnouncements() {
     const handleOpenAnnouncementModal = (anno?: any) => {
         if (anno) {
             setEditAnnouncementId(anno.id);
-            setAnnouncementContent(anno.content);
+            setAnnouncementContent(anno.content || '');
+            setAnnouncementLinkUrl(anno.recipeData || '');
 
             const formatLocalDate = (dateString: string) => {
                 const d = new Date(dateString);
@@ -93,6 +95,7 @@ export default function AdminAnnouncements() {
         } else {
             setEditAnnouncementId(null);
             setAnnouncementContent('');
+            setAnnouncementLinkUrl('');
             setAnnouncementStartDate('');
             setAnnouncementEndDate('');
             setAnnouncementImage(null);
@@ -107,8 +110,11 @@ export default function AdminAnnouncements() {
     };
 
     const handleSaveAnnouncement = async () => {
-        if (!announcementContent.trim()) {
-            alert(t('admin_announcements.err_empty_content', '내용을 입력해주세요.'));
+        const hasContent = Boolean(announcementContent.trim() || announcementContentEn.trim());
+        const hasImage = Boolean(announcementImage || announcementImagePreview || announcementImageEn || announcementImagePreviewEn);
+
+        if (!hasContent && !hasImage) {
+            alert(t('admin_announcements.err_empty_all', '공지 내용 또는 첨부 이미지 중 하나 이상을 등록해주세요.'));
             return;
         }
 
@@ -140,6 +146,7 @@ export default function AdminAnnouncements() {
                 endDate: announcementEndDate ? new Date(`${announcementEndDate}T23:59:59`).toISOString() : null,
                 isSystemPopup,
                 countryCode: noticeRegion,
+                linkUrl: announcementLinkUrl.trim() || null,
             };
 
             if (base64Image) {
@@ -297,21 +304,41 @@ export default function AdminAnnouncements() {
                             
                             <div className="flex-1 overflow-y-auto space-y-4 no-scrollbar pb-4">
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-bold text-espresso-50">{t('admin_announcements.lbl_content', '내용 (KR)')}</label>
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-sm font-bold text-espresso-50">{t('admin_announcements.lbl_content', '내용 (KR)')}</label>
+                                        <span className="text-[11px] text-espresso-400">※ 이미지만 등록 시 생략 가능</span>
+                                    </div>
                                     <textarea 
                                         value={announcementContent} 
                                         onChange={e => setAnnouncementContent(e.target.value)} 
-                                        placeholder={t('admin_announcements.ph_content', '공지 내용을 입력하세요...')} 
-                                        className="w-full bg-espresso-950 border border-espresso-700 p-3 rounded-xl focus:ring-2 focus:ring-coffee-700 outline-none text-espresso-50 placeholder:text-espresso-500 text-[14px] min-h-[120px] resize-none"
+                                        placeholder={t('admin_announcements.ph_content', '공지 내용을 입력하세요... (이미지 공지 시 비워둘 수 있습니다)')} 
+                                        className="w-full bg-espresso-950 border border-espresso-700 p-3 rounded-xl focus:ring-2 focus:ring-coffee-700 outline-none text-espresso-50 placeholder:text-espresso-500 text-[14px] min-h-[90px] resize-none"
                                     />
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-bold text-espresso-50">{t('admin_announcements.lbl_content_en', '내용 (EN)')}</label>
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-sm font-bold text-espresso-50">{t('admin_announcements.lbl_content_en', '내용 (EN)')}</label>
+                                        <span className="text-[11px] text-espresso-400">※ 이미지만 등록 시 생략 가능</span>
+                                    </div>
                                     <textarea 
                                         value={announcementContentEn} 
                                         onChange={e => setAnnouncementContentEn(e.target.value)} 
                                         placeholder={t('admin_announcements.ph_content_en', '영문 공지 내용을 입력하세요...')} 
-                                        className="w-full bg-espresso-950 border border-espresso-700 p-3 rounded-xl focus:ring-2 focus:ring-coffee-700 outline-none text-espresso-50 placeholder:text-espresso-500 text-[14px] min-h-[120px] resize-none"
+                                        className="w-full bg-espresso-950 border border-espresso-700 p-3 rounded-xl focus:ring-2 focus:ring-coffee-700 outline-none text-espresso-50 placeholder:text-espresso-500 text-[14px] min-h-[90px] resize-none"
+                                    />
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <div className="flex items-center justify-between">
+                                        <label className="text-sm font-bold text-espresso-50">공지 이동 링크 URL (선택)</label>
+                                        <span className="text-[11px] text-espresso-400">이미지 클릭 시 연결될 URL</span>
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        value={announcementLinkUrl} 
+                                        onChange={e => setAnnouncementLinkUrl(e.target.value)} 
+                                        placeholder="https://example.com 또는 웹페이지 경로..." 
+                                        className="w-full bg-espresso-950 border border-espresso-700 h-[42px] px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-coffee-700 text-espresso-50 text-sm placeholder:text-espresso-500" 
                                     />
                                 </div>
                                 

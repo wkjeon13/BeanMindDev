@@ -1219,18 +1219,19 @@ router.get('/announcements', async (req: any, res: any) => {
 // A robust implementation would use multer here too if admins upload fresh images.
 router.post('/announcements', async (req: any, res: any) => {
     try {
-        const { content, contentEn, startDate, endDate, image, imageEn, isSystemPopup, countryCode } = req.body;
+        const { content, contentEn, startDate, endDate, image, imageEn, isSystemPopup, countryCode, linkUrl } = req.body;
         
-        if (!content) {
+        if (!content && !image && !imageEn) {
             return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
         }
 
         const announcementData: any = {
             authorId: req.user.id,
-            content,
+            content: content || "",
             contentEn: contentEn || null,
             image: image || null,
             imageEn: imageEn || null,
+            recipeData: linkUrl || null,
             isPinned: true,
             postType: 'ANNOUNCEMENT',
             countryCode: countryCode || 'GLOBAL',
@@ -1254,10 +1255,10 @@ router.post('/announcements', async (req: any, res: any) => {
 router.put('/announcements/:id', async (req: any, res: any) => {
     try {
         const { id } = req.params;
-        const { content, contentEn, startDate, endDate, isPinned, image, imageEn, isSystemPopup, countryCode } = req.body;
+        const { content, contentEn, startDate, endDate, isPinned, image, imageEn, isSystemPopup, countryCode, linkUrl } = req.body;
 
         const updateData: any = { postType: 'ANNOUNCEMENT' };
-        if (content !== undefined) updateData.content = content;
+        if (content !== undefined) updateData.content = content || "";
         if (contentEn !== undefined) updateData.contentEn = contentEn;
         if (startDate !== undefined) updateData.pinnedStartDate = startDate ? new Date(startDate) : null;
         if (endDate !== undefined) updateData.pinnedEndDate = endDate ? new Date(endDate) : null;
@@ -1266,6 +1267,7 @@ router.put('/announcements/:id', async (req: any, res: any) => {
         if (imageEn !== undefined) updateData.imageEn = imageEn;
         if (isSystemPopup !== undefined) updateData.isSystemPopup = isSystemPopup;
         if (countryCode !== undefined) updateData.countryCode = countryCode;
+        if (linkUrl !== undefined) updateData.recipeData = linkUrl;
 
         const announcement = await prisma.post.update({
             where: { id },
