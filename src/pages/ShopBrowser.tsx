@@ -216,14 +216,20 @@ export default function ShopBrowser() {
         } else if (urlCourseId) {
             setIsCourseMode(true);
             setIsLoading(true);
+            setShops([]); // Reset previous cached shops instantly to prevent map state confusion
 
             const fetchCourseDetails = async () => {
                 try {
-                    const headers: any = {};
+                    const headers: any = { 'Accept': 'application/json' };
                     const token = localStorage.getItem('token');
-                    if (token) headers['Authorization'] = `Bearer ${token}`;
+                    if (token && token !== 'undefined' && token !== 'null') {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
 
-                    const res = await fetch(getApiUrl(`/api/community/courses/${urlCourseId}`), { headers });
+                    const apiUrl = getApiUrl(`/api/community/courses/${urlCourseId}`);
+                    console.log(`🗺️ [Course Map Fetch] Requesting course details via URL: ${apiUrl}`);
+
+                    const res = await fetch(apiUrl, { method: 'GET', headers });
                     if (res.ok) {
                         const courseData = await res.json();
                         setActiveCourseConfig(courseData);
@@ -236,6 +242,7 @@ export default function ShopBrowser() {
                             if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) return null;
                             return { ...rawStore, lat, lng };
                         }).filter(Boolean) || [];
+                        
                         setShops(courseShops);
 
                         if (courseShops.length > 0) {
@@ -267,6 +274,7 @@ export default function ShopBrowser() {
                             }
                         }
                     } else {
+                        console.warn(`🗺️ [Course Map Fetch Failed] HTTP Status: ${res.status}`);
                         setIsCourseMode(false);
                     }
                 } catch (e) {
