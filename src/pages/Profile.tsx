@@ -656,7 +656,13 @@ export default function Profile() {
         const fullShareText = `${text}\n\n👉 코스 구경하기:\n${shareUrl}`;
 
         try {
-            await Share.share({ title: course.name, text: fullShareText, url: shareUrl, dialogTitle: course.name });
+            if (isNative) {
+                // On Native Mobile, passing the `url` parameter forces mobile OS share sheets (e.g. KakaoTalk/iOS) to strip text and show root homepage domain.
+                // Omitting `url` forces the OS to share the fullShareText containing the exact course deeplink URL.
+                await Share.share({ title: course.name, text: fullShareText, dialogTitle: course.name });
+            } else {
+                await Share.share({ title: course.name, text: fullShareText, url: shareUrl, dialogTitle: course.name });
+            }
         } catch (err) {
             if (navigator.share) {
                 navigator.share({ title: course.name, text: fullShareText, url: shareUrl }).catch(() => {

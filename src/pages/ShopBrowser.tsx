@@ -221,7 +221,10 @@ export default function ShopBrowser() {
             const fetchCourseDetails = async () => {
                 try {
                     const headers: any = { 'Accept': 'application/json' };
-                    const token = localStorage.getItem('token');
+                    let token = localStorage.getItem('token');
+                    if (!token || token === 'null' || token === 'undefined') {
+                        try { token = sessionStorage.getItem('token'); } catch (e) { }
+                    }
                     if (token && token !== 'undefined' && token !== 'null') {
                         headers['Authorization'] = `Bearer ${token}`;
                     }
