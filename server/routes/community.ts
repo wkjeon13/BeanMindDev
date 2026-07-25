@@ -1785,39 +1785,59 @@ router.get('/courses/:id', async (req, res) => {
         const token = authHeader && authHeader.split(' ')[1];
         if (token) {
             try {
-                const user = jwt.verify(token, process.env.JWT_SECRET as string);
+                const user = jwt.verify(token, JWT_SECRET);
                 authUserId = (user as any).id;
             } catch (e) {} // Fail silently if anonymous/expired token
         }
 
         const { id } = req.params;
-        const course = await (prisma as any).collection.findUnique({
-            where: { id },
-            include: {
-                user: { select: { id: true, nickname: true, profileImageUrl: true, role: true } },
-                items: {
-                    include: {
-                        post: {
-                            include: {
-                                author: { select: { nickname: true, profileImageUrl: true, role: true , stores: { select: { name: true } }} }
+        let course = null;
+        try {
+            course = await (prisma as any).collection.findUnique({
+                where: { id },
+                include: {
+                    user: { select: { id: true, nickname: true, profileImageUrl: true, role: true } },
+                    items: {
+                        include: {
+                            post: {
+                                include: {
+                                    author: { select: { nickname: true, profileImageUrl: true, role: true, stores: { select: { name: true } } } },
+                                    store: { select: { id: true, mainImageUrl: true, name: true, address: true, lat: true, lng: true } }
+                                }
+                            },
+                            store: {
+                                select: { id: true, mainImageUrl: true, name: true, address: true, lat: true, lng: true }
                             }
                         },
-                        store: {
-                            select: { id: true, mainImageUrl: true, name: true, address: true, lat: true, lng: true }
-                        }
-                    },
-                    orderBy: [{ orderIndex: 'asc' }, { createdAt: 'asc' }]
+                        orderBy: { orderIndex: 'asc' }
+                    }
                 }
-            }
-        });
+            });
+        } catch (dbErr) {
+            console.error("Prisma primary fetch failed for course, trying fallback query:", dbErr);
+            course = await (prisma as any).collection.findUnique({
+                where: { id },
+                include: {
+                    user: { select: { id: true, nickname: true, profileImageUrl: true, role: true } },
+                    items: {
+                        include: {
+                            post: true,
+                            store: true
+                        }
+                    }
+                }
+            });
+        }
 
         if (!course) return res.status(404).json({ error: ERROR_CODES.STORE_NOT_FOUND });
 
-        // Allow access: if someone has the specific UUID (e.g. via CoffeeTalk post attachment), they can view it.
         if (course && course.items) {
             course.items.forEach((item: any) => {
                 if (item.store) {
-                    decryptStorePII(item.store);
+                    try { decryptStorePII(item.store); } catch(e) {}
+                }
+                if (item.post && item.post.store) {
+                    try { decryptStorePII(item.post.store); } catch(e) {}
                 }
             });
         }
