@@ -594,6 +594,11 @@ export default function ShopBrowser() {
     const [isLocating, setIsLocating] = useState(false);
 
     const locateUser = async () => {
+        const urlParams = new URLSearchParams(location.search);
+        if (isCourseMode || urlParams.get('courseId')) {
+            return; // Prevent GPS locateUser from stripping course mode and courseId query parameter
+        }
+
         setIsCourseMode(false);
         setShowFloatingList(false);
         setSearchedDbShops([]);
