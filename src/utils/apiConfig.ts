@@ -124,20 +124,18 @@ export const getApiUrl = (path: string): string => {
     if (!base && isNative) {
         base = 'https://www.beanmindcurator.com';
     }
-    
-    // If the base URL is a standard HTTPS domain without custom ports, rely on Nginx 443 proxy routing instead of injecting :3001
-    const isStandardHttps = base.startsWith('https://') && !base.includes(':');
 
-    if (goesToNodeBackend) {
+    // 모바일 Native 앱에서 beanmindcurator.com 도메인 요청 시 iOS ATS / Android Cleartext 보안 규정 준수를 위해
+    // 비보안 HTTP/3001 포트 직호출 대신 Nginx 443 SSL 프록시 도메인(https://www.beanmindcurator.com)으로 안전하게 이관합니다.
+    if (base.includes('beanmindcurator.com')) {
+        base = 'https://www.beanmindcurator.com';
+    } else if (goesToNodeBackend) {
         if (base.startsWith('https://')) {
-            // HTTPS 환경에서는 커스텀 포트(:3000, :4000 등)를 직접 3001로 치환 시 TLS 에러가 발생하므로,
-            // Nginx 443 SSL 표준 포트를 경유할 수 있도록 모든 포트 번호를 제거합니다.
-            // 단, 로컬 개발/디버깅용 도메인의 3002 포트(Vite Proxy)는 그대로 유지하여 브라우저 프록시 채널을 태웁니다.
             if (!base.includes(':3002')) {
                 base = base.replace(/:[0-9]+/, '');
             }
         } else if (base.startsWith('http://')) {
-            // HTTP 환경(로컬 개발 등)인 경우에만 3001 포트로 직접 치환합니다.
+            // 로컬 IP(192.168.x.x 또는 localhost) 환경에서만 3001 포트로 치환합니다.
             if (base.includes(':3000')) {
                 base = base.replace(':3000', ':3001');
             } else if (base.includes(':4000')) {
