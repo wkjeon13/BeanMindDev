@@ -20,6 +20,9 @@ if (!isNative) {
     apiBase = ''; // Force relative paths on Web to completely avoid CORS/SSL mismatch across different IPs
     console.log(`🔍 [apiConfig] 3. Web environment (Relative Path) -> final API_BASE: "${apiBase}"`);
 } else if (isNative) {
+    if (!apiBase) {
+        apiBase = 'https://www.beanmindcurator.com';
+    }
     apiBase = apiBase.replace(/\/$/, '');
     console.log(`🔍 [apiConfig] 3. Native platform detected -> final API_BASE: "${apiBase}"`);
 }
@@ -118,6 +121,9 @@ export const getApiUrl = (path: string): string => {
     ) || /^\/api\/shops\/[a-fA-F0-9-]{36}(?:\/.*)?$/.test(normalizedPath);
 
     let base = apiBase;
+    if (!base && isNative) {
+        base = 'https://www.beanmindcurator.com';
+    }
     
     // If the base URL is a standard HTTPS domain without custom ports, rely on Nginx 443 proxy routing instead of injecting :3001
     const isStandardHttps = base.startsWith('https://') && !base.includes(':');
@@ -130,7 +136,7 @@ export const getApiUrl = (path: string): string => {
             if (!base.includes(':3002')) {
                 base = base.replace(/:[0-9]+/, '');
             }
-        } else {
+        } else if (base.startsWith('http://')) {
             // HTTP 환경(로컬 개발 등)인 경우에만 3001 포트로 직접 치환합니다.
             if (base.includes(':3000')) {
                 base = base.replace(':3000', ':3001');

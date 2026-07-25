@@ -228,7 +228,7 @@ export default function ShopBrowser() {
                         const courseData = await res.json();
                         setActiveCourseConfig(courseData);
 
-                        const courseShops = courseData.items?.map((item: any) => item.store).filter(Boolean) || [];
+                        const courseShops = courseData.items?.map((item: any) => item.store || item.post?.store).filter(Boolean) || [];
                         setShops(courseShops);
 
                         if (courseShops.length > 0) {
@@ -1421,7 +1421,7 @@ Format EXACTLY like this example:
         return !isDuplicate;
     });
 
-    let combinedShops = [...displayShops, ...filteredAiShops];
+    let combinedShops = isCourseMode ? shops : [...displayShops, ...filteredAiShops];
 
     // Restrict feed strictly to 10km radius if a search anchor exists
     if (sortAnchor.current && !isCourseMode) {
@@ -1591,7 +1591,7 @@ Format EXACTLY like this example:
                         <SharedCoffeeMap
                             mode="explore"
                             shops={combinedShops}
-                            courseShops={activeCourseConfig?.items?.map((i: any) => i.store).filter(Boolean)}
+                            courseShops={activeCourseConfig?.items?.map((i: any) => i.store || i.post?.store).filter(Boolean)}
                             userLocation={userLocation}
                             mapCenter={mapCenter}
                             setMapCenter={setMapCenter}
