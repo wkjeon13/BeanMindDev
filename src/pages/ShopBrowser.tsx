@@ -240,38 +240,40 @@ export default function ShopBrowser() {
                         const courseShops = courseData.items?.map((item: any) => {
                             const rawStore = item.store || item.post?.store;
                             if (!rawStore) return null;
-                            const lat = Number(rawStore.lat);
-                            const lng = Number(rawStore.lng);
-                            if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) return null;
+                            let lat = (rawStore.lat != null && rawStore.lat !== '') ? Number(rawStore.lat) : null;
+                            let lng = (rawStore.lng != null && rawStore.lng !== '') ? Number(rawStore.lng) : null;
+                            if (lat !== null && isNaN(lat)) lat = null;
+                            if (lng !== null && isNaN(lng)) lng = null;
                             return { ...rawStore, lat, lng };
                         }).filter(Boolean) || [];
                         
                         setShops(courseShops);
 
                         if (courseShops.length > 0) {
+                            const validGeoShop = courseShops.find((s: any) => s.lat != null && s.lng != null && !isNaN(Number(s.lat)) && !isNaN(Number(s.lng)));
+                            const centerToUse = validGeoShop ? [Number(validGeoShop.lat), Number(validGeoShop.lng)] : mapCenter;
+
                             if (urlShopId) {
                                 const targetShop = courseShops.find((s: any) => s.id === urlShopId);
                                 if (targetShop && targetShop.lat && targetShop.lng) {
-                                    setMapCenter([targetShop.lat, targetShop.lng]);
-                                    sortAnchor.current = [targetShop.lat, targetShop.lng];
+                                    setMapCenter([Number(targetShop.lat), Number(targetShop.lng)]);
+                                    sortAnchor.current = [Number(targetShop.lat), Number(targetShop.lng)];
                                     setSearchedShopId(targetShop.id);
                                     setFocusedShopId(targetShop.id);
                                 }
-                            } else {
-                                let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
-                                courseShops.forEach((s: any) => {
-                                    if (s.lat && s.lng) {
+                            } else if (centerToUse) {
+                                setMapCenter(centerToUse as [number, number]);
+                                sortAnchor.current = centerToUse as [number, number];
+
+                                const geoShops = courseShops.filter((s: any) => s.lat != null && s.lng != null);
+                                if (geoShops.length > 1) {
+                                    let minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
+                                    geoShops.forEach((s: any) => {
                                         if (s.lat < minLat) minLat = s.lat;
                                         if (s.lat > maxLat) maxLat = s.lat;
                                         if (s.lng < minLng) minLng = s.lng;
                                         if (s.lng > maxLng) maxLng = s.lng;
-                                    }
-                                });
-
-                                setMapCenter([courseShops[0].lat, courseShops[0].lng]);
-                                sortAnchor.current = [courseShops[0].lat, courseShops[0].lng];
-
-                                if (minLat !== 90 && courseShops.length > 1) {
+                                    });
                                     setMapBoundsToFit({ minLat: minLat - 0.005, maxLat: maxLat + 0.005, minLng: minLng - 0.005, maxLng: maxLng + 0.005, ts: Date.now() });
                                 }
                             }
