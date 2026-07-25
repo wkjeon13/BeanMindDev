@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { User, LogIn, Store, ShieldCheck, ChevronRight, ChevronUp, ChevronDown, Mail, Lock, Shield, Users, Globe, Send, Inbox, Coffee, Database, MapPin, Share2, Trash2, KeyRound, Image as ImageIcon, X } from 'lucide-react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useGoogleLogin, GoogleLogin } from '@react-oauth/google';
-import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
+import { API_BASE, getApiUrl, getDeviceCountryCode } from '../utils/apiConfig';
 import { App as CapApp } from '@capacitor/app';
 import { Browser } from '@capacitor/browser';
 import { Capacitor } from '@capacitor/core';
@@ -485,7 +485,7 @@ export default function Profile() {
                     .catch(err => console.error("Failed to fetch prescriptions:", err));
 
                 // Fetch Pilgrimage Check-ins
-                fetch(`${API_BASE}/api/users/checkins`, {
+                fetch(getApiUrl('/api/users/checkins'), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
                     .then(res => res.json())
@@ -495,7 +495,7 @@ export default function Profile() {
                     .catch(err => console.error("Failed to fetch checkins:", err));
 
                 // Fetch Pilgrimage Courses
-                fetch(`${API_BASE}/api/users/collections`, {
+                fetch(getApiUrl('/api/users/collections'), {
                     headers: { 'Authorization': `Bearer ${token}` }
                 })
                     .then(res => res.json())
