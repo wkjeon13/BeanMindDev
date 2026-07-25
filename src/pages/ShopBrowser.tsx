@@ -228,7 +228,14 @@ export default function ShopBrowser() {
                         const courseData = await res.json();
                         setActiveCourseConfig(courseData);
 
-                        const courseShops = courseData.items?.map((item: any) => item.store || item.post?.store).filter(Boolean) || [];
+                        const courseShops = courseData.items?.map((item: any) => {
+                            const rawStore = item.store || item.post?.store;
+                            if (!rawStore) return null;
+                            const lat = Number(rawStore.lat);
+                            const lng = Number(rawStore.lng);
+                            if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) return null;
+                            return { ...rawStore, lat, lng };
+                        }).filter(Boolean) || [];
                         setShops(courseShops);
 
                         if (courseShops.length > 0) {
@@ -474,6 +481,13 @@ export default function ShopBrowser() {
 
     // Handle incoming Map Focus state from CoffeeTalk (Merged into main location effect below to prevent race conditions)
     const fetchShopsAndBookmarks = async (lat?: number, lng?: number, filterType?: string, bounds?: { minLat: number; maxLat: number; minLng: number; maxLng: number }, preserveTargetName?: string) => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (isCourseMode || urlParams.get('courseId')) {
+            setIsLoading(false);
+            setIsRefreshing(false);
+            return [];
+        }
+
         if (shops.length === 0) setIsLoading(true);
         setIsRefreshing(true);
         try {
@@ -1591,7 +1605,11 @@ Format EXACTLY like this example:
                         <SharedCoffeeMap
                             mode="explore"
                             shops={combinedShops}
-                            courseShops={activeCourseConfig?.items?.map((i: any) => i.store || i.post?.store).filter(Boolean)}
+                            courseShops={activeCourseConfig?.items?.map((i: any) => {
+                                const s = i.store || i.post?.store;
+                                if (!s) return null;
+                                return { ...s, lat: Number(s.lat), lng: Number(s.lng) };
+                            }).filter((s: any) => s && !isNaN(s.lat) && !isNaN(s.lng))}
                             userLocation={userLocation}
                             mapCenter={mapCenter}
                             setMapCenter={setMapCenter}
