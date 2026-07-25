@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ShopDetailModal from '../components/ShopDetailModal';
 import SharedCoffeeMap from '../components/SharedCoffeeMap';
-import { API_BASE, getDeviceCountryCode } from '../utils/apiConfig';
+import { API_BASE, getApiUrl, getDeviceCountryCode } from '../utils/apiConfig';
 import { Geolocation } from '@capacitor/geolocation';
 
 // Cache for AI search results to prevent redundant expensive API calls across page navigations
@@ -223,7 +223,7 @@ export default function ShopBrowser() {
                     const token = localStorage.getItem('token');
                     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-                    const res = await fetch(`${API_BASE}/api/community/courses/${urlCourseId}`, { headers });
+                    const res = await fetch(getApiUrl(`/api/community/courses/${urlCourseId}`), { headers });
                     if (res.ok) {
                         const courseData = await res.json();
                         setActiveCourseConfig(courseData);

@@ -653,17 +653,18 @@ export default function Profile() {
         }
         
         const text = t('profile.course_share_template', { name: course.name, desc: course.description ? `"${course.description}"\n` : '', count: course.items?.length || course._count?.items || 0 });
+        const fullShareText = `${text}\n\n👉 코스 구경하기:\n${shareUrl}`;
 
         try {
-            await Share.share({ title: course.name, text, url: shareUrl, dialogTitle: course.name });
+            await Share.share({ title: course.name, text: fullShareText, url: shareUrl, dialogTitle: course.name });
         } catch (err) {
             if (navigator.share) {
-                navigator.share({ title: course.name, text, url: shareUrl }).catch(() => {
-                    navigator.clipboard.writeText(`${text}\n${shareUrl}`);
+                navigator.share({ title: course.name, text: fullShareText, url: shareUrl }).catch(() => {
+                    navigator.clipboard.writeText(fullShareText);
                     alert('코스 링크가 클립보드에 복사되었습니다.');
                 });
             } else {
-                navigator.clipboard.writeText(`${text}\n${shareUrl}`);
+                navigator.clipboard.writeText(fullShareText);
                 alert('코스 링크가 클립보드에 복사되었습니다.');
             }
         }
@@ -2923,7 +2924,7 @@ export default function Profile() {
                                                         <div
                                                             key={course.id || idx}
                                                             className="shrink-0 w-56 h-64 snap-center bg-espresso-950 rounded-[1.5rem] flex flex-col shadow-xl cursor-pointer active:scale-95 transition-transform border border-espresso-700 relative overflow-hidden group"
-                                                            onClick={() => navigate(`/course/${course.id}`)}
+                                                            onClick={() => navigate(`/map?courseId=${course.id}`)}
                                                         >
                                                             <div className="h-32 w-full relative overflow-hidden">
                                                                 <img src={coverImage} alt={course.name} className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity duration-500 group-hover:scale-105" />

@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { ChevronLeft, Share, Map, Coffee, Copy, Lock, PlusCircle, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import { API_BASE, getApiUrl } from '../utils/apiConfig';
 import { useTranslation } from 'react-i18next';
+import { Share as CapacitorShare } from '@capacitor/share';
 
 // Helper to sanitize stale local IPs from DB or localStorage
 const getSafeImageUrl = (url: string | null | undefined, fallback: string = '') => {
@@ -93,13 +94,27 @@ export default function CoursePlaylists() {
         }
     };
 
-    const handleShareCourse = () => {
-        const text = `[Beanmind 성지순례 코스]\n☕ ${course.name}\n🗺️ 추천 라우트: ${course.items?.length || 0}곳\n\n나만의 맞춤형 커피 공간을 스마트하게 발견해보세요!`;
-        if (navigator.share) {
-            navigator.share({ title: '커피 성지 코스 공유', text, url: window.location.href });
-        } else {
-            navigator.clipboard.writeText(window.location.href);
-            alert('코스 링크가 클립보드에 복사되었습니다.');
+    const handleShareCourse = async () => {
+        if (!course) return;
+        let shareUrl = `${window.location.origin}/map?courseId=${course.id}`;
+        const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+        if (isNative || shareUrl.includes('localhost') || shareUrl.startsWith('capacitor://')) {
+            shareUrl = `https://www.beanmindcurator.com/map?courseId=${course.id}`;
+        }
+        const text = `[Beanmind 성지순례 코스]\n☕ ${course.name}\n🗺️ 추천 라우트: ${course.items?.length || 0}곳\n\n나만의 맞춤형 커피 공간을 스마트하게 발견해보세요!\n\n👉 코스 구경하기:\n${shareUrl}`;
+
+        try {
+            await CapacitorShare.share({ title: course.name, text, url: shareUrl, dialogTitle: course.name });
+        } catch (err) {
+            if (navigator.share) {
+                navigator.share({ title: '커피 성지 코스 공유', text, url: shareUrl }).catch(() => {
+                    navigator.clipboard.writeText(text);
+                    alert('코스 링크가 클립보드에 복사되었습니다.');
+                });
+            } else {
+                navigator.clipboard.writeText(text);
+                alert('코스 링크가 클립보드에 복사되었습니다.');
+            }
         }
     };
 
