@@ -122,27 +122,20 @@ export const getApiUrl = (path: string): string => {
 
     let base = apiBase;
     if (!base && isNative) {
-        base = 'https://www.beanmindcurator.com';
+        base = 'http://dev.beanmindcurator.com:3000';
     }
 
-    // 모바일 Native 앱에서 beanmindcurator.com 도메인 요청 시 iOS ATS / Android Cleartext 보안 규정 준수를 위해
-    // 비보안 HTTP/3001 포트 직호출 대신 Nginx 443 SSL 프록시 도메인(https://www.beanmindcurator.com)으로 안전하게 이관합니다.
-    if (base.includes('beanmindcurator.com')) {
-        base = 'https://www.beanmindcurator.com';
-    } else if (goesToNodeBackend) {
-        if (base.startsWith('https://')) {
-            if (!base.includes(':3002')) {
-                base = base.replace(/:[0-9]+/, '');
-            }
-        } else if (base.startsWith('http://')) {
-            // 로컬 IP(192.168.x.x 또는 localhost) 환경에서만 3001 포트로 치환합니다.
-            if (base.includes(':3000')) {
-                base = base.replace(':3000', ':3001');
-            } else if (base.includes(':4000')) {
-                base = base.replace(':4000', ':4001');
-            } else if (!base.includes(':3001') && !base.includes(':4001')) {
-                base = base + ':3001';
-            }
+    if (goesToNodeBackend) {
+        // Node.js 백엔드 커뮤니티/코스/체크인 API인 경우 Nginx 3000 Spring Boot 오배송 500 에러를 바이패스하고
+        // Node.js 정식 3001 포트(http://dev.beanmindcurator.com:3001)로 직접 바인딩합니다!
+        if (base.includes('beanmindcurator.com')) {
+            base = 'http://dev.beanmindcurator.com:3001';
+        } else if (base.includes(':3000')) {
+            base = base.replace(':3000', ':3001');
+        } else if (base.includes(':4000')) {
+            base = base.replace(':4000', ':4001');
+        } else if (!base.includes(':3001') && !base.includes(':4001')) {
+            base = base + ':3001';
         }
     }
 
