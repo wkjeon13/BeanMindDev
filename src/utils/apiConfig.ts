@@ -91,10 +91,6 @@ export const getDeviceCountryCode = () => {
  * Routes specific endpoints to the Node.js API (port 4001) and other endpoints to port 4000.
  */
 export const getApiUrl = (path: string): string => {
-    if (!isNative) {
-        return path;
-    }
-
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
     
     // Check if the path should go to the Node.js backend (3001 or 4001)
@@ -120,14 +116,18 @@ export const getApiUrl = (path: string): string => {
         (normalizedPath.endsWith('/follow') || normalizedPath.endsWith('/follow-status'))
     ) || /^\/api\/shops\/[a-fA-F0-9-]{36}(?:\/.*)?$/.test(normalizedPath);
 
+    if (!isNative && !goesToNodeBackend) {
+        return path;
+    }
+
     let base = apiBase;
-    if (!base && isNative) {
+    if (!base) {
         base = 'http://dev.beanmindcurator.com:3000';
     }
 
     if (goesToNodeBackend) {
         // Node.js 백엔드 커뮤니티/코스/체크인 API인 경우 Nginx 3000 Spring Boot 오배송 500 에러를 바이패스하고
-        // Node.js 정식 3001 포트(http://dev.beanmindcurator.com:3001)로 직접 바인딩합니다!
+        // 웹 브라우저, 카카오톡 인앱 브라우저, 모바일 Native 앱 모두에서 Node.js 정식 3001 포트(http://dev.beanmindcurator.com:3001)로 직접 바인딩합니다!
         if (base.includes('beanmindcurator.com')) {
             base = 'http://dev.beanmindcurator.com:3001';
         } else if (base.includes(':3000')) {
@@ -140,6 +140,6 @@ export const getApiUrl = (path: string): string => {
     }
 
     const finalUrl = `${base}${normalizedPath}`;
-    console.log(`⚡️ [CapacitorHttp API] path: ${path} -> finalUrl: ${finalUrl}`);
+    console.log(`⚡️ [API Router] path: ${path} -> finalUrl: ${finalUrl}`);
     return finalUrl;
 };
