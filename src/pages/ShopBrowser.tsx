@@ -599,7 +599,7 @@ export default function ShopBrowser() {
     const [isLocating, setIsLocating] = useState(false);
 
     const locateUser = async () => {
-        const urlParams = new URLSearchParams(location.search);
+        const urlParams = new URLSearchParams(window.location.search);
         if (isCourseMode || urlParams.get('courseId')) {
             return; // Prevent GPS locateUser from stripping course mode and courseId query parameter
         }
@@ -607,7 +607,11 @@ export default function ShopBrowser() {
         setIsCourseMode(false);
         setShowFloatingList(false);
         setSearchedDbShops([]);
-        try { navigate(location.pathname, { replace: true }); } catch (e) { }
+        try {
+            if (!urlParams.get('courseId')) {
+                navigate(location.pathname, { replace: true });
+            }
+        } catch (e) { }
         setIsLocating(true);
 
         // 1. Force native permission checks/requests in mobile environment
@@ -699,7 +703,7 @@ export default function ShopBrowser() {
         }
 
         // Priority 0: Map Mode Override
-        if (state && state.mapMode) {
+        if (state && state.mapMode && !urlParams.get('courseId')) {
             setIsCourseMode(state.mapMode === 'Course');
             navigate(location.pathname, { replace: true, state: { ...state, mapMode: undefined } });
         }
