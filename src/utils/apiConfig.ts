@@ -116,18 +116,18 @@ export const getApiUrl = (path: string): string => {
         (normalizedPath.endsWith('/follow') || normalizedPath.endsWith('/follow-status'))
     ) || /^\/api\/shops\/[a-fA-F0-9-]{36}(?:\/.*)?$/.test(normalizedPath);
 
-    if (!isNative && !goesToNodeBackend) {
-        return path;
+    // On Web / KakaoTalk Browser: Must use same-origin relative path (or HTTPS) to prevent Mixed Content (HTTPS -> HTTP:3001) fetch blocks
+    if (!isNative) {
+        return normalizedPath;
     }
 
+    // On Mobile Native App (Capacitor): Use direct port 3001 to bypass Nginx port 3000 Spring Boot mismatch
     let base = apiBase;
     if (!base) {
         base = 'http://dev.beanmindcurator.com:3000';
     }
 
     if (goesToNodeBackend) {
-        // Node.js 백엔드 커뮤니티/코스/체크인 API인 경우 Nginx 3000 Spring Boot 오배송 500 에러를 바이패스하고
-        // 웹 브라우저, 카카오톡 인앱 브라우저, 모바일 Native 앱 모두에서 Node.js 정식 3001 포트(http://dev.beanmindcurator.com:3001)로 직접 바인딩합니다!
         if (base.includes('beanmindcurator.com')) {
             base = 'http://dev.beanmindcurator.com:3001';
         } else if (base.includes(':3000')) {
@@ -140,6 +140,6 @@ export const getApiUrl = (path: string): string => {
     }
 
     const finalUrl = `${base}${normalizedPath}`;
-    console.log(`⚡️ [API Router] path: ${path} -> finalUrl: ${finalUrl}`);
+    console.log(`⚡️ [Native API Router] path: ${path} -> finalUrl: ${finalUrl}`);
     return finalUrl;
 };
