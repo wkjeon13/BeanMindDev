@@ -649,7 +649,7 @@ export default function Profile() {
         let shareUrl = `${window.location.origin}/map?courseId=${course.id}`;
         const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
         if (isNative || shareUrl.includes('localhost') || shareUrl.startsWith('capacitor://')) {
-            shareUrl = `https://www.beanmindcurator.com/map?courseId=${course.id}`;
+            shareUrl = `https://www.beanmindcurator.com:3002/map?courseId=${course.id}`;
         }
         
         const text = t('profile.course_share_template', { name: course.name, desc: course.description ? `"${course.description}"\n` : '', count: course.items?.length || course._count?.items || 0 });

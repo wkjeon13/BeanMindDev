@@ -99,7 +99,7 @@ export default function CoursePlaylists() {
         let shareUrl = `${window.location.origin}/map?courseId=${course.id}`;
         const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
         if (isNative || shareUrl.includes('localhost') || shareUrl.startsWith('capacitor://')) {
-            shareUrl = `https://www.beanmindcurator.com/map?courseId=${course.id}`;
+            shareUrl = `https://www.beanmindcurator.com:3002/map?courseId=${course.id}`;
         }
         const text = `[Beanmind 성지순례 코스]\n☕ ${course.name}\n🗺️ 추천 라우트: ${course.items?.length || 0}곳\n\n나만의 맞춤형 커피 공간을 스마트하게 발견해보세요!\n\n👉 코스 구경하기:\n${shareUrl}`;
 
