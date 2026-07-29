@@ -236,6 +236,7 @@ export default function ShopBrowser() {
                     if (res.ok) {
                         const courseData = await res.json();
                         setActiveCourseConfig(courseData);
+                        console.log(`🗺️ [Course Map Fetch Success] Loaded course: "${courseData.name}" with ${courseData.items?.length || 0} items.`);
 
                         const courseShops = courseData.items?.map((item: any) => {
                             const rawStore = item.store || item.post?.store;
