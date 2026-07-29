@@ -169,8 +169,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         const parsedUrl = new URL(targetUrl);
         const activePost = parsedUrl.searchParams.get('activePost');
         const prescriptionId = parsedUrl.searchParams.get('prescriptionId');
+        const courseId = parsedUrl.searchParams.get('courseId');
+        const shopId = parsedUrl.searchParams.get('shopId');
         
-        if ((parsedUrl.pathname === '/community' || parsedUrl.host === 'community') && activePost) {
+        if (courseId) {
+          const courseNavUrl = shopId ? `/map?courseId=${courseId}&shopId=${shopId}` : `/map?courseId=${courseId}`;
+          console.log('🗺️ [Mobile Deep Link] Navigating to course map:', courseNavUrl);
+          navigate(courseNavUrl);
+        } else if ((parsedUrl.pathname === '/community' || parsedUrl.host === 'community') && activePost) {
           navigate('/community', { state: { activePost } });
         } else if ((parsedUrl.pathname === '/curator' || parsedUrl.host === 'curator') && prescriptionId) {
           navigate('/curator', { state: { prescriptionId } });
