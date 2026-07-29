@@ -641,7 +641,7 @@ export default function Profile() {
         e.preventDefault();
         e.stopPropagation();
         if (!course.isPublic) {
-            handleToggleCoursePublic(e as any, course.id, false);
+            await handleToggleCoursePublic(e as any, course.id, false);
             alert("공유를 위해 코스가 'PUBLIC(공개)' 상태로 자동 전환되었습니다!");
             course.isPublic = true;
         }
