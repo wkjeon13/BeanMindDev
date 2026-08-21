@@ -117,18 +117,13 @@ export const getApiUrl = (path: string): string => {
     ) || /^\/api\/shops\/[a-fA-F0-9-]{36}(?:\/.*)?$/.test(normalizedPath);
 
     // 1. On Mobile Native App (Capacitor): Use direct port 3001 to bypass Nginx 3000 Spring Boot mismatch
+    // 1. On Mobile Native App (Capacitor): Use standard Nginx HTTPS endpoint
     if (isNative) {
-        let base = apiBase || 'http://dev.beanmindcurator.com:3000';
-        if (goesToNodeBackend) {
-            if (base.includes('beanmindcurator.com')) {
-                base = 'http://dev.beanmindcurator.com:3001';
-            } else if (base.includes(':3000')) {
-                base = base.replace(':3000', ':3001');
-            } else if (base.includes(':4000')) {
-                base = base.replace(':4000', ':4001');
-            } else if (!base.includes(':3001') && !base.includes(':4001')) {
-                base = base + ':3001';
-            }
+        let base = apiBase || 'https://www.beanmindcurator.com';
+        base = base.replace(/\/$/, '');
+        // Ensure HTTPS protocol and no unexposed raw internal dev ports (:3000, :3001)
+        if (base.includes('dev.beanmindcurator.com') || base.includes(':3000') || base.includes(':3001')) {
+            base = 'https://www.beanmindcurator.com';
         }
         const finalUrl = `${base}${normalizedPath}`;
         console.log(`⚡️ [Native API Router] path: ${path} -> finalUrl: ${finalUrl}`);
