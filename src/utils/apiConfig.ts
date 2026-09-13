@@ -30,8 +30,10 @@ if (!isNative) {
     const storedBase = localStorage.getItem('API_BASE_OVERRIDE');
     if (storedBase) {
         apiBase = storedBase;
-    } else if (!apiBase || apiBase.includes('10.0.2.2') || apiBase.includes('localhost')) {
+        console.log(`🔍 [apiConfig] 2. Using localStorage API_BASE_OVERRIDE: "${apiBase}"`);
+    } else if (!apiBase || apiBase.includes('10.0.2.2') || apiBase.includes('localhost') || apiBase.includes('127.0.0.1')) {
         apiBase = 'https://www.beanmindcurator.com';
+        console.log(`🔍 [apiConfig] 2. Native fallback -> forcing production domain: "${apiBase}"`);
     } else {
         if (platform === 'ios' && apiBase.includes('10.0.2.2')) {
             apiBase = apiBase.replace('10.0.2.2', 'localhost');
@@ -151,7 +153,8 @@ export const getApiUrl = (path: string): string => {
             base = 'https://www.beanmindcurator.com';
         }
         const finalUrl = `${base}${normalizedPath}`;
-        console.log(`⚡️ [Native API Router] path: ${path} -> finalUrl: ${finalUrl}`);
+        (window as any).__LAST_API_URL__ = finalUrl;
+        console.log(`⚡️ [Native API Router] Platform: ${platform} | path: ${path} -> finalUrl: ${finalUrl}`);
         return finalUrl;
     }
 
