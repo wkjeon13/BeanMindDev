@@ -75,11 +75,14 @@ public class SecurityConfig {
             "https://localhost*",
             "http://127.0.0.1*",
             "https://127.0.0.1*",
+            "http://192.168.*",
+            "https://192.168.*",
             "http://*.beanmindcurator.com*",
             "https://*.beanmindcurator.com*",
             "https://appleid.apple.com*",
             "capacitor://localhost",
-            "ionic://localhost"
+            "ionic://localhost",
+            "*"
         ));
         
         configuration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
