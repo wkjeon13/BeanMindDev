@@ -28,13 +28,13 @@ if (!isNative) {
     apiBase = ''; // Force relative paths on Web to completely avoid CORS/SSL mismatch across different IPs
     console.log(`🔍 [apiConfig] 3. Web environment (Relative Path) -> final API_BASE: "${apiBase}"`);
 } else if (isNative) {
-    if (!apiBase) {
-        if (import.meta.env.DEV) {
-            apiBase = platform === 'ios' ? 'http://localhost:3000' : 'http://10.0.2.2:3000';
-        } else {
-            apiBase = 'https://www.beanmindcurator.com';
-        }
+    const storedBase = localStorage.getItem('API_BASE_OVERRIDE');
+    if (storedBase) {
+        apiBase = storedBase;
+    } else if (!rawEnvUrl || rawEnvUrl.includes('10.0.2.2') || rawEnvUrl.includes('localhost')) {
+        apiBase = platform === 'ios' ? 'http://localhost:3000' : 'http://10.0.2.2:3000';
     } else {
+        apiBase = rawEnvUrl;
         if (platform === 'ios' && apiBase.includes('10.0.2.2')) {
             apiBase = apiBase.replace('10.0.2.2', 'localhost');
             console.log(`🔍 [apiConfig] Auto-corrected 10.0.2.2 to localhost for iOS -> "${apiBase}"`);
