@@ -119,10 +119,20 @@ export const getApiUrl = (path: string): string => {
     // 1. On Mobile Native App (Capacitor): Use direct port 3001 to bypass Nginx 3000 Spring Boot mismatch
     // 1. On Mobile Native App (Capacitor): Use standard Nginx HTTPS endpoint
     if (isNative) {
-        let base = apiBase || 'https://www.beanmindcurator.com';
+        let base = apiBase || '';
+        // If no explicit VITE_API_BASE_URL is set, use Android emulator loopback IP in DEV mode
+        if (!base) {
+            if (import.meta.env.DEV) {
+                base = 'http://10.0.2.2:3000';
+            } else {
+                base = 'https://www.beanmindcurator.com';
+            }
+        }
         base = base.replace(/\/$/, '');
-        // Ensure HTTPS protocol and no unexposed raw internal dev ports (:3000, :3001)
-        if (base.includes('dev.beanmindcurator.com') || base.includes(':3000') || base.includes(':3001')) {
+        
+        // Allow local dev IPs (10.0.2.2, localhost, 192.168.x.x, 127.0.0.1, :3000) to connect directly to local backend
+        const isLocalDev = base.includes('10.0.2.2') || base.includes('localhost') || base.includes('192.168.') || base.includes('127.0.0.1') || base.includes(':3000');
+        if (!isLocalDev && (base.includes('dev.beanmindcurator.com') || base.includes(':3001'))) {
             base = 'https://www.beanmindcurator.com';
         }
         const finalUrl = `${base}${normalizedPath}`;
