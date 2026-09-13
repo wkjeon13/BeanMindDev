@@ -105,7 +105,7 @@ public class HomeService {
         }
 
         // 3. Taste Matched Feeds
-        Pageable matchPage = PageRequest.of(0, 50);
+        Pageable matchPage = PageRequest.of(0, 15);
         List<Post> rawTasteFeeds = postRepository.findPersonalizedBasePosts(finalCountryCode, matchPage);
         if (rawTasteFeeds.size() < 3 && !"KR".equals(finalCountryCode)) {
             rawTasteFeeds = postRepository.findPersonalizedBasePosts(null, matchPage);
@@ -281,7 +281,7 @@ public class HomeService {
                 null, 
                 finalCountryCode, 
                 "popular", 
-                30, 
+                10, 
                 0
         );
         if (rawHotFeeds.isEmpty() && !"GLOBAL".equalsIgnoreCase(finalCountryCode)) {
@@ -292,7 +292,7 @@ public class HomeService {
                     null, 
                     null, 
                     "popular", 
-                    30, 
+                    10, 
                     0
             );
         }
