@@ -62,7 +62,8 @@ export default defineConfig(({ mode }) => {
         ignored: ['**/public/uploads/**', '**/data/**', '**/systemSettings.json', '**/logs/**']
       },
       host: true,
-      allowedHosts: ['dev.beanmindcurator.com', 'www.beanmindcurator.com', 'localhost'],
+      allowedHosts: true,
+      cors: true,
       https: hasValidCert ? {
         key: fs.readFileSync(keyPath),
         cert: fs.readFileSync(certPath)
