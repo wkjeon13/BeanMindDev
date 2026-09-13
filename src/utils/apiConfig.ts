@@ -15,13 +15,12 @@ console.log(`🔍 [apiConfig] 1. Raw env VITE_API_BASE_URL: "${rawEnvUrl}"`);
 
 let apiBase = rawEnvUrl;
 
-// Node.js 포트(3001, 4001)로 잘못 지정되어 들어온 경우 스프링부트 API 포트(3000, 4000)로 자동 보정
-if (apiBase.includes(':3001')) {
-    apiBase = apiBase.replace(':3001', ':3000');
-    console.log(`🔍 [apiConfig] 2. Port :3001 auto-corrected to :3000 -> "${apiBase}"`);
-} else if (apiBase.includes(':4001')) {
-    apiBase = apiBase.replace(':4001', ':4000');
-    console.log(`🔍 [apiConfig] 2. Port :4001 auto-corrected to :4000 -> "${apiBase}"`);
+// Fix invalid ports :3001, :4001 -> :3000
+apiBase = apiBase.replace(':3001', ':3000').replace(':4001', ':4000');
+
+// Fix unroutable dev domain dev.beanmindcurator.com
+if (apiBase.includes('dev.beanmindcurator.com')) {
+    apiBase = 'https://www.beanmindcurator.com';
 }
 
 if (!isNative) {
@@ -31,10 +30,9 @@ if (!isNative) {
     const storedBase = localStorage.getItem('API_BASE_OVERRIDE');
     if (storedBase) {
         apiBase = storedBase;
-    } else if (!rawEnvUrl || rawEnvUrl.includes('10.0.2.2') || rawEnvUrl.includes('localhost')) {
+    } else if (!apiBase || apiBase.includes('10.0.2.2') || apiBase.includes('localhost')) {
         apiBase = platform === 'ios' ? 'http://localhost:3000' : 'http://10.0.2.2:3000';
     } else {
-        apiBase = rawEnvUrl;
         if (platform === 'ios' && apiBase.includes('10.0.2.2')) {
             apiBase = apiBase.replace('10.0.2.2', 'localhost');
             console.log(`🔍 [apiConfig] Auto-corrected 10.0.2.2 to localhost for iOS -> "${apiBase}"`);
