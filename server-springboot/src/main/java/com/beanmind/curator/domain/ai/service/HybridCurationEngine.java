@@ -249,10 +249,10 @@ public class HybridCurationEngine {
      * Advanced Multi-Factor Mathematical Scoring & Selection
      */
     public RecommendationResult calculateTop3Recommendations(Map<String, Object> prefs) {
-        int targetAcidity = getInt(prefs, "tasteAcidity", 3);
-        int targetSweetness = getInt(prefs, "tasteSweetness", 3);
-        int targetBitterness = getInt(prefs, "tasteBitterness", 3);
-        int targetBody = getInt(prefs, "tasteBody", 3);
+        double targetAcidity = getDouble(prefs, "tasteAcidity", 3.0);
+        double targetSweetness = getDouble(prefs, "tasteSweetness", 3.0);
+        double targetBitterness = getDouble(prefs, "tasteBitterness", 3.0);
+        double targetBody = getDouble(prefs, "tasteBody", 3.0);
 
         String targetRoast = (String) prefs.getOrDefault("roastLevel", "Medium");
         String targetCaffeine = (String) prefs.getOrDefault("caffeine", "Regular");
@@ -261,45 +261,54 @@ public class HybridCurationEngine {
 
         List<String> targetFlavorNotes = extractFlavorNotes(prefs.get("flavorNotes"));
 
-        // Environmental weights
-        double wAcidity = 1.0;
-        double wBody = 1.0;
+        // Preference Intensity Weighting (Extreme preferences carry higher weight)
+        double wAcidity = 1.0 + (Math.abs(targetAcidity - 3.0) * 0.4);
+        double wSweetness = 1.0 + (Math.abs(targetSweetness - 3.0) * 0.3);
+        double wBitterness = 1.0 + (Math.abs(targetBitterness - 3.0) * 0.3);
+        double wBody = 1.0 + (Math.abs(targetBody - 3.0) * 0.4);
 
         if ("Rainy".equalsIgnoreCase(weather) || "Tired".equalsIgnoreCase(condition)) {
-            wBody = 1.3;
+            wBody *= 1.3;
         } else if ("Hot".equalsIgnoreCase(weather) || "Refresh".equalsIgnoreCase(condition)) {
-            wAcidity = 1.3;
+            wAcidity *= 1.3;
         }
 
         final double finalWAcidity = wAcidity;
+        final double finalWSweetness = wSweetness;
+        final double finalWBitterness = wBitterness;
         final double finalWBody = wBody;
 
         List<ScoredBean> scored = BEAN_CATALOG.stream().map(bean -> {
-            // 1. Taste Profile Distance
+            // 1. Taste Profile Distance with Weighted Dimensions
             double dAcidity = (bean.getAcidity() - targetAcidity) * finalWAcidity;
-            double dSweetness = bean.getSweetness() - targetSweetness;
-            double dBitterness = bean.getBitterness() - targetBitterness;
+            double dSweetness = (bean.getSweetness() - targetSweetness) * finalWSweetness;
+            double dBitterness = (bean.getBitterness() - targetBitterness) * finalWBitterness;
             double dBody = (bean.getBody() - targetBody) * finalWBody;
 
             double score = (dAcidity * dAcidity) + (dSweetness * dSweetness) + (dBitterness * dBitterness) + (dBody * dBody);
 
-            // 2. Roast Level Penalty
+            // 2. Roast Level Matching / Penalty
             if (targetRoast != null && !targetRoast.isEmpty()) {
-                if (!targetRoast.equalsIgnoreCase(bean.getRoastLevel())) {
-                    score += 2.5;
+                if (targetRoast.equalsIgnoreCase(bean.getRoastLevel())) {
+                    score -= 3.0; // Strong bonus for exact roast match!
+                } else if (("Light".equalsIgnoreCase(targetRoast) && "Dark".equalsIgnoreCase(bean.getRoastLevel())) ||
+                           ("Dark".equalsIgnoreCase(targetRoast) && "Light".equalsIgnoreCase(bean.getRoastLevel()))) {
+                    score += 8.0; // Heavy penalty for extreme roast mismatch!
+                } else {
+                    score += 2.0;
                 }
             }
 
             // 3. Caffeine Match / Decaf Penalty
             if ("Decaf".equalsIgnoreCase(targetCaffeine) || "Decaffeinated".equalsIgnoreCase(targetCaffeine)) {
                 if (!Boolean.TRUE.equals(bean.getIsDecaf())) {
-                    score += 15.0; // Heavy penalty if decaf requested but bean is caffeine
+                    score += 25.0; // Massive penalty if decaf requested but bean is caffeine
                 } else {
-                    score -= 5.0; // Bonus for matching decaf
+                    score -= 10.0; // Huge bonus for matching decaf
                 }
             } else {
                 if (Boolean.TRUE.equals(bean.getIsDecaf())) {
-                    score += 4.0; // Mild penalty for decaf when regular requested
+                    score += 5.0; // Mild penalty for decaf when regular requested
                 }
             }
 
@@ -308,7 +317,7 @@ public class HybridCurationEngine {
                 for (String note : targetFlavorNotes) {
                     for (String beanNote : bean.getFlavorNotes()) {
                         if (beanNote.equalsIgnoreCase(note) || note.toLowerCase().contains(beanNote.toLowerCase())) {
-                            score -= 1.8; // Reduce score for each matching flavor tag!
+                            score -= 2.5; // Reduce score for each matching flavor tag!
                         }
                     }
                 }
@@ -365,6 +374,15 @@ public class HybridCurationEngine {
             this.bean = bean;
             this.score = score;
         }
+    }
+
+    private double getDouble(Map<String, Object> map, String key, double defaultValue) {
+        Object val = map.get(key);
+        if (val instanceof Number) return ((Number) val).doubleValue();
+        if (val instanceof String) {
+            try { return Double.parseDouble((String) val); } catch (Exception e) {}
+        }
+        return defaultValue;
     }
 
     private int getInt(Map<String, Object> map, String key, int defaultValue) {

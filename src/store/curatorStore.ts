@@ -246,6 +246,7 @@ export const useCuratorStore = create<CuratorState>((set, get) => ({
 
   reset: () => {
     set({ direction: -1, step: 0, recommendation: null, subRecommendations: [], aiExplanation: "", nearbyShops: [] });
+    localStorage.removeItem('bm_sync_presc');
     get().syncStateToStorage();
   },
 

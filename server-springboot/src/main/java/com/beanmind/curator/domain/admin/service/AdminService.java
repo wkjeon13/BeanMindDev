@@ -251,7 +251,7 @@ public class AdminService {
             name, coffee, desc != null ? desc : "", season != null ? season : "", tasteProfile != null ? tasteProfile : ""
         );
 
-        return geminiService.generateContent("gemini-2.5-flash", prompt, 0.2, "application/json", false)
+        return geminiService.generateContent("gemini-2.0-flash", prompt, 0.2, "application/json", false)
                 .map(this::cleanJsonText);
     }
 

@@ -87,7 +87,7 @@ public class AiService {
             "Reviews:\n%s", store.getName(), reviewTexts
         );
 
-        return geminiService.generateContent("gemini-2.5-flash", prompt, 0.7)
+        return geminiService.generateContent("gemini-2.0-flash", prompt, 0.7)
                 .map(summary -> {
                     store.setAiReviewSummary(summary);
                     storeRepository.save(store);
@@ -282,7 +282,7 @@ public class AiService {
             rawNote
         );
 
-        return geminiService.generateContent("gemini-2.5-flash", prompt, 0.3, "application/json", false)
+        return geminiService.generateContent("gemini-2.0-flash", prompt, 0.3, "application/json", false)
                 .map(this::cleanJsonText);
     }
 
@@ -481,7 +481,7 @@ public class AiService {
             locationContext, themeContext, currentLang
         );
 
-        return geminiService.generateContent("gemini-2.5-flash", prompt, 0.2, "application/json", true)
+        return geminiService.generateContent("gemini-2.0-flash", prompt, 0.2, "application/json", true)
                 .flatMap(rawJson -> {
                     try {
                         String cleaned = cleanJsonText(rawJson);
@@ -606,7 +606,7 @@ public class AiService {
         final String finalCacheKey = cacheKey;
         StringBuilder accumulated = new StringBuilder();
 
-        return geminiService.streamCurationProxy("gemini-2.5-flash", rawRequestBody)
+        return geminiService.streamCurationProxy("gemini-2.0-flash", rawRequestBody)
                 .doOnNext(chunk -> {
                     if (finalCacheKey != null && chunk != null && chunk.contains("candidates")) {
                         try {
