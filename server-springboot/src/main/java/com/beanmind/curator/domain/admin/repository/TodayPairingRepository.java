@@ -13,6 +13,6 @@ public interface TodayPairingRepository extends JpaRepository<TodayPairing, Stri
     List<TodayPairing> findAllByOrderByOrderAscCreatedAtDesc();
 
     @Query("SELECT tp FROM TodayPairing tp WHERE tp.isActive = true " +
-           "AND (tp.availableRegions = 'GLOBAL' OR tp.availableRegions LIKE %:countryCode%)")
+           "AND (tp.availableRegions IS NULL OR tp.availableRegions = '' OR tp.availableRegions = 'GLOBAL' OR tp.availableRegions = 'ALL' OR tp.availableRegions LIKE %:countryCode%)")
     List<TodayPairing> findActivePairings(@Param("countryCode") String countryCode);
 }

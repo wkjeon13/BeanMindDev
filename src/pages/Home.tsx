@@ -485,12 +485,17 @@ export default function HomeDashboard() {
                             return a._distance - b._distance;
                         });
                     } else if (currentUser?.location && typeof currentUser.location === 'string') {
-                        const userLoc = currentUser.location.split(' ')[0];
-                        sortedClubs = sortedClubs.filter((c: any) => c.locationName && c.locationName.includes(userLoc));
+                        const userLocClean = currentUser.location.trim().split(' ')[0].replace(/시|도|구|군$/, '');
+                        if (userLocClean.length > 0) {
+                            const matched = sortedClubs.filter((c: any) => c.locationName && (c.locationName.includes(userLocClean) || userLocClean.includes(c.locationName)));
+                            if (matched.length > 0) {
+                                sortedClubs = matched;
+                            }
+                        }
                         sortedClubs.sort((a: any, b: any) => {
                             if (a.isRecruiting && !b.isRecruiting) return -1;
                             if (!a.isRecruiting && b.isRecruiting) return 1;
-                            return b.memberCount - a.memberCount;
+                            return (b.memberCount || 0) - (a.memberCount || 0);
                         });
                     } else {
                         // Fallback: show nationwide popular clubs when location is not available
