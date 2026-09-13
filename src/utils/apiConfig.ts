@@ -1,6 +1,14 @@
 import i18n from '../i18n';
 
 const isNative = typeof (window as any).Capacitor !== 'undefined' && (window as any).Capacitor.isNativePlatform();
+const getPlatform = (): string => {
+    if (typeof (window as any).Capacitor !== 'undefined' && typeof (window as any).Capacitor.getPlatform === 'function') {
+        return (window as any).Capacitor.getPlatform();
+    }
+    return '';
+};
+
+const platform = getPlatform();
 
 let rawEnvUrl = import.meta.env.VITE_API_BASE_URL || '';
 console.log(`🔍 [apiConfig] 1. Raw env VITE_API_BASE_URL: "${rawEnvUrl}"`);
@@ -21,10 +29,19 @@ if (!isNative) {
     console.log(`🔍 [apiConfig] 3. Web environment (Relative Path) -> final API_BASE: "${apiBase}"`);
 } else if (isNative) {
     if (!apiBase) {
-        apiBase = 'https://www.beanmindcurator.com';
+        if (import.meta.env.DEV) {
+            apiBase = platform === 'ios' ? 'http://localhost:3000' : 'http://10.0.2.2:3000';
+        } else {
+            apiBase = 'https://www.beanmindcurator.com';
+        }
+    } else {
+        if (platform === 'ios' && apiBase.includes('10.0.2.2')) {
+            apiBase = apiBase.replace('10.0.2.2', 'localhost');
+            console.log(`🔍 [apiConfig] Auto-corrected 10.0.2.2 to localhost for iOS -> "${apiBase}"`);
+        }
     }
     apiBase = apiBase.replace(/\/$/, '');
-    console.log(`🔍 [apiConfig] 3. Native platform detected -> final API_BASE: "${apiBase}"`);
+    console.log(`🔍 [apiConfig] 3. Native platform detected (${platform}) -> final API_BASE: "${apiBase}"`);
 }
 export const API_BASE = apiBase;
 
