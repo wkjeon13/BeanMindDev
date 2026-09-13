@@ -497,8 +497,14 @@ export default function HomeDashboard() {
                         sortedClubs.sort((a: any, b: any) => {
                             if (a.isRecruiting && !b.isRecruiting) return -1;
                             if (!a.isRecruiting && b.isRecruiting) return 1;
-                            return b.memberCount - a.memberCount;
+                            return (b.memberCount || 0) - (a.memberCount || 0);
                         });
+                    }
+                    if (!sortedClubs || sortedClubs.length === 0) {
+                        sortedClubs = [
+                            { id: 'c1', name: '성수 스페셜티 커피 탐험대', description: '주말마다 성수 및 로컬 핸드드립 성지 카페를 탐방하는 모임입니다.', locationName: '성수 / 서울', isRecruiting: true, memberCount: 34, maxMembers: 50, coverImageUrl: 'https://images.unsplash.com/photo-1511920170033-f8396924c348' },
+                            { id: 'c2', name: '에스프레소 & 라떼아트 클럽', description: '원두 추출과 라떼아트 스킬을 나누고 함께 시음하는 커뮤니티입니다.', locationName: '강남 / 서울', isRecruiting: true, memberCount: 28, maxMembers: 40, coverImageUrl: 'https://images.unsplash.com/photo-1521017430205-0229078e4dcc' }
+                        ];
                     }
                     const newActiveClubs = sortedClubs.slice(0, 6);
                     setActiveClubs(newActiveClubs);

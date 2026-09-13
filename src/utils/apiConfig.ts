@@ -120,13 +120,18 @@ export const getApiUrl = (path: string): string => {
     // 1. On Mobile Native App (Capacitor): Use standard Nginx HTTPS endpoint
     if (isNative) {
         let base = apiBase || '';
-        // If no explicit VITE_API_BASE_URL is set, use Android emulator loopback IP in DEV mode
+        const platform = typeof (window as any).Capacitor !== 'undefined' && typeof (window as any).Capacitor.getPlatform === 'function' ? (window as any).Capacitor.getPlatform() : '';
+
         if (!base) {
             if (import.meta.env.DEV) {
-                base = 'http://10.0.2.2:3000';
+                // iOS simulator uses Mac host loopback (localhost), Android emulator uses 10.0.2.2 loopback alias
+                base = platform === 'ios' ? 'http://localhost:3000' : 'http://10.0.2.2:3000';
             } else {
                 base = 'https://www.beanmindcurator.com';
             }
+        } else if (platform === 'ios' && base.includes('10.0.2.2')) {
+            // Auto-correct 10.0.2.2 to localhost when running on iOS simulator
+            base = base.replace('10.0.2.2', 'localhost');
         }
         base = base.replace(/\/$/, '');
         

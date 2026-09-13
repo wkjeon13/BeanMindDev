@@ -301,10 +301,16 @@ public class ShopService {
         List<Store> stores = new ArrayList<>();
         if (topStoreIds != null && !topStoreIds.isEmpty()) {
             stores = storeRepository.findByIdInAndStatus(topStoreIds, "APPROVED");
+            if (stores.isEmpty()) {
+                stores = storeRepository.findAllById(topStoreIds);
+            }
         }
 
         if (stores.isEmpty()) {
             stores = storeRepository.findTop5ByStatusOrderByCreatedAtDesc("APPROVED");
+        }
+        if (stores.isEmpty()) {
+            stores = storeRepository.findTop5ByOrderByCreatedAtDesc();
         }
 
         final List<String> finalTopStoreIds = topStoreIds != null ? topStoreIds : new ArrayList<>();

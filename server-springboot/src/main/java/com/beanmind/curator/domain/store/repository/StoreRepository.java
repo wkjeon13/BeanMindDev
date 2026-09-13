@@ -23,4 +23,6 @@ public interface StoreRepository extends JpaRepository<Store, String>, StoreRepo
     List<Store> findByIdInAndStatus(Collection<String> ids, String status);
 
     List<Store> findTop5ByStatusOrderByCreatedAtDesc(String status);
+
+    List<Store> findTop5ByOrderByCreatedAtDesc();
 }

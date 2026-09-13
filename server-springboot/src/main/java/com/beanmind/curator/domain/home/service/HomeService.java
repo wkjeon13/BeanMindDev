@@ -250,6 +250,15 @@ public class HomeService {
             todayPairingDtos = todayPairingDtos.subList(0, 4);
         }
 
+        if (todayPairingDtos.isEmpty()) {
+            todayPairingDtos = Arrays.asList(
+                PersonalizedHomeResponse.PairingDto.builder().id("p1").icon("🥐").order(1).name("버터 크로와상").coffee("에티오피아 예가체프").desc("바삭한 결의 크로와상이 화사한 꽃향기 산미와 스윗함을 감싸줍니다.").build(),
+                PersonalizedHomeResponse.PairingDto.builder().id("p2").icon("🍫").order(2).name("초콜릿 브라우니").coffee("브라질 세라도 NY2").desc("꾸덕한 딥 초콜릿 풍미가 묵직하고 고소한 원두 바디감과 완벽하게 일치합니다.").build(),
+                PersonalizedHomeResponse.PairingDto.builder().id("p3").icon("🍊").order(3).name("오렌지 파운드케이크").coffee("콜롬비아 휘일라 Supremo").desc("상큼하고 은은한 시트러스 향이 고소한 견과류 밸런스를 세련되게 완성합니다.").build(),
+                PersonalizedHomeResponse.PairingDto.builder().id("p4").icon("🍰").order(4).name("마스카포네 티라미수").coffee("인도네시아 만델링 G1").desc("달콤하고 촉촉한 마스카포네 치즈가 스모키하고 스파이시한 풍미를 고급스럽게 돋웁니다.").build()
+            );
+        }
+
         // 6. User Pairings
         String pairingTag = "US".equals(finalCountryCode) ? "#Pairing" : "#페어링";
         List<Post> userPairingPosts = postRepository.findUserPairingPosts(finalCountryCode, pairingTag, PageRequest.of(0, 5));
