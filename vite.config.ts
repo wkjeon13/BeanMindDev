@@ -209,7 +209,7 @@ export default defineConfig(({ mode }) => {
           proxyTimeout: 600000
         },
         '/api': {
-          target: 'http://127.0.0.1:3000',
+          target: env.VITE_API_BASE_URL || 'https://www.beanmindcurator.com',
           changeOrigin: true,
           secure: false,
           timeout: 600000,

@@ -31,7 +31,7 @@ if (!isNative) {
     if (storedBase) {
         apiBase = storedBase;
     } else if (!apiBase || apiBase.includes('10.0.2.2') || apiBase.includes('localhost')) {
-        apiBase = platform === 'ios' ? 'http://localhost:3000' : 'http://10.0.2.2:3000';
+        apiBase = 'https://www.beanmindcurator.com';
     } else {
         if (platform === 'ios' && apiBase.includes('10.0.2.2')) {
             apiBase = apiBase.replace('10.0.2.2', 'localhost');
@@ -138,12 +138,7 @@ export const getApiUrl = (path: string): string => {
         const platform = typeof (window as any).Capacitor !== 'undefined' && typeof (window as any).Capacitor.getPlatform === 'function' ? (window as any).Capacitor.getPlatform() : '';
 
         if (!base) {
-            if (import.meta.env.DEV) {
-                // iOS simulator uses Mac host loopback (localhost), Android emulator uses 10.0.2.2 loopback alias
-                base = platform === 'ios' ? 'http://localhost:3000' : 'http://10.0.2.2:3000';
-            } else {
-                base = 'https://www.beanmindcurator.com';
-            }
+            base = 'https://www.beanmindcurator.com';
         } else if (platform === 'ios' && base.includes('10.0.2.2')) {
             // Auto-correct 10.0.2.2 to localhost when running on iOS simulator
             base = base.replace('10.0.2.2', 'localhost');
