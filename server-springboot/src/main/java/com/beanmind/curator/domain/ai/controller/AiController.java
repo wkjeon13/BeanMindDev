@@ -115,8 +115,10 @@ public class AiController {
 
     @PostMapping(value = "/stream-curation", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> streamCurationProxy(
+            @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody String rawBody) {
-        return aiService.streamCurationProxy(rawBody);
+        String userId = userDetails != null ? userDetails.getUsername() : null;
+        return aiService.streamCurationProxy(rawBody, userId);
     }
 
     private Double getDouble(Object obj) {

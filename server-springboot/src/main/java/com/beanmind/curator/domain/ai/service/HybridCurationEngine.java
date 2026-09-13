@@ -31,6 +31,7 @@ public class HybridCurationEngine {
         private String description;
         private String brewingGuide;
         private List<Map<String, String>> foodPairing;
+        private Boolean isDecaf;
     }
 
     @Data
@@ -63,8 +64,8 @@ public class HybridCurationEngine {
                 .id("ethiopia-yirgacheffe")
                 .name("Ethiopia Yirgacheffe G1 Washed")
                 .origin("Ethiopia").region("Yirgacheffe").processing("Washed").roastLevel("Light")
-                .acidity(5).body(2).sweetness(4).bitterness(1)
-                .flavorNotes(List.of("Lemon", "Floral", "Bergamot", "Jasmine"))
+                .acidity(5).body(2).sweetness(4).bitterness(1).isDecaf(false)
+                .flavorNotes(List.of("Lemon", "Floral", "Bergamot", "Jasmine", "Citrus"))
                 .description("Bright, tea-like acidity and intense floral aroma.")
                 .brewingGuide("Best brewed with Hario V60 at 92°C with a 1:15 ratio.")
                 .foodPairing(List.of(
@@ -77,7 +78,7 @@ public class HybridCurationEngine {
                 .id("brazil-cerrado")
                 .name("Brazil Cerrado NY2")
                 .origin("Brazil").region("Cerrado").processing("Natural").roastLevel("Medium")
-                .acidity(2).body(4).sweetness(4).bitterness(3)
+                .acidity(2).body(4).sweetness(4).bitterness(3).isDecaf(false)
                 .flavorNotes(List.of("Chocolate", "Nutty", "Caramel"))
                 .description("Balanced and approachable coffee with low acidity and heavy chocolate finish.")
                 .brewingGuide("Excellent for both espresso and drip. Try 90°C.")
@@ -91,8 +92,8 @@ public class HybridCurationEngine {
                 .id("colombia-huila")
                 .name("Colombia Huila Supremo")
                 .origin("Colombia").region("Huila").processing("Washed").roastLevel("Medium")
-                .acidity(3).body(3).sweetness(5).bitterness(2)
-                .flavorNotes(List.of("Caramel", "Orange", "Nutty"))
+                .acidity(3).body(3).sweetness(5).bitterness(2).isDecaf(false)
+                .flavorNotes(List.of("Caramel", "Orange", "Nutty", "Citrus"))
                 .description("Sweet, clean, and versatile mild specialty coffee.")
                 .brewingGuide("Works well with any brewing method at 91°C.")
                 .foodPairing(List.of(
@@ -105,7 +106,7 @@ public class HybridCurationEngine {
                 .id("guatemala-antigua")
                 .name("Guatemala Antigua Pastoral")
                 .origin("Guatemala").region("Antigua").processing("Washed").roastLevel("Dark")
-                .acidity(2).body(5).sweetness(3).bitterness(4)
+                .acidity(2).body(5).sweetness(3).bitterness(4).isDecaf(false)
                 .flavorNotes(List.of("Smoky", "Dark Chocolate", "Spice"))
                 .description("Grown in volcanic soil with smoky aroma and rich chocolate depth.")
                 .brewingGuide("Great for French Press or Moka Pot.")
@@ -119,8 +120,8 @@ public class HybridCurationEngine {
                 .id("el-paraiso-anaerobic")
                 .name("Colombia El Paraiso Lychee Anaerobic")
                 .origin("Colombia").region("Cauca").processing("Anaerobic").roastLevel("Light")
-                .acidity(5).body(3).sweetness(5).bitterness(1)
-                .flavorNotes(List.of("Lychee", "Peach", "Yogurt", "Floral"))
+                .acidity(5).body(3).sweetness(5).bitterness(1).isDecaf(false)
+                .flavorNotes(List.of("Lychee", "Peach", "Yogurt", "Floral", "Berry"))
                 .description("Explosive flavor profile created by double anaerobic fermentation.")
                 .brewingGuide("Brew with coarser grind at 88-90°C.")
                 .foodPairing(List.of(
@@ -133,7 +134,7 @@ public class HybridCurationEngine {
                 .id("indonesia-mandheling")
                 .name("Indonesia Sumatra Mandheling G1")
                 .origin("Indonesia").region("Sumatra").processing("Natural").roastLevel("Dark")
-                .acidity(1).body(5).sweetness(2).bitterness(5)
+                .acidity(1).body(5).sweetness(2).bitterness(5).isDecaf(false)
                 .flavorNotes(List.of("Earthy", "Herbal", "Dark Chocolate"))
                 .description("Heavy-bodied and low-acid with unique earthy profile.")
                 .brewingGuide("Bold, punchy cup. Use 93°C water.")
@@ -142,23 +143,100 @@ public class HybridCurationEngine {
                 ))
                 .build());
 
+        BEAN_CATALOG.add(CoffeeBeanDto.builder()
+                .id("kenya-aa")
+                .name("Kenya AA Nyeri Washed")
+                .origin("Kenya").region("Nyeri").processing("Washed").roastLevel("Light")
+                .acidity(5).body(4).sweetness(4).bitterness(2).isDecaf(false)
+                .flavorNotes(List.of("Blackcurrant", "Grapefruit", "Berry", "Citrus"))
+                .description("Complex winey acidity with rich blackcurrant and grapefruit notes.")
+                .brewingGuide("Drip brew at 92°C with 1:16 ratio.")
+                .foodPairing(List.of(
+                        Map.of("name", "Berry Tart", "type", "Dessert", "description", "Tart berries elevate blackcurrant acidity.")
+                ))
+                .build());
+
+        BEAN_CATALOG.add(CoffeeBeanDto.builder()
+                .id("costa-rica-tarrazu")
+                .name("Costa Rica Tarrazu Honey")
+                .origin("Costa Rica").region("Tarrazu").processing("Honey").roastLevel("Medium")
+                .acidity(4).body(3).sweetness(4).bitterness(2).isDecaf(false)
+                .flavorNotes(List.of("Apple", "Honey", "Citrus", "Nutty"))
+                .description("Sweet and crisp with honey-like body and vibrant apple acidity.")
+                .brewingGuide("Best brewed with Kalita Wave at 91°C.")
+                .foodPairing(List.of(
+                        Map.of("name", "Apple Pie", "type", "Cake", "description", "Apple acidity matches warm apple sweetness.")
+                ))
+                .build());
+
+        BEAN_CATALOG.add(CoffeeBeanDto.builder()
+                .id("decaf-colombia")
+                .name("Colombia Swiss Water Decaf")
+                .origin("Colombia").region("Antioquia").processing("Swiss Water").roastLevel("Medium")
+                .acidity(2).body(3).sweetness(4).bitterness(2).isDecaf(true)
+                .flavorNotes(List.of("Sugar Cane", "Cocoa", "Vanilla", "Caramel"))
+                .description("Chemical-free decaf offering sweet cocoa and sugar cane flavors.")
+                .brewingGuide("Brew at 90°C for a soothing evening cup.")
+                .foodPairing(List.of(
+                        Map.of("name", "Vanilla Cookie", "type", "Cookie", "description", "Complements smooth decaf sweet notes.")
+                ))
+                .build());
+
+        BEAN_CATALOG.add(CoffeeBeanDto.builder()
+                .id("ethiopia-sidamo")
+                .name("Ethiopia Sidamo Natural G1")
+                .origin("Ethiopia").region("Sidamo").processing("Natural").roastLevel("Light")
+                .acidity(4).body(3).sweetness(5).bitterness(1).isDecaf(false)
+                .flavorNotes(List.of("Berry", "Peach", "Jasmine", "Floral"))
+                .description("Sweet strawberry and blueberry aromas with delicate jasmine notes.")
+                .brewingGuide("Aeropress or V60 at 89°C.")
+                .foodPairing(List.of(
+                        Map.of("name", "Strawberry Shortcake", "type", "Cake", "description", "Berry notes harmonize with cake sweetness.")
+                ))
+                .build());
+
+        BEAN_CATALOG.add(CoffeeBeanDto.builder()
+                .id("panama-geisha")
+                .name("Panama Boquete Geisha Washed")
+                .origin("Panama").region("Boquete").processing("Washed").roastLevel("Light")
+                .acidity(5).body(2).sweetness(5).bitterness(1).isDecaf(false)
+                .flavorNotes(List.of("Jasmine", "Bergamot", "Mango", "Floral", "Citrus"))
+                .description("Ultra-premium specialty coffee with intoxicating floral and tropical fruit elegance.")
+                .brewingGuide("Careful drip extraction at 90°C.")
+                .foodPairing(List.of(
+                        Map.of("name", "Fruit Tart", "type", "Dessert", "description", "Tropical notes match tropical fruit tart.")
+                ))
+                .build());
+
+        BRAND_CATALOG.add(BrandDto.builder()
+                .id("fritz-coffee").name("Fritz Coffee Company")
+                .beans(List.of("colombia-huila", "ethiopia-yirgacheffe", "brazil-cerrado"))
+                .website("https://fritz.co.kr")
+                .description("Premier Korean roastery celebrated for retro aesthetics and championship roasts.").build());
+
         BRAND_CATALOG.add(BrandDto.builder()
                 .id("blue-bottle").name("Blue Bottle Coffee")
-                .beans(List.of("ethiopia-yirgacheffe", "colombia-huila"))
+                .beans(List.of("ethiopia-yirgacheffe", "costa-rica-tarrazu", "panama-geisha"))
                 .website("https://bluebottlecoffee.com")
                 .description("Third-wave coffee leader focusing on delicate profiles.").build());
 
         BRAND_CATALOG.add(BrandDto.builder()
-                .id("starbucks").name("Starbucks")
-                .beans(List.of("brazil-cerrado", "guatemala-antigua"))
+                .id("starbucks").name("Starbucks Reserve")
+                .beans(List.of("brazil-cerrado", "guatemala-antigua", "decaf-colombia"))
                 .website("https://starbucks.com")
-                .description("Global coffee brand with consistent roasts.").build());
+                .description("Global coffee brand with premium single-origin roasts.").build());
 
         BRAND_CATALOG.add(BrandDto.builder()
                 .id("momos-coffee").name("Momos Coffee")
-                .beans(List.of("el-paraiso-anaerobic", "ethiopia-yirgacheffe"))
+                .beans(List.of("el-paraiso-anaerobic", "ethiopia-sidamo", "kenya-aa"))
                 .website("https://momoscoffee.com")
                 .description("Renowned Korean specialty roastery.").build());
+
+        BRAND_CATALOG.add(BrandDto.builder()
+                .id("terarosa").name("Terarosa Coffee")
+                .beans(List.of("kenya-aa", "ethiopia-sidamo", "colombia-huila"))
+                .website("https://terarosa.com")
+                .description("Pioneer specialty coffee roaster from Gangneung, Korea.").build());
 
         BRAND_CATALOG.add(BrandDto.builder()
                 .id("peets-coffee").name("Peet's Coffee")
@@ -168,7 +246,7 @@ public class HybridCurationEngine {
     }
 
     /**
-     * Tier 1 Mathematical Scoring & Top 3 Bean Selection (Zero Cost)
+     * Advanced Multi-Factor Mathematical Scoring & Selection
      */
     public RecommendationResult calculateTop3Recommendations(Map<String, Object> prefs) {
         int targetAcidity = getInt(prefs, "tasteAcidity", 3);
@@ -176,31 +254,68 @@ public class HybridCurationEngine {
         int targetBitterness = getInt(prefs, "tasteBitterness", 3);
         int targetBody = getInt(prefs, "tasteBody", 3);
 
+        String targetRoast = (String) prefs.getOrDefault("roastLevel", "Medium");
+        String targetCaffeine = (String) prefs.getOrDefault("caffeine", "Regular");
         String condition = (String) prefs.getOrDefault("condition", "Normal");
         String weather = (String) prefs.getOrDefault("weather", "Sunny");
+
+        List<String> targetFlavorNotes = extractFlavorNotes(prefs.get("flavorNotes"));
 
         // Environmental weights
         double wAcidity = 1.0;
         double wBody = 1.0;
 
         if ("Rainy".equalsIgnoreCase(weather) || "Tired".equalsIgnoreCase(condition)) {
-            wBody = 1.3; // Prefer heavier body when rainy or tired
+            wBody = 1.3;
         } else if ("Hot".equalsIgnoreCase(weather) || "Refresh".equalsIgnoreCase(condition)) {
-            wAcidity = 1.3; // Prefer higher acidity when hot
+            wAcidity = 1.3;
         }
 
         final double finalWAcidity = wAcidity;
         final double finalWBody = wBody;
 
         List<ScoredBean> scored = BEAN_CATALOG.stream().map(bean -> {
+            // 1. Taste Profile Distance
             double dAcidity = (bean.getAcidity() - targetAcidity) * finalWAcidity;
             double dSweetness = bean.getSweetness() - targetSweetness;
             double dBitterness = bean.getBitterness() - targetBitterness;
             double dBody = (bean.getBody() - targetBody) * finalWBody;
 
-            double distance = (dAcidity * dAcidity) + (dSweetness * dSweetness) + (dBitterness * dBitterness) + (dBody * dBody);
-            return new ScoredBean(bean, distance);
-        }).sorted(Comparator.comparingDouble(a -> a.distance)).collect(Collectors.toList());
+            double score = (dAcidity * dAcidity) + (dSweetness * dSweetness) + (dBitterness * dBitterness) + (dBody * dBody);
+
+            // 2. Roast Level Penalty
+            if (targetRoast != null && !targetRoast.isEmpty()) {
+                if (!targetRoast.equalsIgnoreCase(bean.getRoastLevel())) {
+                    score += 2.5;
+                }
+            }
+
+            // 3. Caffeine Match / Decaf Penalty
+            if ("Decaf".equalsIgnoreCase(targetCaffeine) || "Decaffeinated".equalsIgnoreCase(targetCaffeine)) {
+                if (!Boolean.TRUE.equals(bean.getIsDecaf())) {
+                    score += 15.0; // Heavy penalty if decaf requested but bean is caffeine
+                } else {
+                    score -= 5.0; // Bonus for matching decaf
+                }
+            } else {
+                if (Boolean.TRUE.equals(bean.getIsDecaf())) {
+                    score += 4.0; // Mild penalty for decaf when regular requested
+                }
+            }
+
+            // 4. Flavor Notes Match Bonus
+            if (!targetFlavorNotes.isEmpty() && bean.getFlavorNotes() != null) {
+                for (String note : targetFlavorNotes) {
+                    for (String beanNote : bean.getFlavorNotes()) {
+                        if (beanNote.equalsIgnoreCase(note) || note.toLowerCase().contains(beanNote.toLowerCase())) {
+                            score -= 1.8; // Reduce score for each matching flavor tag!
+                        }
+                    }
+                }
+            }
+
+            return new ScoredBean(bean, score);
+        }).sorted(Comparator.comparingDouble(a -> a.score)).collect(Collectors.toList());
 
         CoffeeBeanDto top1 = scored.get(0).bean;
         CoffeeBeanDto top2 = scored.size() > 1 ? scored.get(1).bean : top1;
@@ -223,6 +338,19 @@ public class HybridCurationEngine {
                 .build();
     }
 
+    private List<String> extractFlavorNotes(Object obj) {
+        if (obj == null) return List.of();
+        if (obj instanceof List) {
+            return ((List<?>) obj).stream().map(Object::toString).collect(Collectors.toList());
+        }
+        if (obj instanceof String) {
+            String str = (String) obj;
+            if (str.isEmpty()) return List.of();
+            return Arrays.stream(str.split(",")).map(String::trim).collect(Collectors.toList());
+        }
+        return List.of();
+    }
+
     private BrandDto findBrandForBean(String beanId, int fallbackIndex) {
         return BRAND_CATALOG.stream()
                 .filter(b -> b.getBeans().contains(beanId))
@@ -232,10 +360,10 @@ public class HybridCurationEngine {
 
     private static class ScoredBean {
         final CoffeeBeanDto bean;
-        final double distance;
-        ScoredBean(CoffeeBeanDto bean, double distance) {
+        final double score;
+        ScoredBean(CoffeeBeanDto bean, double score) {
             this.bean = bean;
-            this.distance = distance;
+            this.score = score;
         }
     }
 

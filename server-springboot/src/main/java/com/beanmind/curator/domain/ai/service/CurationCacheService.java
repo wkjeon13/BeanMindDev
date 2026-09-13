@@ -37,21 +37,30 @@ public class CurationCacheService {
     }
 
     /**
-     * Generate HASH Key for User Curation Context
+     * Generate Precise HASH Key for User Curation Context including all preferences and user identifier
      */
-    public String generateCurationKey(Map<String, Object> prefs, String userAgeGroup, String userGender, String language) {
+    public String generateCurationKey(Map<String, Object> prefs, String userAgeGroup, String userGender, String language, String userId) {
         if (prefs == null) prefs = Map.of();
 
-        String raw = String.format("%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s",
+        Object flavorNotesObj = prefs.get("flavorNotes");
+        String flavorNotesStr = flavorNotesObj != null ? flavorNotesObj.toString() : "";
+
+        String raw = String.format("%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s_%s",
                 language != null ? language : "ko",
-                prefs.getOrDefault("season", "Spring"),
-                prefs.getOrDefault("timeOfDay", "Day"),
-                prefs.getOrDefault("condition", "Normal"),
-                prefs.getOrDefault("weather", "Sunny"),
+                userId != null ? userId : "anon",
+                prefs.getOrDefault("base", "Drip"),
+                prefs.getOrDefault("caffeine", "Regular"),
+                prefs.getOrDefault("equipment", "Hand Drip"),
+                flavorNotesStr,
                 prefs.getOrDefault("tasteAcidity", "3"),
                 prefs.getOrDefault("tasteSweetness", "3"),
                 prefs.getOrDefault("tasteBitterness", "3"),
                 prefs.getOrDefault("tasteBody", "3"),
+                prefs.getOrDefault("roastLevel", "Medium"),
+                prefs.getOrDefault("season", "Spring"),
+                prefs.getOrDefault("timeOfDay", "Day"),
+                prefs.getOrDefault("condition", "Normal"),
+                prefs.getOrDefault("weather", "Sunny"),
                 prefs.getOrDefault("musicGenre", "Any"),
                 userAgeGroup != null ? userAgeGroup : "Anon",
                 userGender != null ? userGender : "Anon"
@@ -70,6 +79,13 @@ public class CurationCacheService {
         } catch (Exception e) {
             return "curation_essay:" + Math.abs(raw.hashCode());
         }
+    }
+
+    /**
+     * Overloaded method for backward compatibility
+     */
+    public String generateCurationKey(Map<String, Object> prefs, String userAgeGroup, String userGender, String language) {
+        return generateCurationKey(prefs, userAgeGroup, userGender, language, "anon");
     }
 
     /**

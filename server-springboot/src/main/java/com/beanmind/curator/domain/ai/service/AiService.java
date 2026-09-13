@@ -579,7 +579,7 @@ public class AiService {
     /**
      * Gemini SSE stream proxy with 2-Tier Redis Caching & Accumulation
      */
-    public Flux<String> streamCurationProxy(String rawRequestBody) {
+    public Flux<String> streamCurationProxy(String rawRequestBody, String userId) {
         String cacheKey = null;
         try {
             JsonNode root = objectMapper.readTree(rawRequestBody);
@@ -590,7 +590,7 @@ public class AiService {
                 String userGender = root.path("userGender").asText("Unknown");
                 String language = root.path("language").asText("ko");
 
-                cacheKey = curationCacheService.generateCurationKey(prefs, userAgeGroup, userGender, language);
+                cacheKey = curationCacheService.generateCurationKey(prefs, userAgeGroup, userGender, language, userId);
                 Optional<String> cachedEssay = curationCacheService.getCurationEssayCache(cacheKey);
 
                 if (cachedEssay.isPresent()) {
@@ -630,6 +630,10 @@ public class AiService {
                         curationCacheService.putCurationEssayCache(finalCacheKey, accumulated.toString(), 24);
                     }
                 });
+    }
+
+    public Flux<String> streamCurationProxy(String rawRequestBody) {
+        return streamCurationProxy(rawRequestBody, "anon");
     }
 
     private String cleanJsonText(String text) {
