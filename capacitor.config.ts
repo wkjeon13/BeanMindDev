@@ -9,7 +9,7 @@ const config: CapacitorConfig = {
     // url: 'https://192.168.0.29.nip.io:3002',
     cleartext: true,
     androidScheme: 'http',
-    allowNavigation: ['localhost', '127.0.0.1', '10.0.2.2', '192.168.0.*', '*.nip.io', 'www.beanmindcurator.com', '*.beanmindcurator.com']
+    allowNavigation: ['*']
   },
   android: {
     allowMixedContent: true
@@ -17,7 +17,7 @@ const config: CapacitorConfig = {
   appendUserAgent: " GoogleAuthApp",
   plugins: {
     CapacitorHttp: {
-      enabled: false,
+      enabled: true,
     },
     Keyboard: {
       resize: 'native',
