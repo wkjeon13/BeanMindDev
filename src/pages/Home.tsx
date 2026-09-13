@@ -546,8 +546,12 @@ export default function HomeDashboard() {
             });
       };
 
-      if (!silent || !fastLat) {
-          // Fast GPS Fetch (max 1.5 seconds)
+      // Trigger location dependent fetches immediately (0ms blocking)
+      processLocationDependentData(fastLat, fastLng);
+      if (!silent) setIsLoading(false);
+
+      if (!fastLat) {
+          // Background GPS Fetch
           new Promise<{lat: string, lng: string}>((resolve) => {
               const hasCapacitorGeo = typeof Geolocation !== 'undefined' && Geolocation && typeof Geolocation.getCurrentPosition === 'function';
               if (hasCapacitorGeo) {
@@ -574,20 +578,16 @@ export default function HomeDashboard() {
                   resolve({ lat: '', lng: '' });
               }
           }).then(gpsData => {
-              if (gpsData.lat) {
+              if (gpsData.lat && (gpsData.lat !== fastLat || gpsData.lng !== fastLng)) {
                   fastLat = gpsData.lat;
                   fastLng = gpsData.lng;
                   if (globalHomeCache) {
                       globalHomeCache.gpsLat = fastLat;
                       globalHomeCache.gpsLng = fastLng;
                   }
+                  processLocationDependentData(fastLat, fastLng);
               }
-              processLocationDependentData(fastLat, fastLng);
-              if (!silent) setIsLoading(false);
           });
-      } else {
-          processLocationDependentData(fastLat, fastLng);
-          if (!silent) setIsLoading(false);
       }
 
     } catch (e) {

@@ -81,9 +81,13 @@ export default function ClubList() {
                 endpoint += `&recruitingOnly=true`;
             }
 
-            const res = await fetch(endpoint, {
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
+            const headers: Record<string, string> = {};
+            const token = localStorage.getItem('token');
+            if (token && token !== 'null' && token !== 'undefined') {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const res = await fetch(endpoint, { headers });
             if (res.ok) {
                 const data = await res.json();
 
@@ -484,7 +488,7 @@ export default function ClubList() {
                         allClubs.map((club, index) => renderClubCard(club, index))
                     ) : (
                         <div className="text-center mt-20 text-espresso-300 text-sm">
-                            ?덈줈???뚮え?꾩씠 ?놁뒿?덈떎.
+                            {t('club_list.no_all_clubs', '새로운 소모임이 없습니다.')}
                         </div>
                     )
                 )}
