@@ -491,6 +491,10 @@ Randomization Seed: ${Math.random() * Date.now()}`;
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ 
+                  prefs: state.prefs,
+                  userAgeGroup,
+                  userGender,
+                  language,
                   contents: [{ role: "user", parts: [{ text: prompt }] }],
                   generationConfig: { temperature: 0.8 }
               })

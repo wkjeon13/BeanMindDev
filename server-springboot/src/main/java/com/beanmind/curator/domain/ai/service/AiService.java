@@ -47,6 +47,8 @@ public class AiService {
     private final CollectionItemRepository collectionItemRepository;
     private final GeminiService geminiService;
     private final ObjectMapper objectMapper;
+    private final CurationCacheService curationCacheService;
+    private final HybridCurationEngine hybridCurationEngine;
 
     @Value("${kakao.api.key:}")
     private String kakaoApiKey;
@@ -244,56 +246,13 @@ public class AiService {
 
     /**
      * Generate Curation Recommendation (curator-recommend)
+     * Tier 1: Hybrid Mathematical Scoring Engine (0 Cost, Instant)
      */
     public Mono<String> curatorRecommend(Map<String, Object> prefs, String userAgeGroup, String userGender, String language) {
         try {
-            String prefsJson = objectMapper.writeValueAsString(prefs);
-            String isEnglish = language != null && language.toLowerCase().startsWith("en") ? "English" : "Korean";
-
-            String prompt = String.format(
-                "You are a world-class coffee sommelier and Q-Grader.\n" +
-                "A user has provided the following preferences and context:\n" +
-                "Preferences: %s\n" +
-                "Demographics: Age: %s, Gender: %s\n\n" +
-                "Your task is to dynamically generate the absolute perfect coffee bean recommendation that matches their taste profile (Acidity: %s, Sweetness: %s, Bitterness: %s, Body: %s), health constraints (if any), and environmental context (Weather, Time, Mood).\n" +
-                "You may invent a highly realistic specialty coffee profile or recommend a famous real-world coffee. \n\n" +
-                "Respond ONLY with a valid JSON object matching the following structure exactly (DO NOT wrap in markdown blocks, just raw JSON):\n" +
-                "{\n" +
-                "  \"bean\": {\n" +
-                "    \"id\": \"ai-generated-bean\",\n" +
-                "    \"name\": \"[Creative but realistic bean name, e.g., 'Ethiopia Guji Anaerobic Natural']\",\n" +
-                "    \"origin\": \"[Country]\",\n" +
-                "    \"region\": \"[Region]\",\n" +
-                "    \"processing\": \"[Processing Method]\",\n" +
-                "    \"roastLevel\": \"[Light, Medium, or Dark]\",\n" +
-                "    \"acidity\": [Number 1-5],\n" +
-                "    \"body\": [Number 1-5],\n" +
-                "    \"sweetness\": [Number 1-5],\n" +
-                "    \"bitterness\": [Number 1-5],\n" +
-                "    \"flavorNotes\": [\"[Flavor 1]\", \"[Flavor 2]\", \"[Flavor 3]\"],\n" +
-                "    \"description\": \"[A short 1-sentence description of the coffee in %s]\",\n" +
-                "    \"brewingGuide\": \"[A short brewing tip in %s]\",\n" +
-                "    \"foodPairing\": []\n" +
-                "  },\n" +
-                "  \"brand\": {\n" +
-                "    \"id\": \"ai-generated-brand\",\n" +
-                "    \"name\": \"[A famous global or premium coffee brand that fits this roast, e.g., 'Blue Bottle Coffee', 'Fritz Coffee', 'Starbucks Reserve']\",\n" +
-                "    \"description\": \"[Short description of the brand in %s]\",\n" +
-                "    \"website\": \"\"\n" +
-                "  }\n" +
-                "}",
-                prefsJson,
-                userAgeGroup != null ? userAgeGroup : "Unknown",
-                userGender != null ? userGender : "Unknown",
-                prefs.getOrDefault("tasteAcidity", "3"),
-                prefs.getOrDefault("tasteSweetness", "3"),
-                prefs.getOrDefault("tasteBitterness", "3"),
-                prefs.getOrDefault("tasteBody", "3"),
-                isEnglish, isEnglish, isEnglish
-            );
-
-            return geminiService.generateContent("gemini-2.5-flash", prompt, 0.7, "application/json", false)
-                    .map(this::cleanJsonText);
+            HybridCurationEngine.RecommendationResult result = hybridCurationEngine.calculateTop3Recommendations(prefs);
+            String json = objectMapper.writeValueAsString(result.getMatchRec());
+            return Mono.just(json);
         } catch (Exception e) {
             return Mono.error(e);
         }
@@ -618,10 +577,59 @@ public class AiService {
     }
 
     /**
-     * Gemini SSE stream proxy
+     * Gemini SSE stream proxy with 2-Tier Redis Caching & Accumulation
      */
     public Flux<String> streamCurationProxy(String rawRequestBody) {
-        return geminiService.streamCurationProxy("gemini-2.5-flash", rawRequestBody);
+        String cacheKey = null;
+        try {
+            JsonNode root = objectMapper.readTree(rawRequestBody);
+            JsonNode prefsNode = root.path("prefs");
+            if (!prefsNode.isMissingNode() && !prefsNode.isNull()) {
+                Map<String, Object> prefs = objectMapper.convertValue(prefsNode, Map.class);
+                String userAgeGroup = root.path("userAgeGroup").asText("Unknown");
+                String userGender = root.path("userGender").asText("Unknown");
+                String language = root.path("language").asText("ko");
+
+                cacheKey = curationCacheService.generateCurationKey(prefs, userAgeGroup, userGender, language);
+                Optional<String> cachedEssay = curationCacheService.getCurationEssayCache(cacheKey);
+
+                if (cachedEssay.isPresent()) {
+                    String escapedText = objectMapper.writeValueAsString(cachedEssay.get());
+                    String sseData = "data: {\"candidates\":[{\"content\":{\"parts\":[{\"text\":" + escapedText + "}]}}]}\n\n";
+                    return Flux.just(sseData);
+                }
+            }
+        } catch (Exception e) {
+            // Proceed to stream if parsing fails
+        }
+
+        final String finalCacheKey = cacheKey;
+        StringBuilder accumulated = new StringBuilder();
+
+        return geminiService.streamCurationProxy("gemini-2.5-flash", rawRequestBody)
+                .doOnNext(chunk -> {
+                    if (finalCacheKey != null && chunk != null && chunk.contains("candidates")) {
+                        try {
+                            String line = chunk.trim();
+                            if (line.startsWith("data:")) {
+                                String dataStr = line.substring(5).trim();
+                                JsonNode dataObj = objectMapper.readTree(dataStr);
+                                JsonNode parts = dataObj.path("candidates").get(0).path("content").path("parts");
+                                if (parts.isArray() && parts.size() > 0) {
+                                    String text = parts.get(0).path("text").asText();
+                                    if (text != null) {
+                                        accumulated.append(text);
+                                    }
+                                }
+                            }
+                        } catch (Exception ignored) {}
+                    }
+                })
+                .doOnComplete(() -> {
+                    if (finalCacheKey != null && accumulated.length() > 0) {
+                        curationCacheService.putCurationEssayCache(finalCacheKey, accumulated.toString(), 24);
+                    }
+                });
     }
 
     private String cleanJsonText(String text) {

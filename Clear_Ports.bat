@@ -20,10 +20,10 @@ taskkill /f /im nginx.exe >nul 2>&1
 echo 1.5. Cleaning up obsolete hosts file mapping (39.118.249.241)...
 powershell -NoProfile -Command "(Get-Content C:\Windows\System32\drivers\etc\hosts) | Where-Object {$_ -notmatch '39.118.249.241'} | Set-Content C:\Windows\System32\drivers\etc\hosts"
 
-echo 2. Restarting Nginx Service on standard ports (80 / 443)...
-net stop nginx >nul 2>&1
-timeout /t 2 >nul
-net start nginx
+echo 2. Restarting Nginx Executable on standard ports (80 / 443)...
+taskkill /f /im nginx.exe >nul 2>&1
+timeout /t 1 >nul
+start "" "C:\nginx-1.26.3\nginx.exe" -c "c:\Coffee_Dev\beanmind\nginx.conf"
 
 echo.
 echo 3. Configuring Windows Firewall for Ports 3001, 3005, 3002, 3307, 80, 443...

@@ -12,6 +12,12 @@ spring:
     password: rootpassword
     driver-class-name: com.mysql.cj.jdbc.Driver
   
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 3000ms
+  
   mail:
     host: smtp.gmail.com
     port: 587
