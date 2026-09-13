@@ -386,6 +386,24 @@ export default function HomeDashboard() {
   }, []);
 
 
+  const safeFetchJson = async (url: string, options: any = {}, retries = 1, timeoutMs = 12000): Promise<any> => {
+      for (let i = 0; i <= retries; i++) {
+          try {
+              const controller = new AbortController();
+              const timer = setTimeout(() => controller.abort(), timeoutMs);
+              const res = await fetch(url, { ...options, signal: controller.signal });
+              clearTimeout(timer);
+              if (res.ok) {
+                  return await res.json();
+              }
+          } catch (err) {
+              if (i === retries) throw err;
+              await new Promise(r => setTimeout(r, 400));
+          }
+      }
+      return null;
+  };
+
   const fetchHomeData = async (silent = false) => {
     if (!silent && !globalHomeCache) setIsLoading(true);
     const headers: any = {};
@@ -435,8 +453,7 @@ export default function HomeDashboard() {
       }
 
       // 2. Fetch Shorts independently
-      fetch(`${API_BASE}/api/community/posts?filter=shorts&countryCode=${countryCode}`, { headers })
-        .then(r => r.ok ? r.json() : [])
+      safeFetchJson(`${API_BASE}/api/community/posts?filter=shorts&countryCode=${countryCode}`, { headers })
         .then(shortsData => {
             const newShorts = (shortsData || []).slice(0, 10);
             setShorts(newShorts);
@@ -446,8 +463,7 @@ export default function HomeDashboard() {
         });
 
       // 3. Fetch Trending independently
-      fetch(`${API_BASE}/api/shops/trending?countryCode=${countryCode}`, { headers })
-        .then(r => r.ok ? r.json() : [])
+      safeFetchJson(`${API_BASE}/api/shops/trending?countryCode=${countryCode}`, { headers })
         .then(trendingData => {
             const newPilgrimageFeeds = trendingData || [];
             setPilgrimageFeeds(newPilgrimageFeeds);
@@ -462,8 +478,7 @@ export default function HomeDashboard() {
 
       const processLocationDependentData = (lat: string, lng: string) => {
           // Clubs
-          fetch(`${API_BASE}/api/clubs?countryCode=${countryCode}`, { headers })
-            .then(r => r.ok ? r.json() : { all: [] })
+          safeFetchJson(`${API_BASE}/api/clubs?countryCode=${countryCode}`, { headers })
             .then(clubsData => {
                 if (clubsData && clubsData.all) {
                     let sortedClubs = [...clubsData.all];
@@ -522,13 +537,7 @@ export default function HomeDashboard() {
           // Personalized Data (Now supports guests via optionalAuth)
           const qsBase = `countryCode=${countryCode}`;
           const qs = lat ? `?lat=${lat}&lng=${lng}&${qsBase}` : `?${qsBase}`;
-          fetch(`${API_BASE}/api/home/personalized${qs}&_t=${Date.now()}`, { headers, cache: 'no-store' })
-            .then(async r => {
-                if (!r.ok) {
-                    return null;
-                }
-                return r.json();
-            })
+          safeFetchJson(`${API_BASE}/api/home/personalized${qs}&_t=${Date.now()}`, { headers, cache: 'no-store' })
             .then(pData => {
                 if (pData) {
                     setPersonalizedData(pData);
