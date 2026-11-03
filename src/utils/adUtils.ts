@@ -10,32 +10,51 @@
  * @param currentLang The current language code (e.g. 'ko', 'en')
  * @returns Localized string
  */
-export const getLocalizedAdText = (rawText: string | null | undefined, currentLang: string): string => {
+export const getLocalizedAdText = (rawText: any, currentLang: string): string => {
     if (!rawText) return '';
     
     try {
-        // Try to parse it as JSON
-        const parsed = JSON.parse(rawText);
+        let parsed: any = rawText;
+        if (typeof rawText === 'string') {
+            try {
+                parsed = JSON.parse(rawText);
+                // Handle double-stringified JSON if any
+                if (typeof parsed === 'string') {
+                    try { parsed = JSON.parse(parsed); } catch (e) {}
+                }
+            } catch (e) {
+                return rawText;
+            }
+        }
         
         // If it's an object with language keys
         if (typeof parsed === 'object' && parsed !== null) {
-            // 1. Try exact language match
-            if (parsed[currentLang]) {
-                return parsed[currentLang];
+            const cleanLang = (currentLang || 'ko').toLowerCase();
+            const baseLang = cleanLang.split(/[-_]/)[0];
+
+            // 1. Try exact match (e.g. 'ko-KR' or 'ko')
+            if (parsed[cleanLang]) {
+                return parsed[cleanLang];
             }
-            // 2. Try English fallback
+            // 2. Try base language match (e.g. 'ko' from 'ko-KR')
+            if (parsed[baseLang]) {
+                return parsed[baseLang];
+            }
+            // 3. Fallback to Korean if available
+            if (parsed['ko']) {
+                return parsed['ko'];
+            }
+            // 4. Try English fallback
             if (parsed['en']) {
                 return parsed['en'];
             }
-            // 3. Just return the first available value
+            // 5. Just return the first available value
             const firstKey = Object.keys(parsed)[0];
             return firstKey ? parsed[firstKey] : '';
         }
     } catch (e) {
-        // If it's not valid JSON, it means it's a legacy plain string.
-        // Return it as is.
-        return rawText;
+        return typeof rawText === 'string' ? rawText : '';
     }
     
-    return rawText;
+    return typeof rawText === 'string' ? rawText : '';
 };

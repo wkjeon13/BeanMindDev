@@ -93,10 +93,55 @@ export const FeedAdCard: React.FC<FeedAdCardProps> = ({ adData }) => {
     const safeHtmlContent = isHtmlAd ? processHtmlUrls(adData.content) : '';
     const imageUrl = !isHtmlAd ? (adData.content?.startsWith('/') ? `${API_BASE}${adData.content}` : adData.content) : '';
 
+    const handleAdClick = async (e: React.MouseEvent) => {
+        if (!adData.linkUrl) return;
+        e.preventDefault();
+        e.stopPropagation();
+
+        // 1. Asynchronously record ad click
+        fetch(`${API_BASE}/api/ads/track`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+            },
+            body: JSON.stringify({
+                creativeId: adData.id,
+                actionType: 'CLICK'
+            })
+        }).catch(err => console.error('Failed to track click', err));
+
+        // 2. Normalize destination URL
+        let targetUrl = adData.linkUrl.trim();
+        if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
+            targetUrl = `https://${targetUrl}`;
+        }
+
+        // 3. Open in external browser for both Native (Capacitor) and Web
+        const isNative = typeof (window as any).Capacitor !== 'undefined' && 
+                         typeof (window as any).Capacitor.isNativePlatform === 'function' && 
+                         (window as any).Capacitor.isNativePlatform();
+
+        if (isNative) {
+            try {
+                const { Browser } = await import('@capacitor/browser');
+                await Browser.open({ url: targetUrl });
+            } catch (err) {
+                window.open(targetUrl, '_system');
+            }
+        } else {
+            window.open(targetUrl, '_blank', 'noopener,noreferrer');
+        }
+    };
+
     return (
-        <div ref={containerRef} className="bg-espresso-900 rounded-2xl border border-espresso-800 shadow-sm relative overflow-hidden group cursor-pointer hover:border-amber-500/50 transition-colors p-0">
+        <div 
+            ref={containerRef} 
+            onClick={handleAdClick}
+            className="bg-espresso-900 rounded-2xl border border-espresso-800 shadow-sm relative overflow-hidden group cursor-pointer hover:border-amber-500/50 transition-colors p-0 select-none"
+        >
             {/* Sponsor Label */}
-            <div className="absolute top-0 right-0 bg-espresso-800/80 backdrop-blur text-espresso-400 text-[10px] font-bold px-2 py-1 rounded-bl-lg flex items-center gap-1 z-10">
+            <div className="absolute top-0 right-0 bg-espresso-800/80 backdrop-blur text-espresso-400 text-[10px] font-bold px-2 py-1 rounded-bl-lg flex items-center gap-1 z-30 pointer-events-none">
                 <Info size={10} /> Sponsored
             </div>
 
@@ -112,7 +157,7 @@ export const FeedAdCard: React.FC<FeedAdCardProps> = ({ adData }) => {
                         <iframe
                             srcDoc={safeHtmlContent}
                             sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
-                            className="w-full h-full border-0 overflow-hidden"
+                            className="w-full h-full border-0 overflow-hidden pointer-events-none"
                             scrolling="no"
                             title="Ad Content"
                         />
@@ -120,76 +165,56 @@ export const FeedAdCard: React.FC<FeedAdCardProps> = ({ adData }) => {
                         <>
                             <MediaRenderer 
                                 src={imageUrl || 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&q=80&w=800'} 
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 relative z-30"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 relative z-10"
                                 autoPlay={true}
                                 disablePauseOnClick={true}
-                                onClick={() => {
-                                    if (adData.linkUrl) {
-                                        fetch(`${API_BASE}/api/ads/track`, {
-                                            method: 'POST',
-                                            headers: {
-                                                'Content-Type': 'application/json',
-                                                'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
-                                            },
-                                            body: JSON.stringify({
-                                                creativeId: adData.id,
-                                                actionType: 'CLICK'
-                                            })
-                                        }).catch(e => console.error('Failed to track click', e));
-                                        window.open(adData.linkUrl, '_blank', 'noopener,noreferrer');
-                                    }
-                                }}
                             />
-                            {adData.overlayText && (
-                                <div className={`absolute inset-0 flex ${adSize === 'SMALL' ? 'p-3' : 'p-5'} bg-black/20 ${getOverlayPositionClasses(adData.overlayPosition, adSize)}`}>
-                                    <span 
-                                        className="font-bold drop-shadow-md whitespace-pre-wrap leading-snug"
-                                        style={{
-                                            fontSize: `${getResponsiveFontSize(adData.overlayFontSize && !isNaN(Number(adData.overlayFontSize)) ? Number(adData.overlayFontSize) : 20, adSize)}px`,
-                                            color: adData.overlayColor || '#FFFFFF'
-                                        }}
+                            {adData.overlayText && (() => {
+                                let displayText = getLocalizedAdText(adData.overlayText, i18n.language);
+                                if (!displayText && typeof adData.overlayText === 'string') {
+                                    try {
+                                        const p = JSON.parse(adData.overlayText);
+                                        displayText = p.ko || p.en || Object.values(p)[0] as string || '';
+                                    } catch (e) {
+                                        displayText = adData.overlayText;
+                                    }
+                                }
+                                if (!displayText) return null;
+
+                                const rawSize = Number(adData.overlayFontSize);
+                                const baseFontSize = !isNaN(rawSize) && rawSize > 0 ? rawSize : 24;
+                                const calculatedFontSize = Math.max(16, getResponsiveFontSize(baseFontSize, adSize));
+
+                                return (
+                                    <div 
+                                        className={`absolute inset-0 flex pointer-events-none ${adSize === 'SMALL' ? 'p-3' : 'p-5'} bg-black/20 ${getOverlayPositionClasses(adData.overlayPosition, adSize)}`}
+                                        style={{ zIndex: 50 }}
                                     >
-                                        {getLocalizedAdText(adData.overlayText, i18n.language)}
-                                    </span>
-                                </div>
-                            )}
+                                        <span 
+                                            className="font-black whitespace-pre-wrap leading-snug"
+                                            style={{
+                                                fontSize: `${calculatedFontSize}px`,
+                                                color: adData.overlayColor || '#FFFFFF',
+                                                textShadow: '0 2px 8px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,1)'
+                                            }}
+                                        >
+                                            {displayText}
+                                        </span>
+                                    </div>
+                                );
+                            })()}
                         </>
                     )}
                     
                     {/* Learn More Overlay for ALL ads */}
                     {adData.linkUrl && (
-                        <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 text-[10px] font-bold text-amber-500 border border-amber-500/20 shadow-md pointer-events-none">
+                        <div className="absolute bottom-2 right-2 z-30 bg-black/60 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1 text-[10px] font-bold text-amber-500 border border-amber-500/20 shadow-md pointer-events-none">
                             <span>Learn More</span>
                             <ExternalLink size={10} />
                         </div>
                     )}
                 </div>
             </div>
-            
-            {adData.linkUrl && (
-                <a 
-                    href={adData.linkUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="absolute inset-0 z-40"
-                    aria-label="Visit Sponsor"
-                    onClick={() => {
-                        fetch(`${API_BASE}/api/ads/track`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('token')}`
-                            },
-                            body: JSON.stringify({
-                                creativeId: adData.id,
-                                actionType: 'CLICK'
-                            })
-                        }).catch(e => console.error('Failed to track click', e));
-                    }}
-                >
-                    <span className="sr-only">Visit Sponsor</span>
-                </a>
-            )}
         </div>
     );
 };

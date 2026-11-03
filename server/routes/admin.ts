@@ -453,30 +453,71 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
     fileFilter: (req: any, file: any, cb: any) => {
-        const allowedTypes = /jpeg|jpg|png|webp|gif|mp4|mov|webm/i;
-        const isValid = allowedTypes.test(file.originalname) && allowedTypes.test(file.mimetype);
-        if (isValid) cb(null, true);
-        else cb(new Error('Invalid file type. Only images and videos are allowed.'));
+        const ext = path.extname(file.originalname || '').toLowerCase().replace('.', '');
+        const allowedExts = /^(jpe?g|png|webp|gif|svg|avif|heic|heif|bmp|jfif|mp4|mov|webm|mkv|avi|m4v|3gp)$/i;
+        const isExtValid = allowedExts.test(ext);
+        const mime = (file.mimetype || '').toLowerCase();
+        const isMimeValid = mime.startsWith('image/') || 
+                            mime.startsWith('video/') || 
+                            mime === 'application/octet-stream' || 
+                            mime === 'video/quicktime' ||
+                            mime === 'image/svg+xml';
+
+        if (isExtValid || isMimeValid) {
+            cb(null, true);
+        } else {
+            console.warn(`[Admin Upload] Rejected file: originalname="${file.originalname}", mimetype="${file.mimetype}", ext="${ext}"`);
+            cb(new Error(`Invalid file type (${file.mimetype || 'unknown'}, .${ext}). Only images and videos are allowed.`));
+        }
     }
 });
 
-router.post('/upload-ad-media', upload.single('media'), async (req: any, res: any) => {
+// Helper middleware to handle upload errors gracefully
+const uploadAdMediaMiddleware = (req: any, res: any, next: any) => {
+    upload.single('media')(req, res, (err: any) => {
+        if (err instanceof multer.MulterError) {
+            console.error('[Admin Upload] Multer Error:', err);
+            return res.status(400).json({ error: `파일 업로드 오류: ${err.message}` });
+        } else if (err) {
+            console.error('[Admin Upload] FileFilter Error:', err.message);
+            return res.status(400).json({ error: err.message || '지원하지 않는 파일 형식입니다.' });
+        }
+        next();
+    });
+};
+
+const uploadImageMiddleware = (req: any, res: any, next: any) => {
+    upload.single('image')(req, res, (err: any) => {
+        if (err instanceof multer.MulterError) {
+            console.error('[Admin Upload] Multer Error:', err);
+            return res.status(400).json({ error: `파일 업로드 오류: ${err.message}` });
+        } else if (err) {
+            console.error('[Admin Upload] FileFilter Error:', err.message);
+            return res.status(400).json({ error: err.message || '지원하지 않는 파일 형식입니다.' });
+        }
+        next();
+    });
+};
+
+router.post('/upload-ad-media', uploadAdMediaMiddleware, async (req: any, res: any) => {
     try {
         if (!req.file) return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
         const mediaUrl = `/uploads/ads/${req.file.filename}`;
         res.status(200).json({ url: mediaUrl });
     } catch (error) {
+        console.error('[Admin Upload] Route handler error:', error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
     }
 });
 
 // Generic upload endpoint for Pairings and other settings
-router.post('/upload', upload.single('image'), async (req: any, res: any) => {
+router.post('/upload', uploadImageMiddleware, async (req: any, res: any) => {
     try {
         if (!req.file) return res.status(400).json({ error: ERROR_CODES.MISSING_REQUIRED_FIELDS });
         const mediaUrl = `/uploads/ads/${req.file.filename}`;
         res.status(200).json({ url: mediaUrl });
     } catch (error) {
+        console.error('[Admin Upload] Route handler error:', error);
         res.status(500).json({ error: ERROR_CODES.INTERNAL_SERVER_ERROR });
     }
 });

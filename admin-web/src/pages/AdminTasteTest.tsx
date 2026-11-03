@@ -92,11 +92,12 @@ export default function AdminTasteTest({ isEmbedded = false }: { isEmbedded?: bo
         const data = await res.json();
         setEditImageUrl(data.url);
       } else {
-        alert('이미지 업로드에 실패했습니다.');
+        const errData = await res.json().catch(() => ({}));
+        alert(errData.error || '이미지 업로드에 실패했습니다.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert('업로드 중 오류가 발생했습니다.');
+      alert(`업로드 중 오류가 발생했습니다: ${err.message || '서버 오류'}`);
     } finally {
       setIsUploading(false);
     }

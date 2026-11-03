@@ -19,6 +19,7 @@ export const isMobileOrTablet = (): boolean => {
 
     // 개발자 도구의 기기 에뮬레이션 대응 및 기기 감지 예외 방지를 위해 화면 가로폭이 1024px 이하인 경우도 허용
     const isSmallScreen = window.innerWidth <= 1024;
+    const isDevPreview = typeof window !== 'undefined' && (window.location.search.includes('preview=1') || window.location.search.includes('dev=1'));
 
-    return mobileRegex.test(userAgent) || isIPadOS || isSmallScreen;
+    return mobileRegex.test(userAgent) || isIPadOS || isSmallScreen || isDevPreview;
 };

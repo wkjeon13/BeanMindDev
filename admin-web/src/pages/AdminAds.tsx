@@ -645,10 +645,11 @@ export default function AdminAds() {
                                                                 const data = await res.json();
                                                                 setFormData({...formData, content: data.url});
                                                             } else {
-                                                                alert('업로드 실패');
+                                                                const errData = await res.json().catch(() => ({}));
+                                                                alert(errData.error || '업로드 실패');
                                                             }
-                                                        } catch (err) {
-                                                            alert('업로드 에러 발생');
+                                                        } catch (err: any) {
+                                                            alert(`업로드 에러 발생: ${err.message || '서버 연결 실패'}`);
                                                         }
                                                     }} />
                                                 </label>

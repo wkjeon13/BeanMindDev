@@ -310,7 +310,7 @@ const AdminHomeCampaigns = () => {
       } catch (err) {
         setError('Network error');
       } finally {
-        setConfig(prev => {
+        setConfig((prev: any) => {
           if (prev && !prev.HOME_QUIZ) {
             return { ...prev, HOME_QUIZ: { isActive: true, startTime: '', endTime: '' } };
           }
@@ -378,10 +378,11 @@ const AdminHomeCampaigns = () => {
         const data = await res.json();
         handleChange(section, field, data.url);
       } else {
-        alert('Image upload failed');
+        const errData = await res.json().catch(() => ({}));
+        alert(errData.error || 'Image upload failed');
       }
-    } catch (err) {
-      alert('Upload error');
+    } catch (err: any) {
+      alert(`Upload error: ${err.message || '서버 오류'}`);
     } finally {
       setUploading({ ...uploading, [section]: false });
     }

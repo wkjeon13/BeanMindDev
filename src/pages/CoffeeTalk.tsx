@@ -422,10 +422,14 @@ export default function CoffeeTalk() {
     const { t, i18n } = useTranslation(['translation']);
     const navigate = useNavigate();
     const location = useLocation();
-    const [isMobileDevice, setIsMobileDevice] = useState<boolean>(true);
+    const [isMobileDevice, setIsMobileDevice] = useState<boolean>(() => isMobileOrTablet());
 
     useEffect(() => {
-        setIsMobileDevice(isMobileOrTablet());
+        const handleResize = () => {
+            setIsMobileDevice(isMobileOrTablet());
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     const [showSmartBanner, setShowSmartBanner] = useState<boolean>(false);

@@ -108,10 +108,22 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 100 * 1024 * 1024 }, // 100MB limit for Shorts/ASMR
     fileFilter: (req: any, file: any, cb: any) => {
-        const allowedTypes = /jpeg|jpg|png|webp|gif|mp4|mov|webm/i;
-        const isValid = allowedTypes.test(file.originalname) && allowedTypes.test(file.mimetype);
-        if (isValid) cb(null, true);
-        else cb(new Error('Invalid file type. Only images and videos are allowed.'));
+        const ext = path.extname(file.originalname || '').toLowerCase().replace('.', '');
+        const allowedExts = /^(jpe?g|png|webp|gif|svg|avif|heic|heif|bmp|jfif|mp4|mov|webm|mkv|avi|m4v|3gp)$/i;
+        const isExtValid = allowedExts.test(ext);
+        const mime = (file.mimetype || '').toLowerCase();
+        const isMimeValid = mime.startsWith('image/') || 
+                            mime.startsWith('video/') || 
+                            mime === 'application/octet-stream' || 
+                            mime === 'video/quicktime' ||
+                            mime === 'image/svg+xml';
+
+        if (isExtValid || isMimeValid) {
+            cb(null, true);
+        } else {
+            console.warn(`[Community Upload] Rejected file: originalname="${file.originalname}", mimetype="${file.mimetype}", ext="${ext}"`);
+            cb(new Error(`Invalid file type (${file.mimetype || 'unknown'}, .${ext}). Only images and videos are allowed.`));
+        }
     }
 });
 

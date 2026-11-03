@@ -36,10 +36,20 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 50 * 1024 * 1024 }, // 50MB limit
     fileFilter: (req: any, file: any, cb: any) => {
-        const allowedTypes = /jpeg|jpg|png|webp|gif/i;
-        const isValid = allowedTypes.test(file.originalname) && allowedTypes.test(file.mimetype);
-        if (isValid) cb(null, true);
-        else cb(new Error('Invalid file type. Only images are allowed.'));
+        const ext = path.extname(file.originalname || '').toLowerCase().replace('.', '');
+        const allowedExts = /^(jpe?g|png|webp|gif|svg|avif|heic|heif|bmp|jfif)$/i;
+        const isExtValid = allowedExts.test(ext);
+        const mime = (file.mimetype || '').toLowerCase();
+        const isMimeValid = mime.startsWith('image/') || 
+                            mime === 'application/octet-stream' || 
+                            mime === 'image/svg+xml';
+
+        if (isExtValid || isMimeValid) {
+            cb(null, true);
+        } else {
+            console.warn(`[Users Upload] Rejected file: originalname="${file.originalname}", mimetype="${file.mimetype}", ext="${ext}"`);
+            cb(new Error(`Invalid file type (${file.mimetype || 'unknown'}, .${ext}). Only images are allowed.`));
+        }
     }
 });
 
