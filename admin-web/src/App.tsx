@@ -18,7 +18,8 @@ import AdminAccessLogs from './pages/AdminAccessLogs';
 import AdminCompliance from './pages/AdminCompliance';
 import AdminBgm from './pages/AdminBgm';
 import AdminTasteTest from './pages/AdminTasteTest';
-import { Settings, Users, Store, Coffee, Shield, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut, Layout, Image as ImageIcon, Zap, Coins, Activity, Music, FileText } from 'lucide-react';
+import AdminAgent from './pages/AdminAgent';
+import { Settings, Users, Store, Coffee, Shield, ShieldAlert, LayoutDashboard, Megaphone, Target, LogOut, Layout, Image as ImageIcon, Zap, Coins, Activity, Music, FileText, Bot } from 'lucide-react';
 
 const Sidebar = () => {
   const handleLogout = () => {
@@ -35,6 +36,9 @@ const Sidebar = () => {
       <nav className="flex-1 px-4 space-y-2">
         <Link to="/" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors">
           <LayoutDashboard className="w-5 h-5 mr-3" /> Dashboard
+        </Link>
+        <Link to="/agent" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors text-amber-400 font-bold bg-amber-950/30 border border-amber-800/40">
+          <Bot className="w-5 h-5 mr-3 text-amber-400" /> AI Agent
         </Link>
         <Link to="/users" className="flex items-center p-3 rounded-lg hover:bg-gray-800 transition-colors">
           <Users className="w-5 h-5 mr-3" /> Users
@@ -114,6 +118,7 @@ function App() {
               <main className="flex-1 p-8 overflow-y-auto">
                 <Routes>
                   <Route path="/" element={<AdminDashboard />} />
+                  <Route path="/agent" element={<AdminAgent />} />
                   <Route path="/users" element={<AdminUsers />} />
                   <Route path="/shops" element={<AdminShops />} />
                   <Route path="/templates" element={<AdminTemplates />} />
